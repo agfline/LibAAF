@@ -1,0 +1,51 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#include "../LibAAF/libAAF.h"
+
+
+
+
+int main( int argc, char *argv[] )
+{
+	if ( argc < 2 )
+	{
+		return 1;
+	}
+
+
+	AAF_Data *aafd = aaf_alloc();
+
+	if ( aaf_load_file( aafd, argv[argc-1] ) )
+	{
+		return 1;
+	}
+
+
+	AAF_Iface *aafi = init_AAFIface( aafd );
+
+
+	retrieveEssences( aafi );
+
+	retrieveClips( aafi );
+
+
+	aafiAudioEssence *ae = NULL;
+
+	uint32_t i = 0;
+
+	foreachAudioEssence( ae, aafi->Audio->Essences )
+	{
+		char file[255];
+
+		snprintf( file, 255, "./aaf_audio_%d", i++ );
+
+		extractAudioEssence( aafd, ae, file );
+	}
+
+	aaf_release( &aafd );
+
+	return 0;
+}

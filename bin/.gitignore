@@ -1,0 +1,8 @@
+/AAF2Ardour
+/AAFExtract
+/AAFInfo
+/Ardour/session/Ardour.ardour
+/Ardour/session/interchange/testF3/audiofiles/*
+/Ardour/session/peaks/*
+
+!.gitignore

@@ -1,0 +1,27 @@
+
+TODO :
+======
+
+	* libwave
+	* libaifc
+
+TEST :
+======
+
+	* AAF with per track Gain
+	* AAF with per track PAN
+	* AAF with per track Gain + PAN
+
+	* AAF with per track variable Gain
+	* AAF with per track variable PAN
+
+	* AAF with stereo track and gain applied (SteroAudioGain ?) + xfade (stereoAudioDissolve ?)
+	* AAF with TwoParametersAudioDissolve
+
+	* AAF with per-clip fx (eq, comp) -> how is it represented ?
+	* Mixdown ?
+
+
+	* Small composition, one clip ( ~3*512kB ), no EditProtocol.
+	  -> multiple EssenceData nodes ?
+

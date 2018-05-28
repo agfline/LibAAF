@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<UndoHistory>
+  <UndoTransaction tv-sec="1508113653" tv-usec="462784" name="add marker">
+    <MementoCommand obj-id="34" type-name="ARDOUR::Locations">
+      <Locations>
+        <Location id="20182" name="session" start="172800000" end="179857919" flags="IsSessionRange" locked="1" position-lock-style="AudioTime"/>
+      </Locations>
+      <Locations>
+        <Location id="20182" name="session" start="172800000" end="179857919" flags="IsSessionRange" locked="1" position-lock-style="AudioTime"/>
+        <Location id="20157" name="mark1" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+      </Locations>
+    </MementoCommand>
+    <MementoCommand obj-id="42" type-name="SelectionMemento">
+      <SelectionMemento mouse-mode="MouseTimeFX" zoom="1078" left-frame="172499642" y-origin="0">
+        <Selection>
+          <Regions>
+            <Region id="63015"/>
+          </Regions>
+        </Selection>
+      </SelectionMemento>
+      <SelectionMemento mouse-mode="MouseTimeFX" zoom="1078" left-frame="172499642" y-origin="0">
+        <Selection>
+          <Regions>
+            <Region id="63015"/>
+          </Regions>
+          <Marker id="20157" start="1"/>
+        </Selection>
+      </SelectionMemento>
+    </MementoCommand>
+  </UndoTransaction>
+  <UndoTransaction tv-sec="1508113653" tv-usec="854268" name="add marker">
+    <MementoCommand obj-id="34" type-name="ARDOUR::Locations">
+      <Locations>
+        <Location id="20182" name="session" start="172800000" end="179857919" flags="IsSessionRange" locked="1" position-lock-style="AudioTime"/>
+        <Location id="20157" name="mark1" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+      </Locations>
+      <Locations>
+        <Location id="20182" name="session" start="172800000" end="179857919" flags="IsSessionRange" locked="1" position-lock-style="AudioTime"/>
+        <Location id="20157" name="mark1" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20161" name="mark2" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+      </Locations>
+    </MementoCommand>
+    <MementoCommand obj-id="42" type-name="SelectionMemento">
+      <SelectionMemento mouse-mode="MouseTimeFX" zoom="1078" left-frame="172499642" y-origin="0">
+        <Selection>
+          <Regions>
+            <Region id="63015"/>
+          </Regions>
+          <Marker id="20157" start="1"/>
+        </Selection>
+      </SelectionMemento>
+      <SelectionMemento mouse-mode="MouseTimeFX" zoom="1078" left-frame="172499642" y-origin="0">
+        <Selection>
+          <Regions>
+            <Region id="63015"/>
+          </Regions>
+          <Marker id="20161" start="1"/>
+        </Selection>
+      </SelectionMemento>
+    </MementoCommand>
+  </UndoTransaction>
+  <UndoTransaction tv-sec="1508113654" tv-usec="70061" name="add marker">
+    <MementoCommand obj-id="34" type-name="ARDOUR::Locations">
+      <Locations>
+        <Location id="20182" name="session" start="172800000" end="179857919" flags="IsSessionRange" locked="1" position-lock-style="AudioTime"/>
+        <Location id="20157" name="mark1" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20161" name="mark2" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+      </Locations>
+      <Locations>
+        <Location id="20182" name="session" start="172800000" end="179857919" flags="IsSessionRange" locked="1" position-lock-style="AudioTime"/>
+        <Location id="20157" name="mark1" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20161" name="mark2" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20165" name="mark3" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+      </Locations>
+    </MementoCommand>
+    <MementoCommand obj-id="42" type-name="SelectionMemento">
+      <SelectionMemento mouse-mode="MouseTimeFX" zoom="1078" left-frame="172499642" y-origin="0">
+        <Selection>
+          <Regions>
+            <Region id="63015"/>
+          </Regions>
+          <Marker id="20161" start="1"/>
+        </Selection>
+      </SelectionMemento>
+      <SelectionMemento mouse-mode="MouseTimeFX" zoom="1078" left-frame="172499642" y-origin="0">
+        <Selection>
+          <Regions>
+            <Region id="63015"/>
+          </Regions>
+          <Marker id="20165" start="1"/>
+        </Selection>
+      </SelectionMemento>
+    </MementoCommand>
+  </UndoTransaction>
+  <UndoTransaction tv-sec="1508113654" tv-usec="286056" name="add marker">
+    <MementoCommand obj-id="34" type-name="ARDOUR::Locations">
+      <Locations>
+        <Location id="20182" name="session" start="172800000" end="179857919" flags="IsSessionRange" locked="1" position-lock-style="AudioTime"/>
+        <Location id="20157" name="mark1" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20161" name="mark2" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20165" name="mark3" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+      </Locations>
+      <Locations>
+        <Location id="20182" name="session" start="172800000" end="179857919" flags="IsSessionRange" locked="1" position-lock-style="AudioTime"/>
+        <Location id="20157" name="mark1" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20161" name="mark2" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20165" name="mark3" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20169" name="mark4" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+      </Locations>
+    </MementoCommand>
+    <MementoCommand obj-id="42" type-name="SelectionMemento">
+      <SelectionMemento mouse-mode="MouseTimeFX" zoom="1078" left-frame="172499642" y-origin="0">
+        <Selection>
+          <Regions>
+            <Region id="63015"/>
+          </Regions>
+          <Marker id="20165" start="1"/>
+        </Selection>
+      </SelectionMemento>
+      <SelectionMemento mouse-mode="MouseTimeFX" zoom="1078" left-frame="172499642" y-origin="0">
+        <Selection>
+          <Regions>
+            <Region id="63015"/>
+          </Regions>
+          <Marker id="20169" start="1"/>
+        </Selection>
+      </SelectionMemento>
+    </MementoCommand>
+  </UndoTransaction>
+  <UndoTransaction tv-sec="1508113654" tv-usec="502153" name="add marker">
+    <MementoCommand obj-id="34" type-name="ARDOUR::Locations">
+      <Locations>
+        <Location id="20182" name="session" start="172800000" end="179857919" flags="IsSessionRange" locked="1" position-lock-style="AudioTime"/>
+        <Location id="20157" name="mark1" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20161" name="mark2" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20165" name="mark3" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20169" name="mark4" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+      </Locations>
+      <Locations>
+        <Location id="20182" name="session" start="172800000" end="179857919" flags="IsSessionRange" locked="1" position-lock-style="AudioTime"/>
+        <Location id="20157" name="mark1" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20161" name="mark2" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20165" name="mark3" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20169" name="mark4" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20173" name="mark5" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+      </Locations>
+    </MementoCommand>
+    <MementoCommand obj-id="42" type-name="SelectionMemento">
+      <SelectionMemento mouse-mode="MouseTimeFX" zoom="1078" left-frame="172499642" y-origin="0">
+        <Selection>
+          <Regions>
+            <Region id="63015"/>
+          </Regions>
+          <Marker id="20169" start="1"/>
+        </Selection>
+      </SelectionMemento>
+      <SelectionMemento mouse-mode="MouseTimeFX" zoom="1078" left-frame="172499642" y-origin="0">
+        <Selection>
+          <Regions>
+            <Region id="63015"/>
+          </Regions>
+          <Marker id="20173" start="1"/>
+        </Selection>
+      </SelectionMemento>
+    </MementoCommand>
+  </UndoTransaction>
+  <UndoTransaction tv-sec="1508113654" tv-usec="696611" name="add marker">
+    <MementoCommand obj-id="34" type-name="ARDOUR::Locations">
+      <Locations>
+        <Location id="20182" name="session" start="172800000" end="179857919" flags="IsSessionRange" locked="1" position-lock-style="AudioTime"/>
+        <Location id="20157" name="mark1" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20161" name="mark2" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20165" name="mark3" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20169" name="mark4" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20173" name="mark5" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+      </Locations>
+      <Locations>
+        <Location id="20182" name="session" start="172800000" end="179857919" flags="IsSessionRange" locked="1" position-lock-style="AudioTime"/>
+        <Location id="20157" name="mark1" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20161" name="mark2" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20165" name="mark3" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20169" name="mark4" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20173" name="mark5" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20177" name="mark6" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+      </Locations>
+    </MementoCommand>
+    <MementoCommand obj-id="42" type-name="SelectionMemento">
+      <SelectionMemento mouse-mode="MouseTimeFX" zoom="1078" left-frame="172499642" y-origin="0">
+        <Selection>
+          <Regions>
+            <Region id="63015"/>
+          </Regions>
+          <Marker id="20173" start="1"/>
+        </Selection>
+      </SelectionMemento>
+      <SelectionMemento mouse-mode="MouseTimeFX" zoom="1078" left-frame="172499642" y-origin="0">
+        <Selection>
+          <Regions>
+            <Region id="63015"/>
+          </Regions>
+          <Marker id="20177" start="1"/>
+        </Selection>
+      </SelectionMemento>
+    </MementoCommand>
+  </UndoTransaction>
+  <UndoTransaction tv-sec="1508113654" tv-usec="878251" name="add marker">
+    <MementoCommand obj-id="34" type-name="ARDOUR::Locations">
+      <Locations>
+        <Location id="20182" name="session" start="172800000" end="179857919" flags="IsSessionRange" locked="1" position-lock-style="AudioTime"/>
+        <Location id="20157" name="mark1" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20161" name="mark2" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20165" name="mark3" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20169" name="mark4" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20173" name="mark5" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20177" name="mark6" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+      </Locations>
+      <Locations>
+        <Location id="20182" name="session" start="172800000" end="179857919" flags="IsSessionRange" locked="1" position-lock-style="AudioTime"/>
+        <Location id="20157" name="mark1" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20161" name="mark2" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20165" name="mark3" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20169" name="mark4" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20173" name="mark5" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20177" name="mark6" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20181" name="mark7" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+      </Locations>
+    </MementoCommand>
+    <MementoCommand obj-id="42" type-name="SelectionMemento">
+      <SelectionMemento mouse-mode="MouseTimeFX" zoom="1078" left-frame="172499642" y-origin="0">
+        <Selection>
+          <Regions>
+            <Region id="63015"/>
+          </Regions>
+          <Marker id="20177" start="1"/>
+        </Selection>
+      </SelectionMemento>
+      <SelectionMemento mouse-mode="MouseTimeFX" zoom="1078" left-frame="172499642" y-origin="0">
+        <Selection>
+          <Regions>
+            <Region id="63015"/>
+          </Regions>
+          <Marker id="20181" start="1"/>
+        </Selection>
+      </SelectionMemento>
+    </MementoCommand>
+  </UndoTransaction>
+  <UndoTransaction tv-sec="1508113655" tv-usec="78502" name="add marker">
+    <MementoCommand obj-id="34" type-name="ARDOUR::Locations">
+      <Locations>
+        <Location id="20182" name="session" start="172800000" end="179857919" flags="IsSessionRange" locked="1" position-lock-style="AudioTime"/>
+        <Location id="20157" name="mark1" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20161" name="mark2" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20165" name="mark3" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20169" name="mark4" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20173" name="mark5" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20177" name="mark6" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20181" name="mark7" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+      </Locations>
+      <Locations>
+        <Location id="20182" name="session" start="172800000" end="179857919" flags="IsSessionRange" locked="1" position-lock-style="AudioTime"/>
+        <Location id="20157" name="mark1" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20161" name="mark2" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20165" name="mark3" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20169" name="mark4" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20173" name="mark5" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20177" name="mark6" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20181" name="mark7" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20185" name="mark8" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+      </Locations>
+    </MementoCommand>
+    <MementoCommand obj-id="42" type-name="SelectionMemento">
+      <SelectionMemento mouse-mode="MouseTimeFX" zoom="1078" left-frame="172499642" y-origin="0">
+        <Selection>
+          <Regions>
+            <Region id="63015"/>
+          </Regions>
+          <Marker id="20181" start="1"/>
+        </Selection>
+      </SelectionMemento>
+      <SelectionMemento mouse-mode="MouseTimeFX" zoom="1078" left-frame="172499642" y-origin="0">
+        <Selection>
+          <Regions>
+            <Region id="63015"/>
+          </Regions>
+          <Marker id="20185" start="1"/>
+        </Selection>
+      </SelectionMemento>
+    </MementoCommand>
+  </UndoTransaction>
+  <UndoTransaction tv-sec="1508113655" tv-usec="286346" name="add marker">
+    <MementoCommand obj-id="34" type-name="ARDOUR::Locations">
+      <Locations>
+        <Location id="20182" name="session" start="172800000" end="179857919" flags="IsSessionRange" locked="1" position-lock-style="AudioTime"/>
+        <Location id="20157" name="mark1" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20161" name="mark2" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20165" name="mark3" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20169" name="mark4" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20173" name="mark5" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20177" name="mark6" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20181" name="mark7" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20185" name="mark8" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+      </Locations>
+      <Locations>
+        <Location id="20182" name="session" start="172800000" end="179857919" flags="IsSessionRange" locked="1" position-lock-style="AudioTime"/>
+        <Location id="20157" name="mark1" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20161" name="mark2" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20165" name="mark3" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20169" name="mark4" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20173" name="mark5" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20177" name="mark6" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20181" name="mark7" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20185" name="mark8" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+        <Location id="20189" name="mark9" start="179857919" end="179857919" flags="IsMark" locked="0" position-lock-style="AudioTime"/>
+      </Locations>
+    </MementoCommand>
+    <MementoCommand obj-id="42" type-name="SelectionMemento">
+      <SelectionMemento mouse-mode="MouseTimeFX" zoom="1078" left-frame="172499642" y-origin="0">
+        <Selection>
+          <Regions>
+            <Region id="63015"/>
+          </Regions>
+          <Marker id="20185" start="1"/>
+        </Selection>
+      </SelectionMemento>
+      <SelectionMemento mouse-mode="MouseTimeFX" zoom="1078" left-frame="172499642" y-origin="0">
+        <Selection>
+          <Regions>
+            <Region id="63015"/>
+          </Regions>
+          <Marker id="20189" start="1"/>
+        </Selection>
+      </SelectionMemento>
+    </MementoCommand>
+  </UndoTransaction>
+</UndoHistory>
