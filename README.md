@@ -1,4 +1,5 @@
-#LibAAF
+# LibAAF
+
 > *LibAAF is currently a work in progress and is far from beeing production ready.*
 
 
@@ -17,7 +18,7 @@ Although **AAFCore** should implement the AAF standard correctly, **AAFIface** c
 
 Finaly, LibAAF can only read files for now. In the end it should be able to write files too.
 
-##Tools
+## Tools
 
 There are three programs to help the developement and to provide library usage examples.
 
@@ -25,13 +26,13 @@ There are three programs to help the developement and to provide library usage e
 * **AAFExtract** : Allows to extract the essences contained in the AAF file.
 * **AAF2Ardour** : A very dirty proof of concept which allows to create an Ardour session from an AAF file.
 
-##Compile
+## Compile
 
 LibAAF makes use of no particular library. 
 
 You can just run `make`
 
-##Contribute
+## Contribute
 
 Since AAF was made to handle any data in any ways, sometimes even one single software outputs the same data differently on two exports. That's why there are a lot of AAF incompatibility between softwares and software versions.
 
