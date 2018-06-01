@@ -3,12 +3,9 @@
 #include <string.h>
 
 #include <math.h>
-
 #include <getopt.h>
 
 #include "../LibAAF/libAAF.h"
-
-#include "./Ardour/Ardour.h"
 
 
 #define ANSI_COLOR_RED     "\x1b[31m"
@@ -20,48 +17,9 @@
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
 
-/*
-#define foreach_audioTrack( audioTrack, aafi ) \
-	for ( audioTrack  = aafi->Audio->Tracks;    \
-	      audioTrack != NULL;                  \
-	      audioTrack  = audioTrack->next )     \
 
 
 
-#define foreach_audioItem( audioItem, audioTrack ) \
-	for ( audioItem  = audioTrack->Items;          \
-	      audioItem != NULL;                       \
-	      audioItem  = audioItem->next )           \
-
-
-
-
-#define eu2tc_h( audioClip, val ) \
-	(uint16_t)((val * (1 / rationalToFloat(audioClip->track->edit_rate))) / 3600)
-
-#define eu2tc_m( audioClip, val ) \
-	(uint16_t)((int64_t)(val * (1 / rationalToFloat(audioClip->track->edit_rate))) % 3600 / 60)
-
-#define eu2tc_s( audioClip, val ) \
-	(uint16_t)((int64_t)(val * (1 / rationalToFloat(audioClip->track->edit_rate))) % 3600 % 60)
-
-#define eu2tc_f( audioClip, val ) \
-	(uint16_t)((val) % (int64_t)((val) * (1 / rationalToFloat(audioClip->track->edit_rate))))
-
-
-
-
-#define foreachAudioEssence( ae, aeList ) \
-	for ( ae = aeList; ae != NULL; ae = ae->next )
-
-#define foreachAudioClip( ac, acList ) \
-	for ( ac = acList; ac != NULL; ac = ac->next )
-*/
-
-/*
-(audioClip->gain != NULL) ? (audioClip->gain->flags & AAFI_AUDIO_GAIN_STATIC) ? 20 * log10( rationalToFloat( audioClip->gain->value->mul ) ) : 0 : 0,
-
-*/
 
 char * gainToStr( char *str, aafiAudioClip *aClip )
 {
