@@ -899,6 +899,15 @@ int retrieveEssenceDesc( AAF_Iface *aafi, aafMobID_t *SourceMobID, aafMobID_t *M
 	 *	contains the essence (WAV, MXF, etc.) or to help find the physical media.
 	 *
 	 *	A Locator can either be a NetworkLocator or a TextLocator.
+	 *
+	 *  A NetworkLocator holds a URLString property :
+	 *
+p41: 	Absolute Uniform Resource Locator (URL) complying with RFC 1738 or relative
+	 *	Uniform Resource Identifier (URI) complying with RFC 2396 for file containing
+	 *	the essence. If it is a relative URI, the base URI is determined from the URI
+	 *	of the AAF file itself.
+	 *	Informative note: A valid URL or URI uses a constrained character set and uses
+	 *	the / character as the path separator.
 	 */
 
 	aafObject *Locator = aaf_get_propertyValue( EssenceDesc, PID_EssenceDescriptor_Locator );

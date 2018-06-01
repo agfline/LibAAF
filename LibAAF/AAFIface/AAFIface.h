@@ -289,9 +289,11 @@ typedef struct aafiAudioEssence
 
 	int         isEmbedded;
 
-	// Holds this essence file path,
-	// Only once the essence has been exported.
-	char       *file;
+	// Holds this essence file path once it has been exported
+	// or the file path of the original essence file when not
+	// embedded.
+	// TODO: shouldn't we dissociate the two paths ?
+	char       *file;			// NetworkLocator::URLString if essence is not embedded
 
 	uint64_t    length; 		// Length of Essence Data
 
