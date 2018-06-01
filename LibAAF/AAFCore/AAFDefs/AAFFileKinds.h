@@ -19,11 +19,56 @@ static const aafUID_t AAFFileKind_DontCare =
 
 // AAF files encoded as structured storage with a 512 bytes sector size
 static const aafUID_t AAFFileKind_Aaf512Binary =
-{ 0x42464141, 0x000d, 0x4d4f, {0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0xff } };
+{ 0x42464141, 0x000d, 0x4d4f, { 0x06, 0x0e, 0x2b, 0x34, 0x01, 0x01, 0x01, 0xff } };
 
 // AAF files structured storage with a 4096 bytes sector size
 static const aafUID_t AAFFileKind_Aaf4KBinary =
-{0x92b02efb, 0xaf40, 0x4896, {0xa5, 0x8e, 0xd1, 0x57, 0x2f, 0x42, 0x2b, 0x58 } };
+{ 0x92b02efb, 0xaf40, 0x4896, { 0xa5, 0x8e, 0xd1, 0x57, 0x2f, 0x42, 0x2b, 0x58 } };
+
+/*
+Looks like Avid's Media Composer own AAFFileKind_Aaf4KBinary :
+
+{ 0x0d010201, 0x0200, 0x0000, { 0x06, 0x0e, 0x2b, 0x34, 0x03, 0x02, 0x01, 0x01 } }
+
+_CFB_Header____________________________________________________________________________________
+
+_abSig              : 0xe11ab1a1e011cfd0
+_clsId              : {0x0d010201, 0x0200, 0x0000, { 0x06 0x0e 0x2b 0x34 0x03 0x02 0x01 0x01 }}
+ version            : 62.4 ( 0x003e 0x0004 )
+_uByteOrder         : little-endian ( 0xfffe )
+_uSectorShift       : 12 (4096 bytes sectors)
+_uMiniSectorShift   : 6 (64 bytes mini-sectors)
+_usReserved0        : 0x00
+_ulReserved1        : 0x0000
+_csectDir           : 92
+_csectFat           : 3
+_sectDirStart       : 1
+_signature          : 0
+_ulMiniSectorCutoff : 4096
+_sectMiniFatStart   : 2721
+_csectMiniFat       : 4
+_sectDifStart       : -2
+_csectDif           : 0
+
+
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2017-09-23 09:38:53.00
+ AAF ObjSpec Version  : 1.1
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFOPDef_EditProtocol
+
+
+ CompanyName          : Avid Technology, Inc.
+ ProductName          : Avid Media Composer 8.4.5
+ ProductVersion       : 8.4.0.0 (1)
+ ProductVersionString : Unknown version
+ ProductID            : {d0b7c06e cd3d 4ad7 {ac fb f0 3a 4f 42 a2 31}}
+ Date                 : 2017-09-23 09:38:53.00
+ ToolkitVersion       : 1.1.6.8635 (0)
+ Platform             : AAFSDK (Win64)
+ GenerationAUID       : {feadd9ba e1d3 474d {8b 3f 6a 79 a6 29 1d 2f}}
+*/
 
 
 // AAF files encoded as XML (text)
