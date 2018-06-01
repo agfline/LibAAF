@@ -67,7 +67,7 @@ void printPropertyStream( AAF_Data *aafd, cfbNode *node )
 
 
 	/*
-	 *	Since the following for() loop is not intended to be used by a user, it has been defined
+	 *	Since the following for() loop is not intended to be used by the user, it has been defined
 	 *	as a local macro in AAFCore.c.
 	 */
 
@@ -697,8 +697,6 @@ int main( int argc, char *argv[] )
 
 	if ( aaf_essences || aaf_clips )
 	{
-//		aafi = calloc( sizeof(AAF_Iface), sizeof(char) );
-
 		aafi = aafi_alloc( aafd );
 
 		retrieveEssences( aafi );
@@ -769,7 +767,6 @@ int main( int argc, char *argv[] )
 
 		uint32_t i = 0;
 
-//		foreachAudioClip( audioClip, aafi->Audio->Clips )
 		foreach_audioTrack( audioTrack, aafi )
 		{
 			printf( "\n\n" );
