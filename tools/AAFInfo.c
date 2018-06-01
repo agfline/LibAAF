@@ -71,7 +71,7 @@ char * gainToStr( char *str, aafiAudioClip *aClip )
 		snprintf( str, 16, " n/a    " );
 
 	else if ( aClip->gain->flags & AAFI_AUDIO_GAIN_CONSTANT )
-		snprintf( str, 16, "%+05.1lf dB", 
+		snprintf( str, 16, "%+05.1lf dB",
 			  20 * log10( rationalToFloat( aClip->gain->value[0] ) ) );
 
 	else if ( aClip->gain->flags & AAFI_AUDIO_GAIN_VARIABLE )
@@ -339,7 +339,7 @@ void printIdentification( AAF_Data *aafd )
 
 void showHelp()
 {
-	printf( 
+	printf(
 		"\n"
 		" AAFInfo 0.1\n"
 		"\n"
@@ -474,7 +474,7 @@ int main( int argc, char *argv[] )
 
 	if ( cmd == 0 )
 	{
-		fprintf( stderr, 
+		fprintf( stderr,
 			"Usage: AAFInfo [CMD] [FILE]\n"
 			"Try 'AAFInfo --help' for more informations.\n"
 		);
@@ -741,7 +741,7 @@ int main( int argc, char *argv[] )
 	{
 //		aafi = calloc( sizeof(AAF_Iface), sizeof(char) );
 
-		aafi = init_AAFIface( aafd );
+		aafi = aafi_alloc( aafd );
 
 		retrieveEssences( aafi );
 
@@ -909,7 +909,7 @@ int main( int argc, char *argv[] )
 
 				char str[16];
 
-				printf( " Clip:%u%s  Track:%u  Audio:%u%s  Gain:%s " 
+				printf( " Clip:%u%s  Track:%u  Audio:%u%s  Gain:%s "
 						" Start:%02u:%02u:%02u:%02u  Len:%02u:%02u:%02u:%02u "
 						" End:%02u:%02u:%02u:%02u  Fadein: %s  Fadeout: %s \n",
 					i, ( i < 10 ) ? " " : "",
@@ -973,7 +973,7 @@ int main( int argc, char *argv[] )
 			{
 
 				if ( Class->meta )
-					printf( ANSI_COLOR_YELLOW 
+					printf( ANSI_COLOR_YELLOW
 							"%s"
 							ANSI_COLOR_RESET,
 							Class->name );

@@ -139,7 +139,7 @@ struct trace_log
 
 
 
-AAF_Iface * init_AAFIface( AAF_Data *aafd )
+AAF_Iface * aafi_alloc( AAF_Data *aafd )
 {
 	AAF_Iface *aafi = calloc( sizeof(AAF_Iface), sizeof(unsigned char) );
 
@@ -152,9 +152,14 @@ AAF_Iface * init_AAFIface( AAF_Data *aafd )
 	if ( aafi->Audio == NULL )
 		_fatal( "%s.\n", strerror( errno ) );
 
-
-	aafi->aafd = aafd;
-
+	if ( aafd != NULL )
+	{
+		aafi->aafd = aafd;
+	}
+	else
+	{
+		aafi->aafd = aaf_alloc();
+	}
 
 	return aafi;
 }
@@ -615,7 +620,7 @@ void printObjectProperties( aafObject *Obj )
 
 
 
-int extractAudioEssence( AAF_Data *aafd, aafiAudioEssence *aafiae, const char *file )
+int extractAudioEssence( AAF_Iface *aafi, aafiAudioEssence *aafiae, const char *file )
 {
 
 	/*
@@ -690,7 +695,7 @@ int extractAudioEssence( AAF_Data *aafd, aafiAudioEssence *aafiae, const char *f
 
 	for ( node = aafiae->nodes; node != NULL; node = node->next )
 	{
-		cfb_foreachSectorInStream( aafd->cfbd, node->node, &buf, &len, &id )
+		cfb_foreachSectorInStream( aafi->aafd->cfbd, node->node, &buf, &len, &id )
 		{
 			offset += fwrite( buf, sizeof(aafByte_t), len, fp );
 			fseek( fp, offset, SEEK_SET );

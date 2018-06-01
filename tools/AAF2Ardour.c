@@ -62,10 +62,7 @@ int main( int argc, char *argv[] )
 	if ( argc < 2 )
 		return 1;
 
-	AAF_Data *aafd = aaf_alloc();
-
-	if ( aaf_load_file( aafd, argv[argc-1] ) )
-		return 1;
+	// AAF_Data *aafd = aaf_alloc();
 
 
 //	printClasses( aafd.Class, 0 );
@@ -73,9 +70,12 @@ int main( int argc, char *argv[] )
 
 //	AAF_Iface *aafi = calloc( 1, sizeof(AAF_Iface) );
 
-	AAF_Iface *aafi = init_AAFIface( aafd );
+	AAF_Iface *aafi = aafi_alloc( NULL );
 
-	aafi->aafd = aafd;
+	if ( aaf_load_file( aafi->aafd, argv[argc-1] ) )
+		return 1;
+
+	// aafi->aafd = aafd;
 
 	retrieveEssences( aafi );
 	retrieveClips( aafi );
@@ -100,7 +100,7 @@ int main( int argc, char *argv[] )
 
 		snprintf( file, 255, "%sArdour/session/interchange/testF3/audiofiles/aaf_audio_%d", progPath, i++ );
 
-		extractAudioEssence( aafd, ae, file );
+		extractAudioEssence( aafi, ae, file );
 	}
 
 
@@ -221,7 +221,7 @@ int main( int argc, char *argv[] )
 
 	free( buf );
 
-	aaf_release( &aafd );
+	aaf_release( &(aafi->aafd) );
 
 	return 0;
 }

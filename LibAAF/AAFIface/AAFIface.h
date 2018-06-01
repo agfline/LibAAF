@@ -113,7 +113,7 @@ typedef enum aafiTransition_e
  *	Specifies a Transition that can be a fade in, a fade out or a Cross fade, and that can
  *	have one or two curves.
  *
- *	With a single curve (AAFI_TRANS_SINGLE_CURVE), the same curve is mirrored and applied 
+ *	With a single curve (AAFI_TRANS_SINGLE_CURVE), the same curve is mirrored and applied
  *	as fade in and fade out to obtain a cross fade.
  *
  *	Having two curves (AAFI_TRANS_TWO_CURVE) allows a cross fade to have one curve per fade.
@@ -138,7 +138,7 @@ typedef struct aafiTransition
 	aafPosition_t   len;
 
 	/**
-	 *	The cut point. In the case the transition is removed or cannot be played, the 
+	 *	The cut point. In the case the transition is removed or cannot be played, the
 	 *	cut point specifies where in the transition, the preceding segment should end
 	 *	and where the following segment should start.
 	 */
@@ -150,7 +150,7 @@ typedef struct aafiTransition
 
 
 	/**
-	 *	Points count for the single curve, or the first one of the two. This specifies 
+	 *	Points count for the single curve, or the first one of the two. This specifies
 	 *	both the number of points (time/value) in the transition curve, and consequently
 	 *	the size of time_a[] and value_a[] arrays.
 	 */
@@ -206,7 +206,7 @@ typedef struct aafiTransition
 
 
 /**
- *	Specifies a Gain to apply either to a Clip (aafiAudioClip.gain) or to an entire Track 
+ *	Specifies a Gain to apply either to a Clip (aafiAudioClip.gain) or to an entire Track
  *	(aafiAudioTrack.gain), that is to all the Clips contained by that Track.
  *
  *	A Gain can be of to types :
@@ -232,13 +232,13 @@ typedef struct aafiAudioGain
 	 *	the interpolation used to calculate the values between two time points.
 	 */
 
-	uint16_t        flags;	// Type : Static (single multiplier for entire clip) or 
+	uint16_t        flags;	// Type : Static (single multiplier for entire clip) or
 					        //		  Variable (automation)
 					        // Interpolation : Linear, Log, Constant, Power, BSpline
 
 
 	/**
-	 *	Points count. This specifies both the number of points (time/value) in the 
+	 *	Points count. This specifies both the number of points (time/value) in the
 	 *	gain automation, and is consequently the size of time[] and value[] arrays.
 	 */
 
@@ -301,7 +301,7 @@ typedef struct aafiAudioEssence
 	aafMobID_t  masterMobID;	// Holds the MasterMob Mob::ID (used by CompoMob's Sequence SourceClips)
 
 	uint16_t  type;
-	
+
 	// WAVE fmt chunk fields are used to describe Audio Essence
 	uint16_t  wFormatTag;			// SoundDescriptor::Compression (null for PCM) = 0x1
 	uint16_t  nChannels;			// SoundDescriptor::Channels
@@ -457,7 +457,7 @@ typedef struct aafiAudioTrack
 	aafiAudioGain           *gain;
 
 	/**
-	 *	Holds the timeline items of that track, that is aafiAudioClip and aafiTransition 
+	 *	Holds the timeline items of that track, that is aafiAudioClip and aafiTransition
 	 *	structures.
 	 */
 
@@ -587,7 +587,7 @@ typedef struct AAF_Iface
 
 
 
-AAF_Iface * init_AAFIface( AAF_Data *aafd );
+AAF_Iface * aafi_alloc();
 
 aafiTransition * get_fadein( aafiTimelineItem *audioItem );
 
@@ -595,7 +595,7 @@ aafiTransition * get_fadeout( aafiTimelineItem *audioItem );
 
 
 
-int extractAudioEssence( AAF_Data *aafd, aafiAudioEssence *aafiae, const char *file );
+int extractAudioEssence( AAF_Iface *aafi, aafiAudioEssence *aafiae, const char *file );
 int retrieveEssences( AAF_Iface *aafi );
 int retrieveClips( AAF_Iface *aafi );
 

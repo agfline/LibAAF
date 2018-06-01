@@ -16,15 +16,15 @@ int main( int argc, char *argv[] )
 	}
 
 
-	AAF_Data *aafd = aaf_alloc();
+	// AAF_Data *aafd = aaf_alloc();
 
-	if ( aaf_load_file( aafd, argv[argc-1] ) )
+
+	AAF_Iface *aafi = aafi_alloc( NULL );
+
+	if ( aaf_load_file( aafi->aafd, argv[argc-1] ) )
 	{
 		return 1;
 	}
-
-
-	AAF_Iface *aafi = init_AAFIface( aafd );
 
 
 	retrieveEssences( aafi );
@@ -42,10 +42,10 @@ int main( int argc, char *argv[] )
 
 		snprintf( file, 255, "./aaf_audio_%d", i++ );
 
-		extractAudioEssence( aafd, ae, file );
+		extractAudioEssence( aafi, ae, file );
 	}
 
-	aaf_release( &aafd );
+	aaf_release( &(aafi->aafd) );
 
 	return 0;
 }
