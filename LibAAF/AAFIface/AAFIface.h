@@ -587,7 +587,7 @@ typedef struct AAF_Iface
 
 
 
-AAF_Iface * aafi_alloc();
+AAF_Iface * aafi_alloc( AAF_Data *aafd );
 
 aafiTransition * get_fadein( aafiTimelineItem *audioItem );
 
