@@ -71,14 +71,9 @@ int main( int argc, char *argv[] )
 //	printClasses( aafd.Class, 0 );
 
 
-
-	printf( "\n\nBegining of serious stuff.\n\n" );
-
 //	AAF_Iface *aafi = calloc( 1, sizeof(AAF_Iface) );
 
 	AAF_Iface *aafi = init_AAFIface( aafd );
-
-//	memset( &aafi, 0x00, sizeof(AAF_Iface) );
 
 	aafi->aafd = aafd;
 
@@ -90,14 +85,11 @@ int main( int argc, char *argv[] )
 
 	char progPath[1024];
 	memset(progPath, 0x00, 1024);
-	// getcwd( cwd, sizeof(cwd) );
 
 	readlink( "/proc/self/exe", progPath, 1024 );
 
-
 	progPath[strlen(progPath)-10] = 0x00;
 
-	printf( "%s\n", progPath );
 
 
 	uint32_t i = 0;
@@ -150,11 +142,6 @@ int main( int argc, char *argv[] )
 
 	offset += snprintf( buf+offset, buf_sz-offset, "  <Regions>\n" );
 
-//	foreachAudioClip( ac, aafi->Audio->Clips )
-//	{
-//		if ( ac->subClipNum > 1 )
-//			continue;
-
 	foreach_audioTrack( audioTrack, aafi )
 	{
 
@@ -191,14 +178,11 @@ int main( int argc, char *argv[] )
 
 	offset += snprintf( buf+offset, buf_sz-offset, "  <Playlists>\n" );
 
-//	for ( i = 1; i < 6; i++ )
-//	{
 	foreach_audioTrack( audioTrack, aafi )
 	{
 
 		offset += snprintf( buf+offset, buf_sz-offset, "    <Playlist id=\"18772\" name=\"Audio %i.1\" type=\"audio\" orig-track-id=\"18730\" shared-with-ids=\"\" frozen=\"0\" combine-ops=\"0\">\n", audioTrack->number /*i*/ );
 
-//			foreachAudioClip( ac, aafi.Audio.Clips )
 			foreach_audioItem( audioItem, audioTrack )
 			{
 
@@ -207,26 +191,13 @@ int main( int argc, char *argv[] )
 
 				audioClip = (aafiAudioClip*)&audioItem->data;
 
-//				if ( ac->track->number != i )
-//					continue;
-
 				char name[255];
-
-//				ac->Essence->file[strlen(ac->Essence->file)-3] = 0x00;
 
 				snprintf( name, 255, "%s.%u",
 							audioClip->Essence->file,
 							audioClip->subClipNum );
 
-				// printf( "xxxx %s\n", name );
-/*
-				name[len-3] = '1';
-				name[len-2] = 'w';
-				name[len-1] = 'a';
-				name[len]   = 'v';
-				name[len+1] = 0x0;
-*/
-				offset += snprintf( buf+offset, buf_sz-offset, "      <Region name=\"%s\" muted=\"0\" opaque=\"1\" locked=\"0\" video-locked=\"0\" automatic=\"1\" whole-file=\"0\" import=\"0\" external=\"0\" sync-marked=\"0\" left-of-split=\"0\" right-of-split=\"0\" hidden=\"0\" position-locked=\"0\" valid-transients=\"0\" start=\"%li\" length=\"%li\" position=\"%li\" beat=\"0\" sync-position=\"0\" ancestral-start=\"0\" ancestral-length=\"0\" stretch=\"1\" shift=\"1\" positional-lock-style=\"AudioTime\" layering-index=\"0\" envelope-active=\"0\" default-fade-in=\"0\" default-fade-out=\"0\" fade-in-active=\"1\" fade-out-active=\"1\" scale-amplitude=\"1\" id=\"%u\" type=\"audio\" first-edit=\"nothing\" source-0=\"%u\" master-source-0=\"%u\" channels=\"1\"></Region>\n",
+			offset += snprintf( buf+offset, buf_sz-offset, "      <Region name=\"%s\" muted=\"0\" opaque=\"1\" locked=\"0\" video-locked=\"0\" automatic=\"1\" whole-file=\"0\" import=\"0\" external=\"0\" sync-marked=\"0\" left-of-split=\"0\" right-of-split=\"0\" hidden=\"0\" position-locked=\"0\" valid-transients=\"0\" start=\"%li\" length=\"%li\" position=\"%li\" beat=\"0\" sync-position=\"0\" ancestral-start=\"0\" ancestral-length=\"0\" stretch=\"1\" shift=\"1\" positional-lock-style=\"AudioTime\" layering-index=\"0\" envelope-active=\"0\" default-fade-in=\"0\" default-fade-out=\"0\" fade-in-active=\"1\" fade-out-active=\"1\" scale-amplitude=\"1\" id=\"%u\" type=\"audio\" first-edit=\"nothing\" source-0=\"%u\" master-source-0=\"%u\" channels=\"1\"></Region>\n",
 		 					name,
 /*							ac->essenceStartOffset * (48000/25),*/
 							eu2sample( audioClip, audioClip->essence_offset ),
@@ -246,18 +217,11 @@ int main( int argc, char *argv[] )
 
 	offset += snprintf( buf+offset, buf_sz-offset, "  </Playlists>\n" );
 
-
-
-
-
-
 	writeArdourSessionFile( buf );
 
 	free( buf );
 
 	aaf_release( &aafd );
-
-	//printf( "\n *** No SIGSEGV 11 *** \n\n" );
 
 	return 0;
 }
