@@ -1854,9 +1854,16 @@ int retrieveClips( AAF_Iface *aafi )
 	aafObject * Mob = NULL;
 
 
-	/* Loop through CompositionMobs */
+	/*
+	 *	Loop through CompositionMobs
+	 *
+	 *	There should be only one, since a CompositionMob
+	 *	represent the overall composition (i.e project).
+	 */
 	aaf_foreach_ObjectInSet( &Mob, aafi->aafd->Mobs, &AAFClassID_CompositionMob )
 	{
+
+		aafi->compositionName = aaf_get_propertyValueText( Mob, PID_Mob_Name );
 
 		PUSH_TRACE( "CompositionMob::Slots" );
 

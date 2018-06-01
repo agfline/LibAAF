@@ -531,6 +531,8 @@ typedef struct AAF_Iface
 
 //	AAFIface_Video Video;
 
+	char *compositionName;
+
 } AAF_Iface;
 
 

@@ -37,7 +37,7 @@ int main( int argc, char *argv[] )
 	{
 		char file[255];
 
-		snprintf( file, 255, "./aaf_audio_%d", i++ );
+		snprintf( file, 255, "./%s_%d", aafi->compositionName, i++ );
 
 		extractAudioEssence( aafi, ae, file );
 	}
