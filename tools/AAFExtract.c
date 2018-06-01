@@ -16,9 +16,6 @@ int main( int argc, char *argv[] )
 	}
 
 
-	// AAF_Data *aafd = aaf_alloc();
-
-
 	AAF_Iface *aafi = aafi_alloc( NULL );
 
 	if ( aaf_load_file( aafi->aafd, argv[argc-1] ) )
