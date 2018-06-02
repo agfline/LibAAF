@@ -531,7 +531,7 @@ typedef struct AAF_Iface
 
 //	AAFIface_Video Video;
 
-	char *compositionName;
+	char       *compositionName;
 
 } AAF_Iface;
 
@@ -542,7 +542,7 @@ typedef struct AAF_Iface
 
 
 #define foreach_audioTrack( audioTrack, aafi ) \
-	for ( audioTrack  = aafi->Audio->Tracks;    \
+	for ( audioTrack  = aafi->Audio->Tracks;   \
 	      audioTrack != NULL;                  \
 	      audioTrack  = audioTrack->next )     \
 
