@@ -29,6 +29,16 @@ int main( int argc, char *argv[] )
 	retrieveClips( aafi );
 
 
+
+	char progPath[1024];
+	memset(progPath, 0x00, 1024);
+
+	readlink( "/proc/self/exe", progPath, 1024 );
+
+	progPath[strlen(progPath)-10] = 0x00;
+
+
+
 	aafiAudioEssence *ae = NULL;
 
 	uint32_t i = 0;
@@ -37,7 +47,7 @@ int main( int argc, char *argv[] )
 	{
 		char file[255];
 
-		snprintf( file, 255, "./%s_%d", aafi->compositionName, i++ );
+		snprintf( file, 255, "%s%s_%d", progPath, aafi->compositionName, i++ );
 
 		extractAudioEssence( aafi, ae, file );
 	}
