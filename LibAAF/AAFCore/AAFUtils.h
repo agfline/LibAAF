@@ -45,7 +45,9 @@ static const aafUID_t AUID_NULL =
 #define auidCmp( auid1, auid2 ) \
 	( memcmp( auid1, auid2, sizeof(aafUID_t) ) == 0 )
 
-/*	This isn't working when compiling with gcc -O3
+/*
+	NOTE The following isn't working when compiling with gcc -O3
+
 #define auidCmp( auid1, auid2 ) \
 	( *(uint64_t*)auid1     == *(uint64_t*)auid2 || \
 	  *(uint64_t*)(auid1+8) == *(uint64_t*)(auid2+8) )
