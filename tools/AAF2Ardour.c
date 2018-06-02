@@ -10,20 +10,6 @@
 
 
 
-/*
-void printObjectProperties( aafObject *Obj )
-{
-	aafProperty * Prop = NULL;
-
-	for ( Prop = Obj->properties;  Prop != NULL; Prop = Prop->next )
-	{
-		printf( ":.: %s\n", PIDToText( Prop->pid ) );
-	}
-}
-*/
-
-
-
 
 int main( int argc, char *argv[] )
 {
@@ -182,7 +168,8 @@ int main( int argc, char *argv[] )
 
 	free( buf );
 
-	aaf_release( &(aafi->aafd) );
+
+	aafi_release( &aafi );
 
 	return 0;
 }

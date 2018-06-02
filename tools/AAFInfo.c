@@ -996,11 +996,7 @@ int main( int argc, char *argv[] )
 	}
 
 
-
-
-
-	aaf_release( &aafd );
-
+	aafi_release( &aafi );
 
 	return 0;
 }

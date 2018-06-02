@@ -49,8 +49,6 @@
 
 #include "../libAAF.h"
 
-#include "AAFIface.h"
-
 #include "thirdparty/libriff.h"
 #include "thirdparty/libwav.h"
 
@@ -126,10 +124,12 @@ struct trace_log
 
 
 
+static void aafi_freeAudioTracks( aafiAudioTrack **tracks );
+static void aafi_freeTimelineItems( aafiTimelineItem **items );
+static void aafi_freeTransition( aafiTransition *trans );
 
-
-
-
+static void aafi_freeAudioEssences( aafiAudioEssence **essences );
+static void aafi_freeEssenceDataNodes( aafiEssenceDataNode **nodes );
 
 
 
@@ -152,6 +152,7 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 	if ( aafi->Audio == NULL )
 		_fatal( "%s.\n", strerror( errno ) );
 
+
 	if ( aafd != NULL )
 	{
 		aafi->aafd = aafd;
@@ -161,7 +162,47 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 		aafi->aafd = aaf_alloc();
 	}
 
+	aafi->compositionName = NULL;
+
 	return aafi;
+}
+
+
+
+void aafi_release( AAF_Iface **aafi )
+{
+	if ( *aafi == NULL )
+		return;
+
+
+	aaf_release( &(*aafi)->aafd );
+
+	if ( (*aafi)->compositionName != NULL )
+	{
+		free( (*aafi)->compositionName );
+	}
+
+	if ( (*aafi)->Audio != NULL )
+	{
+		if ( (*aafi)->Audio->Tracks != NULL )
+		{
+			aafi_freeAudioTracks( &(*aafi)->Audio->Tracks );
+		}
+
+		if ( (*aafi)->Audio->Essences != NULL )
+		{
+			aafi_freeAudioEssences( &(*aafi)->Audio->Essences );
+		}
+
+		if ( (*aafi)->Audio->tc != NULL )
+		{
+			free( (*aafi)->Audio->tc );
+		}
+
+		free( (*aafi)->Audio );
+	}
+
+	free( *aafi );
 }
 
 
@@ -229,64 +270,60 @@ aafiTimelineItem * aafi_newTimelineItem( aafiAudioTrack *track, int itemType )
 }
 
 
-/*
 
-aafiAudioClip * aafi_newAudioClip( AAF_Iface *aafi, aafiAudioTrack *track )
+
+static void aafi_freeTimelineItems( aafiTimelineItem **items )
 {
+	aafiTimelineItem *item = NULL;
+	aafiTimelineItem *nextItem = NULL;
 
-	aafiAudioClip *aClip = calloc( sizeof(aafiAudioClip), sizeof(unsigned char) );
-
-	if ( aClip == NULL )
-		_fatal( "%s.\n", strerror( errno ) );
-
-	aClip->track = track;
-
-	aClip->next  = NULL;
-
-
-
-	if ( aafi != NULL )
+	for ( item = (*items); item != NULL; item = nextItem )
 	{
+		nextItem = item->next;
 
-		if ( aafi->Audio->Clips != NULL )
+		if ( item->type == AAFI_TRANS )
 		{
-			aafiAudioClip *tmp = aafi->Audio->Clips;
-
-			for (; tmp != NULL; tmp = tmp->next )
-				if ( tmp->next == NULL )
-					break;
-
-			tmp->next = aClip;
+			aafi_freeTransition( (aafiTransition*)&(item->data) );
 		}
-		else
-			aafi->Audio->Clips = aClip;
+
+		free( item );
 	}
 
-
-
-	if ( track != NULL )
-	{
-
-		if ( track->Clips != NULL )
-		{
-			aafiAudioClip *tmp = track->Clips;
-
-			for (; tmp != NULL; tmp = tmp->trackNext )
-				if ( tmp->trackNext == NULL )
-					break;
-
-			tmp->trackNext = aClip;
-		}
-		else
-			track->Clips = aClip;
-	}
-
-
-
-	return aClip;
+	*items = NULL;
 }
 
-*/
+
+
+
+
+static void aafi_freeTransition( aafiTransition *trans )
+{
+	if ( trans->value_a != NULL )
+	{
+		free( trans->value_a );
+	}
+
+	if ( trans->value_b != NULL )
+	{
+		free( trans->value_b );
+	}
+
+	if ( trans->time_a != NULL )
+	{
+		free( trans->time_a );
+	}
+
+	if ( trans->time_b != NULL )
+	{
+		free( trans->time_b );
+	}
+}
+
+
+
+
+
+
 
 
 
@@ -296,6 +333,10 @@ aafiAudioTrack * aafi_newAudioTrack( AAF_Iface *aafi, aafObject *MobSlot, uint32
 
 	if ( track == NULL )
 		_fatal( "%s.\n", strerror( errno ) );
+
+
+	track->next = NULL;
+
 
 	if ( MobSlot != NULL )
 	{
@@ -336,11 +377,48 @@ aafiAudioTrack * aafi_newAudioTrack( AAF_Iface *aafi, aafObject *MobSlot, uint32
 		tmp->next = track;
 	}
 	else
+	{
 		aafi->Audio->Tracks = track;
+	}
 
 
 	return track;
 }
+
+
+
+
+
+static void aafi_freeAudioTracks( aafiAudioTrack **tracks )
+{
+	if ( *(tracks) == NULL )
+	{
+		return;
+	}
+
+	aafiAudioTrack *track = NULL;
+	aafiAudioTrack *nextTrack = NULL;
+
+	for ( track = (*tracks); track != NULL; track = nextTrack )
+	{
+		nextTrack = track->next;
+
+		if ( track->name != NULL )
+		{
+			free( track->name );
+		}
+
+		if ( track->Items != NULL )
+		{
+			aafi_freeTimelineItems( &(track->Items) );
+		}
+
+		free( track );
+	}
+
+	*tracks = NULL;
+}
+
 
 
 
@@ -364,6 +442,36 @@ aafiAudioEssence * aafi_newAudioEssence( AAF_Iface *aafi )
 	return aEssence;
 }
 
+static void aafi_freeAudioEssences( aafiAudioEssence **essences )
+{
+	if ( *(essences) == NULL )
+	{
+		return;
+	}
+
+	aafiAudioEssence *essence = NULL;
+	aafiAudioEssence *nextEssence = NULL;
+
+	for ( essence = (*essences); essence != NULL; essence = nextEssence )
+	{
+		nextEssence = essence->next;
+
+		if ( essence->file != NULL )
+		{
+			free( essence->file );
+		}
+
+		if ( essence->nodes != NULL )
+		{
+			aafi_freeEssenceDataNodes( &(essence->nodes) );
+		}
+
+		free( essence );
+	}
+
+	*essences = NULL;
+}
+
 
 
 
@@ -374,8 +482,6 @@ aafiEssenceDataNode * aafi_newEssenceDataNode( aafiAudioEssence *aEssence )
 
 	if ( dataNode == NULL )
 		_fatal( "%s.\n", strerror( errno ) );
-
-
 
 	/*
 	 *	Add to audio essence's nodes list
@@ -396,6 +502,29 @@ aafiEssenceDataNode * aafi_newEssenceDataNode( aafiAudioEssence *aEssence )
 
 
 	return dataNode;
+}
+
+
+
+
+static void aafi_freeEssenceDataNodes( aafiEssenceDataNode **nodes )
+{
+	if ( *(nodes) == NULL )
+	{
+		return;
+	}
+
+	aafiEssenceDataNode *node = NULL;
+	aafiEssenceDataNode *nextNode = NULL;
+
+	for ( node = (*nodes); node != NULL; node = nextNode )
+	{
+		nextNode = node->next;
+
+		free( node );
+	}
+
+	*nodes = NULL;
 }
 
 
@@ -548,7 +677,7 @@ char * url_decode( char *dst, char *src )
 				b -= ('A' - 10);
 			else
 				b -= '0';
-			*dst++ = 16*a+b;
+			*dst++ = 16 * a + b;
 			src+=3;
 		}
 		else if (*src == '+')
@@ -1148,6 +1277,8 @@ int retrieveEssences( AAF_Iface *aafi )
 		POP_TRACE();
 	}
 
+	END_OF_TRACE();
+
 
 	return 0;
 }
@@ -1296,8 +1427,6 @@ aafiAudioEssence * getEssenceByMasterMobID( AAF_Iface *aafi, aafMobID_t *SourceI
 
 aafiAudioClip * retrieve_CompoMob_SourceClip( AAF_Iface *aafi, aafPosition_t *pos, aafiAudioTrack *track, aafObject *SourceClip )
 {
-
-//	aafiAudioClip *aClip = aafi_newAudioClip( aafi, track );
 
 	aafiTimelineItem *item = aafi_newTimelineItem( track, AAFI_CLIP );
 
@@ -2103,6 +2232,7 @@ int retrieveClips( AAF_Iface *aafi )
 
 	} // end of CompoMobs Loop
 
+	END_OF_TRACE();
 
 	return 0;
 }

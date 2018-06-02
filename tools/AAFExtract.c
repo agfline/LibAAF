@@ -52,7 +52,8 @@ int main( int argc, char *argv[] )
 		extractAudioEssence( aafi, ae, file );
 	}
 
-	aaf_release( &(aafi->aafd) );
+
+	aafi_release( &aafi );
 
 	return 0;
 }
