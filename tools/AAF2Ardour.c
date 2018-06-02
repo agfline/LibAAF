@@ -2,32 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-//#include <locale.h>
 
 #include "../LibAAF/libAAF.h"
-/*
-#include "AAFClass.h"
-#include "AAFUtils.h"
-#include "AAFIface.h"
-
-#include "AAFDefs/AAFClassDefUIDs.h"
-#include "AAFDefs/AAFTypeDefUIDs.h"
-#include "AAFDefs/AAFPropertyIDs.h"
-#include "AAFDefs/AAFDataDefs.h"
-
-#include "AAFToText.h"
-#include "AAFCore.h"
-#include "AAFNavigation.h"
-*/
 
 #include "./Ardour/Ardour.h"
-/*
-#ifndef auidCmp
-#define auidCmp( auid1, auid2 ) \
-	( *(uint64_t*)auid1     == *(uint64_t*)auid2 || \
-	  *(uint64_t*)(auid1+8) == *(uint64_t*)(auid2+8) )
-#endif
-*/
+
 
 
 
@@ -46,39 +25,23 @@ void printObjectProperties( aafObject *Obj )
 
 
 
-
-/*
-#define foreachAudioEssence( ae, aeList ) \
-	for ( ae = aeList; ae != NULL; ae = ae->next )
-
-
-#define foreachAudioClip( ac, acList ) \
-	for ( ac = acList; ac != NULL; ac = ac->next )
-*/
-
-
 int main( int argc, char *argv[] )
 {
 	if ( argc < 2 )
 		return 1;
 
-	// AAF_Data *aafd = aaf_alloc();
-
-
-//	printClasses( aafd.Class, 0 );
-
-
-//	AAF_Iface *aafi = calloc( 1, sizeof(AAF_Iface) );
 
 	AAF_Iface *aafi = aafi_alloc( NULL );
+
 
 	if ( aaf_load_file( aafi->aafd, argv[argc-1] ) )
 		return 1;
 
-	// aafi->aafd = aafd;
 
 	retrieveEssences( aafi );
+
 	retrieveClips( aafi );
+
 
 	aafiAudioEssence *ae = NULL;
 
@@ -98,13 +61,11 @@ int main( int argc, char *argv[] )
 	{
 		char file[255];
 
-		snprintf( file, 255, "%sArdour/session/interchange/testF3/audiofiles/aaf_audio_%d", progPath, i++ );
+		snprintf( file, 255, "%sArdour/session/interchange/testF3/audiofiles/%s_%d", progPath, aafi->compositionName, i++ );
 
 		extractAudioEssence( aafi, ae, file );
 	}
 
-
-//	aafiAudioClip *ac = NULL;
 
 
 
