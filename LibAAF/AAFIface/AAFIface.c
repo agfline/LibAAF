@@ -1980,17 +1980,27 @@ int retrieveClips( AAF_Iface *aafi )
 	INIT_TRACE();
 
 
-	aafObject * Mob = NULL;
-
-
 	/*
 	 *	Loop through CompositionMobs
 	 *
 	 *	There should be only one, since a CompositionMob
-	 *	represent the overall composition (i.e project).
+	 *	represents the overall composition (i.e project).
+	 *	Observations on files confirm that.
+	 *
+	 *	However, the AAF Edit Protocol says that there could be
+	 *	multiple CompositionMobs (Mob::UsageCode TopLevel), containing
+	 *	other CompositionMobs (Mob::UsageCode LowerLevel). This was
+	 *	never encountered for now.
+	 *
+	 *	TODO implement fallback
 	 */
+
+	aafObject * Mob = NULL;
+
 	aaf_foreach_ObjectInSet( &Mob, aafi->aafd->Mobs, &AAFClassID_CompositionMob )
 	{
+
+		// printf("COMPOSITION MOB : %s\n", UsageCodeToText( aaf_get_propertyValue( Mob, PID_Mob_UsageCode ) ) );
 
 		aafi->compositionName = aaf_get_propertyValueText( Mob, PID_Mob_Name );
 
