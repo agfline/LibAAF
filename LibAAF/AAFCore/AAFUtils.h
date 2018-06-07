@@ -88,7 +88,9 @@ static const aafUID_t AUID_NULL =
 
 size_t utf16toa( char *astr, uint16_t alen, uint16_t *wstr, uint16_t wlen );
 
-void printStream( unsigned char * stream, size_t stream_sz );
+void   printStream( unsigned char * stream, size_t stream_sz );
+
+char  *url_decode( char *dst, char *src );
 
 /*
 int AAF_MobIDCompare( const aafMobID_t *MobID1, const aafMobID_t *MobID2 )
