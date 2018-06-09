@@ -33,7 +33,7 @@ char * gainToStr( char *str, aafiAudioClip *aClip )
 			  20 * log10( rationalToFloat( aClip->gain->value[0] ) ) );
 
 	else if ( aClip->gain->flags & AAFI_AUDIO_GAIN_VARIABLE )
-		snprintf( str, 16, " auto.  " );
+		snprintf( str, 16, " automation " );
 
 	return str;
 }
