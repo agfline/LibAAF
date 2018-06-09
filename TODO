@@ -1,3 +1,12 @@
+NOTES:
+======
+
+ProTools do not export clip fades metadata, it render fades as audio.
+ProTools do export clip names, proprietary class/properties ?
+ProTools do not export clip gain, neither render them.
+ProTools do export track volume automation
+ProTools do not export track's PAN ?
+
 
 TODO :
 ======
@@ -24,4 +33,3 @@ TEST :
 
 	* Small composition, one clip ( ~3*512kB ), no EditProtocol.
 	  -> multiple EssenceData nodes ?
-
