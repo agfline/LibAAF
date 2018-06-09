@@ -293,7 +293,11 @@ typedef struct aafiAudioEssence
 	// or the file path of the original essence file when not
 	// embedded.
 	// TODO: shouldn't we dissociate the two paths ?
+
 	char       *file;			// NetworkLocator::URLString if essence is not embedded
+
+	char       *file_name;      // Mob::Name correspond to file names on Logic Pro and Pro Tools AAF
+								// looks like clip names are derived from this *-01, *-02, etc.
 
 	uint64_t    length; 		// Length of Essence Data
 
@@ -364,6 +368,9 @@ typedef struct aafiAudioClip
 	aafPosition_t          len;
 
 	aafPosition_t          essence_offset;
+
+
+	aafMobID_t            *sourceID;
 
 
 
@@ -594,6 +601,8 @@ typedef struct AAF_Iface
 AAF_Iface * aafi_alloc( AAF_Data *aafd );
 
 void aafi_release( AAF_Iface **aafi );
+
+char * aafi_get_essence_filename( aafiAudioEssence *audioEssence, char **filename, char *fb_str, uint32_t *fb_num );
 
 aafiTransition * get_fadein( aafiTimelineItem *audioItem );
 

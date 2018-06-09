@@ -43,7 +43,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include <ctype.h>	// isxdigit()
+// #include <ctype.h>	// isxdigit()
 
 //#include <math.h>	// log10() for gain calc
 
@@ -203,6 +203,34 @@ void aafi_release( AAF_Iface **aafi )
 	}
 
 	free( *aafi );
+}
+
+
+
+/*
+	NOTE: we can't fallback on Locator::URLString since that field can sometimes points the aaf file itself.
+	TODO: preserve/add or leave/remove file extension
+*/
+
+char * aafi_get_essence_filename( aafiAudioEssence *audioEssence, char **filename, char *fb_str, uint32_t *fb_num/*, uint8_t include_ext*/ )
+{
+	if ( *filename == NULL )
+	{
+		/* TODO use FILE_MAX for size */
+		*filename = malloc(1024);
+	}
+
+
+	if ( audioEssence->file_name != NULL )
+	{
+		snprintf( *filename, 1024, "%s", audioEssence->file_name );
+	}
+	else
+	{
+		snprintf( *filename, 1024, "%s_%02u", fb_str, (*fb_num)++ );
+	}
+
+	return *filename;
 }
 
 
@@ -437,6 +465,10 @@ aafiAudioEssence * aafi_newAudioEssence( AAF_Iface *aafi )
 	printf( "%p \n", aafi->Audio->Essences );
 
 	aEssence->next = aafi->Audio->Essences;
+
+	aEssence->file        = NULL;
+	aEssence->file_name   = NULL;
+
 	aafi->Audio->Essences = aEssence;
 
 	return aEssence;
@@ -459,6 +491,11 @@ static void aafi_freeAudioEssences( aafiAudioEssence **essences )
 		if ( essence->file != NULL )
 		{
 			free( essence->file );
+		}
+
+		if ( essence->file_name != NULL )
+		{
+			free( essence->file_name );
 		}
 
 		if ( essence->nodes != NULL )
@@ -640,60 +677,6 @@ aafiTransition * get_fadeout( aafiTimelineItem *audioItem )
 	}
 
 	return NULL;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-char * url_decode( char *dst, char *src )
-{
-	char a, b;
-
-	while (*src)
-	{
-		if ( (*src == '%') &&
-			 ((a = src[1]) && (b = src[2])) &&
-			 (isxdigit(a)  && isxdigit(b)))
-		{
-			if (a >= 'a')
-				a -= 'a'-'A';
-			if (a >= 'A')
-				a -= ('A' - 10);
-			else
-				a -= '0';
-			if (b >= 'a')
-				b -= 'a'-'A';
-			if (b >= 'A')
-				b -= ('A' - 10);
-			else
-				b -= '0';
-			*dst++ = 16 * a + b;
-			src+=3;
-		}
-		else if (*src == '+')
-		{
-			*dst++ = ' ';
-			src++;
-		}
-		else
-		{
-			*dst++ = *src++;
-		}
-	}
-
-	*dst++ = '\0';
-
-	return dst;
 }
 
 
@@ -913,7 +896,7 @@ int retrieveEssenceData( AAF_Iface *aafi, aafiAudioEssence *aafiae, aafMobID_t *
 
 /* TODO rename to "SourceMob" ? */
 
-int retrieveEssenceDesc( AAF_Iface *aafi, aafMobID_t *SourceMobID, aafMobID_t *MasterMobID )
+aafiAudioEssence * retrieveEssenceDesc( AAF_Iface *aafi, aafMobID_t *SourceMobID, aafMobID_t *MasterMobID )
 {
 	aafiAudioEssence *aafiae = aafi_newAudioEssence( aafi );
 
@@ -1016,7 +999,7 @@ int retrieveEssenceDesc( AAF_Iface *aafi, aafMobID_t *SourceMobID, aafMobID_t *M
 
 		printObjectProperties( EssenceDesc );
 
-		return 1;
+		return NULL;
 	}
 
 
@@ -1099,7 +1082,7 @@ p41: 	Absolute Uniform Resource Locator (URL) complying with RFC 1738 or relativ
 	}
 
 
-	return 0;
+	return aafiae;
 }
 
 
@@ -1212,8 +1195,14 @@ int retrieveEssences( AAF_Iface *aafi )
 					if ( SourceMobID == NULL )
 						_fatal( "Could not retrieve SourceClip::SourceID.\n" );
 
-					retrieveEssenceDesc( aafi, SourceMobID, MasterMobID );
+					aafiAudioEssence *aafiae = retrieveEssenceDesc( aafi, SourceMobID, MasterMobID );
 
+					aafiae->file_name = aaf_get_propertyValueText( Mob, PID_Mob_Name );
+
+					// if ( aafiae->file_name == NULL )
+					// {
+					// 	aafiae->file_name =
+					// }
 				}
 
 				POP_TRACE();
@@ -1235,8 +1224,14 @@ int retrieveEssences( AAF_Iface *aafi )
 				if ( SourceMobID == NULL )
 					_fatal( "Could not retrieve SourceClip::SourceID.\n" );
 
-				retrieveEssenceDesc( aafi, SourceMobID, MasterMobID );
+				aafiAudioEssence *aafiae = retrieveEssenceDesc( aafi, SourceMobID, MasterMobID );
 
+				aafiae->file_name = aaf_get_propertyValueText( Mob, PID_Mob_Name );
+
+				// if ( aafiae->file_name == NULL )
+				// {
+				// 	aafiae->file_name =
+				// }
 			}
 			else if ( auidCmp( Segment->Class->ID, &AAFClassID_EssenceGroup ) )
 			{
@@ -1463,14 +1458,13 @@ aafiAudioClip * retrieve_CompoMob_SourceClip( AAF_Iface *aafi, aafPosition_t *po
 	aClip->essence_offset = *startTime;
 
 
-	aafMobID_t *SourceID = aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceID );
+	aClip->sourceID = (aafMobID_t*)aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceID );
 
-	if ( SourceID == NULL )
+	if ( aClip->sourceID == NULL )
 		_fatal( "Missing SourceReference::SourceID\n" );
 
 
-
-	aClip->Essence = getEssenceByMasterMobID( aafi, SourceID );
+	aClip->Essence = getEssenceByMasterMobID( aafi, aClip->sourceID );
 
 	if ( aClip->Essence == NULL )
 		_fatal( "Missing Essence\n" );
@@ -1713,6 +1707,17 @@ uint64_t retrieve_CompoMob_OperationGroup( AAF_Iface *aafi, aafPosition_t *pos, 
 		PRINT_TRACE( ANSI_COLOR_GREEN, "SourceClip" );
 
 		aafiAudioClip *aClip = retrieve_CompoMob_SourceClip( aafi, pos, track, InputSegment );
+
+		// aafObject *tmpMob = NULL;
+		// aaf_foreach_ObjectInSet( &tmpMob, aafi->aafd->Mobs, NULL )
+		// {
+		// 	aafMobID_t *tmpMobId = (aafMobID_t*)aaf_get_propertyValue( tmpMob, PID_Mob_MobID );
+        //
+		// 	if ( mobIDCmp( tmpMobId, aClip->sourceID ) )
+		// 	{
+		// 		printf("FOUND CLIP NAME : %s\n", aaf_get_propertyValueText( tmpMob, PID_Mob_Name ) );
+		// 	}
+		// }
 
 		aClip->gain = gain;
 
@@ -1997,6 +2002,17 @@ int retrieveClips( AAF_Iface *aafi )
 
 	aafObject * Mob = NULL;
 
+	// aaf_foreach_ObjectInSet( &Mob, aafi->aafd->Mobs, NULL )
+	// {
+	// 	// printObjectProperties( Mob );
+	// 	printf("\n");
+	// 	printf("Object  : %s\n", aaf_get_ObjectPath( Mob ) );
+	// 	printf("ClassID : %s\n", ClassIDToText( Mob->Class->ID ) );
+	// 	printf("MobName : %s\n", aaf_get_propertyValueText( Mob, PID_Mob_Name ) );
+	// 	printf("\n");
+    //
+	// }
+
 	aaf_foreach_ObjectInSet( &Mob, aafi->aafd->Mobs, &AAFClassID_CompositionMob )
 	{
 
@@ -2111,6 +2127,18 @@ int retrieveClips( AAF_Iface *aafi )
 						PRINT_TRACE( ANSI_COLOR_GREEN, "SourceClip" );
 
 						retrieve_CompoMob_SourceClip( aafi, &pos, track, Component );
+
+						// aafiAudioClip *tmpAc = retrieve_CompoMob_SourceClip( aafi, &pos, track, Component );
+						// aafObject *tmpMob = NULL;
+						// aaf_foreach_ObjectInSet( &tmpMob, aafi->aafd->Mobs, NULL )
+						// {
+						// 	aafMobID_t *tmpMobId = (aafMobID_t*)aaf_get_propertyValue( tmpMob, PID_Mob_MobID );
+                        //
+						// 	if ( mobIDCmp( &tmpMobId, tmpAc->sourceID ) )
+						// 	{
+						// 		printf("FOUND CLIP NAME : %s\n", aaf_get_propertyValueText( tmpMob, PID_Mob_Name ) );
+						// 	}
+						// }
 
 					}
 					else if ( auidCmp( Component->Class->ID, &AAFClassID_Filler ) )
