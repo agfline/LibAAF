@@ -316,12 +316,13 @@ void showHelp()
 		" ==================================\n"
 		"   --aaf-summary          Displays AAF informations from both\n"
 		"                          header and identification objects.\n"
-		"   --aaf-essences         Displays AAF contained essence list.\n"
-		"   --aaf-clips            Displays AAF clip list.\n"
-		"   --aaf-classes          Displays AAF Classes. The ones from\n"
+		"   --aaf-essences         Lists AAF essences.\n"
+		"   --aaf-clips            Lists AAF clips.\n"
+		"   --aaf-classes          Lists AAF Classes. The ones from\n"
 		"                          MetaDictionary are shown in yellow.\n"
-		"   --aaf-meta             Displays Classes and Properties from\n"
+		"   --aaf-meta             Lists Classes and Properties from\n"
 		"                          the MetaDictionary.\n"
+		"   --aaf-properties       Displays all Properties.\n"
 		"\n\n"
 	);
 
@@ -333,19 +334,20 @@ void showHelp()
 int main( int argc, char *argv[] )
 {
 
-//	int cfb_summary  = 0;
-	int cfb_header   = 0;
-	int cfb_fat      = 0;
-	int cfb_minifat  = 0;
-	int cfb_difat    = 0;
-	int cfb_nodes    = 0;
+//	int cfb_summary    = 0;
+	int cfb_header     = 0;
+	int cfb_fat        = 0;
+	int cfb_minifat    = 0;
+	int cfb_difat      = 0;
+	int cfb_nodes      = 0;
 
-	int aaf_summary  = 0;
-//	int aaf_origin   = 0;
-	int aaf_essences = 0;
-	int aaf_clips    = 0;
-	int aaf_classes  = 0;
-	int aaf_meta     = 0;
+	int aaf_summary    = 0;
+//	int aaf_origin     = 0;
+	int aaf_essences   = 0;
+	int aaf_clips      = 0;
+	int aaf_classes    = 0;
+	int aaf_meta       = 0;
+	int aaf_properties = 0;
 
 	char *get_node_str = NULL;
 
@@ -371,6 +373,7 @@ int main( int argc, char *argv[] )
 		{ "aaf-clips",      no_argument,        0,  0x89 },
 		{ "aaf-classes",    no_argument,        0,  0x8a },
 		{ "aaf-meta",       no_argument,        0,  0x8b },
+		{ "aaf-properties", no_argument,        0,  0x8c },
 
 		{ "get-node",   	required_argument,	0,	0x99 },
 //		{ "get-node-id",	required_argument,	0,	0x87 },
@@ -392,27 +395,28 @@ int main( int argc, char *argv[] )
 
 		switch ( c )
 		{
-//			case 0x80:  cfb_summary  = 1;         cmd++;       break;
-			case 0x81:  cfb_header   = 1;         cmd++;       break;
-			case 0x82:  cfb_fat      = 1;         cmd++;       break;
-			case 0x83:  cfb_minifat  = 1;         cmd++;       break;
-			case 0x84:  cfb_difat    = 1;         cmd++;       break;
-			case 0x85:  cfb_nodes    = 1;         cmd++;       break;
+//			case 0x80:  cfb_summary    = 1;         cmd++;       break;
+			case 0x81:  cfb_header     = 1;         cmd++;       break;
+			case 0x82:  cfb_fat        = 1;         cmd++;       break;
+			case 0x83:  cfb_minifat    = 1;         cmd++;       break;
+			case 0x84:  cfb_difat      = 1;         cmd++;       break;
+			case 0x85:  cfb_nodes      = 1;         cmd++;       break;
 
-			case 0x86:  aaf_summary  = 1;         cmd++;       break;
-//			case 0x87:  aaf_origin   = 1;         cmd++;       break;
-			case 0x88:  aaf_essences = 1;         cmd++;       break;
-			case 0x89:  aaf_clips    = 1;         cmd++;       break;
-			case 0x8a:  aaf_classes  = 1;         cmd++;       break;
-			case 0x8b:  aaf_meta     = 1;         cmd++;       break;
+			case 0x86:  aaf_summary    = 1;         cmd++;       break;
+//			case 0x87:  aaf_origin     = 1;         cmd++;       break;
+			case 0x88:  aaf_essences   = 1;         cmd++;       break;
+			case 0x89:  aaf_clips      = 1;         cmd++;       break;
+			case 0x8a:  aaf_classes    = 1;         cmd++;       break;
+			case 0x8b:  aaf_meta       = 1;         cmd++;       break;
+			case 0x8c:  aaf_properties = 1;         cmd++;       break;
 
-			case 0x99:	get_node_str = optarg;    cmd++;       break;
+			case 0x99:	get_node_str   = optarg;    cmd++;       break;
 
-//			case 0x81:	get_node_id = optarg;     cmd++;       break;
+//			case 0x81:	get_node_id    = optarg;    cmd++;       break;
 
-			case 'h':	showHelp();               cmd++;       break;
+			case 'h':	showHelp();                 cmd++;       break;
 
-			default:                              cmd++;       break;
+			default:                                cmd++;       break;
 		}
 	}
 
@@ -997,7 +1001,46 @@ int main( int argc, char *argv[] )
 	}
 
 
-	aafi_release( &aafi );
+	if ( aaf_properties )
+	{
+		// aafProperty *Prop = NULL;
+		aafObject *Object = NULL;
+
+		for ( Object = aafd->Objects; Object != NULL; Object = Object->nextObj )
+		{
+			char *objPath = aaf_get_ObjectPath( Object );
+
+			printf( "\n\n\n Object @ %s", objPath );
+
+			free( objPath );
+
+
+			aafProperty *Prop = NULL;
+
+			for ( Prop = Object->Properties; Prop != NULL; Prop = Prop->next )
+			{
+				printf( ":.: (0x%04x) %s\n", Prop->pid, PIDToText( Prop->pid ) );
+				//
+				// // WARNING : Wont print strong references (set/vector) corectly.
+				cfb_printStream( Prop->val, Prop->len );
+			}
+		}
+	}
+
+
+
+
+
+
+	if ( aafi != NULL )
+	{
+		aafi_release( &aafi );
+	}
+
+	if ( aafd != NULL )
+	{
+		aaf_release( &aafd );
+	}
 
 	return 0;
 }
