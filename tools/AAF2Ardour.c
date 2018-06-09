@@ -29,8 +29,6 @@ int main( int argc, char *argv[] )
 	retrieveClips( aafi );
 
 
-	aafiAudioEssence *ae = NULL;
-
 
 	char progPath[1024];
 	memset(progPath, 0x00, 1024);
