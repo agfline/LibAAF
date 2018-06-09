@@ -1004,7 +1004,7 @@ int main( int argc, char *argv[] )
 	if ( aaf_properties )
 	{
 		// aafProperty *Prop = NULL;
-		aafObject *Object = NULL;
+		aafObject *Object = aafd->Objects;
 
 		for ( Object = aafd->Objects; Object != NULL; Object = Object->nextObj )
 		{
@@ -1021,7 +1021,7 @@ int main( int argc, char *argv[] )
 			{
 				printf( ":.: (0x%04x) %s\n", Prop->pid, PIDToText( Prop->pid ) );
 				//
-				// // WARNING : Wont print strong references (set/vector) corectly.
+				// WARNING : Wont print strong references (set/vector) corectly.
 				cfb_printStream( Prop->val, Prop->len );
 			}
 		}
@@ -1036,8 +1036,7 @@ int main( int argc, char *argv[] )
 	{
 		aafi_release( &aafi );
 	}
-
-	if ( aafd != NULL )
+	else if ( aafd != NULL )
 	{
 		aaf_release( &aafd );
 	}
