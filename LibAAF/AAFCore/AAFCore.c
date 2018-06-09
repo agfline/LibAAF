@@ -790,7 +790,8 @@ void * aaf_get_propertyIndirectValue( aafObject *Obj, aafPID_t pid )
 
 static aafObject * newObject( AAF_Data *aafd, cfbNode *Node, aafClass *Class, aafObject *Parent )
 {
-	aafObject *Obj = malloc( sizeof(aafObject) );
+	// aafObject *Obj = malloc( sizeof(aafObject) ); // NOTE valgrind errors on AAFInfo --aaf-properties
+	aafObject *Obj = calloc( sizeof(aafObject), sizeof(unsigned char) );
 
 	if ( Obj == NULL )
 		_fatal( "%s.\n", strerror( errno ) );
@@ -806,6 +807,7 @@ static aafObject * newObject( AAF_Data *aafd, cfbNode *Node, aafClass *Class, aa
 	Obj->Entry      = NULL;
 
 	Obj->next       = NULL;
+	Obj->prev       = NULL;
 	Obj->nextObj    = aafd->Objects;
 	aafd->Objects   = Obj;
 
