@@ -1,3 +1,9 @@
-*
+**
 
 !.gitignore
+
+!/Ardour
+!/Ardour/session
+!/Ardour/session/interchange
+!/Ardour/session/interchange/testF3
+!/Ardour/session/interchange/testF3/audiofiles
