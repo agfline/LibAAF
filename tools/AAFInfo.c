@@ -717,12 +717,12 @@ int main( int argc, char *argv[] )
 		foreachAudioEssence( audioEssence, aafi->Audio->Essences )
 		{
 			if ( audioEssence->type == AAFI_TYPE_PCM || audioEssence->type == AAFI_TYPE_WAVE )
-				printf( " Audio_%s:%u%s   Duration: %u h  %02u mn  %02u s  %03u ms   %u Ch - %u Hz - %u bit  %s\n",
+				printf( " %s%u:  Type: %s  Duration: %u h  %02u mn  %02u s  %03u ms   %u Ch - %u Hz - %u bit  %s  %s\n",
+					( i < 10 ) ? " " : "", i,
 					( audioEssence->type == AAFI_TYPE_PCM  ) ? "PCM"  :
 					( audioEssence->type == AAFI_TYPE_WAVE ) ? "WAVE" :
 					( audioEssence->type == AAFI_TYPE_AIFC ) ? "AIFC" :
 					( audioEssence->type == AAFI_TYPE_BWAV ) ? "BWAV" : "",
-					i, ( i < 10 ) ? " " : "",
 					(uint16_t)(audioEssence->length / audioEssence->nSamplesPerSec / (audioEssence->wBitsPerSample / 8)) / 3600,
 					(uint16_t)(audioEssence->length / audioEssence->nSamplesPerSec / (audioEssence->wBitsPerSample / 8)) % 3600 / 60,
 					(uint16_t)(audioEssence->length / audioEssence->nSamplesPerSec / (audioEssence->wBitsPerSample / 8)) % 3600 % 60,
@@ -730,7 +730,8 @@ int main( int argc, char *argv[] )
 					audioEssence->nChannels,
 					audioEssence->nSamplesPerSec,
 					audioEssence->wBitsPerSample,
-					(audioEssence->file == NULL) ? "file: EMBEDDED" : audioEssence->file
+					(audioEssence->file == NULL) ? "file: EMBEDDED" : audioEssence->file,
+					audioEssence->file_name
 				);
 			else
 			{
