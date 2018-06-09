@@ -2,7 +2,7 @@
 #define __Ardour_SessionFile_h__
 
 static const char ARDOUR_SESSION_FILE_CONTENT[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>  \n\
-<Session version=\"3002\" name=\"testF3\" sample-rate=\"48000\" end-is-free=\"0\" id-counter=\"16454\" name-counter=\"1\" event-counter=\"378\" vca-counter=\"1\">  \n\
+<Session version=\"3002\" name=\"AAF\" sample-rate=\"48000\" end-is-free=\"0\" id-counter=\"16454\" name-counter=\"1\" event-counter=\"378\" vca-counter=\"1\">  \n\
   <ProgramVersion created-with=\"Ardour 1:5.5.0~dfsg-1+b1\" modified-with=\"Ardour 5.10-525-ga1143a0ed\"/>  \n\
   <MIDIPorts>  \n\
     <Port name=\"MIDI Clock in\" direction=\"input\"/>  \n\
