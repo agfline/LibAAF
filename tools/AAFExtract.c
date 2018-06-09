@@ -39,17 +39,23 @@ int main( int argc, char *argv[] )
 
 
 
-	aafiAudioEssence *ae = NULL;
-
+	aafiAudioEssence *audioEssence = NULL;
+	char *filename = NULL;
+	char  target[255];
 	uint32_t i = 0;
 
-	foreachAudioEssence( ae, aafi->Audio->Essences )
+	foreachAudioEssence( audioEssence, aafi->Audio->Essences )
 	{
-		char file[255];
+		aafi_get_essence_filename( audioEssence, &filename, aafi->compositionName, &i );
 
-		snprintf( file, 255, "%s%s_%d", progPath, aafi->compositionName, i++ );
+		snprintf( target, 255, "%s%s", progPath, filename );
 
-		extractAudioEssence( aafi, ae, file );
+		extractAudioEssence( aafi, audioEssence, target );
+	}
+
+	if ( filename != NULL )
+	{
+		free( filename );
 	}
 
 
