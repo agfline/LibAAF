@@ -313,6 +313,25 @@ static void aafi_freeTimelineItems( aafiTimelineItem **items )
 		{
 			aafi_freeTransition( (aafiTransition*)&(item->data) );
 		}
+		else if ( item->type == AAFI_CLIP )
+		{
+			aafiAudioClip *audioClip = (aafiAudioClip*)item->data;
+
+			if ( audioClip->gain != NULL )
+			{
+				if ( audioClip->gain->time != NULL )
+				{
+					free( audioClip->gain->time );
+				}
+
+				if ( audioClip->gain->value != NULL )
+				{
+					free( audioClip->gain->value );
+				}
+
+				free( audioClip->gain );
+			}
+		}
 
 		free( item );
 	}
@@ -1602,6 +1621,9 @@ aafiAudioGain * retrieveAudioGain( AAF_Iface *aafi, aafObject *OpGroup )
 			gain->time[i]  = time;
 			gain->value[i] = value;
 
+			// printf("Gain point : %i/%i       %i/%i\n", time->numerator, time->denominator, value->numerator, value->denominator );
+			// printf("Gain point : %f       %f\n", rationalToFloat( time ), rationalToFloat( value ) );
+
 			i++;
 		}
 
@@ -2238,7 +2260,11 @@ int retrieveClips( AAF_Iface *aafi )
 				/*
 				 *	For track-based Gain and PAN. The OperationGroup::InputSegments shall
 				 *	contain the Sequence with SourceClips, or other OperationGroup.
+				 *
+				 *	TODO to be implemented, not encountered yet.
 				 */
+
+			 	PRINT_TRACE( ANSI_COLOR_YE, "%s", ClassIDToText( Segment->Class->ID ) );
 
 			}
 			else if ( auidCmp( Segment->Class->ID, &AAFClassID_Filler ) )
