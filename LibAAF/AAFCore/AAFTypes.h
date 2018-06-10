@@ -59,7 +59,7 @@ typedef enum _eAAFTypeCategory_e
   AAFTypeCatExtEnum       = 13, // extendible enumerated type
   AAFTypeCatIndirect      = 14, // type must be determined at runtime
   AAFTypeCatOpaque        = 15, // type can be determined at runtime
-  AAFTypeCatEncrypted     = 16  // type can be determined at runtime 
+  AAFTypeCatEncrypted     = 16  // type can be determined at runtime
                                  // but bits are encrypted
 } AAFTypeCategory_e;
 */
@@ -152,11 +152,11 @@ typedef struct _aafTimeStamp_t
 typedef int8_t aafProductReleaseType_t;
 typedef enum  _aafProductReleaseType_e
 {
-	AAFVersionUnknown      = 0, 
-	AAFVersionReleased     = 1, 
+	AAFVersionUnknown      = 0,
+	AAFVersionReleased     = 1,
 	AAFVersionDebug        = 2,
-	AAFVersionPatched      = 3, 
-	AAFVersionBeta         = 4, 
+	AAFVersionPatched      = 3,
+	AAFVersionBeta         = 4,
 	AAFVersionPrivateBuild = 5
 
 } aafProductReleaseType_e;
@@ -209,6 +209,8 @@ typedef struct _aafUID_t
 
 } aafUID_t;
 
+static const aafUID_t AUID_NULL =
+{0x00000000, 0x0000, 0x0000, {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
 
 
 
@@ -247,9 +249,9 @@ typedef struct _aafIndirect_t
 typedef int32_t aafElectroSpatialFormulation_t;
 typedef enum _aafElectroSpatialFormulation_e
 {
-	AAFElectroSpatialFormulation_Default                                       = 0, 
-	AAFElectroSpatialFormulation_TwoChannelMode                                = 1, 
-	AAFElectroSpatialFormulation_SingleChannelMode                             = 2, 
+	AAFElectroSpatialFormulation_Default                                       = 0,
+	AAFElectroSpatialFormulation_TwoChannelMode                                = 1,
+	AAFElectroSpatialFormulation_SingleChannelMode                             = 2,
 	AAFElectroSpatialFormulation_PrimarySecondaryMode                          = 3,
 	AAFElectroSpatialFormulation_StereophonicMode                              = 4,
 	AAFElectroSpatialFormulation_SingleChannelDoubleSamplingFrequencyMode      = 7,
@@ -264,9 +266,9 @@ typedef enum _aafElectroSpatialFormulation_e
 typedef int32_t aafFrameLayout_t;
 typedef enum _aafFrameLayout_e
 {
-	AAFFullFrame      = 0, 
-	AAFSeparateFields = 1, 
-	AAFOneField       = 2, 
+	AAFFullFrame      = 0,
+	AAFSeparateFields = 1,
+	AAFOneField       = 2,
 	AAFMixedFields    = 3,
 	AAFSegmentedFrame = 4
 
@@ -320,11 +322,11 @@ typedef enum _aafContentScanningType_e
 typedef int32_t aafColorSiting_t;
 typedef enum _aafColorSiting_e
 {
-	AAFCoSiting      = 0, 
-	AAFAveraging     = 1, 
+	AAFCoSiting      = 0,
+	AAFAveraging     = 1,
 	AAFThreeTap      = 2,
-	AAFQuincunx      = 3, 
-	AAFRec601        = 4, 
+	AAFQuincunx      = 3,
+	AAFRec601        = 4,
 	AAFUnknownSiting = 255
 
 } aafColorSiting_e;
@@ -348,10 +350,10 @@ typedef enum _aafScanningDirection_e
 typedef int32_t aafFilmType_t;
 typedef enum _aafFilmType_e
 {
-	AAFFtNull = 0, 
-	AAFFt35MM = 1, 
-	AAFFt16MM = 2, 
-	AAFFt8MM  = 3, 
+	AAFFtNull = 0,
+	AAFFt35MM = 1,
+	AAFFt16MM = 2,
+	AAFFt8MM  = 3,
 	AAFFt65MM = 4
 
 } aafFilmType_e;
@@ -447,7 +449,7 @@ static const aafUID_t AAFUID_NULL =
 
 typedef struct aafPropertyIndexHeader_t
 {
-	/** 
+	/**
 	 *	The byte order of :
 	 *	- the remaining fields of the aafPropertyIndexHeader_t struct
 	 *	- the aafPropertyIndexEntry_t structs that follow
@@ -483,8 +485,8 @@ typedef struct aafPropertyIndexHeader_t
  *	**properties** stream node. The actual property value
  *	is located bellow all the property entries.
  *
- *	The offset to the property values is calculated by : 
- *	
+ *	The offset to the property values is calculated by :
+ *
  *	@code
 
 	int offset = sizeof(aafPropertyIndexHeader_t) + (aafPropertyIndexHeader_t._entryCount * sizeof(aafPropertyIndexEntry_t))
@@ -492,7 +494,7 @@ typedef struct aafPropertyIndexHeader_t
  *	@endcode
  *	The offset inside the property values is calculated by :
  *
- *	
+ *
 	```
  	for( PropEntry[i]; PropEntry[i] < i; i++ )
 		offset += PropEntry. _length;
@@ -519,7 +521,7 @@ typedef struct aafPropertyIndexEntry_t
 	 *
 	 *	Can take one of the value from #aafStoredForm_e enum.
 	 *
-	 *	Even though only 1 byte is needed, _storedForm is 2 bytes 
+	 *	Even though only 1 byte is needed, _storedForm is 2 bytes
 	 *	in size in order to keep each property index entry an even
 	 *	number of bytes in size.
 	 */
@@ -571,9 +573,9 @@ typedef struct aafStrongRefSetHeader_t
 
 
 	/**
-	 *	The highest unassigned key above #_firstFreeKey. The keys 
-	 *	between #_firstFreeKey and #_lastFreeKey are unassigned, 
-	 *	while there may be other gaps in key assignement this 
+	 *	The highest unassigned key above #_firstFreeKey. The keys
+	 *	between #_firstFreeKey and #_lastFreeKey are unassigned,
+	 *	while there may be other gaps in key assignement this
 	 *	represents the largest one.
 	 */
 
@@ -601,13 +603,13 @@ typedef struct aafStrongRefSetHeader_t
 typedef struct aafStrongRefSetEntry_t
 {
 	/**
-	 *	The #_localKey uniquely identifies this strong reference 
-	 *	within this collection independently of its position 
-	 *	within this collection. The #_localKey is used to form 
-	 *	the name assigned to the element in this set at the 
-	 *	corresponding ordinal position. That is, the #_localKey 
-	 *	of the first aafStrongRefSetEntry_t is used to 
-	 *	form the name of the first element in the set and so 
+	 *	The #_localKey uniquely identifies this strong reference
+	 *	within this collection independently of its position
+	 *	within this collection. The #_localKey is used to form
+	 *	the name assigned to the element in this set at the
+	 *	corresponding ordinal position. That is, the #_localKey
+	 *	of the first aafStrongRefSetEntry_t is used to
+	 *	form the name of the first element in the set and so
 	 *	on. The #_localKey is an insertion key.
 	*/
 
@@ -622,9 +624,9 @@ typedef struct aafStrongRefSetEntry_t
 
 
 	/**
-	 *	The type of the #_identification field varies from one instance 
-	 *	of a StrongReferenceSet to another. The value of the #_identification 
-	 *	field uniquely identifies this object within the set. It is the 
+	 *	The type of the #_identification field varies from one instance
+	 *	of a StrongReferenceSet to another. The value of the #_identification
+	 *	field uniquely identifies this object within the set. It is the
 	 *	search key.
 	 */
 
@@ -664,9 +666,9 @@ typedef struct aafStrongRefVectorHeader_t
 
 
 	/**
-	 *	The highest unassigned key above #_firstFreeKey. The keys 
-	 *	between #_firstFreeKey and #_lastFreeKey are unassigned, 
-	 *	while there may be other gaps in key assignement this 
+	 *	The highest unassigned key above #_firstFreeKey. The keys
+	 *	between #_firstFreeKey and #_lastFreeKey are unassigned,
+	 *	while there may be other gaps in key assignement this
 	 *	represents the largest one.
 	 */
 
@@ -683,13 +685,13 @@ typedef struct aafStrongRefVectorHeader_t
 typedef struct aafStrongRefVectorEntry_t
 {
 	/**
-	 *	The _localKey uniquely identifies this strong reference 
-	 *	within this collection independently of its position 
-	 *	within this collection. The #_localKey is used to form 
-	 *	the name assigned to the element in this vector at the 
-	 *	corresponding ordinal position. That is, the #_localKey 
-	 *	of the first aafStrongRefVectorEntry_t is used to 
-	 *	form the name of the first element in the vector and so 
+	 *	The _localKey uniquely identifies this strong reference
+	 *	within this collection independently of its position
+	 *	within this collection. The #_localKey is used to form
+	 *	the name assigned to the element in this vector at the
+	 *	corresponding ordinal position. That is, the #_localKey
+	 *	of the first aafStrongRefVectorEntry_t is used to
+	 *	form the name of the first element in the vector and so
 	 *	on. The #_localKey is an insertion key.
 	*/
 
@@ -707,9 +709,9 @@ typedef struct aafStrongRefVectorEntry_t
 
 
 /**
- *	A weak object reference is a persistent data type that denotes 
- *	a weak reference to a uniquely identified object. In memory, 
- *	weak references are similar to pointers. When persisted, weak 
+ *	A weak object reference is a persistent data type that denotes
+ *	a weak reference to a uniquely identified object. In memory,
+ *	weak references are similar to pointers. When persisted, weak
  *	references contain the unique identifier of the referenced object.
  *
  *	An aafWeakRef_t can appears as a property value with the
@@ -719,7 +721,7 @@ typedef struct aafStrongRefVectorEntry_t
 typedef struct _WeakObjectReference
 {
 	/**
-	 *	The index into the referenced property table of 
+	 *	The index into the referenced property table of
 	 *	the path to the property (a strong reference set)
 	 *	containing the referenced object.
 	 */
@@ -768,7 +770,7 @@ typedef struct _WeakReferenceIndexHeader
 
 
 	/**
-	 *	The index into the referenced property table of 
+	 *	The index into the referenced property table of
 	 *	the path to the property (a strong reference set)
 	 *	containing the referenced object.
 	 *	@TODO Understand that field..

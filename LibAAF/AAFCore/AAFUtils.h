@@ -33,9 +33,6 @@
 
 
 
-// TODO Shouldn't it be elsewhere ?
-static const aafUID_t AUID_NULL =
-{0x00000000, 0x0000, 0x0000, {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
 
 
 /**
@@ -44,14 +41,6 @@ static const aafUID_t AUID_NULL =
 
 #define auidCmp( auid1, auid2 ) \
 	( memcmp( auid1, auid2, sizeof(aafUID_t) ) == 0 )
-
-/*
-	NOTE The following isn't working when compiling with gcc -O3
-
-#define auidCmp( auid1, auid2 ) \
-	( *(uint64_t*)auid1     == *(uint64_t*)auid2 || \
-	  *(uint64_t*)(auid1+8) == *(uint64_t*)(auid2+8) )
-*/
 
 
 
@@ -76,10 +65,14 @@ static const aafUID_t AUID_NULL =
 /**
  *	Converts an aafRational_t to a float number.
  */
+
 #define rationalToFloat( r ) \
 	(( r->denominator == 0 ) ? 0 : ((float)r->numerator/r->denominator))
 
 
+/**
+ *	Converts an aafRational_t to a int64 number.
+ */
 
 #define rationalToint64( r ) \
 	(( r->denominator == 0 ) ? 0 : (int64_t)(r->numerator/r->denominator))
