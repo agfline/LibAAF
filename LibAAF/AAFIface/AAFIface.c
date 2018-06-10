@@ -2064,6 +2064,21 @@ static void retrieve_Component( AAF_Iface *aafi, aafiAudioTrack *track, aafPosit
 
 
 
+/*
+static int is_context( aafObject *Obj, aafUID_t *ClassID )
+{
+	while ( Obj != NULL )
+	{
+		if ( auidCmp( Obj->Class->ID, ClassID ) )
+		{
+			return 1;
+		}
+	}
+
+	return 0;
+}
+*/
+
 static void retrieve_Segment( AAF_Iface *aafi, aafiAudioTrack *track, aafPosition_t *pos, aafObject *Segment, struct trace_log *TRACE_LOG )
 {
 
