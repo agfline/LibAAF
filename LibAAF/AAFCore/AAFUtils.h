@@ -36,7 +36,7 @@
 
 
 /**
- *	Compare two aafUID_t, returns 1 if equal or 0 otherwise.
+ *	Compares two aafUID_t, returns 1 if equal or 0 otherwise.
  */
 
 #define auidCmp( auid1, auid2 ) \
@@ -45,7 +45,7 @@
 
 
 /**
- *	Compare two aafMobID_t, returns 1 if equal or 0 otherwise.
+ *	Compares two aafMobID_t, returns 1 if equal or 0 otherwise.
  */
 
 #define mobIDCmp( mobID1, mobID2 ) \
@@ -54,7 +54,7 @@
 
 
 /**
- *	Compare two aafSlotID_t, returns 1 if equal or 0 otherwise.
+ *	Compares two aafSlotID_t, returns 1 if equal or 0 otherwise.
  */
 
 #define slotIDCmp( slotID1, slotID2 ) \
