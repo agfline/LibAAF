@@ -131,6 +131,11 @@ static void aafi_freeTransition( aafiTransition *trans );
 static void aafi_freeAudioEssences( aafiAudioEssence **essences );
 static void aafi_freeEssenceDataNodes( aafiEssenceDataNode **nodes );
 
+static void retrieve_OperationGroup( AAF_Iface *aafi, aafPosition_t *pos, aafiAudioTrack *track, aafObject *OpGroup, struct trace_log *TRACE_LOG );
+static void retrieve_Transition( AAF_Iface *aafi, aafiAudioTrack *track, aafObject *Transition, struct trace_log *TRACE_LOG );
+static void retrieve_Component( AAF_Iface *aafi, aafiAudioTrack *track, aafPosition_t *pos, aafObject *Component, struct trace_log *TRACE_LOG );
+static void retrieve_Segment( AAF_Iface *aafi, aafiAudioTrack *track, aafPosition_t *pos, aafObject *Segment, struct trace_log *TRACE_LOG );
+
 
 
 
@@ -427,6 +432,9 @@ aafiAudioTrack * aafi_newAudioTrack( AAF_Iface *aafi, aafObject *MobSlot, uint32
 	{
 		aafi->Audio->Tracks = track;
 	}
+
+
+	track->Audio = aafi->Audio;
 
 
 	return track;
@@ -1168,7 +1176,6 @@ int retrieveEssences( AAF_Iface *aafi )
 
 			/* Get MobSlot::Segment */
 			aafObject  *Segment     = aaf_get_propertyValue( MobSlot, PID_MobSlot_Segment );
-
 			aafMobID_t *SourceMobID = NULL;
 
 
@@ -1181,6 +1188,8 @@ int retrieveEssences( AAF_Iface *aafi )
 			 * a SourceClips list, it means that each SourceClip represents
 			 * a part of one essence.
 			 */
+
+			 printf("RETRIEVE ESSENCES : %s\n", ClassIDToText( Segment->Parent->Parent->Class->ID ) );
 
 			if ( auidCmp( Segment->Class->ID, &AAFClassID_Sequence ) )
 			{
@@ -1298,85 +1307,99 @@ int retrieveEssences( AAF_Iface *aafi )
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* In a Composition Mob, it represents the timecode associated
    with the virtual media represented by the  Composition Mob. */
-
-aafiTimecode * get_CompoMob_Timecode( AAF_Data *aafd, aafObject *CompoMob )
-{
-
-	aafiTimecode *tc = NULL;
-
-
-	aafObject *MobSlots = aaf_get_propertyValue( CompoMob, PID_Mob_Slots );
-	aafObject *MobSlot  = NULL;
-
-	aaf_foreach_ObjectInSet( &MobSlot, MobSlots, &AAFClassID_TimelineMobSlot )
-	{
-
-		/* Get MobSlot::Segment > Component::DataDefinition */
-		aafUID_t *DataDef = getMobSlotDataDef( aafd->DataDefinition, MobSlot );
-
-		if ( DataDef == NULL )
-			_fatal( "Could not retrieve MobSlot's DataDefinition.\n" );
-
-
-		if ( auidCmp( DataDef, &AAFDataDef_Timecode )       == 0 &&
-			 auidCmp( DataDef, &AAFDataDef_LegacyTimecode ) == 0 )
-		{
-			continue;
-		}
-
-
-
-		aafObject * Segment = aaf_get_propertyValue( MobSlot, PID_MobSlot_Segment );
-
-		if ( Segment == NULL || auidCmp( Segment->Class->ID, &AAFClassID_Timecode ) == 0 )
-			continue;
-
-
-
-		tc = calloc( sizeof(aafiTimecode), sizeof(unsigned char) );
-
-		if ( tc == NULL )
-			_fatal( "%s.\n", strerror( errno ) );
-
-
-
-		int64_t  *tc_start = (int64_t *)aaf_get_propertyValue( Segment, PID_Timecode_Start );
-
-		if ( tc_start == NULL )
-			_fatal( "Missing Timecode::Start.\n" );
-
-
-		uint16_t *tc_fps   = (uint16_t*)aaf_get_propertyValue( Segment, PID_Timecode_FPS   );
-
-		if ( tc_fps == NULL )
-			_fatal( "Missing Timecode::FPS.\n" );
-
-
-		uint8_t  *tc_drop  = (uint8_t *)aaf_get_propertyValue( Segment, PID_Timecode_Drop  );
-
-		if ( tc_drop == NULL )
-			_fatal( "Missing Timecode::Drop.\n" );
-
-
-		tc->start = *tc_start;
-		tc->fps   = *tc_fps;
-		tc->drop  = *tc_drop;
-
-		break;
-	}
-
-	return tc;
-}
-
-
+//
+// aafiTimecode * get_CompoMob_Timecode( AAF_Data *aafd, aafObject *CompoMob )
+// {
+//
+// 	aafiTimecode *tc = NULL;
+//
+//
+// 	aafObject *MobSlots = aaf_get_propertyValue( CompoMob, PID_Mob_Slots );
+// 	aafObject *MobSlot  = NULL;
+//
+// 	aaf_foreach_ObjectInSet( &MobSlot, MobSlots, &AAFClassID_TimelineMobSlot )
+// 	{
+//
+// 		/* Get MobSlot::Segment > Component::DataDefinition */
+// 		aafUID_t *DataDef = getMobSlotDataDef( aafd->DataDefinition, MobSlot );
+//
+// 		if ( DataDef == NULL )
+// 			_fatal( "Could not retrieve MobSlot's DataDefinition.\n" );
+//
+//
+// 		if ( auidCmp( DataDef, &AAFDataDef_Timecode )       == 0 &&
+// 			 auidCmp( DataDef, &AAFDataDef_LegacyTimecode ) == 0 )
+// 		{
+// 			continue;
+// 		}
+//
+//
+//
+// 		aafObject * Segment = aaf_get_propertyValue( MobSlot, PID_MobSlot_Segment );
+//
+// 		if ( Segment == NULL || auidCmp( Segment->Class->ID, &AAFClassID_Timecode ) == 0 )
+// 			continue;
+//
+//
+//
+// 		tc = calloc( sizeof(aafiTimecode), sizeof(unsigned char) );
+//
+// 		if ( tc == NULL )
+// 			_fatal( "%s.\n", strerror( errno ) );
+//
+//
+//
+// 		int64_t  *tc_start = (int64_t *)aaf_get_propertyValue( Segment, PID_Timecode_Start );
+//
+// 		if ( tc_start == NULL )
+// 			_fatal( "Missing Timecode::Start.\n" );
+//
+//
+// 		uint16_t *tc_fps   = (uint16_t*)aaf_get_propertyValue( Segment, PID_Timecode_FPS   );
+//
+// 		if ( tc_fps == NULL )
+// 			_fatal( "Missing Timecode::FPS.\n" );
+//
+//
+// 		uint8_t  *tc_drop  = (uint8_t *)aaf_get_propertyValue( Segment, PID_Timecode_Drop  );
+//
+// 		if ( tc_drop == NULL )
+// 			_fatal( "Missing Timecode::Drop.\n" );
+//
+//
+// 		tc->start = *tc_start;
+// 		tc->fps   = *tc_fps;
+// 		tc->drop  = *tc_drop;
+//
+// 		break;
+// 	}
+//
+// 	return tc;
+// }
 
 
 
 
 
-aafiTimecode * retrieve_CompoMob_Timecode( AAF_Iface *aafi, aafObject *Timecode )
+
+
+aafiTimecode * retrieve_Timecode( AAF_Iface *aafi, aafObject *Timecode )
 {
 
 	aafiTimecode *tc = calloc( sizeof(aafiTimecode), sizeof(unsigned char) );
@@ -1439,21 +1462,15 @@ aafiAudioEssence * getEssenceByMasterMobID( AAF_Iface *aafi, aafMobID_t *SourceI
 
 
 
-aafiAudioClip * retrieve_CompoMob_SourceClip( AAF_Iface *aafi, aafPosition_t *pos, aafiAudioTrack *track, aafObject *SourceClip )
+aafiAudioClip * retrieve_SourceClip( AAF_Iface *aafi, aafiAudioTrack *track, aafPosition_t *pos, aafObject *SourceClip )
 {
 
-	aafiTimelineItem *item = aafi_newTimelineItem( track, AAFI_CLIP );
+	aafiTimelineItem *item  = aafi_newTimelineItem( track, AAFI_CLIP );
 
-	aafiAudioClip *aClip = (aafiAudioClip*)&item->data;
+	aafiAudioClip    *aClip = (aafiAudioClip*)&item->data;
 
-//	aClip->edit_rate  = pos->edit_rate;
-	aClip->pos        = *pos;
 
-//	aClip->editRate    = rationalToFloat( track->edit_rate );
-
-//	aClip->timelinePos = pos->cursor;
-
-//	aClip->track = track;
+	aClip->pos = *pos;
 
 
 
@@ -1461,8 +1478,6 @@ aafiAudioClip * retrieve_CompoMob_SourceClip( AAF_Iface *aafi, aafPosition_t *po
 
 	if ( length == NULL )
 		_fatal( "Missing SourceClip Component::Length !\n" );
-
-//	aClip->length = *length;
 
 	aClip->len = *length;
 
@@ -1473,14 +1488,15 @@ aafiAudioClip * retrieve_CompoMob_SourceClip( AAF_Iface *aafi, aafPosition_t *po
 	if ( startTime == NULL )
 		_fatal( "Missing SourceClip::StartTime" );
 
-//	aClip->essenceStartOffset = *startTime;
 	aClip->essence_offset = *startTime;
+
 
 
 	aClip->sourceID = (aafMobID_t*)aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceID );
 
 	if ( aClip->sourceID == NULL )
 		_fatal( "Missing SourceReference::SourceID\n" );
+
 
 
 	aClip->Essence = getEssenceByMasterMobID( aafi, aClip->sourceID );
@@ -1638,7 +1654,7 @@ aafiAudioGain * retrieveAudioGain( AAF_Iface *aafi, aafObject *OpGroup )
 
 
 
-uint64_t retrieve_CompoMob_OperationGroup( AAF_Iface *aafi, aafPosition_t *pos, aafiAudioTrack *track, aafObject *OpGroup, struct trace_log *TRACE_LOG )
+static void retrieve_OperationGroup( AAF_Iface *aafi, aafPosition_t *pos, aafiAudioTrack *track, aafObject *OpGroup, struct trace_log *TRACE_LOG )
 {
 
 	/*
@@ -1662,21 +1678,21 @@ uint64_t retrieve_CompoMob_OperationGroup( AAF_Iface *aafi, aafPosition_t *pos, 
 		 *	Mono Audio Gain (Clip Gain)
 		 */
 
-		PUSH_TRACE( "OperationGroup__MonoAudioGain__::InputSegments" );
+		// PUSH_TRACE( "OperationGroup__MonoAudioGain__::InputSegments" );
 
 		gain = retrieveAudioGain( aafi, OpGroup );
 
 	}
-//	else if ( auidCmp( OpIdent, &AAFOperationDef_MonoAudioPan ) )
-//	{
-		/*
-		 *	Mono Audio Pan (Track Pan)
-		 *
-		 *	TODO : Only Track-based
-		 */
-
-//		PUSH_TRACE( "OperationGroup__MonoAudioPan__::InputSegments" );
-//	}
+	// else if ( auidCmp( OpIdent, &AAFOperationDef_MonoAudioPan ) )
+	// {
+	// 	/*
+	// 	 *	Mono Audio Pan (Track Pan)
+	// 	 *
+	// 	 *	TODO : Only Track-based
+	// 	 */
+    //
+	// 	PUSH_TRACE( "OperationGroup__MonoAudioPan__::InputSegments" );
+	// }
 	else if ( auidCmp( OpIdent, &AAFOperationDef_MonoAudioMixdown ) )
 	{
 		/*
@@ -1685,7 +1701,7 @@ uint64_t retrieve_CompoMob_OperationGroup( AAF_Iface *aafi, aafPosition_t *pos, 
 		 *	TODO Unknown usage and implementation
 		 */
 
-		PUSH_TRACE( "OperationGroup__MonoAudioMixdown__::InputSegments" );
+		// PUSH_TRACE( "OperationGroup__MonoAudioMixdown__::InputSegments" );
 	}
 	else if ( auidCmp( OpIdent, &AAFOperationDef_StereoAudioGain ) )
 	{
@@ -1695,7 +1711,7 @@ uint64_t retrieve_CompoMob_OperationGroup( AAF_Iface *aafi, aafPosition_t *pos, 
 		 *	TODO Unknown usage and implementation
 		 */
 
-		PUSH_TRACE( "OperationGroup__StereoAudioGain__::InputSegments" );
+		// PUSH_TRACE( "OperationGroup__StereoAudioGain__::InputSegments" );
 	}
 	else
 	{
@@ -1703,7 +1719,7 @@ uint64_t retrieve_CompoMob_OperationGroup( AAF_Iface *aafi, aafPosition_t *pos, 
 			OperationDefToText( OpIdent )
 		);
 
-		return 1;
+		return;
 	}
 
 
@@ -1726,35 +1742,23 @@ uint64_t retrieve_CompoMob_OperationGroup( AAF_Iface *aafi, aafPosition_t *pos, 
 		}
 
 
-		PRINT_TRACE( ANSI_COLOR_GREEN, "SourceClip" );
+		// PRINT_TRACE( ANSI_COLOR_GREEN, "SourceClip" );
 
-		aafiAudioClip *aClip = retrieve_CompoMob_SourceClip( aafi, pos, track, InputSegment );
-
-		// aafObject *tmpMob = NULL;
-		// aaf_foreach_ObjectInSet( &tmpMob, aafi->aafd->Mobs, NULL )
-		// {
-		// 	aafMobID_t *tmpMobId = (aafMobID_t*)aaf_get_propertyValue( tmpMob, PID_Mob_MobID );
-        //
-		// 	if ( mobIDCmp( tmpMobId, aClip->sourceID ) )
-		// 	{
-		// 		printf("FOUND CLIP NAME : %s\n", aaf_get_propertyValueText( tmpMob, PID_Mob_Name ) );
-		// 	}
-		// }
+		aafiAudioClip *aClip = retrieve_SourceClip( aafi, track, pos, InputSegment );
 
 		aClip->gain = gain;
-
 	}
 
-	POP_TRACE();
+	// POP_TRACE();
 
-	return 0;
+	// return 0;
 }
 
 
 
 
 
-void retrieve_CompoMob_Transition( AAF_Iface *aafi, aafiAudioTrack *track, aafObject *Transition, struct trace_log *TRACE_LOG )
+static void retrieve_Transition( AAF_Iface *aafi, aafiAudioTrack *track, aafObject *Transition, struct trace_log *TRACE_LOG )
 {
 
 	aafObject * OpGroup = aaf_get_propertyValue( Transition, PID_Transition_OperationGroup );
@@ -1828,18 +1832,19 @@ void retrieve_CompoMob_Transition( AAF_Iface *aafi, aafiAudioTrack *track, aafOb
 		 *	TODO ./TestFiles/2985731\ \ -\ \ OFF\ CIGOGNE\ A\ LIMOGES_WAVE+AVID.aaf
 		 *	Look at OperationDefinition::ParametersDefined ???
 		 */
-		PRINT_TRACE( ANSI_COLOR_GREEN, "Transition::OperationGroup" );
+		// PRINT_TRACE( ANSI_COLOR_GREEN, "Transition::OperationGroup" );
 //		printf( "OpIdentification : %s\n", OperationDefToText( OpIdent ) );
 
 		printf( "\n\nxxx OperationGroup xxx\n" );
 		printObjectProperties( OpGroup );
 		printf( "\n\nxxx Transition xxx\n" );
 		printObjectProperties( Transition );
+
 		return;
 	}
 	else
 	{
-		PUSH_TRACE( "Transition::OperationGroup" );
+		// PUSH_TRACE( "Transition::OperationGroup" );
 	}
 //		_fatal( "Missing OperationGroup::Parameters.\n" );
 
@@ -1854,7 +1859,7 @@ void retrieve_CompoMob_Transition( AAF_Iface *aafi, aafiAudioTrack *track, aafOb
 		 */
 
 		// TODO Wrong trace..
-		PUSH_TRACE( "OperationGroup__MonoAudioDissolve__::PointList" );
+		// PUSH_TRACE( "OperationGroup__MonoAudioDissolve__::PointList" );
 
 		Trans->flags |= AAFI_TRANS_SINGLE_CURVE;
 
@@ -1919,7 +1924,7 @@ void retrieve_CompoMob_Transition( AAF_Iface *aafi, aafiAudioTrack *track, aafOb
 
 		aaf_foreach_ObjectInSet( &Point, Points, &AAFClassID_ControlPoint )
 		{
-			PRINT_TRACE( ANSI_COLOR_GREEN, "ControlPoint" );
+			// PRINT_TRACE( ANSI_COLOR_GREEN, "ControlPoint" );
 
 			aafRational_t *time  = aaf_get_propertyValue( Point, PID_ControlPoint_Time );
 
@@ -1968,7 +1973,7 @@ void retrieve_CompoMob_Transition( AAF_Iface *aafi, aafiAudioTrack *track, aafOb
 		 *	Two distinct parameters are used for outgoing and incoming fades.
 		 */
 
-		PRINT_TRACE( ANSI_COLOR_RED, "OperationGroup__TwoParameterMonoAudioDissolve__::InputSegments" );
+		// PRINT_TRACE( ANSI_COLOR_RED, "OperationGroup__TwoParameterMonoAudioDissolve__::InputSegments" );
 
 		Trans->flags |= AAFI_TRANS_TWO_CURVE;
 	}
@@ -1980,7 +1985,7 @@ void retrieve_CompoMob_Transition( AAF_Iface *aafi, aafiAudioTrack *track, aafOb
 		 *	TODO Unknown usage and implementation
 		 */
 
-		PRINT_TRACE( ANSI_COLOR_RED, "OperationGroup__StereoAudioDissolve__::InputSegments" );
+		// PRINT_TRACE( ANSI_COLOR_RED, "OperationGroup__StereoAudioDissolve__::InputSegments" );
 	}
 	else
 	{
@@ -1991,8 +1996,187 @@ void retrieve_CompoMob_Transition( AAF_Iface *aafi, aafiAudioTrack *track, aafOb
 //		return;
 	}
 
-	POP_TRACE();
+	// POP_TRACE();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+		        Component
+		            |
+		      ,-----------.
+		      |           |
+         Transition    Segment
+		                  |
+		                  |--> Sequence
+		                  |--> Filler
+		                  |--> TimeCode
+		                  |--> OperationGroup
+		                  `--> SourceClip
+*/
+
+static void retrieve_Component( AAF_Iface *aafi, aafiAudioTrack *track, aafPosition_t *pos, aafObject *Component, struct trace_log *TRACE_LOG )
+{
+	if ( auidCmp( Component->Class->ID, &AAFClassID_Transition ) )
+	{
+		/*
+		 *	A Transition between a Filler and a SourceClip sets a Fade In.
+		 *	A Transition between a SourceClip and a Filler sets a Fade Out.
+		 *	A Transition between two SourceClips sets a Cross-Fade.
+		 *
+		 *	Since the Transition applies to the elements that suround it in
+		 *	the Sequence, the OperationGroup::InputSegments is then left unused.
+		 */
+
+		int64_t *length = aaf_get_propertyValue( Component, PID_Component_Length );
+
+		if ( length == NULL )
+			_fatal( "Missing Filler Component::Length\n" );
+
+		*pos -= *length;
+
+		retrieve_Transition( aafi, track, Component, TRACE_LOG );
+	}
+	else
+	{
+		retrieve_Segment( aafi, track, pos, Component, TRACE_LOG );
+	}
+}
+
+
+
+
+
+static void retrieve_Segment( AAF_Iface *aafi, aafiAudioTrack *track, aafPosition_t *pos, aafObject *Segment, struct trace_log *TRACE_LOG )
+{
+
+	printf("PARENT CONTEXT : %s\n", ClassIDToText( Segment->Parent->Class->ID ) );
+
+	if ( auidCmp( Segment->Class->ID, &AAFClassID_Sequence ) )
+	{
+
+		/* Get Sequence's Components */
+		aafObject * Components = aaf_get_propertyValue( Segment, PID_Sequence_Components );
+		aafObject * Component  = NULL;
+
+		/* Loop through Sequence's Components */
+		aaf_foreach_ObjectInSet( &Component, Components, NULL )
+		{
+			retrieve_Component( aafi, track, pos, Component, TRACE_LOG );
+		}
+
+	}
+	else if ( auidCmp( Segment->Class->ID, &AAFClassID_SourceClip ) )
+	{
+
+		/*
+		 *	A simple SourceClip.
+		 */
+
+		retrieve_SourceClip( aafi, track, pos, Segment );
+
+	}
+	else if ( auidCmp( Segment->Class->ID, &AAFClassID_Timecode ) )
+	{
+
+		/*
+		 *	TODO can contain sequence ? other Timecode SMPTE ..
+		 */
+
+		// PRINT_TRACE( ANSI_COLOR_GREEN, "Timecode" );
+
+		retrieve_Timecode( aafi, Segment );
+
+	}
+	else if ( auidCmp( Segment->Class->ID, &AAFClassID_OperationGroup ) )
+	{
+
+		if ( auidCmp( Segment->Parent->Class->ID, &AAFClassID_TimelineMobSlot ) )
+		{
+			/*
+			 *	For track-based Gain and PAN. The OperationGroup::InputSegments shall
+			 *	contain the Sequence with SourceClips, or other OperationGroup.
+			 *
+			 *	TODO to be implemented, not encountered yet.
+			 */
+		}
+		else if ( auidCmp( Segment->Parent->Class->ID, &AAFClassID_Sequence ) )
+		{
+			/*
+			 *	OperationGroup
+			 *
+			 *	An OperationGroup allows to apply an effect to one or more
+			 *	SourceClips.
+			 *
+			 *	SourceClip(s) are in OperationGroup::InputSegments.
+			 */
+
+			retrieve_OperationGroup( aafi, pos, track, Segment, TRACE_LOG );
+		}
+
+	}
+	else if ( auidCmp( Segment->Class->ID, &AAFClassID_Filler ) )
+	{
+
+		if ( auidCmp( Segment->Parent->Class->ID, &AAFClassID_TimelineMobSlot ) )
+		{
+			/*
+			 *	Just an empty track.
+			 */
+		}
+		else if ( auidCmp( Segment->Parent->Class->ID, &AAFClassID_Sequence ) )
+		{
+			/*
+			 *	This represents an empty space on the timeline, between two clips
+			 *	which is Component::Length long.
+			 */
+
+			int64_t *length = (int64_t*)aaf_get_propertyValue( Segment, PID_Component_Length );
+
+			if ( length == NULL )
+				_fatal( "Missing Filler Component::Length\n" );
+
+			*pos += *length;
+		}
+
+	}
+	else
+	{
+
+		// PRINT_TRACE( ANSI_COLOR_RED, "%s", ClassIDToText( Segment->Class->ID ) );
+
+	}
+
+
+	// POP_TRACE(); // MobSlots::Segment
+}
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2042,7 +2226,7 @@ int retrieveClips( AAF_Iface *aafi )
 
 		aafi->compositionName = aaf_get_propertyValueText( Mob, PID_Mob_Name );
 
-		PUSH_TRACE( "CompositionMob::Slots" );
+		// PUSH_TRACE( "CompositionMob::Slots" );
 
 		/* Get MobSlots */
 		aafObject *MobSlots = aaf_get_propertyValue( Mob, PID_Mob_Slots );
@@ -2100,14 +2284,15 @@ int retrieveClips( AAF_Iface *aafi )
 
 				track = aafi_newAudioTrack( aafi, MobSlot, -1 );
 
-				track->Audio = aafi->Audio;
+				/* TODO shouldn't this be done by aafi_newAudioTrack() ??? */
+				// track->Audio = aafi->Audio;
 			}
 			else if ( auidCmp( DataDef, &AAFDataDef_Timecode ) == 0 &&
 					  auidCmp( DataDef, &AAFDataDef_LegacyTimecode ) == 0 )
 			{
-				PRINT_TRACE( ANSI_COLOR_YELLOW, "TimelineMobSlot__%s",
-					DataDefToText( DataDef )
-				);
+				// PRINT_TRACE( ANSI_COLOR_YELLOW, "TimelineMobSlot__%s",
+				// 	DataDefToText( DataDef )
+				// );
 
 				continue;
 			}
@@ -2119,180 +2304,15 @@ int retrieveClips( AAF_Iface *aafi )
 			/* Get MobSlot::Segment */
 			aafObject *Segment = aaf_get_propertyValue( MobSlot, PID_MobSlot_Segment );
 
-
-			PUSH_TRACE( "TimelineMobSlot__%s__::Segment", DataDefToText( DataDef ) + 11 );
-
-			if ( auidCmp( Segment->Class->ID, &AAFClassID_Sequence ) )
-			{
-
-//				pos.prev_trans_len = 0;
-//				pos = 0; //tc->start;
-
-				/* Get Sequence's Components */
-				aafObject * Components = aaf_get_propertyValue( Segment, PID_Sequence_Components );
-				aafObject * Component  = NULL;
-
-				PUSH_TRACE( "Sequence::Components" );
-
-				/* Loop through Sequence's Components */
-				aaf_foreach_ObjectInSet( &Component, Components, NULL )
-				{
-
-					if ( auidCmp( Component->Class->ID, &AAFClassID_SourceClip ) )
-					{
-						/*
-						 *	SourceClip
-						 *
-						 *	A simple SourceClip.
-						 */
-
-						PRINT_TRACE( ANSI_COLOR_GREEN, "SourceClip" );
-
-						retrieve_CompoMob_SourceClip( aafi, &pos, track, Component );
-
-						// aafiAudioClip *tmpAc = retrieve_CompoMob_SourceClip( aafi, &pos, track, Component );
-						// aafObject *tmpMob = NULL;
-						// aaf_foreach_ObjectInSet( &tmpMob, aafi->aafd->Mobs, NULL )
-						// {
-						// 	aafMobID_t *tmpMobId = (aafMobID_t*)aaf_get_propertyValue( tmpMob, PID_Mob_MobID );
-                        //
-						// 	if ( mobIDCmp( &tmpMobId, tmpAc->sourceID ) )
-						// 	{
-						// 		printf("FOUND CLIP NAME : %s\n", aaf_get_propertyValueText( tmpMob, PID_Mob_Name ) );
-						// 	}
-						// }
-
-					}
-					else if ( auidCmp( Component->Class->ID, &AAFClassID_Filler ) )
-					{
-						/*
-						 *	Filler
-						 *
-						 *	This represents an empty space on the timeline, which is
-						 *	Component::Length long.
-						 */
-
-						PRINT_TRACE( ANSI_COLOR_GREEN, "Filler" );
-
-//						if ( Component->prev == NULL || Component->next == NULL )
-//							continue;
-
-						int64_t *length = (int64_t*)aaf_get_propertyValue( Component, PID_Component_Length );
-
-						if ( length == NULL )
-							_fatal( "Missing Filler Component::Length\n" );
-
-						pos += *length;
-
-//						printf( "FILLER : %li\n", *length );
-
-					}
-					else if ( auidCmp( Component->Class->ID, &AAFClassID_OperationGroup ) )
-					{
-						/*
-						 *	OperationGroup
-						 *
-						 *	An OperationGroup allows to apply an effect to one or more
-						 *	SourceClips.
-						 *
-						 *	SourceClip(s) are in OperationGroup::InputSegments.
-						 */
-
-						retrieve_CompoMob_OperationGroup( aafi, &pos, track, Component, TRACE_LOG );
-
-					}
-					else if ( auidCmp( Component->Class->ID, &AAFClassID_Transition ) )
-					{
-						/*
-						 *	Transition
-						 *
-						 *	A Transition between a Filler and a SourceClip sets a Fade In.
-						 *
-						 *	A Transition between a SourceClip and a Filler sets a Fade Out.
-						 *
-						 *	A Transition between two SourceClips sets a Cross-Fade.
-						 *
-						 *	Since the Transition applies to the elements that suround it in
-						 *	the Sequence, The OperationGroup::InputSegments is then left unused.
-						 */
-
-						int64_t *length = aaf_get_propertyValue( Component, PID_Component_Length );
-
-						pos -= *length;
-
-//						printf( "PREV_TRANS_LEN : %li\n", pos.prev_trans_len );
+			// PUSH_TRACE( "TimelineMobSlot__%s__::Segment", DataDefToText( DataDef ) + 11 );
 
 
-						retrieve_CompoMob_Transition( aafi, track, Component, TRACE_LOG );
-
-
-					} // --- if ( auidCmp( Component->Class->ID, &AAFClassID_Transition ) )
-					else
-					{
-
-						PRINT_TRACE( ANSI_COLOR_YELLOW, "%s",
-							ClassIDToText( Component->Class->ID )
-						);
-
-					}
-
-
-				} // --- aaf_foreach_ObjectInSet( &Component, Components, NULL )
-
-
-				POP_TRACE();
-
-			} // --- if ( auidCmp( Segment->Class->ID, &AAFClassID_Sequence ) )
-			else if ( auidCmp( Segment->Class->ID, &AAFClassID_Timecode ) )
-			{
-				/*
-				 *	TODO can contain sequence ? other Timecode SMPTE ..
-				 */
-
-				PRINT_TRACE( ANSI_COLOR_GREEN, "Timecode" );
-
-				retrieve_CompoMob_Timecode( aafi, Segment );
-
-			}
-			else if ( auidCmp( Segment->Class->ID, &AAFClassID_OperationGroup ) )
-			{
-
-				/*
-				 *	For track-based Gain and PAN. The OperationGroup::InputSegments shall
-				 *	contain the Sequence with SourceClips, or other OperationGroup.
-				 *
-				 *	TODO to be implemented, not encountered yet.
-				 */
-
-			 	PRINT_TRACE( ANSI_COLOR_YE, "%s", ClassIDToText( Segment->Class->ID ) );
-
-			}
-			else if ( auidCmp( Segment->Class->ID, &AAFClassID_Filler ) )
-			{
-
-				/*
-				 *	Some AAF files hold a TimelineMobSlot::Segment > Filler, and thus
-				 *	with no SourceClip. It seems that those represent existing tracks
-				 *	with no clips in the source software.
-				 */
-
-				PRINT_TRACE( ANSI_COLOR_GREEN, "Filler" );
-
-			}
-			else
-			{
-
-				PRINT_TRACE( ANSI_COLOR_RED, "%s", ClassIDToText( Segment->Class->ID ) );
-
-			}
-
-
-			POP_TRACE(); // MobSlots::Segment
+			retrieve_Segment( aafi, track, &pos, Segment, TRACE_LOG );
 
 		} // aaf_foreach_ObjectInSet( &MobSlot, MobSlots, NULL )
 
 
-		POP_TRACE(); // CompositionMob::Slots
+		// POP_TRACE(); // CompositionMob::Slots
 
 	} // end of CompoMobs Loop
 
