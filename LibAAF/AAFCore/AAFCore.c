@@ -668,13 +668,21 @@ aafProperty * aaf_get_property( aafObject *Obj, aafPID_t pid )
 	if ( Obj == NULL )
 		return NULL;
 
+
 	aafProperty *Prop = NULL;
 
 	for ( Prop = Obj->Properties; Prop != NULL; Prop = Prop->next )
 		if ( Prop->pid == pid )
 			break;
 
-	// TODO loop through Obj->Class->properties to check if its required.
+
+	aafPropertyDef *PDef = NULL;
+
+	if ( Prop == NULL )
+		foreachPropertyDefinition( Obj->Class->Properties, PDef )
+			if ( PDef->pid == pid && PDef->isReq )
+					_fatal( "Could not find the required property %s (%u)", PIDToText( pid ), pid );
+
 
 	return Prop;
 }
@@ -683,21 +691,10 @@ aafProperty * aaf_get_property( aafObject *Obj, aafPID_t pid )
 
 void * aaf_get_propertyValue( aafObject *Obj, aafPID_t pid )
 {
-/*
-	if ( Obj == NULL )
-		return NULL;
-
-	aafProperty *Prop = NULL;
-
-	for ( Prop = Obj->Properties; Prop != NULL; Prop = Prop->next )
-		if ( Prop->pid == pid )
-			break;
-*/
 	aafProperty *Prop = aaf_get_property( Obj, pid );
 
 	if ( Prop == NULL )
 	{
-		// TODO loop through Obj->Class->properties to check if its required.
 		return NULL;
 	}
 
@@ -708,12 +705,16 @@ void * aaf_get_propertyValue( aafObject *Obj, aafPID_t pid )
 
 char * aaf_get_propertyValueText( aafObject *Obj, aafPID_t pid )
 {
-	aafProperty *p = aaf_get_property( Obj, pid );
+	aafProperty *Prop = aaf_get_property( Obj, pid );
 
-//	char *string = CFB_utf16Toascii( p->val, p->len );
-	char *string  = malloc( ( p->len >> 1 ) + 1 );
+	if ( Prop == NULL )
+	{
+		return NULL;
+	}
 
-	utf16toa( string, (p->len >> 1) + 1, p->val, p->len );
+	char *string  = malloc( ( Prop->len >> 1 ) + 1 );
+
+	utf16toa( string, (Prop->len >> 1) + 1, Prop->val, Prop->len );
 
 	return string;
 }
@@ -722,26 +723,15 @@ char * aaf_get_propertyValueText( aafObject *Obj, aafPID_t pid )
 
 void * aaf_get_propertyIndirectValue( aafObject *Obj, aafPID_t pid )
 {
-/*
-	if ( Obj == NULL )
-		return NULL;
-
-	aafProperty *Prop = NULL;
-
-	for ( Prop = Obj->Properties; Prop != NULL; Prop = Prop->next )
-		if ( Prop->pid == pid )
-			break;
-*/
 	aafIndirect_t *Indirect = aaf_get_propertyValue( Obj, pid );
 
 	if ( Indirect == NULL )
 	{
-		// TODO loop through Obj->Class->properties to check if its required.
 		return NULL;
 	}
 
 	// TODO ? ensures the Indirect->Value is what it pretend to be by size check.
-
+	
 	return Indirect->Value;
 }
 
@@ -1462,6 +1452,7 @@ static aafPropertyIndexHeader_t * getNodeProperties( CFB_Data *cfbd, cfbNode *No
 			stream_sz,
 			prop_sz );
 */
+
 	return (aafPropertyIndexHeader_t*)stream;
 }
 
