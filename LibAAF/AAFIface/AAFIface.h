@@ -579,8 +579,7 @@ typedef struct AAF_Iface
 	(uint16_t)((int64_t)(val * (1 / rationalToFloat(audioClip->track->edit_rate))) % 3600 % 60)
 
 #define eu2tc_f( audioClip, val ) \
-	0
-//	(uint16_t)((val) % (int64_t)((val) * (1 / rationalToFloat(audioClip->track->edit_rate))))
+	(uint16_t)((val / ((int64_t)rationalToFloat(audioClip->track->edit_rate) / audioClip->track->Audio->tc->fps)) % audioClip->track->Audio->tc->fps )
 
 
 
