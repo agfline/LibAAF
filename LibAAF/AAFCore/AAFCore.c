@@ -965,6 +965,18 @@ static void retrieveObjectTree( AAF_Data *aafd )
 
 
 
+static int propertyIdExistsInClass( aafClass *Class, aafPID_t Pid )
+{
+	aafPropertyDef *PDef = NULL;
+
+	foreachPropertyDefinition( PDef, Class->Properties )
+		if ( PDef->pid == Pid )
+			return 1;
+
+	return 0;
+}
+
+
 
 
 static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *TargetClassDef )
@@ -1036,20 +1048,16 @@ static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *Target
 		if ( Pid == NULL )
 			_fatal( "Missing PropertyDefinition::LocalIdentification.\n" );
 
-		aafPropertyDef *PDef = NULL;
-
-
 		/*
-		 *	If property definition already exists, we're done.
-		 *	TODO hasPropertyDefinition()
+		 *	We skip all the properties that were already defined in setDefaultClasses().
+		 *	TODO propertyIdExists()
 		 */
 
-		foreachPropertyDefinition( PDef, Class->Properties )
-			if ( PDef->pid == *Pid )
-				break;
-
-		if ( PDef != NULL )
+		if ( propertyIdExistsInClass( Class, *Pid ) )
+		{
+			printf("Property %d exists.\n", *Pid );
 			continue;
+		}
 
 
 		aafBoolean_t *isOpt = aaf_get_propertyValue( Prop, PID_PropertyDefinition_IsOptional );
@@ -1057,6 +1065,8 @@ static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *Target
 		if ( isOpt == NULL )
 			_fatal( "Missing PropertyDefinition::IsOptional.\n" );
 
+
+		aafPropertyDef *PDef = NULL;
 
 		attachNewProperty( Class, PDef, *Pid, ( *isOpt ) ? 0 : 1 );
 
