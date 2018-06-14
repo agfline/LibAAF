@@ -127,8 +127,6 @@ typedef struct aafPropertyDefinition
 
 	/**
 	 *	Tells if that property is either #REQUIRED or #OPTIONAL.
-	 *	This field should be used for conformance check, it is
-	 *	currently unused when parsing.
 	 */
 
 	aafBoolean_t  isReq;

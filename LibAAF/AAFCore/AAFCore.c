@@ -466,10 +466,9 @@ void aaf_release( AAF_Data **aafd )
 		aafPropertyDef *PDef    = NULL;
 		aafPropertyDef *tmpPDef = NULL;
 
-		if ( Class->meta )
+		if ( Class->name != NULL )
 		{
-			if ( Class->name != NULL )
-				free( Class->name );
+			free( Class->name );
 		}
 
 		for ( PDef = Class->Properties; PDef != NULL; PDef = tmpPDef )
@@ -676,13 +675,16 @@ aafProperty * aaf_get_property( aafObject *Obj, aafPID_t pid )
 			break;
 
 
-	aafPropertyDef *PDef = NULL;
-
 	if ( Prop == NULL )
-		foreachPropertyDefinition( Obj->Class->Properties, PDef )
-			if ( PDef->pid == pid && PDef->isReq )
-					_fatal( "Could not find the required property %s (%u)", PIDToText( pid ), pid );
+	{
+		aafPropertyDef *PDef = NULL;
 
+		foreachPropertyDefinition( PDef, Obj->Class->Properties )
+		{
+			if ( PDef->pid == pid && PDef->isReq == 1 )
+					_fatal( "Could not find the required property %s (%u)", PIDToText( pid ), pid );
+		}
+	}
 
 	return Prop;
 }
@@ -715,6 +717,7 @@ char * aaf_get_propertyValueText( aafObject *Obj, aafPID_t pid )
 	char *string  = malloc( ( Prop->len >> 1 ) + 1 );
 
 	utf16toa( string, (Prop->len >> 1) + 1, Prop->val, Prop->len );
+
 
 	return string;
 }
@@ -1026,7 +1029,8 @@ static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *Target
 	}
 	else	// if class is standard, we only set its name
 	{
-		Class->name = aaf_get_propertyValueText( ClassDef, PID_MetaDefinition_Name );
+		if ( Class->name == NULL )
+		     Class->name = aaf_get_propertyValueText( ClassDef, PID_MetaDefinition_Name );
 	}
 
 
@@ -1048,7 +1052,7 @@ static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *Target
 
 		if ( propertyIdExistsInClass( Class, *Pid ) )
 		{
-			printf("Property %d exists.\n", *Pid );
+			// printf("Property %d exists.\n", *Pid );
 			continue;
 		}
 

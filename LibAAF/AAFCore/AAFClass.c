@@ -109,14 +109,11 @@ aafClass * defineNewClass( AAF_Data *aafd, const aafUID_t *id, uint8_t isConcret
 
 aafClass * getClassByID( AAF_Data *aafd, const aafUID_t *id )
 {
-	aafClass *Class = aafd->Classes;
+	aafClass *Class = NULL;
 
 	for ( Class = aafd->Classes; Class != NULL; Class = Class->next )
 		if ( auidCmp( Class->ID, id ) )
 			break;
-
-//	if ( Class == NULL )
-//		_fatal( "Could not retrieve Class ID (%s)\n", ClassIDToText( id ) );
 
 	return Class;
 }
@@ -376,21 +373,21 @@ void setDefaultClasses( AAF_Data *aafd )
 	attachNewProperty( TextLocator,      prop, PID_TextLocator_Name,                              REQ );
 
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	aafClass * Component = defineNewClass( aafd, &AAFClassID_Component, ABSTRACT, IOC );
 
 	attachNewProperty( Component,        prop, PID_Component_DataDefinition,                      REQ );
@@ -995,4 +992,3 @@ void setDefaultClasses( AAF_Data *aafd )
 	attachNewProperty( MetaDictionary,   prop, PID_MetaDictionary_TypeDefinitions,                OPT );
 
 }
-
