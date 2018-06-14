@@ -31,7 +31,7 @@
  *	@addtogroup AAFCore
  *	@brief Retrieves the AAF Objects Tree from the Compound File Binary.
  *
- *	The AAF file structure is based on the Compound File Binary, implemented by LibCFB 
+ *	The AAF file structure is based on the Compound File Binary, implemented by LibCFB
  *	and defined at https://www.amwa.tv/projects/MS-03.shtml
  *
  *	The specifications of the low-level AAF can be found at https://amwa.tv/projects/MS-02.shtml
@@ -39,16 +39,16 @@
  *	The specifications of the overall AAF and standard Classes / Properties can be found at
  *	https://amwa.tv/projects/MS-01.shtml
  *
- *	This is the core of the libAAF library. AAFCore is intendend to : 
+ *	This is the core of the libAAF library. AAFCore is intendend to :
 		- Define the standard AAF classes and properties at run time,
 		- retrieve potential custom classes and properties out of the MetaDictionary,
 		- retrieve the entire object tree and their properties out of the CFB Tree,
 		- provide functions to navigate in the tree and access objects and properties.
 
- *	Therefore, AAFCore makes a bridge between the low-level Compound File Binary and the 
+ *	Therefore, AAFCore makes a bridge between the low-level Compound File Binary and the
  *	high level AAFIface, which is used to interpret objects and thus retrieve usable data.
  *
- *	Even though AAFCore can be used as is, it is recommended for complex operations 
+ *	Even though AAFCore can be used as is, it is recommended for complex operations
  *	like essences and clips retrieval, to use AAFIface.
  *
  *	### Usage
@@ -108,7 +108,7 @@ enum aafPropertyIsRequired_e
 };
 
 /**
- *	This structure defines a Class property, with a property ID 
+ *	This structure defines a Class property, with a property ID
  *	and tells if that property is either #REQUIRED or #OPTIONAL.
  *	This structure is to be added to an aafClass.Properties list
  *	with the attachNewProperty() macro, and to be pointed to by
@@ -220,7 +220,7 @@ typedef struct aafclass
 	aafBoolean_t meta;
 
 
-	char *name; // Only for Meta Class
+	char *name; // this is sets at runtime
 
 
 	/**
@@ -235,13 +235,13 @@ typedef struct aafclass
 /**
  *	This structure represents a property once it has been parsed.
  *
- *	This structure is to be added to an aafObject.Properties list.	
+ *	This structure is to be added to an aafObject.Properties list.
  */
 
 typedef struct aafProperty
 {
 	/**
-	 *	Specifies the property ID. The pid shall be the same as in the 
+	 *	Specifies the property ID. The pid shall be the same as in the
 	 *	#def aafPropertyDef structure.
 	 *
 	 *	All the standard IDs can be found in AAFDefs/AAFPropertyIDs.h.
@@ -251,11 +251,11 @@ typedef struct aafProperty
 
 
 	/**
-	 *	The _storedForm identifies the “type” of representation chosen 
+	 *	The _storedForm identifies the “type” of representation chosen
 	 *	for this property. This field describes how the property value
-	 *	should be interpreted. Note that the stored form described here 
-	 *	is not the data type of the property value, rather it is the 
-	 *	type of external representation employed. The data type of a 
+	 *	should be interpreted. Note that the stored form described here
+	 *	is not the data type of the property value, rather it is the
+	 *	type of external representation employed. The data type of a
 	 *	given property value is implied by the property ID.
 	 *
 	 *	Can take one of the value from #aafStoredForm_e enum.
@@ -302,7 +302,7 @@ typedef struct aafProperty
  *
  *	Each aafObject correspond to a Compound File Tree Node.
  *
- *	Each aafObject property correspond to a property entry in this 
+ *	Each aafObject property correspond to a property entry in this
  *	Node/properties stream.
  */
 
@@ -344,14 +344,14 @@ typedef struct aafObject
 	/**
 	 *	Pointer to an aafStrongRefSetHeader_t struct.
 	 *
-	 *	This pointer keeps track of the Index Header, when the 
-	 *	Object belongs to either a Set or a Vector, else, it shall 
+	 *	This pointer keeps track of the Index Header, when the
+	 *	Object belongs to either a Set or a Vector, else, it shall
 	 *	remain NULL.
 	 *
 	 *	Here we can use an aafStrongRefSetHeader_t struct to hold
 	 *	an aafStrongRefVectorHeader_t, because both structs begin
 	 *	with the same bytes, exept the first one is bigger. So in
-	 *	case of a Vector, the remaining bytes will simply remain 
+	 *	case of a Vector, the remaining bytes will simply remain
 	 *	NULL.
 	 */
 
@@ -361,14 +361,14 @@ typedef struct aafObject
 	/**
 	 *	Pointer to an aafStrongRefSetEntry_t struct.
 	 *
-	 *	This pointer keeps track of the Index Entry, when the 
-	 *	Object belongs to either a Set or a Vector, else, it shall 
+	 *	This pointer keeps track of the Index Entry, when the
+	 *	Object belongs to either a Set or a Vector, else, it shall
 	 *	remain NULL.
 	 *
 	 *	Here we can use an aafStrongRefSetEntry_t struct to hold
 	 *	an aafStrongRefVectorEntry_t, because both structs begin
 	 *	with the same bytes, exept the first one is bigger. So in
-	 *	case of a Vector, the remaining bytes will simply remain 
+	 *	case of a Vector, the remaining bytes will simply remain
 	 *	NULL.
 	 */
 
@@ -407,7 +407,7 @@ typedef struct aafObject
  *	This structure is the main structure when using LibAAF.
  *
  *	It holds a pointer to the CFB_Data structure for file
- *	access, a pointer to the AAF Classes list, a pointer to 
+ *	access, a pointer to the AAF Classes list, a pointer to
  *	the AAF Objects list and a bunch of pointers to some
  *	key Objects in the AAF Objects Tree called shortcuts.
  *
@@ -572,7 +572,7 @@ typedef struct _aafData
 	 */
 
 	aafObject  *TaggedValueDefinition;
-	
+
 } AAF_Data;
 
 
@@ -651,7 +651,7 @@ char * aaf_get_ObjectPath( aafObject *Obj );
 
 
 /**
- *	Resolves a given WeakReference from a given Dictionary (a Set or Vector list of 
+ *	Resolves a given WeakReference from a given Dictionary (a Set or Vector list of
  *	aafObjects), and returns a pointer to the corresponding Object if it was found.
  *
  *	@param ref  Pointer to the WeakReference to search for.
@@ -676,7 +676,7 @@ aafObject * aaf_get_ObjectByWeakRef( aafObject    *list,
  *	              NULL otherwise.
  */
 
-aafObject * aaf_get_MobByID( aafObject  *Mobs, 
+aafObject * aaf_get_MobByID( aafObject  *Mobs,
                              aafMobID_t *MobID );
 
 
@@ -696,8 +696,8 @@ aafObject * aaf_get_MobByID( aafObject  *Mobs,
  *	               0 if has no more Object.
  */
 
-int aaf__foreach_ObjectInSet( aafObject     **Obj, 
-                              aafObject      *head, 
+int aaf__foreach_ObjectInSet( aafObject     **Obj,
+                              aafObject      *head,
                               const aafUID_t *filter );
 
 /**
@@ -733,12 +733,12 @@ aafProperty * aaf_get_property( aafObject *Obj,
  *	             NULL otherwise.
  */
 
-void * aaf_get_propertyValue( aafObject *Obj, 
+void * aaf_get_propertyValue( aafObject *Obj,
                               aafPID_t   pid );
 
 
 /**
- *	Retrieves a "text" Property by its ID out of an Object, handles the conversion from 
+ *	Retrieves a "text" Property by its ID out of an Object, handles the conversion from
  *	UTF-16 to ascii of the value and returns it.
  *
  *	@note It is the caller responsability to free the returned pointer.

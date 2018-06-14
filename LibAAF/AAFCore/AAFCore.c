@@ -731,7 +731,7 @@ void * aaf_get_propertyIndirectValue( aafObject *Obj, aafPID_t pid )
 	}
 
 	// TODO ? ensures the Indirect->Value is what it pretend to be by size check.
-	
+
 	return Indirect->Value;
 }
 
@@ -1024,7 +1024,10 @@ static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *Target
 		Class->name = aaf_get_propertyValueText( ClassDef, PID_MetaDefinition_Name );
 		Class->meta = 1;
 	}
-
+	else	// if class is standard, we only set its name
+	{
+		Class->name = aaf_get_propertyValueText( ClassDef, PID_MetaDefinition_Name );
+	}
 
 
 	aafObject *Props = aaf_get_propertyValue( ClassDef, PID_ClassDefinition_Properties );
