@@ -22,7 +22,7 @@
 
 /**
  *	@file LibCFB/LibCFB.c
- *	@brief Compound File Binary Library 
+ *	@brief Compound File Binary Library
  *	@author Adrien Gesta-Fline
  *	@version 0.1
  *	@date 04 october 2017
@@ -41,7 +41,7 @@
  *	Interaction with LibCFB is done through the CFB_Data structure, which is allocated
  *	with cfb_alloc().
  *
- *	The first thing you will need to do in order to parse any CFB file is to allocate 
+ *	The first thing you will need to do in order to parse any CFB file is to allocate
  *	CFB_Data with cfb_alloc(). Then, you can "load" a file by calling cfb_load_file().
  *	It will open the file for reading, check if it is a regular CFB file, then retrieve
  *	all the CFB components (Header, DiFAT, FAT, MiniFAT) needed to later parse the file's
@@ -254,7 +254,7 @@ CFB_Data * cfb_alloc()
 
 
 /**
- *	fclose() the file pointer then frees all the components of 
+ *	fclose() the file pointer then frees all the components of
  *	the CFB_Data structure, including the structure itself.
  *
  *	@param cfbd Pointer to Pointer to the CFB_Data structure.
@@ -342,7 +342,7 @@ int cfb_new_file( CFB_Data *cfbd, const char *file, int sectSize )
 	// calm GCC
 	file = (file == NULL) ? NULL : NULL;
 
-	if ( sectSize != 512 && 
+	if ( sectSize != 512 &&
 		 sectSize != 4096 )
 	{
 		_error( "Only standard sector sizes (512 and 4096 bytes) are supported.\n" );
@@ -723,7 +723,7 @@ uint64_t cfb_getStream( CFB_Data *cfbd, cfbNode *node, unsigned char **stream, u
 			else
 				memcpy( *(stream)+offset, buf, stream_len - offset );
 */
-	
+
 			free( buf );
 
 			offset += (1<<cfbd->hdr->_uMiniSectorShift);
@@ -759,7 +759,7 @@ uint64_t cfb_getStream( CFB_Data *cfbd, cfbNode *node, unsigned char **stream, u
  *
  *	@param  cfbd      Pointer to the CFB_Data structure.
  *	@param  node      Pointer to the Node that hold the stream.
- *	@param  buf       Pointer to pointer to the buffer that will receive the sector's 
+ *	@param  buf       Pointer to pointer to the buffer that will receive the sector's
  *	                  content.
  *	@param  bytesRead Pointer to a size_t that will receive the number of bytes retreived.
  *	                  This should be equal to the sectorSize, except for the last sector
@@ -811,8 +811,10 @@ int cfb__foreachSectorInStream( CFB_Data *cfbd, cfbNode *node, unsigned char **b
 
 
 	// trim data length to match the EXACT stream size
-	if ( *sectID >= CFB_MAX_REG_SECT )
-	     *bytesRead = ( stream_sz % *bytesRead );
+
+	// if ( *sectID >= CFB_MAX_REG_SECT )
+	//      *bytesRead = ( stream_sz % *bytesRead );
+	//      *bytesRead = ( stream_sz % *bytesRead );
 
 
 	return 1;
@@ -858,7 +860,7 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 
 	unsigned int DiFAT_sz = ( cfbd->hdr->_csectDif )
 							* (((1<<cfbd->hdr->_uSectorShift) / sizeof(cfbSectorID_t)) - 1)
-							+ 109; 
+							+ 109;
 
 
 
@@ -1027,8 +1029,8 @@ static int cfb_retrieveMiniFAT( CFB_Data * cfbd )
  *	length. The nodes are stored in a dedicated FAT chain,
  *	starting at the FAT sector[cfbHeader._sectDirStart].
  *
- *	Once retrieved, the nodes are accessible through the 
- *	CFB_Data.nodes pointer. Each Node is then accessible by 
+ *	Once retrieved, the nodes are accessible through the
+ *	CFB_Data.nodes pointer. Each Node is then accessible by
  *	its ID (a.k.a SID) :
  *
  *	```
@@ -1184,7 +1186,7 @@ cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const char *path, cfbSID_t id )
 		else
 			rc = l - strlen(ab);
 
-		free( ab );	
+		free( ab );
 
 
 
@@ -1393,7 +1395,7 @@ char * cfb_utf16toa( uint16_t *wstr, uint16_t wlen )
  *	to an ASCII NULL terminated char array.
  *
  *	@param  astr Pointer to a NULL terminated const char array.
- *	@param  alen Length of the astr char array, including or excluding the NULL terminated 
+ *	@param  alen Length of the astr char array, including or excluding the NULL terminated
  *	             byte.
  *
  *	@return      Pointer to the NULL terminated ASCII string.
@@ -1493,8 +1495,8 @@ void cfb_printHeader( CFB_Data *cfbd )
 //	printf( "\n" );
 
 	printf( "_abSig              : 0x%08lx\n", cfbh->_abSig );
-/* 
-	printf( "0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n", 
+/*
+	printf( "0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n",
 		cfbh->_abSig[0],
 		cfbh->_abSig[1],
 		cfbh->_abSig[2],
@@ -1596,7 +1598,7 @@ void cfb_printFat( cfbSectorID_t *fat, const char *str, int size, int start, int
 			printf( "%s[%u] : 0x%08x\n", str, i, fat[i] );
 
 		i++;
-	} 
+	}
 }
 
 
@@ -1618,11 +1620,11 @@ void cfb_printNode( cfbNode *node, const char * (*clsidToText)( cfbCLSID_t * ) )
 	printf( " _cb          : %u\n", node->_cb );
 
 	printf( " _mse         : %s\n",
-		node->_mse == 0 ? "STGTY_INVALID"   : 
-		node->_mse == 1 ? "STGTY_STORAGE"   : 
-		node->_mse == 2 ? "STGTY_STREAM"    : 
-		node->_mse == 3 ? "STGTY_LOCKBYTES" : 
-		node->_mse == 4 ? "STGTY_PROPERTY"  : 
+		node->_mse == 0 ? "STGTY_INVALID"   :
+		node->_mse == 1 ? "STGTY_STORAGE"   :
+		node->_mse == 2 ? "STGTY_STREAM"    :
+		node->_mse == 3 ? "STGTY_LOCKBYTES" :
+		node->_mse == 4 ? "STGTY_PROPERTY"  :
 		node->_mse == 5 ? "STGTY_ROOT" : "" );
 
 	printf( " _bflags      : %s\n", node->_bflags == 1 ? "BLACK" : "RED" );
@@ -1714,7 +1716,7 @@ void cfb_printStream( unsigned char * stream, size_t stream_sz )
 		{
 			snprintf( &hex[i*3], 48-(i*3), "%02x ", *(unsigned char*)(stream+count+i) );
 
-			if ( *(unsigned char*)(stream+count+i) > 0x1F && 
+			if ( *(unsigned char*)(stream+count+i) > 0x1F &&
 				 *(unsigned char*)(stream+count+i) < 0x7F )
 					str[i] = *(unsigned char*)(stream+count+i);
 			else
@@ -1741,5 +1743,3 @@ void cfb_printStream( unsigned char * stream, size_t stream_sz )
 /**
  *	@}
  */
-
-
