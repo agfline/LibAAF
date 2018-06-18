@@ -682,7 +682,7 @@ aafProperty * aaf_get_property( aafObject *Obj, aafPID_t pid )
 		foreachPropertyDefinition( PDef, Obj->Class->Properties )
 		{
 			if ( PDef->pid == pid && PDef->isReq == 1 )
-					_fatal( "Could not find the required property %s (%u)", PIDToText( pid ), pid );
+				_warning( "Could not find the required property %s (%u)\n", PIDToText( pid ), pid );
 		}
 	}
 
