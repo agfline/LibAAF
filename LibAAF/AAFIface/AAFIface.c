@@ -150,6 +150,10 @@ static int    retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRat
 static void   parse_Parameter( AAF_Iface *aafi, aafObject *Parameter );
 
 
+
+
+
+
 static void trace_obj( aafObject *Obj, char *color )
 {
 	char buf[1024];
@@ -162,7 +166,29 @@ static void trace_obj( aafObject *Obj, char *color )
 	{
 		// snprintf( tmp, 1024, "%s", ClassIDToText( Obj->Class->ID ) );
 		strncpy( tmp, buf, 1024 );
-		snprintf( buf, 1024, "%s > %s", ClassIDToText( Obj->Class->ID ), tmp );
+
+		if ( auidCmp( Obj->Class->ID, &AAFClassID_TimelineMobSlot ) && auidCmp( Obj->Parent->Class->ID, &AAFClassID_CompositionMob ) )
+		{
+			char *name = aaf_get_propertyValueText( Obj, PID_MobSlot_SlotName );
+			snprintf( buf, 1024, "%s (%s) > %s", ClassIDToText( Obj->Class->ID ), name, tmp );
+			free( name );
+		}
+		else if ( auidCmp( Obj->Class->ID, &AAFClassID_MasterMob ) || auidCmp( Obj->Class->ID, &AAFClassID_SourceMob ) )
+		{
+			char *name = aaf_get_propertyValueText( Obj, PID_Mob_Name );
+			snprintf( buf, 1024, "%s (%s) > %s", ClassIDToText( Obj->Class->ID ), name, tmp );
+			free( name );
+		}
+		else if ( auidCmp( Obj->Class->ID, &AAFClassID_CompositionMob ) )
+		{
+			char *name = aaf_get_propertyValueText( Obj, PID_Mob_Name );
+			snprintf( buf, 1024, "%s (%s) > %s", ClassIDToText( Obj->Class->ID ), name, tmp );
+			free( name );
+		}
+		else
+		{
+			snprintf( buf, 1024, "%s > %s", ClassIDToText( Obj->Class->ID ), tmp );
+		}
 	}
 
 	buf[strlen(buf)-2] = 0x00;
@@ -1885,12 +1911,12 @@ static void parse_Parameter( AAF_Iface *aafi, aafObject *Parameter )
 
 			Gain->pts_cnt = retrieve_ControlPoints( aafi, Points, &Gain->time, &Gain->value );
 
-			int i = 0;
-
-			for ( i = 0; i < Gain->pts_cnt; i++ )
-			{
-				printf("time_%i : %i/%i   value_%i : %i/%i\n", i, Gain->time[i]->numerator, Gain->time[i]->denominator, i, Gain->value[i]->numerator, Gain->value[i]->denominator  );
-			}
+			// int i = 0;
+            //
+			// for ( i = 0; i < Gain->pts_cnt; i++ )
+			// {
+			// 	printf("time_%i : %i/%i   value_%i : %i/%i\n", i, Gain->time[i]->numerator, Gain->time[i]->denominator, i, Gain->value[i]->numerator, Gain->value[i]->denominator  );
+			// }
 		}
 	}
 }
