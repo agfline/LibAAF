@@ -3,7 +3,7 @@
 > *LibAAF is currently a work in progress and is far from beeing production ready.*
 
 
-**LibAAF** is a C coded library for AAF file handling. The AAF beeing a quite complex file format, the main goal here is to get an easy-to-implement FOSS solution.
+**LibAAF** is a C coded library for AAF file handling. The AAF beeing a quite complex file format, the main goal here is to get an easy-to-implement, audio oriented, FOSS solution.
 
 
 The library is composed of three parts :
@@ -18,6 +18,25 @@ Although **AAFCore** should implement the AAF standard correctly, **AAFIface** c
 
 Finaly, LibAAF can only read files for now. In the end it should be able to write files too.
 
+## Support
+
+|                                 |   |
+|---------------------------------|:-:|
+| Composition Name                | X | Full support |
+| Track Names                     | X | Full support |
+| Clip Names                      | X | Retrieved from source file names |
+| Original essence file names     | X | Full support |
+| PCM Embedded Essences           | X | Full support |
+| WAVE Embedded Essences          | X | Only PCM audio |
+| AIFF Embedded Essences          | X | Only PCM audio |
+| AES3 Embedded Essences          | - | Missing from the specs |
+| Fades in/out - XFades           | X | Full support |
+| Clip based Gain (single value)  | X | Full support |
+| Clip based Gain (automation)    | X | Full support |
+| Track based Gain (single value) | - | Most softwares seems to export track based gain as clip based gain |
+| Track based Gain (automation)   | - | Most softwares seems to export track based gain as clip based gain |
+| Track based PAN                 | - | |
+
 ## Tools
 
 There are three programs to help the developement and to provide library usage examples.
@@ -28,7 +47,7 @@ There are three programs to help the developement and to provide library usage e
 
 ## Compile
 
-LibAAF makes use of no particular library. 
+LibAAF makes use of no particular library.
 
 You can just run `make`
 
