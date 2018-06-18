@@ -20,8 +20,8 @@ Finaly, LibAAF can only read files for now. In the end it should be able to writ
 
 ## Support
 
-|                                 |   |
-|---------------------------------|:-:|
+|                                 |   | |
+|---------------------------------|:-:| |
 | Composition Name                | X | Full support |
 | Track Names                     | X | Full support |
 | Clip Names                      | X | Retrieved from source file names |
