@@ -18,15 +18,15 @@ int main( int argc, char *argv[] )
 
 	AAF_Iface *aafi = aafi_alloc( NULL );
 
-	if ( aaf_load_file( aafi->aafd, argv[argc-1] ) )
+	if ( aafi_load_file( aafi, argv[argc-1] ) )
 	{
 		return 1;
 	}
 
 
-	retrieveEssences( aafi );
+	// retrieveEssences( aafi );
 
-	retrieveClips( aafi );
+	// retrieveClips( aafi );
 
 
 

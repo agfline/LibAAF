@@ -273,21 +273,21 @@ typedef struct aafiAudioGain
 /**
  *	This structure makes a linked list of CFB Nodes. It is used to store the (potential)
  *	multiple nodes that compose a Data bit Stream.
- *	TODO test
+ *
+ *	NOTE There is no such list. Each essence is represented by only one EssenceData which
+ *	points to the first cfbNode of the data stream.
  */
 
 typedef struct aafiEssenceDataNode
 {
 	cfbNode                    *node;
-	struct aafiEssenceDataNode *next;
+	// struct aafiEssenceDataNode *next;
 
 } aafiEssenceDataNode;
 
 
 typedef struct aafiAudioEssence
 {
-
-	int         isEmbedded;
 
 	// Holds this essence file path once it has been exported
 	// or the file path of the original essence file when not
@@ -301,10 +301,14 @@ typedef struct aafiAudioEssence
 
 	uint64_t    length; 		// Length of Essence Data
 
-	aafiEssenceDataNode *nodes;
 
-	aafMobID_t  sourceMobID;	// Holds the SourceMob Mob::ID references this EssenceData
-	aafMobID_t  masterMobID;	// Holds the MasterMob Mob::ID (used by CompoMob's Sequence SourceClips)
+	// This should be tested to check if essence is embedded or not.
+
+	aafiEssenceDataNode *node;
+
+
+	aafMobID_t  *sourceMobID;	// Holds the SourceMob Mob::ID references this EssenceData
+	aafMobID_t  *masterMobID;	// Holds the MasterMob Mob::ID (used by CompoMob's Sequence SourceClips)
 
 	uint16_t  type;
 
@@ -328,7 +332,7 @@ typedef struct aafiAudioEssence
 
 	// TODO peakEnveloppe
 
-	uint16_t subClipCnt;
+	// uint16_t subClipCnt;
 
 	struct aafiAudioEssence *next;
 
@@ -375,7 +379,7 @@ typedef struct aafiAudioClip
 
 
 	// Ardour ?
-	uint16_t subClipNum; // TODO Remove
+	// uint16_t subClipNum; // TODO Remove
 
 } aafiAudioClip;
 
@@ -524,10 +528,57 @@ typedef struct aafiAudio
 
 
 
+typedef struct aafiContext
+{
+	/* Current Mob */
+
+	aafObject *Mob;
+
+	/* Current Mob::Slots */
+
+	aafObject *MobSlot;
+
+	/*
+	 *	Current MobSlot Segment's DataDefinition
+	 *	Mob::Slots > MobSlot::Segment > Component::DataDefinition
+	 */
+
+	aafUID_t  *DataDef;
+
+
+
+	/* Clip */
+
+	aafiAudioTrack * current_track;
+
+	aafPosition_t    current_pos;
+
+
+
+	/* Transition */
+
+	aafiTransition   *current_transition;
+
+
+
+	/* Gain */
+
+	aafiAudioGain    *current_gain;
+
+
+
+	/* Essence */
+
+	aafiAudioEssence *current_audioEssence;
+
+} aafiContext;
+
 
 
 typedef struct AAF_Iface
 {
+	aafiContext ctx;
+
 	/**
 	 *	Keeps track of the AAF_Data structure.
 	 */
@@ -601,6 +652,8 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd );
 
 void aafi_release( AAF_Iface **aafi );
 
+int aafi_load_file( AAF_Iface *aafi, const char * file );
+
 char * aafi_get_essence_filename( aafiAudioEssence *audioEssence, char **filename, char *fb_str, uint32_t *fb_num );
 
 aafiTransition * get_fadein( aafiTimelineItem *audioItem );
@@ -610,8 +663,8 @@ aafiTransition * get_fadeout( aafiTimelineItem *audioItem );
 
 
 int extractAudioEssence( AAF_Iface *aafi, aafiAudioEssence *aafiae, const char *file );
-int retrieveEssences( AAF_Iface *aafi );
-int retrieveClips( AAF_Iface *aafi );
+// int retrieveEssences( AAF_Iface *aafi );
+int aafi_retrieveData( AAF_Iface *aafi );
 
 /**
  *	@}

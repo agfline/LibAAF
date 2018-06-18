@@ -20,13 +20,15 @@ int main( int argc, char *argv[] )
 	AAF_Iface *aafi = aafi_alloc( NULL );
 
 
-	if ( aaf_load_file( aafi->aafd, argv[argc-1] ) )
+	if ( aafi_load_file( aafi, argv[argc-1] ) )
+	{
 		return 1;
+	}
 
 
-	retrieveEssences( aafi );
+	// retrieveEssences( aafi );
 
-	retrieveClips( aafi );
+	// retrieveClips( aafi );
 
 
 
@@ -130,6 +132,7 @@ int main( int argc, char *argv[] )
 
 
 	offset += snprintf( buf+offset, buf_sz-offset, "  <Playlists>\n" );
+	int id = 0;
 
 	foreach_audioTrack( audioTrack, aafi )
 	{
@@ -146,9 +149,11 @@ int main( int argc, char *argv[] )
 
 				char name[255];
 
-				snprintf( name, 255, "%s.%u",
-							audioClip->Essence->file,
-							audioClip->subClipNum );
+				// snprintf( name, 255, "%s.%u",
+				// 			audioClip->Essence->file,
+				// 			audioClip->subClipNum );
+
+				snprintf( name, 255, "%s", audioClip->Essence->file_name );
 
 			offset += snprintf( buf+offset, buf_sz-offset, "      <Region name=\"%s\" muted=\"0\" opaque=\"1\" locked=\"0\" video-locked=\"0\" automatic=\"1\" whole-file=\"0\" import=\"0\" external=\"0\" sync-marked=\"0\" left-of-split=\"0\" right-of-split=\"0\" hidden=\"0\" position-locked=\"0\" valid-transients=\"0\" start=\"%li\" length=\"%li\" position=\"%li\" beat=\"0\" sync-position=\"0\" ancestral-start=\"0\" ancestral-length=\"0\" stretch=\"1\" shift=\"1\" positional-lock-style=\"AudioTime\" layering-index=\"0\" envelope-active=\"0\" default-fade-in=\"0\" default-fade-out=\"0\" fade-in-active=\"1\" fade-out-active=\"1\" scale-amplitude=\"1\" id=\"%u\" type=\"audio\" first-edit=\"nothing\" source-0=\"%u\" master-source-0=\"%u\" channels=\"1\"></Region>\n",
 		 					name,
@@ -158,7 +163,7 @@ int main( int argc, char *argv[] )
 							eu2sample( audioClip, audioClip->len ),
 /*							ac->timelinePos * (48000/25),*/
 							eu2sample( audioClip, (audioClip->pos + audioClip->track->Audio->tc->start) ),
-							(uint16_t)(((uint64_t)(&audioClip->Essence->sourceMobID)-audioClip->subClipNum) & 0xffff),
+							id++/*(uint16_t)(((uint64_t)(&audioClip->Essence->sourceMobID)-audioClip->subClipNum) & 0xffff)*/,
 							(uint16_t)((uint64_t)(&audioClip->Essence->sourceMobID) & 0xffff),
 							(uint16_t)((uint64_t)(&audioClip->Essence->sourceMobID) & 0xffff ) );
 			}
