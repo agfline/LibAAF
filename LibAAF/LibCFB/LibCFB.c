@@ -858,9 +858,9 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 	 *	DiFAT size is the number of FAT sector entries in the DiFAT chain.
 	 */
 
-	unsigned int DiFAT_sz = ( cfbd->hdr->_csectDif )
-							* (((1<<cfbd->hdr->_uSectorShift) / sizeof(cfbSectorID_t)) - 1)
-							+ 109;
+	uint32_t DiFAT_sz = ( cfbd->hdr->_csectDif )
+					    * (((1<<cfbd->hdr->_uSectorShift) / sizeof(cfbSectorID_t)) - 1)
+						+ 109;
 
 
 

@@ -96,7 +96,7 @@ typedef struct cfbCLSID_t
 
 /*
 typedef struct cfbFiletime_t
-{          
+{
   uint32_t dwLowDateTime;
   uint32_t dwHighDateTime;
 
@@ -268,7 +268,7 @@ typedef enum cfbByteOrder_e
 
 
 /**
- *	This is an arbitrary length chosen for defining a char array to store a path in the 
+ *	This is an arbitrary length chosen for defining a char array to store a path in the
  *	directory Tree.
  */
 
@@ -323,10 +323,10 @@ typedef struct StructuredStorageHeader
 
 
 	/**
-	 *	File's byte ordering. Should be either CFB_BYTE_ORDER_LE (0xfffe) or 
+	 *	File's byte ordering. Should be either CFB_BYTE_ORDER_LE (0xfffe) or
 	 *	CFB_BYTE_ORDER_BE (0xfeff).
 	 *
-	 *	The spec says this field should always be little-endian byte ordering for 
+	 *	The spec says this field should always be little-endian byte ordering for
 	 *	maximum file portability. This implementation does not support big-endian
 	 *	byte ordering.
 	 */
@@ -400,7 +400,7 @@ typedef struct StructuredStorageHeader
 	/**
 	 *	Maximum size for a mini-stream, typically 4096 bytes. If a streamNode
 	 *	size is below this treshold, then it is stored in the mini-stream and
-	 *	will be retrieved from the MiniFAT. Otherwise the stream is a regular 
+	 *	will be retrieved from the MiniFAT. Otherwise the stream is a regular
 	 *	stream, that will be retrieved from the FAT.
 	 */
 
@@ -438,7 +438,7 @@ typedef struct StructuredStorageHeader
 	/**
 	 *	Array of the first 109 FAT sector IDs.
 	 *
-	 *	These are the first entries in the DiFAT. If the _csectDif is zero, then this 
+	 *	These are the first entries in the DiFAT. If the _csectDif is zero, then this
 	 *	is the entire DiFAT.
 	 */
 
@@ -458,7 +458,7 @@ typedef struct StructuredStorageHeader
  *	entries (cfbNode), so the entire directory stream forms the array of nodes.
  *	An index into that array is called a stream identifier (SID).
  *
- *	A cfbNode structure always being 128-byte long, there are `sectorSize / 128` 
+ *	A cfbNode structure always being 128-byte long, there are `sectorSize / 128`
  *	cfbNode per directory sector, that is 4 cfbNode per 512-byte sector, and 32
  *	cfbNode per 4-kB sector.
  *
@@ -473,7 +473,7 @@ typedef struct StructuredStorageDirectoryEntry
 	/**
 	 *	The node's name, as a Unicode string.
 	 *
-	 *	A 64-byte array, for a maximum of 32 Unicode characters including a terminating 
+	 *	A 64-byte array, for a maximum of 32 Unicode characters including a terminating
 	 *	Unicode NULL character. The string shall be padded with zeros to fill the array.
 	 */
 
@@ -573,7 +573,7 @@ typedef struct StructuredStorageDirectoryEntry
 	 *	Only if _mse is STGTY_STREAM.
 	 */
 
-	uint32_t      _ulSizeLow; 
+	uint32_t      _ulSizeLow;
 
 
 	/**
@@ -743,7 +743,7 @@ typedef struct CFB_Data
  *	            sector data.
  */
 
-#define cfb_foreachSectorInDiFATChain( cfbd, buf, id )                     \
+#define cfb_foreachSectorInDiFATChain( cfbd, buf, id )                 \
 	for ( id  = cfbd->hdr->_sectDifStart,                              \
 	      buf = cfb_getSector( cfbd, id );                             \
 	      id  < CFB_MAX_REG_SECT;                                      \
@@ -762,7 +762,7 @@ typedef struct CFB_Data
  */
 
 #define cfb_foreachFATSectorIDInDiFAT( cfbd, id ) \
-	for ( id = 0; id < cfbd->DiFAT_sz; id++ )
+	for ( id = 0; (id < cfbd->DiFAT_sz && id < cfbd->hdr->_csectFat); id++ )
 
 
 
