@@ -64,4 +64,6 @@ const char * PIDToText( aafPID_t pid );
 
 const char * ClassIDToText( const aafUID_t *auid );
 
+const char * ContainerToText( const aafUID_t *auid );
+
 const char * CompressionToText( const aafUID_t *auid );

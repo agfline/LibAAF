@@ -16,7 +16,6 @@
 #include "AAFCore/AAFDefs/AAFOperationDefs.h"
 #include "AAFCore/AAFDefs/AAFParameterDefs.h"
 #include "AAFCore/AAFDefs/AAFInterpolatorDefs.h"
-
+#include "AAFCore/AAFDefs/AAFContainerDefs.h"
 
 #endif // ! __libAAF_h__
-
