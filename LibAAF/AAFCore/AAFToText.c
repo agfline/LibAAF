@@ -14,6 +14,8 @@
 #include "AAFDefs/AAFExtEnum.h"
 #include "AAFDefs/AAFFileKinds.h"
 #include "AAFDefs/AAFOPDefs.h"
+#include "AAFDefs/AAFContainerDefs.h"
+
 
 const char * FileKindToText( const aafUID_t *auid )
 {
@@ -21,8 +23,8 @@ const char * FileKindToText( const aafUID_t *auid )
 		return NULL;
 
 	/* AAFUID_NULL == AAFFileKind_DontCare */
-//	if ( auidCmp( auid, &AAFUID_NULL ) )
-//		return "";
+	// if ( auidCmp( auid, &AAFUID_NULL ) )
+	// 	return "";
 
 	if ( auidCmp( auid, &AAFFileKind_DontCare ) )
 		return "AAFFileKind_DontCare";
@@ -1963,31 +1965,31 @@ const char * PIDToText( aafPID_t pid )
 			return "PID_BWFImportDescriptor_UnknownBWFChunks";
 
 		case 0x0000:
-/*
-		case PID_MPEGVideoDescriptor_SingleSequence:
-		case PID_MPEGVideoDescriptor_ConstantBPictureCount:
-		case PID_MPEGVideoDescriptor_CodedContentScanning:
-		case PID_MPEGVideoDescriptor_LowDelay:
-		case PID_MPEGVideoDescriptor_ClosedGOP:
-		case PID_MPEGVideoDescriptor_IdenticalGOP:
-		case PID_MPEGVideoDescriptor_MaxGOP:
-		case PID_MPEGVideoDescriptor_MaxBPictureCount:
-		case PID_MPEGVideoDescriptor_BitRate:
-		case PID_MPEGVideoDescriptor_ProfileAndLevel:
-*/
+
+		// case PID_MPEGVideoDescriptor_SingleSequence:
+		// case PID_MPEGVideoDescriptor_ConstantBPictureCount:
+		// case PID_MPEGVideoDescriptor_CodedContentScanning:
+		// case PID_MPEGVideoDescriptor_LowDelay:
+		// case PID_MPEGVideoDescriptor_ClosedGOP:
+		// case PID_MPEGVideoDescriptor_IdenticalGOP:
+		// case PID_MPEGVideoDescriptor_MaxGOP:
+		// case PID_MPEGVideoDescriptor_MaxBPictureCount:
+		// case PID_MPEGVideoDescriptor_BitRate:
+		// case PID_MPEGVideoDescriptor_ProfileAndLevel:
+
 			return "MULTIPLE_VALUE_MATCHES : see libaaf.h";
-/*
-			return "PID_MPEGVideoDescriptor_SingleSequence";
-			return "PID_MPEGVideoDescriptor_ConstantBPictureCount";
-			return "PID_MPEGVideoDescriptor_CodedContentScanning";
-			return "PID_MPEGVideoDescriptor_LowDelay";
-			return "PID_MPEGVideoDescriptor_ClosedGOP";
-			return "PID_MPEGVideoDescriptor_IdenticalGOP";
-			return "PID_MPEGVideoDescriptor_MaxGOP";
-			return "PID_MPEGVideoDescriptor_MaxBPictureCount";
-			return "PID_MPEGVideoDescriptor_BitRate";
-			return "PID_MPEGVideoDescriptor_ProfileAndLevel";
-*/
+
+			// return "PID_MPEGVideoDescriptor_SingleSequence";
+			// return "PID_MPEGVideoDescriptor_ConstantBPictureCount";
+			// return "PID_MPEGVideoDescriptor_CodedContentScanning";
+			// return "PID_MPEGVideoDescriptor_LowDelay";
+			// return "PID_MPEGVideoDescriptor_ClosedGOP";
+			// return "PID_MPEGVideoDescriptor_IdenticalGOP";
+			// return "PID_MPEGVideoDescriptor_MaxGOP";
+			// return "PID_MPEGVideoDescriptor_MaxBPictureCount";
+			// return "PID_MPEGVideoDescriptor_BitRate";
+			// return "PID_MPEGVideoDescriptor_ProfileAndLevel";
+
 
 		case PID_ClassDefinition_ParentClass:
 			return "PID_ClassDefinition_ParentClass";
@@ -2054,7 +2056,6 @@ const char * PIDToText( aafPID_t pid )
 			return "Unknown value";
 	}
 }
-
 
 
 const char * ClassIDToText( const aafUID_t *auid )
@@ -2277,6 +2278,295 @@ const char * ClassIDToText( const aafUID_t *auid )
 }
 
 
+const char * ContainerToText( const aafUID_t *auid )
+{
+	if ( auid == NULL )
+		return NULL;
+
+	if ( auidCmp( auid, &AAFContainerDef_External ) )
+		return "AAFContainerDef_External";
+
+	if ( auidCmp( auid, &AAFContainerDef_OMF ) )
+		return "AAFContainerDef_OMF";
+
+	if ( auidCmp( auid, &AAFContainerDef_AAF ) )
+		return "AAFContainerDef_AAF";
+
+	if ( auidCmp( auid, &AAFContainerDef_AAFMSS ) )
+		return "AAFContainerDef_AAFMSS";
+
+	if ( auidCmp( auid, &AAFContainerDef_AAFKLV ) )
+		return "AAFContainerDef_AAFKLV";
+
+	if ( auidCmp( auid, &AAFContainerDef_AAFXML ) )
+		return "AAFContainerDef_AAFXML";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_625x50I_50Mbps_DefinedTemplate ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_625x50I_50Mbps_DefinedTemplate";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_625x50I_50Mbps_ExtendedTemplate ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_625x50I_50Mbps_ExtendedTemplate";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_625x50I_50Mbps_PictureOnly ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_625x50I_50Mbps_PictureOnly";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_525x5994I_50Mbps_DefinedTemplate ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_525x5994I_50Mbps_DefinedTemplate";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_525x5994I_50Mbps_ExtendedTemplate ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_525x5994I_50Mbps_ExtendedTemplate";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_525x5994I_50Mbps_PictureOnly ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_525x5994I_50Mbps_PictureOnly";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_625x50I_40Mbps_DefinedTemplate ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_625x50I_40Mbps_DefinedTemplate";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_625x50I_40Mbps_ExtendedTemplate ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_625x50I_40Mbps_ExtendedTemplate";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_625x50I_40Mbps_PictureOnly ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_625x50I_40Mbps_PictureOnly";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_525x5994I_40Mbps_DefinedTemplate ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_525x5994I_40Mbps_DefinedTemplate";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_525x5994I_40Mbps_ExtendedTemplate ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_525x5994I_40Mbps_ExtendedTemplate";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_525x5994I_40Mbps_PictureOnly ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_525x5994I_40Mbps_PictureOnly";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_625x50I_30Mbps_DefinedTemplate ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_625x50I_30Mbps_DefinedTemplate";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_625x50I_30Mbps_ExtendedTemplate ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_625x50I_30Mbps_ExtendedTemplate";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_625x50I_30Mbps_PictureOnly ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_625x50I_30Mbps_PictureOnly";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_525x5994I_30Mbps_DefinedTemplate ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_525x5994I_30Mbps_DefinedTemplate";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_525x5994I_30Mbps_ExtendedTemplate ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_525x5994I_30Mbps_ExtendedTemplate";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_525x5994I_30Mbps_PictureOnly ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_SMPTE_D10_525x5994I_30Mbps_PictureOnly";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_IECDV_525x5994I_25Mbps ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_IECDV_525x5994I_25Mbps";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Clipwrapped_IECDV_525x5994I_25Mbps ) )
+		return "AAFContainerDef_MXFGC_Clipwrapped_IECDV_525x5994I_25Mbps";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_IECDV_625x50I_25Mbps ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_IECDV_625x50I_25Mbps";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Clipwrapped_IECDV_625x50I_25Mbps ) )
+		return "AAFContainerDef_MXFGC_Clipwrapped_IECDV_625x50I_25Mbps";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_IECDV_525x5994I_25Mbps_SMPTE322M ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_IECDV_525x5994I_25Mbps_SMPTE322M";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Clipwrapped_IECDV_525x5994I_25Mbps_SMPTE322M ) )
+		return "AAFContainerDef_MXFGC_Clipwrapped_IECDV_525x5994I_25Mbps_SMPTE322M";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_IECDV_625x50I_25Mbps_SMPTE322M ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_IECDV_625x50I_25Mbps_SMPTE322M";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Clipwrapped_IECDV_625x50I_25Mbps_SMPTE322M ) )
+		return "AAFContainerDef_MXFGC_Clipwrapped_IECDV_625x50I_25Mbps_SMPTE322M";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_IECDV_UndefinedSource_25Mbps ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_IECDV_UndefinedSource_25Mbps";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Clipwrapped_IECDV_UndefinedSource_25Mbps ) )
+		return "AAFContainerDef_MXFGC_Clipwrapped_IECDV_UndefinedSource_25Mbps";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_DVbased_525x5994I_25Mbps ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_DVbased_525x5994I_25Mbps";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Clipwrapped_DVbased_525x5994I_25Mbps ) )
+		return "AAFContainerDef_MXFGC_Clipwrapped_DVbased_525x5994I_25Mbps";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_DVbased_625x50I_25Mbps ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_DVbased_625x50I_25Mbps";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Clipwrapped_DVbased_625x50I_25Mbps ) )
+		return "AAFContainerDef_MXFGC_Clipwrapped_DVbased_625x50I_25Mbps";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_DVbased_525x5994I_50Mbps ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_DVbased_525x5994I_50Mbps";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Clipwrapped_DVbased_525x5994I_50Mbps ) )
+		return "AAFContainerDef_MXFGC_Clipwrapped_DVbased_525x5994I_50Mbps";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_DVbased_625x50I_50Mbps ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_DVbased_625x50I_50Mbps";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Clipwrapped_DVbased_625x50I_50Mbps ) )
+		return "AAFContainerDef_MXFGC_Clipwrapped_DVbased_625x50I_50Mbps";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_DVbased_1080x5994I_100Mbps ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_DVbased_1080x5994I_100Mbps";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Clipwrapped_DVbased_1080x5994I_100Mbps ) )
+		return "AAFContainerDef_MXFGC_Clipwrapped_DVbased_1080x5994I_100Mbps";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_DVbased_1080x50I_100Mbps ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_DVbased_1080x50I_100Mbps";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Clipwrapped_DVbased_1080x50I_100Mbps ) )
+		return "AAFContainerDef_MXFGC_Clipwrapped_DVbased_1080x50I_100Mbps";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_DVbased_720x5994P_100Mbps ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_DVbased_720x5994P_100Mbps";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Clipwrapped_DVbased_720x5994P_100Mbps ) )
+		return "AAFContainerDef_MXFGC_Clipwrapped_DVbased_720x5994P_100Mbps";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_DVbased_720x50P_100Mbps ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_DVbased_720x50P_100Mbps";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Clipwrapped_DVbased_720x50P_100Mbps ) )
+		return "AAFContainerDef_MXFGC_Clipwrapped_DVbased_720x50P_100Mbps";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_DVbased_UndefinedSource ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_DVbased_UndefinedSource";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Clipwrapped_DVbased_UndefinedSource ) )
+		return "AAFContainerDef_MXFGC_Clipwrapped_DVbased_UndefinedSource";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_MPEGES_VideoStream0_SID ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_MPEGES_VideoStream0_SID";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_CustomClosedGOPwrapped_MPEGES_VideoStream1_SID ) )
+		return "AAFContainerDef_MXFGC_CustomClosedGOPwrapped_MPEGES_VideoStream1_SID";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_Uncompressed_525x5994I_720_422 ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_Uncompressed_525x5994I_720_422";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Clipwrapped_Uncompressed_525x5994I_720_422 ) )
+		return "AAFContainerDef_MXFGC_Clipwrapped_Uncompressed_525x5994I_720_422";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Linewrapped_Uncompressed_525x5994I_720_422 ) )
+		return "AAFContainerDef_MXFGC_Linewrapped_Uncompressed_525x5994I_720_422";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_Uncompressed_625x50I_720_422 ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_Uncompressed_625x50I_720_422";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Clipwrapped_Uncompressed_625x50I_720_422 ) )
+		return "AAFContainerDef_MXFGC_Clipwrapped_Uncompressed_625x50I_720_422";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Linewrapped_Uncompressed_625x50I_720_422 ) )
+		return "AAFContainerDef_MXFGC_Linewrapped_Uncompressed_625x50I_720_422";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_Uncompressed_525x5994P_960_422 ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_Uncompressed_525x5994P_960_422";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Clipwrapped_Uncompressed_525x5994P_960_422 ) )
+		return "AAFContainerDef_MXFGC_Clipwrapped_Uncompressed_525x5994P_960_422";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Linewrapped_Uncompressed_525x5994P_960_422 ) )
+		return "AAFContainerDef_MXFGC_Linewrapped_Uncompressed_525x5994P_960_422";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_Uncompressed_625x50P_960_422 ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_Uncompressed_625x50P_960_422";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Clipwrapped_Uncompressed_625x50P_960_422 ) )
+		return "AAFContainerDef_MXFGC_Clipwrapped_Uncompressed_625x50P_960_422";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Linewrapped_Uncompressed_625x50P_960_422 ) )
+		return "AAFContainerDef_MXFGC_Linewrapped_Uncompressed_625x50P_960_422";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_Broadcast_Wave_audio_data ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_Broadcast_Wave_audio_data";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Clipwrapped_Broadcast_Wave_audio_data ) )
+		return "AAFContainerDef_MXFGC_Clipwrapped_Broadcast_Wave_audio_data";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_AES3_audio_data ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_AES3_audio_data";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Clipwrapped_AES3_audio_data ) )
+		return "AAFContainerDef_MXFGC_Clipwrapped_AES3_audio_data";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_Alaw_Audio ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_Alaw_Audio";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Clipwrapped_Alaw_Audio ) )
+		return "AAFContainerDef_MXFGC_Clipwrapped_Alaw_Audio";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Customwrapped_Alaw_Audio ) )
+		return "AAFContainerDef_MXFGC_Customwrapped_Alaw_Audio";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Clipwrapped_AVCbytestream_VideoStream0_SID ) )
+		return "AAFContainerDef_MXFGC_Clipwrapped_AVCbytestream_VideoStream0_SID";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_VC3 ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_VC3";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Clipwrapped_VC3 ) )
+		return "AAFContainerDef_MXFGC_Clipwrapped_VC3";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Framewrapped_VC1 ) )
+		return "AAFContainerDef_MXFGC_Framewrapped_VC1";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Clipwrapped_VC1 ) )
+		return "AAFContainerDef_MXFGC_Clipwrapped_VC1";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Generic_Essence_Multiple_Mappings ) )
+		return "AAFContainerDef_MXFGC_Generic_Essence_Multiple_Mappings";
+
+	if ( auidCmp( auid, &AAFContainerDef_RIFFWAVE ) )
+		return "AAFContainerDef_RIFFWAVE";
+
+	if ( auidCmp( auid, &AAFContainerDef_JFIF ) )
+		return "AAFContainerDef_JFIF";
+
+	if ( auidCmp( auid, &AAFContainerDef_AIFFAIFC ) )
+		return "AAFContainerDef_AIFFAIFC";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Avid_DNX_220X_1080p ) )
+		return "AAFContainerDef_MXFGC_Avid_DNX_220X_1080p";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Avid_DNX_145_1080p ) )
+		return "AAFContainerDef_MXFGC_Avid_DNX_145_1080p";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Avid_DNX_220_1080p ) )
+		return "AAFContainerDef_MXFGC_Avid_DNX_220_1080p";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Avid_DNX_36_1080p ) )
+		return "AAFContainerDef_MXFGC_Avid_DNX_36_1080p";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Avid_DNX_220X_1080i ) )
+		return "AAFContainerDef_MXFGC_Avid_DNX_220X_1080i";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Avid_DNX_145_1080i ) )
+		return "AAFContainerDef_MXFGC_Avid_DNX_145_1080i";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Avid_DNX_220_1080i ) )
+		return "AAFContainerDef_MXFGC_Avid_DNX_220_1080i";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Avid_DNX_145_1440_1080i ) )
+		return "AAFContainerDef_MXFGC_Avid_DNX_145_1440_1080i";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Avid_DNX_220X_720p ) )
+		return "AAFContainerDef_MXFGC_Avid_DNX_220X_720p";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Avid_DNX_220_720p ) )
+		return "AAFContainerDef_MXFGC_Avid_DNX_220_720p";
+
+	if ( auidCmp( auid, &AAFContainerDef_MXFGC_Avid_DNX_145_720p ) )
+		return "AAFContainerDef_MXFGC_Avid_DNX_145_720p";
+
+
+	return "Unknown value";
+}
+
+
 const char * CompressionToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
@@ -2351,4 +2641,3 @@ const char * CompressionToText( const aafUID_t *auid )
 
 	return "Unknown value";
 }
-
