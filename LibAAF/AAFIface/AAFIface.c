@@ -520,7 +520,7 @@ void printObjectProperties( aafObject *Obj )
 
 	for ( Prop = Obj->Properties;  Prop != NULL; Prop = Prop->next )
 	{
-		printf( ":.: %s\n", PIDToText( Prop->pid ) );
+		printf( ":.: (0x%04x) %s\n", Prop->pid, PIDToText( Prop->pid ) );
 
 		// WARNING : Wont print strong references (set/vector) corectly.
 		cfb_printStream( Prop->val, Prop->len );
