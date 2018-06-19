@@ -1405,17 +1405,19 @@ aafiAudioClip * getClipBySourceID( AAF_Iface *aafi, aafMobID_t *SourceID )
 
 
 /*
-		        Component
+		        Component (abs)
 		            |
 		      ,-----------.
 		      |           |
-         Transition    Segment
+         Transition    Segment (abs)
 		                  |
 		                  |--> Sequence
 		                  |--> Filler
 		                  |--> TimeCode
 		                  |--> OperationGroup
-		                  `--> SourceClip
+		                  `--> SourceReference (abs)
+						              |
+						              `--> SourceClip
 */
 
 static void parse_Component( AAF_Iface *aafi, aafObject *Component )
