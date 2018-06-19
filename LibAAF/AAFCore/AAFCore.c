@@ -660,6 +660,24 @@ aafObject * aaf_get_MobByID( aafObject *Mobs, aafMobID_t *MobID )
 
 
 
+aafObject * aaf_get_MobSlotBySlotID( aafObject *MobSlots, aafSlotID_t SlotID )
+{
+	aafObject *MobSlot = NULL;
+
+	aaf_foreach_ObjectInSet( &MobSlot, MobSlots, NULL )
+	{
+		aafSlotID_t *CurrentSlotID = aaf_get_propertyValue( MobSlot, PID_MobSlot_SlotID );
+
+		if ( CurrentSlotID == NULL || *CurrentSlotID == SlotID )
+			break;
+	}
+
+	return MobSlot;
+}
+
+
+
+
 
 
 aafProperty * aaf_get_property( aafObject *Obj, aafPID_t pid )

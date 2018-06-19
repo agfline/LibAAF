@@ -678,6 +678,11 @@ aafObject * aaf_get_MobByID( aafObject  *Mobs,
                              aafMobID_t *MobID );
 
 
+
+aafObject * aaf_get_MobSlotBySlotID( aafObject *MobSlots,
+                                     aafSlotID_t SlotID );
+
+
 /**
  *	Loops through each aafObject of a list, that is of a Set or Vector. It is also
  *	possible to filter the returned Object by ClassID.
