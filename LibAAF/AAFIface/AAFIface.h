@@ -162,7 +162,7 @@ typedef struct aafiTransition
 	 *	the single curve, or to the first one of the two.
 	 */
 
-	aafRational_t **time_a;
+	aafRational_t *time_a;
 
 	/**
 	 *	Multiplier level values, each one applying at the corresponding indexed time for
@@ -171,7 +171,7 @@ typedef struct aafiTransition
 	 *	interpolation.
 	 */
 
-	aafRational_t **value_a;
+	aafRational_t *value_a;
 
 
 
@@ -248,7 +248,7 @@ typedef struct aafiAudioGain
 	 *	Array of time points, where the corresponding level value should apply.
 	 */
 
-	aafRational_t **time;
+	aafRational_t *time;
 
 	/**
 	 *	Multiplier level values, each one applying at the corresponding indexed time.
@@ -256,7 +256,7 @@ typedef struct aafiAudioGain
 	 *	interpolation.
 	 */
 
-	aafRational_t **value;
+	aafRational_t *value;
 
 } aafiAudioGain;
 
@@ -374,7 +374,7 @@ typedef struct aafiAudioClip
 	aafPosition_t          essence_offset;
 
 
-	aafMobID_t            *sourceID;
+	aafMobID_t            *sourceMobID;
 
 
 

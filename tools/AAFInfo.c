@@ -30,7 +30,8 @@ char * gainToStr( char *str, aafiAudioClip *aClip )
 
 	else if ( aClip->gain->flags & AAFI_AUDIO_GAIN_CONSTANT )
 		snprintf( str, 16, "%+05.1lf dB",
-			  20 * log10( rationalToFloat( aClip->gain->value[0] ) ) );
+				 20 * log10( (( aClip->gain->value[0].denominator == 0 ) ? 0 : ((float)aClip->gain->value[0].numerator/aClip->gain->value[0].denominator)) ) );
+			  // 20 * log10( rationalToFloat( &(aClip->gain->value[0]) ) ) );
 
 	else if ( aClip->gain->flags & AAFI_AUDIO_GAIN_VARIABLE )
 		snprintf( str, 16, " automation " );

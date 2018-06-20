@@ -146,7 +146,7 @@ static void   parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 
 static void   retrieve_EssenceData( AAF_Iface *aafi );
 
-static int    retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRational_t **times[], aafRational_t **values[] );
+static int    retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRational_t *times[], aafRational_t *values[] );
 static void   parse_Parameter( AAF_Iface *aafi, aafObject *Parameter );
 
 
@@ -656,26 +656,26 @@ static void aafi_freeTimelineItems( aafiTimelineItem **items )
 
 
 
-static void aafi_freeTransition( aafiTransition *trans )
+static void aafi_freeTransition( aafiTransition *Transition )
 {
-	if ( trans->value_a != NULL )
+	if ( Transition->value_a != NULL )
 	{
-		free( trans->value_a );
+		free( Transition->value_a );
 	}
 
-	if ( trans->value_b != NULL )
+	if ( Transition->value_b != NULL )
 	{
-		free( trans->value_b );
+		free( Transition->value_b );
 	}
 
-	if ( trans->time_a != NULL )
+	if ( Transition->time_a != NULL )
 	{
-		free( trans->time_a );
+		free( Transition->time_a );
 	}
 
-	if ( trans->time_b != NULL )
+	if ( Transition->time_b != NULL )
 	{
-		free( trans->time_b );
+		free( Transition->time_b );
 	}
 }
 
@@ -1173,6 +1173,9 @@ static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 		audioEssence->nBlockAlign     = *(uint32_t*)aaf_get_propertyValue( EssenceDesc, PID_PCMDescriptor_BlockAlign         );
 		audioEssence->wBitsPerSample  = *(uint32_t*)aaf_get_propertyValue( EssenceDesc, PID_SoundDescriptor_QuantizationBits );
 
+		// aafUID_t *ContainerDef = aaf_get_propertyValue( EssenceDesc, PID_FileDescriptor_ContainerFormat );
+
+		// printf("ContainerDef : %s\n", ContainerToText( ContainerDef ) );
 	}
 	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_WAVEDescriptor ) )
 	{
@@ -1210,7 +1213,9 @@ static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 
 		audioEssence->length = *(uint32_t*)(summary->val + (summary->len - 4));
 
+		// aafUID_t *ContainerDef = aaf_get_propertyValue( EssenceDesc, PID_FileDescriptor_ContainerFormat );
 
+		// printf("ContainerDef : %s\n", ContainerToText( ContainerDef ) );
 	}
 	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_AIFCDescriptor ) )
 	{
@@ -1232,6 +1237,9 @@ static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 		audioEssence->nBlockAlign     = audioEssence->nChannels * audioEssence->wBitsPerSample / 8;
 		audioEssence->nAvgBytesPerSec = audioEssence->nSamplesPerSec * audioEssence->nBlockAlign;
 
+		// aafUID_t *ContainerDef = aaf_get_propertyValue( EssenceDesc, PID_FileDescriptor_ContainerFormat );
+
+		// printf("ContainerDef : %s\n", ContainerToText( ContainerDef ) );
 	}
 	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_SoundDescriptor ) )
 	{
@@ -1240,8 +1248,11 @@ static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 
 		_warning( "No support for AAFClassID_SoundDescriptor." );
 
-		printObjectProperties( EssenceDesc );
+		// printObjectProperties( EssenceDesc );
 
+		// aafUID_t *ContainerDef = aaf_get_propertyValue( EssenceDesc, PID_FileDescriptor_ContainerFormat );
+
+		// printf("ContainerDef : %s\n", ContainerToText( ContainerDef ) );
 	}
 	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_AES3PCMDescriptor ) )
 	{
@@ -1255,6 +1266,10 @@ static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 		_warning( "No support for AAFClassID_AES3PCMDescriptor." );
 
 		printObjectProperties( EssenceDesc );
+
+		// aafUID_t *ContainerDef = aaf_get_propertyValue( EssenceDesc, PID_FileDescriptor_ContainerFormat );
+
+		// printf("ContainerDef : %s\n", ContainerToText( ContainerDef ) );
 
 	}
 	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_MultipleDescriptor ) )
@@ -1275,7 +1290,7 @@ static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 
 		_warning( "MultipleDescriptor not supported yet.\n\n" );
 
-		printObjectProperties( EssenceDesc );
+		// printObjectProperties( EssenceDesc );
 
 	}
 	else
@@ -1337,14 +1352,14 @@ p41: 	Absolute Uniform Resource Locator (URL) complying with RFC 1738 or relativ
 
 
 
-aafiAudioEssence * getEssenceBySourceID( AAF_Iface *aafi, aafMobID_t *SourceID )
+aafiAudioEssence * getEssenceBySourceMobID( AAF_Iface *aafi, aafMobID_t *sourceMobID )
 {
 	aafiAudioEssence * audioEssence = NULL;
 
 
 	for ( audioEssence = aafi->Audio->Essences; audioEssence != NULL; audioEssence = audioEssence->next )
 	{
-		if ( mobIDCmp( audioEssence->masterMobID, SourceID ) )
+		if ( mobIDCmp( audioEssence->masterMobID, sourceMobID ) )
 			break;
 	}
 
@@ -1353,7 +1368,7 @@ aafiAudioEssence * getEssenceBySourceID( AAF_Iface *aafi, aafMobID_t *SourceID )
 }
 
 
-aafiAudioClip * getClipBySourceID( AAF_Iface *aafi, aafMobID_t *SourceID )
+aafiAudioClip * getClipBySourceMobID( AAF_Iface *aafi, aafMobID_t *sourceMobID )
 {
 	aafiAudioTrack   * audioTrack = NULL;
 	aafiTimelineItem * audioItem  = NULL;
@@ -1370,7 +1385,7 @@ aafiAudioClip * getClipBySourceID( AAF_Iface *aafi, aafMobID_t *SourceID )
 
 			audioClip = (aafiAudioClip*)&audioItem->data;
 
-			if ( mobIDCmp( audioClip->sourceID, SourceID ) )
+			if ( mobIDCmp( audioClip->sourceMobID, sourceMobID ) )
 			{
 				return audioClip;
 			}
@@ -1606,6 +1621,8 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 {
 	trace_obj( SourceClip, ANSI_COLOR_MAGENTA );
 
+	// printObjectProperties(SourceClip);
+
 	/*** Clip ***/
 
 	if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_CompositionMob ) )
@@ -1637,28 +1654,59 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 		audioClip->essence_offset = *startTime;
 
 
+		/*
+p.49	 *	To create a SourceReference that refers to a MobSlot within
+		 *	the same Mob as the SourceReference, omit the SourceID property.
+		 */
 
-		audioClip->sourceID = (aafMobID_t*)aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceID );
+		audioClip->sourceMobID = (aafMobID_t*)aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceID );
 
-		if ( audioClip->sourceID == NULL )
-			_fatal( "Missing SourceReference::SourceID\n" );
+		if ( audioClip->sourceMobID == NULL )
+		{
+			aafObject *Mob = NULL;
+
+			for ( Mob = SourceClip; Mob != NULL; Mob = Mob->Parent )
+			{
+				if ( auidCmp( Mob->Class->ID, &AAFClassID_CompositionMob ) )
+					break;
+			}
+
+			audioClip->sourceMobID = aaf_get_propertyValue( Mob, PID_Mob_MobID );
+
+			// _fatal( "Missing SourceReference::SourceID\n" );
+		}
+
+
+
+
+		// aafObject *mob = aaf_get_MobByID( aafi->aafd->Mobs, audioClip->sourceMobID );
+		// // aafSlotID_t *SlotID = aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceMobSlotID );
+		// // aafObject *MobSlots = aaf_get_propertyValue( mob, PID_Mob_Slots );
+        // //
+		// printf("\n:::: Clip ::::\n");
+		// // printObjectProperties( MobSlot );
+		// printObjectProperties(SourceClip);
+		// printf("SourceMobSlotID : %u\n", *(uint32_t*)aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceMobSlotID ) );
+		// aafObject *Slots =  aaf_get_propertyValue( mob, PID_Mob_Slots );
+        //
+		// aafSlotID_t *SlotID = aaf_get_propertyValue( Slots, PID_MobSlot_SlotID );
+        //
+		// aafObject *MobSlot2 = aaf_get_MobSlotBySlotID( mob, *SlotID );
+		// aafSlotID_t *SlotID2 =  aaf_get_propertyValue( MobSlot2, PID_MobSlot_SlotID );
+		// if ( SlotID2 )
+		// {
+		// 	printf("      MobSlotID2 : %u\n", (*SlotID2) );
+		// }
+		// printf("      MobSlotID : %u\n", (*SlotID) );
+        //
+		// printf("\n\n");
+
 
 
 
 		/* link the clip with the essence, if the essence was already parsed. */
 
-		audioClip->Essence = getEssenceBySourceID( aafi, audioClip->sourceID );
-
-		if ( audioClip->Essence != NULL )
-		{
-			/*
-			 *	TODO find a way to safely implement that.
-			 *	since we dont necessarily know the essence at that point.
-			 */
-
-			// audioClip->subClipNum = audioClip->Essence->subClipCnt;
-		}
-
+		audioClip->Essence = getEssenceBySourceMobID( aafi, audioClip->sourceMobID );
 
 
 		aafi->ctx.current_pos += audioClip->len;
@@ -1677,6 +1725,16 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 		aafi->ctx.current_audioEssence = audioEssence;
 
 
+		// aafMobID_t *sourceMobID = (aafMobID_t*)aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceID );
+		// aafObject *mob       = aaf_get_MobByID( aafi->aafd->Mobs, sourceMobID );
+		// aafSlotID_t *SlotID  = aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceMobSlotID );
+		// aafObject *MobSlots  = aaf_get_propertyValue( mob, PID_Mob_Slots );
+		// aafObject *MobSlot   = aaf_get_MobSlotBySlotID( MobSlots, *SlotID );
+		// printf("\n:::: Essence SourceMob ::::\n");
+		// // printObjectProperties( MobSlot );
+		// printObjectProperties(mob);
+		// printf("\n\n");
+
 
 		audioEssence->masterMobID = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_MobID );
 
@@ -1684,11 +1742,27 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 			_fatal( "Could not retrieve Mob::MobID.\n" );
 
 
+		/*
+p.49	 *	To create a SourceReference that refers to a MobSlot within
+		 *	the same Mob as the SourceReference, omit the SourceID property.
+		 */
 
 		audioEssence->sourceMobID = aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceID );
 
 		if ( audioEssence->sourceMobID == NULL )
-			_fatal( "Could not retrieve SourceClip::SourceID.\n" );
+		{
+			aafObject *Mob = NULL;
+
+			for ( Mob = SourceClip; Mob != NULL; Mob = Mob->Parent )
+			{
+				if ( auidCmp( Mob->Class->ID, &AAFClassID_MasterMob ) )
+					break;
+			}
+
+			audioEssence->sourceMobID = aaf_get_propertyValue( Mob, PID_Mob_MobID );
+
+			// _fatal( "Could not retrieve SourceReference::SourceID.\n" );
+		}
 
 
 
@@ -1699,6 +1773,24 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 
 
 
+		// printf("SourceMob ??? %s\n", ClassIDToText( SourceMob->Class->ID ) );
+        //
+		// aafObject *SourceMobSlots = aaf_get_propertyValue( SourceMob, PID_Mob_Slots );
+		// aafObject *SourceMobSlot  = NULL;
+        //
+		// aaf_foreach_ObjectInSet( &SourceMobSlot, SourceMobSlots, NULL )
+		// {
+		// 	printf(">>>> SourceMobSlot %s\n", ClassIDToText( SourceMobSlot->Class->ID ) );
+		// 	printObjectProperties( SourceMobSlot );
+        //
+		// 	aafObject *Segment = aaf_get_propertyValue( aafi->ctx.MobSlot, PID_MobSlot_Segment );
+        //
+		// 	printf("Segment %s\n", ClassIDToText( Segment->Class->ID ) );
+		// 	printf("\n\n");
+		// }
+
+
+
 		aafObject *EssenceDesc = aaf_get_propertyValue( SourceMob, PID_SourceMob_EssenceDescription );
 
 		if ( EssenceDesc == NULL )
@@ -1706,10 +1798,29 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 
 
 
+
+
+		// aafSlotID_t *SlotID  = aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceMobSlotID );
+		// aafObject *MobSlots  = aaf_get_propertyValue( SourceMob, PID_Mob_Slots );
+		// aafObject *MobSlot   = aaf_get_MobSlotBySlotID( MobSlots, *SlotID );
+		// printf("\n:::: Essence SourceMob ::::\n");
+		// // printObjectProperties( MobSlot );
+		// printObjectProperties(SourceMob);
+		// printf("\n\n");
+		// printf("EssenceDescriptor : %s\n", ClassIDToText( EssenceDesc->Class->ID ) );
+		// printObjectProperties(EssenceDesc);
+		// printf("\n\n\n\n");
+
+
+
+
+
+
 		parse_EssenceDescriptor( aafi, EssenceDesc );
 
 
-		aafiAudioClip * audioClip = getClipBySourceID( aafi, audioEssence->sourceMobID );
+
+		aafiAudioClip * audioClip = getClipBySourceMobID( aafi, audioEssence->sourceMobID );
 
 		if ( audioClip != NULL )
 		{
@@ -1828,7 +1939,8 @@ static void parse_Parameter( AAF_Iface *aafi, aafObject *Parameter )
 
 			Gain->value    = calloc( 1, sizeof(aafRational_t*) );
 			Gain->pts_cnt  = 1;
-			Gain->value[0] = multiplier;
+			memcpy( &Gain->value[0], multiplier, sizeof(aafRational_t) );
+			// Gain->value[0] = multiplier;
 
 			// printf( "RAW   %i/%i\n", multiplier->numerator, multiplier->denominator );
 			// printf( "GAIN  %+05.1lf dB\n", 20 * log10( rationalToFloat( Gain->value[0] ) ) );
@@ -1889,13 +2001,13 @@ static void parse_Parameter( AAF_Iface *aafi, aafObject *Parameter )
 			if ( Points == NULL )
 				_fatal( "Missing VaryingValue::PointList.\n" );
 
-			Trans->pts_cnt_a = retrieve_ControlPoints( aafi, Points, &Trans->time_a, &Trans->value_a );
+			Trans->pts_cnt_a = retrieve_ControlPoints( aafi, Points, &(Trans->time_a), &(Trans->value_a) );
 
 			// int i = 0;
-			//
+            //
 			// for ( i = 0; i < Trans->pts_cnt_a; i++ )
 			// {
-			// 	printf("time_%i : %i/%i   value_%i : %i/%i\n", i, Trans->time_a[i]->numerator, Trans->time_a[i]->denominator, i, Trans->value_a[i]->numerator, Trans->value_a[i]->denominator  );
+			// 	printf("time_%i : %i/%i   value_%i : %i/%i\n", i, Trans->time_a[i].numerator, Trans->time_a[i].denominator, i, Trans->value_a[i].numerator, Trans->value_a[i].denominator  );
 			// }
 		}
 		else if ( auidCmp( OpIdent, &AAFOperationDef_MonoAudioGain ) )
@@ -1917,7 +2029,7 @@ static void parse_Parameter( AAF_Iface *aafi, aafObject *Parameter )
             //
 			// for ( i = 0; i < Gain->pts_cnt; i++ )
 			// {
-			// 	printf("time_%i : %i/%i   value_%i : %i/%i\n", i, Gain->time[i]->numerator, Gain->time[i]->denominator, i, Gain->value[i]->numerator, Gain->value[i]->denominator  );
+			// 	printf("time_%i : %i/%i   value_%i : %i/%i\n", i, Gain->time[i].numerator, Gain->time[i].denominator, i, Gain->value[i].numerator, Gain->value[i].denominator  );
 			// }
 		}
 	}
@@ -1928,15 +2040,15 @@ static void parse_Parameter( AAF_Iface *aafi, aafObject *Parameter )
 
 
 
-static int retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRational_t **times[], aafRational_t **values[] )
+static int retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRational_t *times[], aafRational_t *values[] )
 {
 	trace_obj( Points, ANSI_COLOR_MAGENTA );
 
 	// calm down GCC
 	if ( aafi->ctx.Mob ){}
 
-	*times  = calloc( Points->Header->_entryCount, sizeof(aafRational_t*) );
-	*values = calloc( Points->Header->_entryCount, sizeof(aafRational_t*) );
+	*times  = calloc( Points->Header->_entryCount, sizeof(aafRational_t) );
+	*values = calloc( Points->Header->_entryCount, sizeof(aafRational_t) );
 
 
 	aafObject *Point  = NULL;
@@ -1958,8 +2070,11 @@ static int retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRation
 			_fatal( "Missing ControlPoint::Value\n" );
 
 
-		(*times)[i]  = time;
-		(*values)[i] = value;
+		memcpy( (*times+i),  time, sizeof(aafRational_t) );
+		memcpy( (*values+i), value, sizeof(aafRational_t) );
+
+		// (*times)[i]  = time;
+		// (*values)[i] = value;
 
 		i++;
 	}
@@ -2041,33 +2156,33 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 
 				/* TODO default time/values should be free'd .. */
 
-				Trans->time_a  = calloc( 2, sizeof(aafRational_t*) );
-				Trans->value_a = calloc( 2, sizeof(aafRational_t*) );
+				Trans->time_a  = calloc( 2, sizeof(aafRational_t) );
+				Trans->value_a = calloc( 2, sizeof(aafRational_t) );
 
-				Trans->time_a[0]  = calloc( 1, sizeof(aafRational_t) );
-				Trans->time_a[1]  = calloc( 1, sizeof(aafRational_t) );
-				Trans->value_a[0] = calloc( 1, sizeof(aafRational_t) );
-				Trans->value_a[1] = calloc( 1, sizeof(aafRational_t) );
+				// Trans->time_a[0]  = calloc( 1, sizeof(aafRational_t) );
+				// Trans->time_a[1]  = calloc( 1, sizeof(aafRational_t) );
+				// Trans->value_a[0] = calloc( 1, sizeof(aafRational_t) );
+				// Trans->value_a[1] = calloc( 1, sizeof(aafRational_t) );
 
-				Trans->time_a[0]->numerator   = 0;
-				Trans->time_a[0]->denominator = 0;
-				Trans->time_a[1]->numerator   = 1;
-				Trans->time_a[1]->denominator = 1;
+				Trans->time_a[0].numerator   = 0;
+				Trans->time_a[0].denominator = 0;
+				Trans->time_a[1].numerator   = 1;
+				Trans->time_a[1].denominator = 1;
 
 				if ( Trans->flags & AAFI_TRANS_FADE_IN ||
 				     Trans->flags & AAFI_TRANS_XFADE )
 				{
-					Trans->value_a[0]->numerator   = 0;
-					Trans->value_a[0]->denominator = 0;
-					Trans->value_a[1]->numerator   = 1;
-					Trans->value_a[1]->denominator = 1;
+					Trans->value_a[0].numerator   = 0;
+					Trans->value_a[0].denominator = 0;
+					Trans->value_a[1].numerator   = 1;
+					Trans->value_a[1].denominator = 1;
 				}
 				else if ( Trans->flags & AAFI_TRANS_FADE_OUT )
 				{
-					Trans->value_a[0]->numerator   = 1;
-					Trans->value_a[0]->denominator = 1;
-					Trans->value_a[1]->numerator   = 0;
-					Trans->value_a[1]->denominator = 0;
+					Trans->value_a[0].numerator   = 1;
+					Trans->value_a[0].denominator = 1;
+					Trans->value_a[1].numerator   = 0;
+					Trans->value_a[1].denominator = 0;
 				}
 
 
