@@ -1,6 +1,6 @@
 # LibAAF
 
-> *LibAAF is currently a work in progress and is far from beeing production ready.*
+> *LibAAF is currently a work in progress and is not production-ready yet.*
 
 
 **LibAAF** is a C coded library for AAF file handling. The AAF beeing a quite complex file format, the main goal here is to get an easy-to-implement, audio oriented, FOSS solution.
@@ -8,38 +8,46 @@
 
 The library is composed of three parts :
 
-* **LibCFB** for the low-level AAF's *Compound File Binary* handling
-* **AAFCore** for AAF Class/Object manipulations
-* **AAFIface** for easy data access.
+* **LibCFB** : Low-level AAF's *Compound File Binary* handling
+* **AAFCore** : AAF Class/Object manipulations
+* **AAFIface** : Abstraction layer for easy data access.
 
-Since AAF files can store the same data in many different ways, the **AAFIface** interface is there to simplify the way those data are presented to the user. Therefore, for standard AAF operations like essences retrieval, the user should only use the **AAFIface**'s functions.
-
-Although **AAFCore** should implement the AAF standard correctly, **AAFIface** currently only supports parsing of audio data and essences. As a second step, it should be able to handle video too.
-
-Finaly, LibAAF can only read files for now. In the end it should be able to write files too.
+For standard AAF operations like essences/tracks/clips retrieval, the user should only use the **AAFIface**'s functions.
 
 ## Support
 
+LibAAF only support the reading of AAF files, it cannot write ones.
+
+LibAAF was widely tested with :
+
+* Avid Media Composer 8.4.5 - 8.8.3
+* ProTools 10.3.10
+* Logic Pro 9.1.7
+* Fairlight Evo 2.5.1 - 4.1.75
+
+
 |                                 |   | |
 |---------------------------------|:-:|-|
-| Composition Name                | X | Full support |
-| Track Names                     | X | Full support |
-| Clip Names                      | X | Retrieved from source file names |
-| Original essence file names     | X | Full support |
-| PCM Embedded Essences           | X | Full support |
-| WAVE Embedded Essences          | X | Only PCM audio |
-| AIFF Embedded Essences          | X | Only PCM audio |
-| AES3 Embedded Essences          | - | Missing from the specs |
-| Fades in/out - XFades           | X | Full support |
-| Clip based Gain (single value)  | X | Full support |
-| Clip based Gain (automation)    | X | Full support |
-| Track based Gain (single value) | - | Most softwares seems to export track based gain as clip based gain |
-| Track based Gain (automation)   | - | Most softwares seems to export track based gain as clip based gain |
-| Track based PAN                 | - | |
+| Composition Name                | x | *Full support* |
+| Track Names                     | x | *Full support* |
+| Clip Names                      | x | *Retrieved from source file names* |
+| Original essence file names     | x | *Full support* |
+| PCM Embedded Essences           | x | *Full support* |
+| WAVE Embedded Essences          | x | *Only PCM audio* |
+| AIFF Embedded Essences          | x | *Only PCM audio* |
+| AES3 Embedded Essences          | - | *Missing from the specs* |
+| Multi-channel Essences          | - | *TODO* |
+| Fades in/out - XFades           | x | *Full support* |
+| Legacy Fades in/out - XFades    | - | *TODO* |
+| Clip based Gain (single value)  | x | *Full support* |
+| Clip based Gain (automation)    | x | *Full support* |
+| Track based Gain (single value) | - | *TODO* |
+| Track based Gain (automation)   | - | *TODO* |
+| Track based PAN                 | - | *TODO* |
 
 ## Tools
 
-There are three programs to help the developement and to provide library usage examples.
+Three programs are available with LibAAF :
 
 * **AAFInfo** : Allows to parse any AAF file and provides a way to dig into them.
 * **AAFExtract** : Allows to extract the essences contained in the AAF file.
@@ -50,16 +58,3 @@ There are three programs to help the developement and to provide library usage e
 LibAAF makes use of no particular library.
 
 You can just run `make`
-
-## Contribute
-
-Since AAF was made to handle any data in any ways, sometimes even one single software outputs the same data differently on two exports. That's why there are a lot of AAF incompatibility between softwares and software versions.
-
-Therefore we need a lot of material, despite the standard specifications, to implement all those cases and make LibAAF compatible with as much softwares as possible.
-
-Currently, LibAAF was widely tested with :
-
-* Avid Media Composer
-* Fairlight (poorly implemented, by the way..)
-
-**So feel free to send any AAF file you have from any software, this will be extremely useful.** Espacialy with audio segment's gain, pan, track's gain, pan, volume.
