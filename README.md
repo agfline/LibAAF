@@ -3,7 +3,7 @@
 > *LibAAF is currently a work in progress and is not production-ready yet.*
 
 
-**LibAAF** is a C coded library for AAF file handling. The AAF beeing a quite complex file format, the main goal here is to get an easy-to-implement, audio oriented, FOSS solution.
+LibAAF is a C coded library for AAF file handling. The AAF beeing a quite complex file format, the main goal here is to get an easy-to-implement, audio oriented, FOSS solution.
 
 
 The library is composed of three parts :
@@ -16,7 +16,7 @@ For standard AAF operations like essences/tracks/clips retrieval, the user shoul
 
 ## Support
 
-LibAAF only support the reading of AAF files, it cannot write ones.
+LibAAF only supports the reading of AAF files, it cannot write ones.
 
 LibAAF was widely tested with :
 
