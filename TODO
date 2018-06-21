@@ -1,12 +1,13 @@
 NOTES:
 ======
 
-ProTools do not export clip fades metadata, it render fades as audio.
-ProTools do export clip names, proprietary class/properties ?
-ProTools do not export clip gain, neither render them.
-ProTools do export track volume automation
-ProTools do not export track's PAN ?
+ProTools does not export clip fades data, it render fades as audio clips.
+ProTools does export track volume automation as clip-based.
+ProTools does not export track's PAN ?
+ProTools exports stereo tracks as separated tracks for each channel.
 
+ -> Fades are always named "Fade 1", "Fade 2", etc. cant we find and rebuild fades after those clips ?
+ -> Stereo tracks file names are named "some_file_name.L", "some_file_name.R".
 
 TODO :
 ======
@@ -16,13 +17,6 @@ TODO :
 
 TEST :
 ======
-
-	* AAF with per track Gain
-	* AAF with per track PAN
-	* AAF with per track Gain + PAN
-
-	* AAF with per track variable Gain
-	* AAF with per track variable PAN
 
 	* AAF with stereo track and gain applied (SteroAudioGain ?) + xfade (stereoAudioDissolve ?)
 	* AAF with TwoParametersAudioDissolve
