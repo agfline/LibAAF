@@ -99,6 +99,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <math.h>	// ceil()
 
 #include "LibCFB.h"
 #include "CFBTypes.h"
@@ -853,6 +854,34 @@ static int cfb_retrieveFileHeader( CFB_Data *cfbd )
 static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 {
 	cfbSectorID_t * DiFAT = NULL;
+
+
+	/*
+	 *	Check DiFAT properties in header.
+	 *	(Exemple AMWA aaf files.)
+	 */
+
+	cfbSectorID_t csectDif = 0;
+
+	if ( cfbd->hdr->_csectFat > 109 )
+	{
+		csectDif = ceil( (float)((cfbd->hdr->_csectFat - 109) * 4) / (1<<cfbd->hdr->_uSectorShift) );
+	}
+
+	if ( csectDif != cfbd->hdr->_csectDif )
+	{
+		cfbd->hdr->_csectDif = csectDif;
+
+		_warning("cfbd->hdr->_csectDif value seems wrong. Correcting from cfbd->hdr->_csectFat.\n");
+	}
+
+	if ( csectDif == 0 && cfbd->hdr->_sectDifStart != CFB_END_OF_CHAIN )
+	{
+		cfbd->hdr->_sectDifStart = CFB_END_OF_CHAIN;
+
+		_warning("cfbd->hdr->_sectDifStart should be CFB_END_OF_CHAIN. Correcting.\n");
+	}
+
 
 	/*
 	 *	DiFAT size is the number of FAT sector entries in the DiFAT chain.
