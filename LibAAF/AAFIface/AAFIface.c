@@ -480,9 +480,9 @@ aafiTransition * get_fadeout( aafiTimelineItem *audioItem )
 
 char * printUID( aafUID_t *auid )
 {
-	char *buf = malloc( 64 );
+	char *buf = malloc( 74 );
 
-	snprintf( buf, 64, "{0x%08x, 0x%04x, 0x%04x, { 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x }}",
+	snprintf( buf, 74, "{0x%08x, 0x%04x, 0x%04x, { 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x }}",
 		auid->Data1,
 		auid->Data2,
 		auid->Data3,
@@ -2073,8 +2073,6 @@ static int retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRation
 		memcpy( (*times+i),  time, sizeof(aafRational_t) );
 		memcpy( (*values+i), value, sizeof(aafRational_t) );
 
-		// (*times)[i]  = time;
-		// (*values)[i] = value;
 
 		i++;
 	}
@@ -2082,6 +2080,8 @@ static int retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRation
 	if ( Points->Header->_entryCount != i )
 	{
 		_warning( "Points _entryCount does not match iteration.\n" );
+
+		return i;
 	}
 
 	/*
@@ -2153,16 +2153,8 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 
 				Trans->flags |= AAFI_INTERPOL_LINEAR;
 
-
-				/* TODO default time/values should be free'd .. */
-
 				Trans->time_a  = calloc( 2, sizeof(aafRational_t) );
 				Trans->value_a = calloc( 2, sizeof(aafRational_t) );
-
-				// Trans->time_a[0]  = calloc( 1, sizeof(aafRational_t) );
-				// Trans->time_a[1]  = calloc( 1, sizeof(aafRational_t) );
-				// Trans->value_a[0] = calloc( 1, sizeof(aafRational_t) );
-				// Trans->value_a[1] = calloc( 1, sizeof(aafRational_t) );
 
 				Trans->time_a[0].numerator   = 0;
 				Trans->time_a[0].denominator = 0;
@@ -2184,7 +2176,6 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 					Trans->value_a[1].numerator   = 0;
 					Trans->value_a[1].denominator = 0;
 				}
-
 
 				// printf( "\n\nxxx OperationGroup xxx\n" );
 				// printObjectProperties( OpGroup );
@@ -2472,6 +2463,40 @@ int aafi_retrieveData( AAF_Iface *aafi )
 
 		if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_CompositionMob ) )
 		{
+			/******************************************************************/
+
+			// printObjectProperties(aafi->ctx.Mob);
+            //
+			// aafObject *UserComments = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_UserComments );
+			// aafObject *UserComment  = NULL;
+            //
+			// aaf_foreach_ObjectInSet( &UserComment, UserComments, NULL )
+			// {
+			// 	printf("\n\n");
+			// 	printObjectProperties(UserComment);
+			// 	unsigned char *string = NULL;
+			// 	aafIndirect_t *indirectCom = aaf_get_propertyValue(UserComment, PID_TaggedValue_Value);
+			// 	unsigned char *com = indirectCom->Value;
+			// 	printf("Indirect Type : %s\n", TypeIDToText( &indirectCom->TypeDef) );
+			// 	printf("Indirect auid type : %s\n", printUID(&indirectCom->TypeDef) );
+			// 	// utf16toa( string, 20, com, 10 );
+			// 	// printf("%s\n", string );
+			// 	printf("\n\n");
+			// }
+            //
+			// aafObject *MobAttributeList = aaf_get_propertyValue( aafi->ctx.Mob, 0xfff9 );
+			// aafObject *MobAttribute     = NULL;
+            //
+			// aaf_foreach_ObjectInSet( &MobAttribute, MobAttributeList, NULL )
+			// {
+			// 	printf("\nMobAttribute\n");
+			// 	printObjectProperties(MobAttribute);
+			// 	printf("\n\n");
+			// }
+
+			/******************************************************************/
+
+
 			aafi->compositionName = aaf_get_propertyValueText( aafi->ctx.Mob, PID_Mob_Name );
 		}
 
