@@ -1551,7 +1551,7 @@ void cfb_printHeader( CFB_Data *cfbd )
 		cfbh->_clsid.Data4[7]
 	);
 */
-	printf( " version            : %d.%d ( 0x%04x 0x%04x )\n",
+	printf( " version            : %u.%u ( 0x%04x 0x%04x )\n",
 		cfbh->_uMinorVersion, cfbh->_uDllVersion,
 		cfbh->_uMinorVersion, cfbh->_uDllVersion );
 
@@ -1570,15 +1570,15 @@ void cfb_printHeader( CFB_Data *cfbd )
 
 	printf( "_usReserved0        : 0x%02x\n", cfbh->_usReserved );
 	printf( "_ulReserved1        : 0x%04x\n", cfbh->_ulReserved1 );
-	printf( "_csectDir           : %d\n", cfbh->_csectDir );
-	printf( "_csectFat           : %d\n", cfbh->_csectFat );
-	printf( "_sectDirStart       : %d\n", cfbh->_sectDirStart );
-	printf( "_signature          : %d\n", cfbh->_signature );
-	printf( "_ulMiniSectorCutoff : %d\n", cfbh->_ulMiniSectorCutoff );
-	printf( "_sectMiniFatStart   : %d\n", cfbh->_sectMiniFatStart );
-	printf( "_csectMiniFat       : %d\n", cfbh->_csectMiniFat );
-	printf( "_sectDifStart       : %d\n", cfbh->_sectDifStart );
-	printf( "_csectDif           : %d\n", cfbh->_csectDif );
+	printf( "_csectDir           : %u\n", cfbh->_csectDir );
+	printf( "_csectFat           : %u\n", cfbh->_csectFat );
+	printf( "_sectDirStart       : %u\n", cfbh->_sectDirStart );
+	printf( "_signature          : %u\n", cfbh->_signature );
+	printf( "_ulMiniSectorCutoff : %u\n", cfbh->_ulMiniSectorCutoff );
+	printf( "_sectMiniFatStart   : %u\n", cfbh->_sectMiniFatStart );
+	printf( "_csectMiniFat       : %u\n", cfbh->_csectMiniFat );
+	printf( "_sectDifStart       : %u\n", cfbh->_sectDifStart );
+	printf( "_csectDif           : %u\n", cfbh->_csectDif );
 
 	printf( "\n" );
 }
