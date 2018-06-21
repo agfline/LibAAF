@@ -26,24 +26,24 @@ LibAAF was widely tested with :
 * Fairlight Evo 2.5.1 - 4.1.75
 
 
-|                                 |   | |
-|---------------------------------|:-:|-|
-| Composition Name                | x | *Full support* |
-| Track Names                     | x | *Full support* |
+|                                 |   |                                    |
+|---------------------------------|:-:|------------------------------------|
+| Composition Name                | x | *Full support*                     |
+| Track Names                     | x | *Full support*                     |
 | Clip Names                      | x | *Retrieved from source file names* |
-| Original essence file names     | x | *Full support* |
-| PCM Embedded Essences           | x | *Full support* |
-| WAVE Embedded Essences          | x | *Only PCM audio* |
-| AIFF Embedded Essences          | x | *Only PCM audio* |
-| AES3 Embedded Essences          | - | *Missing from the specs* |
-| Multi-channel Essences          | - | *TODO* |
-| Fades in/out - XFades           | x | *Full support* |
-| Legacy Fades in/out - XFades    | - | *TODO* |
-| Clip based Gain (single value)  | x | *Full support* |
-| Clip based Gain (automation)    | x | *Full support* |
-| Track based Gain (single value) | - | *TODO* |
-| Track based Gain (automation)   | - | *TODO* |
-| Track based PAN                 | - | *TODO* |
+| Original essence file names     | x | *Full support*                     |
+| PCM Embedded Essences           | x | *Full support*                     |
+| WAVE Embedded Essences          | x | *Only PCM audio*                   |
+| AIFF Embedded Essences          | x | *Only PCM audio*                   |
+| AES3 Embedded Essences          | - | *Missing from the specs*           |
+| Multi-channel Essences          | - | *TODO*                             |
+| Fades in/out - XFades           | x | *Full support*                     |
+| Legacy Fades in/out - XFades    | - | *TODO*                             |
+| Clip based Gain (single value)  | x | *Full support*                     |
+| Clip based Gain (automation)    | x | *Full support*                     |
+| Track based Gain (single value) | - | *TODO*                             |
+| Track based Gain (automation)   | - | *TODO*                             |
+| Track based PAN                 | - | *TODO*                             |
 
 ## Tools
 
@@ -55,6 +55,6 @@ Three programs are available with LibAAF :
 
 ## Compile
 
-LibAAF makes use of no particular library.
+LibAAF has no particular dependencies.
 
-You can just run `make`
+Just run `make`
