@@ -884,14 +884,14 @@ int main( int argc, char *argv[] )
 					eu2tc_m( audioClip, (audioClip->pos + audioClip->track->Audio->tc->start) ),
 					eu2tc_s( audioClip, (audioClip->pos + audioClip->track->Audio->tc->start) ),
 					eu2tc_f( audioClip, (audioClip->pos + audioClip->track->Audio->tc->start) ),
-					eu2tc_h( audioClip, (audioClip->len + audioClip->track->Audio->tc->start) ),
-					eu2tc_m( audioClip, (audioClip->len + audioClip->track->Audio->tc->start) ),
-					eu2tc_s( audioClip, (audioClip->len + audioClip->track->Audio->tc->start) ),
-					eu2tc_f( audioClip, (audioClip->len + audioClip->track->Audio->tc->start) ),
-					eu2tc_h( audioClip, (audioClip->pos + audioClip->len) ),
-					eu2tc_m( audioClip, (audioClip->pos + audioClip->len) ),
-					eu2tc_s( audioClip, (audioClip->pos + audioClip->len) ),
-					eu2tc_f( audioClip, (audioClip->pos + audioClip->len) ),
+					eu2tc_h( audioClip, (audioClip->len) ),
+					eu2tc_m( audioClip, (audioClip->len) ),
+					eu2tc_s( audioClip, (audioClip->len) ),
+					eu2tc_f( audioClip, (audioClip->len) ),
+					eu2tc_h( audioClip, (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start) ),
+					eu2tc_m( audioClip, (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start) ),
+					eu2tc_s( audioClip, (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start) ),
+					eu2tc_f( audioClip, (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start) ),
 					( fadein != NULL ) ?
 						(fadein->flags & AAFI_INTERPOL_NONE)     ? "CURV_NON" :
 						(fadein->flags & AAFI_INTERPOL_LINEAR)   ? "CURV_LIN" :
