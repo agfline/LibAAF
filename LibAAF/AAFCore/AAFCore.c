@@ -950,8 +950,6 @@ static void retrieveObjectTree( AAF_Data *aafd )
 	 *	Retrieve MetaDictionary.
 	 */
 
-//	retrieveMetaDictionary( aafd );
-
 	aafObject *MetaDic   = aaf_get_propertyValue( aafd->Root, PID_Root_MetaDictionary );
 	aafObject *ClassDefs = aaf_get_propertyValue( MetaDic, PID_MetaDictionary_ClassDefinitions );
 	aafObject *ClassDef  = NULL;
