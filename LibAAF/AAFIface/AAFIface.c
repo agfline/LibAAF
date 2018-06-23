@@ -154,7 +154,7 @@ static void   parse_Parameter( AAF_Iface *aafi, aafObject *Parameter );
 
 
 
-static void trace_obj( aafObject *Obj, char *color )
+static void trace_obj( AAF_Iface *aafi, aafObject *Obj, char *color )
 {
 	char buf[1024];
 	char tmp[1024];
@@ -184,6 +184,29 @@ static void trace_obj( aafObject *Obj, char *color )
 			char *name = aaf_get_propertyValueText( Obj, PID_Mob_Name );
 			snprintf( buf, 1024, "%s (%s) > %s", ClassIDToText( Obj->Class->ID ), name, tmp );
 			free( name );
+		}
+		else if ( auidCmp( Obj->Class->ID, &AAFClassID_OperationGroup ) )
+		{
+			aafWeakRef_t *OpDef = aaf_get_propertyValue( Obj, PID_OperationGroup_Operation );
+
+			if ( OpDef == NULL )
+				_fatal( "Missing OperationGroup::Operation.\n" );
+
+
+			aafObject *OpDefObj = aaf_get_ObjectByWeakRef( aafi->aafd->OperationDefinition, OpDef );
+
+			if ( OpDefObj == NULL )
+				_fatal( "Could not retrieve OperationDefinition from dictionary.\n" );
+
+
+			aafUID_t *OpIdent = aaf_get_propertyValue( OpDefObj, PID_DefinitionObject_Identification );
+
+			if ( OpIdent == NULL )
+				_fatal( "Missing DefinitionObject::Identification.\n" );
+
+
+			const char *name = OperationDefToText( OpIdent );
+			snprintf( buf, 1024, "%s (%s) > %s", ClassIDToText( Obj->Class->ID ), name, tmp );
 		}
 		else
 		{
@@ -360,15 +383,18 @@ int extractAudioEssence( AAF_Iface *aafi, aafiAudioEssence *audioEssence, const 
 	size_t   len    = 0;
 	// uint64_t offset = 44;
 
-	aafByte_t *buf = NULL;
-
+	aafByte_t *nodeBuf  = NULL;
+	// aafByte_t *audioBuf = malloc( 512 * 4096 ); // 2 097 152 bytes
+	// size_t     audioBuf_len = 0;
+	// size_t i = 0;
+    //
 	aafiEssenceDataNode *node = audioEssence->node;
 
 	// for ( node = audioEssence->nodes; node != NULL; node = node->next )
 	// {
 		/* TODO multiple aafiEssenceDataNode ???? */
 
-		cfb_foreachSectorInStream( aafi->aafd->cfbd, node->node, &buf, &len, &id )
+		cfb_foreachSectorInStream( aafi->aafd->cfbd, node->node, &nodeBuf, &len, &id )
 		{
 
 			if ( audioEssence->type == AAFI_TYPE_AIFC )
@@ -377,15 +403,17 @@ int extractAudioEssence( AAF_Iface *aafi, aafiAudioEssence *audioEssence, const 
 
 				for( i = 0; i < len; i += 2 )
 				{
-					swap( buf, i, i+1 );
+					swap( nodeBuf, i, i+1 );
 				}
 			}
 
-			fwrite( buf, sizeof(aafByte_t), len, fp );
+			fwrite( nodeBuf, sizeof(aafByte_t), len, fp );
+
+			// i++;
 		}
 
-		if ( buf )
-			free( buf );
+		if ( nodeBuf )
+			free( nodeBuf );
 
 	// }
 
@@ -1016,7 +1044,7 @@ static void retrieve_EssenceData( AAF_Iface *aafi )
 		return;
 	}
 
-	trace_obj( EssenceData, ANSI_COLOR_MAGENTA );
+	trace_obj( aafi, EssenceData, ANSI_COLOR_MAGENTA );
 
 
 	aafiEssenceDataNode *dataNode = aafi_newEssenceDataNode( audioEssence );
@@ -1054,7 +1082,7 @@ static void retrieve_EssenceData( AAF_Iface *aafi )
 static void parse_Locator( AAF_Iface *aafi, aafObject *Locator )
 {
 
-	trace_obj( Locator, ANSI_COLOR_MAGENTA );
+	trace_obj( aafi, Locator, ANSI_COLOR_MAGENTA );
 
 	aafiAudioEssence *audioEssence = aafi->ctx.current_audioEssence;
 
@@ -1162,7 +1190,7 @@ static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 
 	if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_PCMDescriptor ) )
 	{
-		trace_obj( EssenceDesc, ANSI_COLOR_MAGENTA );
+		trace_obj( aafi, EssenceDesc, ANSI_COLOR_MAGENTA );
 
 		audioEssence->type            = AAFI_TYPE_PCM;
 
@@ -1180,7 +1208,7 @@ static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_WAVEDescriptor ) )
 	{
 
-		trace_obj( EssenceDesc, ANSI_COLOR_MAGENTA );
+		trace_obj( aafi, EssenceDesc, ANSI_COLOR_MAGENTA );
 
 		audioEssence->type = AAFI_TYPE_WAVE;
 
@@ -1220,7 +1248,7 @@ static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_AIFCDescriptor ) )
 	{
 
-		trace_obj( EssenceDesc, ANSI_COLOR_MAGENTA );
+		trace_obj( aafi, EssenceDesc, ANSI_COLOR_MAGENTA );
 
 		audioEssence->type = AAFI_TYPE_AIFC;
 
@@ -1244,7 +1272,7 @@ static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_SoundDescriptor ) )
 	{
 
-		trace_obj( EssenceDesc, ANSI_COLOR_RED );
+		trace_obj( aafi, EssenceDesc, ANSI_COLOR_RED );
 
 		_warning( "No support for AAFClassID_SoundDescriptor." );
 
@@ -1261,7 +1289,7 @@ static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 		 *	Not described in specs.
 		 */
 
-		trace_obj( EssenceDesc, ANSI_COLOR_RED );
+		trace_obj( aafi, EssenceDesc, ANSI_COLOR_RED );
 
 		_warning( "No support for AAFClassID_AES3PCMDescriptor." );
 
@@ -1286,7 +1314,7 @@ static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 		 *	MobSlot::SlotID property.
 		 */
 
-		trace_obj( EssenceDesc, ANSI_COLOR_RED );
+		trace_obj( aafi, EssenceDesc, ANSI_COLOR_RED );
 
 		_warning( "MultipleDescriptor not supported yet.\n\n" );
 
@@ -1295,7 +1323,7 @@ static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 	}
 	else
 	{
-		trace_obj( EssenceDesc, ANSI_COLOR_RED );
+		trace_obj( aafi, EssenceDesc, ANSI_COLOR_RED );
 
 		_warning( "Unsupported (yet ?) ClassID : %s\n", ClassIDToText( EssenceDesc->Class->ID ) );
 
@@ -1509,7 +1537,7 @@ static void parse_Segment( AAF_Iface *aafi, aafObject *Segment )
 				 *	TODO to be implemented, not encountered yet.
 				 */
 
-				 trace_obj( Segment, ANSI_COLOR_RED );
+				 trace_obj( aafi, Segment, ANSI_COLOR_RED );
 
 			}
 			else if ( auidCmp( Segment->Parent->Class->ID, &AAFClassID_Sequence ) )
@@ -1536,7 +1564,7 @@ static void parse_Segment( AAF_Iface *aafi, aafObject *Segment )
 			 *	TODO: This was seen in the spec, but never encountered in real world.
 			 */
 
-			trace_obj( Segment, ANSI_COLOR_RED );
+			trace_obj( aafi, Segment, ANSI_COLOR_RED );
 			_fatal( "MobSlot::Segment > OperationGroup Not implemented yet.\n" );
 
 		}
@@ -1554,13 +1582,13 @@ static void parse_Segment( AAF_Iface *aafi, aafObject *Segment )
 		 *	TODO Provides support for multiple essences ???
 		 */
 
-		trace_obj( Segment, ANSI_COLOR_RED );
+		trace_obj( aafi, Segment, ANSI_COLOR_RED );
 		_fatal( "MobSlot::Segment > EssenceGroup Not implemented yet.\n" );
 
 	}
 	else
 	{
-		trace_obj( Segment, ANSI_COLOR_RED );
+		trace_obj( aafi, Segment, ANSI_COLOR_RED );
 	}
 
 }
@@ -1571,7 +1599,7 @@ static void parse_Segment( AAF_Iface *aafi, aafObject *Segment )
 
 static void parse_Filler( AAF_Iface *aafi, aafObject *Filler )
 {
-	trace_obj( Filler, ANSI_COLOR_MAGENTA );
+	trace_obj( aafi, Filler, ANSI_COLOR_MAGENTA );
 
 	if ( auidCmp( Filler->Parent->Class->ID, &AAFClassID_TimelineMobSlot ) )
 	{
@@ -1619,7 +1647,7 @@ static void parse_Sequence( AAF_Iface *aafi, aafObject *Sequence )
 
 static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 {
-	trace_obj( SourceClip, ANSI_COLOR_MAGENTA );
+	trace_obj( aafi, SourceClip, ANSI_COLOR_MAGENTA );
 
 	// printObjectProperties(SourceClip);
 
@@ -1839,7 +1867,7 @@ p.49	 *	To create a SourceReference that refers to a MobSlot within
 
 static void parse_Timecode( AAF_Iface *aafi, aafObject *Timecode )
 {
-	trace_obj( Timecode, ANSI_COLOR_MAGENTA );
+	trace_obj( aafi, Timecode, ANSI_COLOR_MAGENTA );
 
 	aafiTimecode *tc = calloc( sizeof(aafiTimecode), sizeof(unsigned char) );
 
@@ -1923,7 +1951,7 @@ static void parse_Parameter( AAF_Iface *aafi, aafObject *Parameter )
 		if ( auidCmp( OpIdent, &AAFOperationDef_MonoAudioGain ) )
 		{
 
-			trace_obj( Parameter, ANSI_COLOR_MAGENTA );
+			trace_obj( aafi, Parameter, ANSI_COLOR_MAGENTA );
 
 			aafiAudioGain *Gain = aafi->ctx.current_gain;
 
@@ -2042,7 +2070,7 @@ static void parse_Parameter( AAF_Iface *aafi, aafObject *Parameter )
 
 static int retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRational_t *times[], aafRational_t *values[] )
 {
-	trace_obj( Points, ANSI_COLOR_MAGENTA );
+	trace_obj( aafi, Points, ANSI_COLOR_MAGENTA );
 
 	// calm down GCC
 	if ( aafi->ctx.Mob ){}
@@ -2145,7 +2173,7 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 
 			if ( Param == NULL )
 			{
-				trace_obj( OpGroup, ANSI_COLOR_MAGENTA );
+				trace_obj( aafi, OpGroup, ANSI_COLOR_MAGENTA );
 
 				/* TODO is there realy some transition here ??? (fairlight AAF) */
 
@@ -2223,7 +2251,7 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 			 *	Two distinct parameters are used for outgoing and incoming fades.
 			 */
 
-			trace_obj( OpGroup , ANSI_COLOR_RED);
+			trace_obj( aafi, OpGroup , ANSI_COLOR_RED);
 			_warning( "AAFOperationDef_TwoParameterMonoAudioDissolve not supported yet.\n" );
 
 			// Trans->flags |= AAFI_TRANS_TWO_CURVE;
@@ -2236,12 +2264,12 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 			 *	TODO Unknown usage and implementation
 			 */
 
-			trace_obj( OpGroup, ANSI_COLOR_RED );
+			trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
 			_warning( "AAFOperationDef_StereoAudioDissolve not supported yet.\n" );
 		}
 		else
 		{
-			trace_obj( OpGroup, ANSI_COLOR_RED );
+			trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
 		}
 	}
 
@@ -2304,7 +2332,7 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 			 *	TODO Unknown usage and implementation
 			 */
 
-			trace_obj( OpGroup, ANSI_COLOR_RED );
+			trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
 			_warning( "AAFOperationDef_MonoAudioMixdown not supported yet.\n" );
 
 		}
@@ -2317,13 +2345,30 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 			 *	TODO Unknown usage and implementation
 			 */
 
-			trace_obj( OpGroup, ANSI_COLOR_RED );
+			trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
 			_warning( "AAFOperationDef_StereoAudioGain not supported yet.\n" );
 
 		}
 		else
 		{
-			trace_obj( OpGroup, ANSI_COLOR_RED );
+			trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
+
+			/**************************************************************************************/
+
+			printObjectProperties( OpGroup );
+
+			aafObject *ComponentAttributeList = aaf_get_propertyValue( OpGroup, PID_OperationGroup_InputSegments );
+			aafObject *ComponentAttribute     = NULL;
+
+			aaf_foreach_ObjectInSet( &ComponentAttribute, ComponentAttributeList, NULL )
+			{
+				printf("\n\n");
+				printObjectProperties( ComponentAttribute );
+				printf("\n\n");
+			}
+
+			/**************************************************************************************/
+
 			return;
 		}
 
