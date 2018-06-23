@@ -678,6 +678,34 @@ aafObject * aaf_get_MobSlotBySlotID( aafObject *MobSlots, aafSlotID_t SlotID )
 
 
 
+/*
+ *	TODO Works when the property was retrieved from MetaDictionary. What if the property is standard ?
+ */
+
+aafPID_t aaf_get_PropertyIDByName( AAF_Data *aafd, const char *name )
+{
+	aafClass *Class = NULL;
+
+	foreachClass( Class, aafd->Classes )
+	{
+		aafPropertyDef *PDef = NULL;
+
+		foreachPropertyDefinition( PDef, Class->Properties )
+		{
+			if ( PDef->name != NULL && strcmp( PDef->name, name ) == 0 )
+			{
+				return PDef->pid;
+			}
+
+		}
+	}
+
+	return 0;
+}
+
+
+
+
 
 
 aafProperty * aaf_get_property( aafObject *Obj, aafPID_t pid )

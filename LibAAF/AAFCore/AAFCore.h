@@ -727,6 +727,20 @@ aafProperty * aaf_get_property( aafObject *Obj,
 
 
 /**
+ *	Retrieves a Property ID by its name.
+ *
+ *	@param  aafd  Pointer to the AAF_Data structure.
+ *	@param  name  Name of the property to look for.
+ *
+ *	@return      The PID of the property if it was found\n
+ *	             0 otherwise.
+ */
+
+aafPID_t aaf_get_PropertyIDByName( AAF_Data   *aafd, 
+                                   const char *name );
+
+
+/**
  *	Retrieves a Property by its ID out of an Object, and returns its value.
  *
  *	@param  Obj  Pointer to the Object to get the property from.
