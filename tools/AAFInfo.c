@@ -910,7 +910,7 @@ int main( int argc, char *argv[] )
 						(fadeout->flags & AAFI_INTERPOL_BSPLINE)  ? "CURV_BSP" :
 						"" :
 					"none    ",
-					audioClip->Essence->file_name
+					(audioClip->Essence) ? audioClip->Essence->file_name : ""
 				);
 
 
