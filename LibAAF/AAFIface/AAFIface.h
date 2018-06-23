@@ -366,6 +366,7 @@ typedef struct aafiAudioClip
 	aafiAudioGain         *gain;
 
 
+	// uint16_t               inner_track_channel; // for multichannel track only.
 
 	aafPosition_t          pos;
 
@@ -376,10 +377,6 @@ typedef struct aafiAudioClip
 
 	aafMobID_t            *sourceMobID;
 
-
-
-	// Ardour ?
-	// uint16_t subClipNum; // TODO Remove
 
 } aafiAudioClip;
 
@@ -444,6 +441,20 @@ typedef struct aafiTimecode
 
 
 
+
+/**
+ *	Values for aafiAudioTrack.format.
+ */
+
+typedef enum aafiTrackFormat_e
+{
+	AAFI_TRACK_FORMAT_MONO   = 1,
+	AAFI_TRACK_FORMAT_STEREO = 2,
+	AAFI_TRACK_FORMAT_5_1    = 3,
+	AAFI_TRACK_FORMAT_7_1    = 4
+
+} aafiTrackFormat_e;
+
 // forward declaration
 struct aafiAudio;
 
@@ -456,6 +467,8 @@ typedef struct aafiAudioTrack
 	 */
 
 	uint32_t                 number;
+
+	uint16_t                 format;
 
 	/**
 	 *	Track name
@@ -550,6 +563,12 @@ typedef struct aafiContext
 	/* Clip */
 
 	aafiAudioTrack * current_track;
+
+	aafBoolean_t     current_track_is_multichannel;
+
+	uint16_t         current_multichannel_track_channel;
+
+	aafPosition_t    current_multichannel_track_clip_length;
 
 	aafPosition_t    current_pos;
 

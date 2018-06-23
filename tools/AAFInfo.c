@@ -775,8 +775,12 @@ int main( int argc, char *argv[] )
 		foreach_audioTrack( audioTrack, aafi )
 		{
 			printf( "\n\n" );
-			printf( "Track (%u) %s     edit_rate %i/%i\n",
+			printf( "Track (%u) - %s - \"%s\"     edit_rate %i/%i\n",
 			        audioTrack->number,
+					(audioTrack->format == AAFI_TRACK_FORMAT_MONO) ? "MONO" :
+					(audioTrack->format == AAFI_TRACK_FORMAT_STEREO) ? "STEREO" :
+					(audioTrack->format == AAFI_TRACK_FORMAT_5_1) ? "5.1" :
+					(audioTrack->format == AAFI_TRACK_FORMAT_7_1) ? "7.1" : "Unknown",
 			        (audioTrack->name != NULL) ? audioTrack->name : "",
 			        audioTrack->edit_rate->numerator, audioTrack->edit_rate->denominator
 			 );
@@ -849,17 +853,17 @@ int main( int argc, char *argv[] )
 
 				audioClip = (aafiAudioClip*)&audioItem->data;
 
-				aafiAudioEssence *audioEssence = NULL;
-
-				uint32_t y = 0;
-
-				foreachAudioEssence( audioEssence, aafi->Audio->Essences )
-				{
-					if ( audioEssence == audioClip->Essence )
-						break;
-
-					y++;
-				}
+				// aafiAudioEssence *audioEssence = NULL;
+                //
+				// uint32_t y = 0;
+                //
+				// foreachAudioEssence( audioEssence, aafi->Audio->Essences )
+				// {
+				// 	if ( audioEssence == audioClip->Essence )
+				// 		break;
+                //
+				// 	y++;
+				// }
 
 //				printf( "pos : %li\n", 1 / rationalToint64( audioClip->track->edit_rate) );
 
@@ -869,12 +873,12 @@ int main( int argc, char *argv[] )
 
 				char str[16];
 
-				printf( " Clip:%u%s  Track:%u  Audio:%u%s  Gain:%s "
+				printf( " Clip:%u%s  Track:%u  Gain:%s "
 						" Start:%02u:%02u:%02u:%02u  Len:%02u:%02u:%02u:%02u "
-						" End:%02u:%02u:%02u:%02u  Fadein: %s  Fadeout: %s \n",
+						" End:%02u:%02u:%02u:%02u  Fadein: %s  Fadeout: %s  SourceFile: %s\n",
 					i, ( i < 10 ) ? " " : "",
 					audioClip->track->number,
-					y, ( y < 10 ) ? " " : "",
+					// y, ( y < 10 ) ? " " : "",
 					gainToStr( str, audioClip ),
 					eu2tc_h( audioClip, (audioClip->pos + audioClip->track->Audio->tc->start) ),
 					eu2tc_m( audioClip, (audioClip->pos + audioClip->track->Audio->tc->start) ),
@@ -905,7 +909,8 @@ int main( int argc, char *argv[] )
 						(fadeout->flags & AAFI_INTERPOL_POWER)    ? "CURV_PWR" :
 						(fadeout->flags & AAFI_INTERPOL_BSPLINE)  ? "CURV_BSP" :
 						"" :
-					"none    "
+					"none    ",
+					audioClip->Essence->file_name
 				);
 
 

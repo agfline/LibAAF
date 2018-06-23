@@ -677,6 +677,8 @@ aafiAudioTrack * aafi_newAudioTrack( AAF_Iface *aafi, aafObject *MobSlot, uint32
 
 	track->next = NULL;
 
+	track->format = AAFI_TRACK_FORMAT_MONO;
+
 
 	if ( MobSlot != NULL )
 	{
@@ -1689,8 +1691,14 @@ p.49	 *	To create a SourceReference that refers to a MobSlot within
 		audioClip->Essence = getEssenceBySourceMobID( aafi, audioClip->sourceMobID );
 
 
-		aafi->ctx.current_pos += audioClip->len;
-
+		if ( aafi->ctx.current_track_is_multichannel == 0 )
+		{
+			aafi->ctx.current_pos += audioClip->len;
+		}
+		else
+		{
+			aafi->ctx.current_multichannel_track_clip_length = audioClip->len;
+		}
 
 		return audioClip;
 
@@ -2224,6 +2232,80 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 			trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
 		}
 	}
+	else if ( auidCmp( OpIdent, &AAFOperationDef_MonoAudioPan ) )
+	{
+		/*
+		 *	Mono Audio Pan (Track Pan)
+		 *
+		 *	TODO : Only Track-based
+		 */
+
+		trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
+		_warning( "AAFOperationDef_MonoAudioPan not supported yet.\n" );
+
+		return;
+	}
+	else if ( auidCmp( OpIdent, &AAFOperationDef_AudioChannelCombiner ) )
+	{
+		trace_obj( aafi, OpGroup, ANSI_COLOR_MAGENTA );
+
+		/**************************************************************************************/
+
+		// printObjectProperties( aafi->aafd, OpGroup );
+
+		aafi->ctx.current_track_is_multichannel = 1;
+		aafi->ctx.current_multichannel_track_channel = 0;
+
+
+		aafObject *InputSegments = aaf_get_propertyValue( OpGroup, PID_OperationGroup_InputSegments );
+		aafObject *InputSegment  = NULL;
+
+		aaf_foreach_ObjectInSet( &InputSegment, InputSegments, NULL )
+		{
+			// printObjectProperties( aafi->aafd, InputSegment );
+
+			parse_Segment( aafi, InputSegment );
+
+			aafi->ctx.current_multichannel_track_channel++;
+		}
+
+
+		/*
+		 *	Sets the track format.
+		 */
+
+		if ( aafi->ctx.current_multichannel_track_channel == 2 )
+		{
+			aafi->ctx.current_track->format = AAFI_TRACK_FORMAT_STEREO;
+		}
+		else if ( aafi->ctx.current_multichannel_track_channel == 6 )
+		{
+			aafi->ctx.current_track->format = AAFI_TRACK_FORMAT_5_1;
+		}
+		else if ( aafi->ctx.current_multichannel_track_channel == 8 )
+		{
+			aafi->ctx.current_track->format = AAFI_TRACK_FORMAT_7_1;
+		}
+
+
+		/*
+		 *	Update the current position.
+		 */
+
+		aafi->ctx.current_pos += aafi->ctx.current_multichannel_track_clip_length;
+
+
+		/*
+		 *	Reset multichannel track context.
+		 */
+
+		aafi->ctx.current_multichannel_track_channel = 0;
+		aafi->ctx.current_track_is_multichannel = 0;
+
+		/**************************************************************************************/
+
+		return;
+	}
 
 	/* TODO else if () */
 	else
@@ -2265,17 +2347,6 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 			parse_Parameter( aafi, Parameter );
 
 		}
-		else if ( auidCmp( OpIdent, &AAFOperationDef_MonoAudioPan ) )
-		{
-			/*
-			 *	Mono Audio Pan (Track Pan)
-			 *
-			 *	TODO : Only Track-based
-			 */
-
-			 trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
-	 		_warning( "AAFOperationDef_MonoAudioPan not supported yet.\n" );
-		}
 		else if ( auidCmp( OpIdent, &AAFOperationDef_MonoAudioMixdown ) )
 		{
 
@@ -2302,30 +2373,9 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 			_warning( "AAFOperationDef_StereoAudioGain not supported yet.\n" );
 
 		}
-		else if ( auidCmp( OpIdent, &AAFOperationDef_AudioChannelCombiner ) )
-		{
-			trace_obj( aafi, OpGroup, ANSI_COLOR_YELLOW );
-		}
 		else
 		{
 			trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
-
-			/**************************************************************************************/
-
-			printObjectProperties( aafi->aafd, OpGroup );
-
-			aafObject *ComponentAttributeList = aaf_get_propertyValue( OpGroup, PID_OperationGroup_InputSegments );
-			aafObject *ComponentAttribute     = NULL;
-
-			aaf_foreach_ObjectInSet( &ComponentAttribute, ComponentAttributeList, NULL )
-			{
-				printf("\n\n");
-				printObjectProperties( aafi->aafd, ComponentAttribute );
-				printf("\n\n");
-			}
-
-			/**************************************************************************************/
-
 			return;
 		}
 
