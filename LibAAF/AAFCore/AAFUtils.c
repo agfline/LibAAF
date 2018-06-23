@@ -152,14 +152,14 @@ char * printUID( aafUID_t *auid )
 	return buf;
 }
 
-char * printMobID( unsigned char *mobid )
+char * printMobID( aafMobID_t *mobid )
 {
 	char *buf = malloc( 64 );
 
 	uint32_t i = 0;
 
 	for (i = 0; i < sizeof(aafMobID_t); i++ )
-		snprintf( buf+i, 64, "%02x", mobid[i] );
+		snprintf( buf+i, 64, "%02x", ((unsigned char*)mobid)[i] );
 
 	return buf;
 }

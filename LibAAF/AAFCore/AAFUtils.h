@@ -89,7 +89,7 @@ void   printObjectProperties( AAF_Data *aafd, aafObject *Obj );
 
 char * printUID( aafUID_t *auid );
 
-char * printMobID( unsigned char *mobid );
+char * printMobID( aafMobID_t *mobid );
 
 char  *url_decode( char *dst, char *src );
 
