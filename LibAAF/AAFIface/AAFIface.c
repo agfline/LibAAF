@@ -1350,31 +1350,31 @@ aafiAudioEssence * getEssenceBySourceMobID( AAF_Iface *aafi, aafMobID_t *sourceM
 }
 
 
-aafiAudioClip * getClipBySourceMobID( AAF_Iface *aafi, aafMobID_t *sourceMobID )
-{
-	aafiAudioTrack   * audioTrack = NULL;
-	aafiTimelineItem * audioItem  = NULL;
-
-	foreach_audioTrack( audioTrack, aafi )
-	{
-		foreach_audioItem( audioItem, audioTrack )
-		{
-			if ( audioItem->type != AAFI_CLIP )
-			{
-				continue;
-			}
-
-			aafiAudioClip *audioClip = (aafiAudioClip*)&audioItem->data;
-
-			if ( mobIDCmp( audioClip->sourceMobID, sourceMobID ) )
-			{
-				return audioClip;
-			}
-		}
-	}
-
-	return NULL;
-}
+// aafiAudioClip * getClipBySourceMobID( AAF_Iface *aafi, aafMobID_t *sourceMobID )
+// {
+// 	aafiAudioTrack   * audioTrack = NULL;
+// 	aafiTimelineItem * audioItem  = NULL;
+//
+// 	foreach_audioTrack( audioTrack, aafi )
+// 	{
+// 		foreach_audioItem( audioItem, audioTrack )
+// 		{
+// 			if ( audioItem->type != AAFI_CLIP )
+// 			{
+// 				continue;
+// 			}
+//
+// 			aafiAudioClip *audioClip = (aafiAudioClip*)&audioItem->data;
+//
+// 			if ( mobIDCmp( audioClip->sourceMobID, sourceMobID ) )
+// 			{
+// 				return audioClip;
+// 			}
+// 		}
+// 	}
+//
+// 	return NULL;
+// }
 
 
 
