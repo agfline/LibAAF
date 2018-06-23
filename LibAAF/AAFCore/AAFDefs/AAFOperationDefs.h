@@ -156,22 +156,16 @@ static const aafUID_t AAFOperationDef_MonoAudioMixdown =
 {0x8d896ad0, 0x2261, 0x11d3, {0x8a, 0x4c, 0x00, 0x50, 0x04, 0x0e, 0xf7, 0xd2}};
 
 
-// AAF OperationDefinition legacy aliases
-//
+
+
 /*
-static const aafUID_t AAFEffectVideoDissolve = AAFOperationDef_VideoDissolve;
-static const aafUID_t AAFEffectSMPTEVideoWipe = AAFOperationDef_SMPTEVideoWipe;
-static const aafUID_t AAFEffectVideoSpeedControl = AAFOperationDef_VideoSpeedControl;
-static const aafUID_t AAFEffectVideoRepeat = AAFOperationDef_VideoRepeat;
-static const aafUID_t AAFEffectMonoAudioGain = AAFOperationDef_MonoAudioGain;
-static const aafUID_t AAFEffectMonoAudioPan = AAFOperationDef_MonoAudioPan;
-static const aafUID_t AAFEffectMonoAudioDissolve = AAFOperationDef_MonoAudioDissolve;
-static const aafUID_t AAFOperationUnknown = AAFOperationDef_Unknown;
-static const aafUID_t AAFEffectVideoFadeToBlack = AAFOperationDef_VideoFadeToBlack;
-static const aafUID_t AAFEffectPictureWithMate = AAFOperationDef_PictureWithMate;
-static const aafUID_t AAFEffectVideoFrameToMask = AAFOperationDef_VideoFrameToMask;
-static const aafUID_t AAFEffectStereoAudioDissolve = AAFOperationDef_StereoAudioDissolve;
-static const aafUID_t AAFEffectStereoAudioGain = AAFOperationDef_StereoAudioGain;
-static const aafUID_t AAFEffectMonoAudioMixdown = AAFOperationDef_MonoAudioMixdown;
-*/
+ *  NOTE looks like it is the way ProTools represents Stereo (5.1, 7.1 ???) Tracks
+ *  whenever "Export Stereo, 5.1 and 7.1 tracks as multi-channel" is enabled.
+ */
+
+static const aafUID_t AAFOperationDef_AudioChannelCombiner =
+{0x6b46dd7a, 0x132d, 0x4856, {0xab, 0x21, 0x8b, 0x75, 0x1d, 0x84, 0x62, 0xec}};
+
+
+
 #endif // ! __OperationDefinition_h__
