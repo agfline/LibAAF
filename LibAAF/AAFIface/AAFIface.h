@@ -375,7 +375,7 @@ typedef struct aafiAudioClip
 	aafPosition_t          essence_offset;
 
 
-	aafMobID_t            *sourceMobID;
+	aafMobID_t            *sourceMobID; // MobID of the associated MasterMob
 
 
 } aafiAudioClip;
