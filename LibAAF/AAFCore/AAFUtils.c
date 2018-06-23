@@ -152,14 +152,19 @@ char * printUID( aafUID_t *auid )
 	return buf;
 }
 
+
+
 char * printMobID( aafMobID_t *mobid )
 {
-	char *buf = malloc( 64 );
+	static char buf[2 * sizeof(aafMobID_t)];
 
 	uint32_t i = 0;
+    uint32_t offset = 0;
 
-	for (i = 0; i < sizeof(aafMobID_t); i++ )
-		snprintf( buf+i, 64, "%02x", ((unsigned char*)mobid)[i] );
+	for ( i = 0; i < sizeof(aafMobID_t); i++ )
+    {
+		offset += snprintf( buf+offset, (2 * sizeof(aafMobID_t)), "%02x", ((unsigned char*)mobid)[i] );
+    }
 
 	return buf;
 }
