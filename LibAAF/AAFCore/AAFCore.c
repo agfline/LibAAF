@@ -699,8 +699,9 @@ aafProperty * aaf_get_property( aafObject *Obj, aafPID_t pid )
 
 		foreachPropertyDefinition( PDef, Obj->Class->Properties )
 		{
+			/* TODO pass aafd to PIDToText() */
 			if ( PDef->pid == pid && PDef->isReq == 1 )
-				_warning( "Could not find the required property %s (%u)\n", PIDToText( pid ), pid );
+				_warning( "Could not find the required property %s (%u)\n", PIDToText( NULL, pid ), pid );
 		}
 	}
 
@@ -882,7 +883,6 @@ static void setObjectShortcuts( AAF_Data *aafd )
 
 
 
-
 static void retrieveObjectTree( AAF_Data *aafd )
 {
 	cfbNode *Node  = aafd->cfbd->nodes[0];
@@ -892,7 +892,7 @@ static void retrieveObjectTree( AAF_Data *aafd )
 
 	if ( Class == NULL && auidCmp( Class->ID, (aafUID_t*)&Node->_clsId ) != 0 )
 		_fatal( "Looks like the fist Object is not the Root Class : %s\n",
-				ClassIDToText( Class->ID ) );
+				ClassIDToText( aafd, Class->ID ) );
 
 
 	aafd->Root = newObject( aafd, Node, Class, NULL );
@@ -945,7 +945,6 @@ static void retrieveObjectTree( AAF_Data *aafd )
 	retrieveProperty( aafd, aafd->Root, PDef, AAFMetaDcProp, AAFMetaDcVal, Header->_byteOrder );
 
 
-
 	/*
 	 *	Retrieve MetaDictionary.
 	 */
@@ -963,11 +962,11 @@ static void retrieveObjectTree( AAF_Data *aafd )
 
 	retrieveProperty( aafd, aafd->Root, PDef, AAFHeaderProp, AAFHeaderVal, Header->_byteOrder );
 
+	free( Header );
+
 
 
 	setObjectShortcuts( aafd );
-
-	free( Header );
 
 }
 
@@ -1023,7 +1022,7 @@ static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *Target
 			  auidCmp( ClassID, &AAFClassID_MetaDefinition    ) == 0 &&
 			  auidCmp( ClassID, &AAFClassID_MetaDictionary    ) == 0 )
 	{
-		_fatal( "Parent's Class equals Child's : %s.\n", ClassIDToText( ClassID ) );
+		_fatal( "Parent's Class equals Child's : %s.\n", ClassIDToText( aafd, ClassID ) );
 	}
 
 
@@ -1191,7 +1190,7 @@ static void retrieveStrongReference( AAF_Data *aafd, aafProperty *Prop, aafObjec
 
 	if ( Class == NULL )
 		_fatal( "Could not retrieve Class %s @ \"%s\"\n",
-				ClassIDToText( (aafUID_t*)&Node->_clsId ),
+				ClassIDToText( aafd, (aafUID_t*)&Node->_clsId ),
 				aaf_get_ObjectPath( Parent ) );
 
 
@@ -1231,7 +1230,7 @@ static void retrieveStrongReferenceSet( AAF_Data *aafd, aafProperty *Prop, aafOb
 		if ( Class == NULL )
 		{
 			_error( "Could not retrieve Class %s\n",
-					ClassIDToText( (aafUID_t*)&Node->_clsId ) );
+					ClassIDToText( aafd, (aafUID_t*)&Node->_clsId ) );
 			continue;
 		}
 
@@ -1281,7 +1280,7 @@ static void retrieveStrongReferenceVector( AAF_Data *aafd, aafProperty *Prop, aa
 		if ( Class == NULL )
 		{
 			_warning( "Could not retrieve Class ID %s\n",
-					ClassIDToText( (aafUID_t*)&Node->_clsId ) );
+					ClassIDToText( aafd, (aafUID_t*)&Node->_clsId ) );
 			continue;
 		}
 
@@ -1388,7 +1387,7 @@ static void retrieveObjectProperties( AAF_Data *aafd, aafObject *Obj )
 		if ( PDef != NULL )
 			retrieveProperty( aafd, Obj, PDef, Prop, value, Header->_byteOrder );
 		else
-			_warning( "Unknown property 0x%04x (%s)\n", Prop->_pid, PIDToText( Prop->_pid ) );
+			_warning( "Unknown property 0x%04x (%s)\n", Prop->_pid, PIDToText( aafd, Prop->_pid ) );
 
 	}
 

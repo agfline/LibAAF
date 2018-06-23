@@ -17,18 +17,18 @@
   *  along with LibAAF. If not, see <http://www.gnu.org/licenses/>.
   */
 
- #include <stdio.h>
- #include <string.h>
- 
- #include <ctype.h>	// isxdigit()
+#include <stdio.h>
+#include <string.h>
 
- #include "AAFTypes.h"
- #include "AAFUtils.h"
+#include <ctype.h>	// isxdigit()
+
+#include "AAFTypes.h"
+#include "AAFUtils.h"
 
 
 
- size_t utf16toa( char *astr, uint16_t alen, uint16_t *wstr, uint16_t wlen )
- {
+size_t utf16toa( char *astr, uint16_t alen, uint16_t *wstr, uint16_t wlen )
+{
      uint32_t i = 0;
 
      // Remove the leading byte in SF_DATA_STREAM if strlen is odd
@@ -49,12 +49,12 @@
      astr[--i] = 0x00;
 
      return i;
- }
+}
 
 
 
- void printStream( unsigned char * stream, size_t stream_sz )
- {
+void printStream( unsigned char * stream, size_t stream_sz )
+{
      uint32_t i = 0;
 
      char hex[48];
@@ -107,14 +107,70 @@
      }
 
      printf( " ____________________________________________________________________\n\n" );
-
- }
-
+}
 
 
 
- char * url_decode( char *dst, char *src )
- {
+
+
+void printObjectProperties( AAF_Data *aafd, aafObject *Obj )
+{
+	aafProperty * Prop = NULL;
+
+	for ( Prop = Obj->Properties;  Prop != NULL; Prop = Prop->next )
+	{
+		printf( ":.: (0x%04x) %s\n", Prop->pid, PIDToText( aafd, Prop->pid ) );
+
+		// WARNING : Wont print strong references (set/vector) corectly.
+		cfb_printStream( Prop->val, Prop->len );
+	}
+}
+
+
+
+
+
+char * printUID( aafUID_t *auid )
+{
+	char *buf = malloc( 74 );
+
+	snprintf( buf, 74, "{0x%08x, 0x%04x, 0x%04x, { 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x }}",
+		auid->Data1,
+		auid->Data2,
+		auid->Data3,
+
+		auid->Data4[0],
+		auid->Data4[1],
+		auid->Data4[2],
+		auid->Data4[3],
+		auid->Data4[4],
+		auid->Data4[5],
+		auid->Data4[6],
+		auid->Data4[7]
+	);
+
+	return buf;
+}
+
+char * printMobID( unsigned char *mobid )
+{
+	char *buf = malloc( 64 );
+
+	uint32_t i = 0;
+
+	for (i = 0; i < sizeof(aafMobID_t); i++ )
+		snprintf( buf+i, 64, "%02x", mobid[i] );
+
+	return buf;
+}
+
+
+
+
+
+
+char * url_decode( char *dst, char *src )
+{
  	char a, b;
 
  	while (*src)
@@ -152,4 +208,4 @@
  	*dst++ = '\0';
 
  	return dst;
- }
+}

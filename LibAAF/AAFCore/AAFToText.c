@@ -916,7 +916,7 @@ const char * DataDefToText( const aafUID_t *auid )
 }
 
 
-const char * OperationDefToText( const aafUID_t *auid )
+const char * OperationDefToText( AAF_Data *aafd, const aafUID_t *auid )
 {
 	if ( auid == NULL )
 		return NULL;
@@ -1011,9 +1011,34 @@ const char * OperationDefToText( const aafUID_t *auid )
 	if ( auidCmp( auid, &AAFOperationDef_MonoAudioMixdown ) )
 		return "AAFOperationDef_MonoAudioMixdown";
 
+	if ( auidCmp( auid, &AAFOperationDef_AudioChannelCombiner ) )
+		return "AAFOperationDef_AudioChannelCombiner";
+
 
 	if ( auidCmp( auid, &AAFUID_NULL ) )
-		return "";
+		return "AAFUID_NULL";
+
+
+
+	static char TEXTOperationDef[1024];
+
+	aafObject *OperationDefinitions = aaf_get_propertyValue( aafd->Dictionary, PID_Dictionary_OperationDefinitions );
+	aafObject *OperationDefinition  = NULL;
+
+	aaf_foreach_ObjectInSet( &OperationDefinition, OperationDefinitions, NULL )
+	{
+		aafUID_t *OpDefIdent = aaf_get_propertyValue( OperationDefinition, PID_DefinitionObject_Identification );
+
+		if ( OpDefIdent && auidCmp( OpDefIdent, auid ) )
+		{
+			char *name = aaf_get_propertyValueText( OperationDefinition, PID_DefinitionObject_Name );
+			snprintf( TEXTOperationDef, 1024, "%s", name );
+			free( name );
+
+			return TEXTOperationDef;
+		}
+	}
+
 
 	return "Unknown value";
 
@@ -1393,7 +1418,7 @@ const char * StoredFormToText( uint16_t sf )
 }
 
 
-const char * PIDToText( aafPID_t pid )
+const char * PIDToText( AAF_Data *aafd, aafPID_t pid )
 {
 	switch( pid )
 	{
@@ -2052,13 +2077,40 @@ const char * PIDToText( aafPID_t pid )
 		case PID_MetaDictionary_TypeDefinitions:
 			return "PID_MetaDictionary_TypeDefinitions";
 
-		default:
-			return "Unknown value";
+		// default:
+		// 	return "Unknown value";
 	}
+
+
+	static char PIDText[1024];
+
+	aafClass *Class = NULL;
+
+
+	foreachClass( Class, aafd->Classes )
+	{
+		aafPropertyDef *PDef = NULL;
+
+		foreachPropertyDefinition( PDef, Class->Properties )
+		{
+			if ( PDef->pid == pid )
+			{
+				snprintf( PIDText, 1024, "%s%s%s",
+			 		(PDef->meta) ? ANSI_COLOR_YELLOW : "",
+				 	 PDef->name,
+				 	(PDef->meta) ? ANSI_COLOR_RESET : "" );
+
+				return PIDText;
+			}
+		}
+
+	}
+
+	return "Unknown value";
 }
 
 
-const char * ClassIDToText( const aafUID_t *auid )
+const char * ClassIDToText( AAF_Data *aafd, const aafUID_t *auid )
 {
 	if ( auid == NULL )
 		return NULL;
@@ -2272,7 +2324,30 @@ const char * ClassIDToText( const aafUID_t *auid )
 
 
 	if ( auidCmp( auid, &AUID_NULL ) )
-		return "";
+		return "AUID_NULL";
+
+
+
+	static char ClassIDText[1024];
+
+	ClassIDText[0] = '\0';
+
+	aafClass *Class = NULL;
+
+	foreachClass( Class, aafd->Classes )
+	{
+
+		if ( auidCmp( Class->ID, auid ) )
+		{
+			snprintf( ClassIDText, 1024, "%s%s%s",
+		 		(Class->meta) ? ANSI_COLOR_YELLOW : "",
+			 	 Class->name,
+			 	(Class->meta) ? ANSI_COLOR_RESET : "" );
+
+			return ClassIDText;
+		}
+
+	}
 
 	return "Unknown value";
 }

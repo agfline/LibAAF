@@ -88,7 +88,7 @@ void printPropertyStream( AAF_Data *aafd, cfbNode *node )
 			" _storedForm : %s\n"
 			" _length     : %u bytes\n",
 			i,
-			Prop->_pid, PIDToText( Prop->_pid ),
+			Prop->_pid, PIDToText( aafd, Prop->_pid ),
 			StoredFormToText( Prop->_storedForm ),
 			Prop->_length
 		);
@@ -931,14 +931,13 @@ int main( int argc, char *argv[] )
 
 			foreachClassInheritance( Class, ConcreteClass )
 			{
-
-				if ( Class->meta )
-					printf( ANSI_COLOR_YELLOW
-							"%s"
-							ANSI_COLOR_RESET,
-							Class->name );
-				else
-					printf( "%s", ClassIDToText( Class->ID ) );
+				// if ( Class->meta )
+				// 	printf( ANSI_COLOR_YELLOW
+				// 			"%s"
+				// 			ANSI_COLOR_RESET,
+				// 			Class->name );
+				// else
+					printf( "%s", ClassIDToText( aafd, Class->ID ) );
 
 				if ( Class->Parent != NULL )
 					printf( " > " );
@@ -982,7 +981,7 @@ int main( int argc, char *argv[] )
 				else if ( PDef->meta )
 				{
 					printf( "%s::" ANSI_COLOR_YELLOW "%s (0x%04x)\n" ANSI_COLOR_RESET,
-						ClassIDToText( Class->ID ),
+						ClassIDToText( aafd, Class->ID ),
 						PDef->name,
 						PDef->pid );
 
@@ -1010,7 +1009,7 @@ int main( int argc, char *argv[] )
 		{
 			char *objPath = aaf_get_ObjectPath( Object );
 
-			printf( "\n\n\n Object @ %s", objPath );
+			printf( "\n\n\n Object @ %s\n", objPath );
 
 			free( objPath );
 
@@ -1019,7 +1018,7 @@ int main( int argc, char *argv[] )
 
 			for ( Prop = Object->Properties; Prop != NULL; Prop = Prop->next )
 			{
-				printf( ":.: (0x%04x) %s\n", Prop->pid, PIDToText( Prop->pid ) );
+				printf( ":.: (0x%04x) %s\n", Prop->pid, PIDToText( aafd, Prop->pid ) );
 				//
 				// WARNING : Wont print strong references (set/vector) corectly.
 				cfb_printStream( Prop->val, Prop->len );
