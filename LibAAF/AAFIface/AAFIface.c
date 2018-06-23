@@ -1641,6 +1641,9 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 		/*
 p.49	 *	To create a SourceReference that refers to a MobSlot within
 		 *	the same Mob as the SourceReference, omit the SourceID property.
+		 *
+		 *	NOTE: This should not happen here because The "CompositionMob > SourceClip::SourceID"
+		 *	should always point to the corresponding "MasterMob", that is a different Mob.
 		 */
 
 		audioClip->sourceMobID = (aafMobID_t*)aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceID );
@@ -2631,7 +2634,47 @@ int aafi_retrieveData( AAF_Iface *aafi )
 					/* TODO rename as aafi_addAudioTrack() */
 					aafi_newAudioTrack( aafi, aafi->ctx.MobSlot, -1 );
 
-					/* reset timeline position */
+
+					/***********************************************************************************************************************/
+
+					/*
+					 *	The following seems to be ProTools proprietary.
+					 *	If a track is multi-channel, it specifies its format : 2 (stereo), 6 (5.1) or 8 (7.1).
+					 *
+					 *	In the current implementation we don't need this. We guess the format at the OperationGroup level with the
+					 *	AAFOperationDef_AudioChannelCombiner OperationDefinition, which also looks to be ProTools specific.
+					 */
+
+					// aafPID_t PIDTimelineMobAttributeList = aaf_get_PropertyIDByName( aafi->aafd, "TimelineMobAttributeList" );
+                    //
+					// if ( PIDTimelineMobAttributeList != 0 )
+					// {
+					// 	aafObject *TaggedValues = aaf_get_propertyValue( aafi->ctx.MobSlot, PIDTimelineMobAttributeList );
+					// 	aafObject *TaggedValue  = NULL;
+                    //
+					// 	aaf_foreach_ObjectInSet( &TaggedValue, TaggedValues, NULL )
+					// 	{
+					// 		char *name = aaf_get_propertyValueText( TaggedValue, PID_TaggedValue_Name );
+                    //
+					// 		if ( strncmp( "_TRACK_FORMAT", name, 13 ) == 0 )
+					// 		{
+					// 			uint32_t *format = (uint32_t*)aaf_get_propertyIndirectValue( TaggedValue, PID_TaggedValue_Value );
+                    //
+					// 			if ( format != NULL )
+					// 				aafi->ctx.current_track->format = *format;
+                    //
+					// 			printf("Format : %u\n", aafi->ctx.current_track->format );
+					// 		}
+                    //
+					// 		free( name );
+					// 	}
+					// }
+
+					/***********************************************************************************************************************/
+
+
+
+					/* (re)set timeline position */
 					aafi->ctx.current_pos = 0;
 
 					aafObject *Segment = aaf_get_propertyValue( aafi->ctx.MobSlot, PID_MobSlot_Segment );
@@ -2661,7 +2704,6 @@ int aafi_retrieveData( AAF_Iface *aafi )
 
 					retrieve_EssenceData( aafi );
 				}
-
 			}
 
 		}

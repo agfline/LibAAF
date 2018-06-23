@@ -450,8 +450,8 @@ typedef enum aafiTrackFormat_e
 {
 	AAFI_TRACK_FORMAT_MONO   = 1,
 	AAFI_TRACK_FORMAT_STEREO = 2,
-	AAFI_TRACK_FORMAT_5_1    = 3,
-	AAFI_TRACK_FORMAT_7_1    = 4
+	AAFI_TRACK_FORMAT_5_1    = 6,
+	AAFI_TRACK_FORMAT_7_1    = 8
 
 } aafiTrackFormat_e;
 
