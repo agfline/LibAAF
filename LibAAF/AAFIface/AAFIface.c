@@ -1806,14 +1806,38 @@ p.49	 *	To create a SourceReference that refers to a MobSlot within
 		parse_EssenceDescriptor( aafi, EssenceDesc );
 
 
+		/* NOTE since multiple clips can point to the same MasterMob, we have to loop. */
 
-		aafiAudioClip * audioClip = getClipBySourceMobID( aafi, audioEssence->masterMobID );
+		// aafiAudioClip * audioClip = getClipBySourceMobID( aafi, audioEssence->masterMobID );
+        //
+		// if ( audioClip != NULL )
+		// {
+		// 	/* that means the clip was parsed before the essence, so we must do the linking here */
+		// 	audioClip->Essence = audioEssence;
+		// }
 
-		if ( audioClip != NULL )
+		aafiAudioTrack   * audioTrack = NULL;
+		aafiTimelineItem * audioItem  = NULL;
+
+		foreach_audioTrack( audioTrack, aafi )
 		{
-			/* that means the clip was parsed before the essence, so we must do the linking here */
-			audioClip->Essence = audioEssence;
+			foreach_audioItem( audioItem, audioTrack )
+			{
+				if ( audioItem->type != AAFI_CLIP )
+				{
+					continue;
+				}
+
+				aafiAudioClip *audioClip = (aafiAudioClip*)&audioItem->data;
+
+				if ( mobIDCmp( audioClip->sourceMobID, audioEssence->masterMobID ) )
+				{
+					audioClip->Essence = audioEssence;
+				}
+			}
 		}
+
+		return NULL;
 
 	}
 
