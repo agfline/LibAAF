@@ -684,11 +684,14 @@ aafiAudioTrack * aafi_newAudioTrack( AAF_Iface *aafi, aafObject *MobSlot, uint32
 	{
 		uint32_t *track_num = (uint32_t*)aaf_get_propertyValue( MobSlot, PID_MobSlot_PhysicalTrackNumber );
 
-		if ( track_num != NULL )
+		if ( track_num == NULL )
+		{
+			_warning( "Missing MobSlot::PhysicalTrackNumber.\n" );
+		}
+		else
+		{
 			track->number = *track_num;
-
-//		if ( track_num == NULL )
-//			_fatal( "Missing MobSlot::PhysicalTrackNumber\n" );
+		}
 
 
 		track->name = aaf_get_propertyValueText( MobSlot, PID_MobSlot_SlotName );
@@ -697,7 +700,7 @@ aafiAudioTrack * aafi_newAudioTrack( AAF_Iface *aafi, aafObject *MobSlot, uint32
 		track->edit_rate = aaf_get_propertyValue( MobSlot, PID_TimelineMobSlot_EditRate );
 
 		if ( track->edit_rate == NULL )
-			_fatal( "Missing TimelineMobSlot::EditRate\n" );
+			_fatal( "Missing TimelineMobSlot::EditRate.\n" );
 	}
 	else
 		track->number = number;
@@ -1570,7 +1573,7 @@ static void parse_Filler( AAF_Iface *aafi, aafObject *Filler )
 		int64_t *length = (int64_t*)aaf_get_propertyValue( Filler, PID_Component_Length );
 
 		if ( length == NULL )
-			_fatal( "Missing Filler Component::Length\n" );
+			_fatal( "Missing Filler Component::Length.\n" );
 
 		// *pos += *length;
 		aafi->ctx.current_pos += *length;
@@ -1621,7 +1624,7 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 		int64_t *length = (int64_t*)aaf_get_propertyValue( SourceClip, PID_Component_Length );
 
 		if ( length == NULL )
-			_fatal( "Missing SourceClip Component::Length !\n" );
+			_fatal( "Missing SourceClip Component::Length.\n" );
 
 		audioClip->len = *length;
 
@@ -1630,7 +1633,7 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 		int64_t *startTime = (int64_t*)aaf_get_propertyValue( SourceClip, PID_SourceClip_StartTime );
 
 		if ( startTime == NULL )
-			_fatal( "Missing SourceClip::StartTime" );
+			_fatal( "Missing SourceClip::StartTime." );
 
 		audioClip->essence_offset = *startTime;
 
@@ -2072,13 +2075,13 @@ static int retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRation
 		aafRational_t *time  = aaf_get_propertyValue( Point, PID_ControlPoint_Time );
 
 		if ( time == NULL )
-			_fatal( "Missing ControlPoint::Time\n" );
+			_fatal( "Missing ControlPoint::Time.\n" );
 
 
 		aafRational_t *value = aaf_get_propertyIndirectValue( Point, PID_ControlPoint_Value );
 
 		if ( value == NULL )
-			_fatal( "Missing ControlPoint::Value\n" );
+			_fatal( "Missing ControlPoint::Value.\n" );
 
 
 		memcpy( (*times+i),  time, sizeof(aafRational_t) );
@@ -2444,7 +2447,7 @@ static void parse_Transition( AAF_Iface *aafi, aafObject *Transition )
 	int64_t *length = aaf_get_propertyValue( Transition, PID_Component_Length );
 
 	if ( length == NULL )
-		_fatal( "Missing Filler Component::Length\n" );
+		_fatal( "Missing Filler Component::Length.\n" );
 
 	aafi->ctx.current_pos += *length;
 
