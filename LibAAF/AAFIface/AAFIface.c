@@ -1354,7 +1354,6 @@ aafiAudioClip * getClipBySourceMobID( AAF_Iface *aafi, aafMobID_t *sourceMobID )
 {
 	aafiAudioTrack   * audioTrack = NULL;
 	aafiTimelineItem * audioItem  = NULL;
-	aafiAudioClip    * audioClip  = NULL;
 
 	foreach_audioTrack( audioTrack, aafi )
 	{
@@ -1365,7 +1364,7 @@ aafiAudioClip * getClipBySourceMobID( AAF_Iface *aafi, aafMobID_t *sourceMobID )
 				continue;
 			}
 
-			audioClip = (aafiAudioClip*)&audioItem->data;
+			aafiAudioClip *audioClip = (aafiAudioClip*)&audioItem->data;
 
 			if ( mobIDCmp( audioClip->sourceMobID, sourceMobID ) )
 			{
@@ -1603,7 +1602,7 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 {
 	trace_obj( aafi, SourceClip, ANSI_COLOR_MAGENTA );
 
-	// printObjectProperties(SourceClip);
+	// printObjectProperties( aafi->aafd, SourceClip );
 
 	/*** Clip ***/
 
@@ -1655,7 +1654,7 @@ p.49	 *	To create a SourceReference that refers to a MobSlot within
 
 			audioClip->sourceMobID = aaf_get_propertyValue( Mob, PID_Mob_MobID );
 
-			// _fatal( "Missing SourceReference::SourceID\n" );
+			_warning( "Missing SourceReference::SourceID, retrieving from parent Mob.\n" );
 		}
 
 
@@ -1749,7 +1748,7 @@ p.49	 *	To create a SourceReference that refers to a MobSlot within
 
 			audioEssence->sourceMobID = aaf_get_propertyValue( Mob, PID_Mob_MobID );
 
-			// _fatal( "Could not retrieve SourceReference::SourceID.\n" );
+			_warning( "Could not retrieve SourceReference::SourceID, retrieving from parent Mob.\n" );
 		}
 
 
@@ -1808,12 +1807,12 @@ p.49	 *	To create a SourceReference that refers to a MobSlot within
 
 
 
-		aafiAudioClip * audioClip = getClipBySourceMobID( aafi, audioEssence->sourceMobID );
+		aafiAudioClip * audioClip = getClipBySourceMobID( aafi, audioEssence->masterMobID );
 
 		if ( audioClip != NULL )
 		{
 			/* that means the clip was parsed before the essence, so we must do the linking here */
-			audioClip->Essence = aafi->ctx.current_audioEssence;
+			audioClip->Essence = audioEssence;
 		}
 
 	}
