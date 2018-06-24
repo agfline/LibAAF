@@ -1,4 +1,4 @@
-audioEssence#include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -80,7 +80,7 @@ int main( int argc, char *argv[] )
 	aafiAudioTrack   *audioTrack = NULL;
 	aafiTimelineItem *audioItem  = NULL;
 	aafiAudioClip    *audioClip  = NULL;
-	aafiAudioEssence *audioEssence = NULL;
+	// aafiAudioEssence *audioEssence = NULL;
 
 	foreachAudioEssence( audioEssence, aafi->Audio->Essences )
 	{
