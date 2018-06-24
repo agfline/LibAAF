@@ -682,6 +682,11 @@ aafiAudioTrack * aafi_newAudioTrack( AAF_Iface *aafi, aafObject *MobSlot, uint32
 
 	if ( MobSlot != NULL )
 	{
+		/*
+p.11	 *	In a CompositionMob or MasterMob, PhysicalTrackNumber is the output channel number that the
+		 *	MobSlot should be routed to when played.
+		 */
+
 		uint32_t *track_num = (uint32_t*)aaf_get_propertyValue( MobSlot, PID_MobSlot_PhysicalTrackNumber );
 
 		if ( track_num == NULL )
@@ -1124,6 +1129,34 @@ static uint64_t getAIFCSampleRate( unsigned char *buf )
 }
 
 
+aafUID_t * get_FileDescriptor_ContainerFormat( AAF_Iface *aafi, aafObject *FileDescriptor )
+{
+	aafWeakRef_t *ContainerDefWeakRef = aaf_get_propertyValue( FileDescriptor, PID_FileDescriptor_ContainerFormat );
+
+	if ( ContainerDefWeakRef == NULL )
+		_warning( "Missing FileDescriptor::ContainerFormat.\n" );
+
+
+	aafObject *ContainerDefinition = aaf_get_ObjectByWeakRef( aafi->aafd->ContainerDefinition, ContainerDefWeakRef );
+
+	if ( ContainerDefinition == NULL )
+		_warning( "Could not retrieve WeakRef from Dictionary::ContainerDefinitions.\n" );
+
+
+	aafUID_t  *ContainerIdentification = aaf_get_propertyValue( ContainerDefinition, PID_DefinitionObject_Identification );
+
+	if ( ContainerIdentification == NULL )
+		_warning( "Missing ContainerDefinition's DefinitionObject::Identification.\n" );
+
+
+	return ContainerIdentification;
+}
+
+
+
+
+
+
 /*
                 EssenceDescriptor (abs)
 				        |
@@ -1158,9 +1191,10 @@ static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 		audioEssence->nBlockAlign     = *(uint32_t*)aaf_get_propertyValue( EssenceDesc, PID_PCMDescriptor_BlockAlign         );
 		audioEssence->wBitsPerSample  = *(uint32_t*)aaf_get_propertyValue( EssenceDesc, PID_SoundDescriptor_QuantizationBits );
 
-		// aafUID_t *ContainerDef = aaf_get_propertyValue( EssenceDesc, PID_FileDescriptor_ContainerFormat );
 
-		// printf("ContainerDef : %s\n", ContainerToText( ContainerDef ) );
+		// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, EssenceDesc );
+
+		// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
 	}
 	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_WAVEDescriptor ) )
 	{
@@ -1198,9 +1232,10 @@ static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 
 		audioEssence->length = *(uint32_t*)(summary->val + (summary->len - 4));
 
-		// aafUID_t *ContainerDef = aaf_get_propertyValue( EssenceDesc, PID_FileDescriptor_ContainerFormat );
 
-		// printf("ContainerDef : %s\n", ContainerToText( ContainerDef ) );
+		// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, EssenceDesc );
+
+		// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
 	}
 	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_AIFCDescriptor ) )
 	{
@@ -1222,9 +1257,10 @@ static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 		audioEssence->nBlockAlign     = audioEssence->nChannels * audioEssence->wBitsPerSample / 8;
 		audioEssence->nAvgBytesPerSec = audioEssence->nSamplesPerSec * audioEssence->nBlockAlign;
 
-		// aafUID_t *ContainerDef = aaf_get_propertyValue( EssenceDesc, PID_FileDescriptor_ContainerFormat );
 
-		// printf("ContainerDef : %s\n", ContainerToText( ContainerDef ) );
+		// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, EssenceDesc );
+
+		// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
 	}
 	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_SoundDescriptor ) )
 	{
@@ -1235,9 +1271,10 @@ static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 
 		// printObjectProperties( aafi->aafd, EssenceDesc );
 
-		// aafUID_t *ContainerDef = aaf_get_propertyValue( EssenceDesc, PID_FileDescriptor_ContainerFormat );
 
-		// printf("ContainerDef : %s\n", ContainerToText( ContainerDef ) );
+		// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, EssenceDesc );
+
+		// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
 	}
 	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_AES3PCMDescriptor ) )
 	{
@@ -1252,9 +1289,10 @@ static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 
 		printObjectProperties( aafi->aafd, EssenceDesc );
 
-		// aafUID_t *ContainerDef = aaf_get_propertyValue( EssenceDesc, PID_FileDescriptor_ContainerFormat );
 
-		// printf("ContainerDef : %s\n", ContainerToText( ContainerDef ) );
+		// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, EssenceDesc );
+
+		// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
 
 	}
 	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_MultipleDescriptor ) )
@@ -1275,7 +1313,7 @@ static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 
 		_warning( "MultipleDescriptor not supported yet.\n\n" );
 
-		// printObjectProperties( aafi->aafd, EssenceDesc );
+		printObjectProperties( aafi->aafd, EssenceDesc );
 
 	}
 	else
@@ -1801,9 +1839,10 @@ p.49	 *	To create a SourceReference that refers to a MobSlot within
 		// 	printf(">>>> SourceMobSlot %s\n", ClassIDToText( aafi->aafd, SourceMobSlot->Class->ID ) );
 		// 	printObjectProperties( aafi->aafd, SourceMobSlot );
         //
-		// 	aafObject *Segment = aaf_get_propertyValue( aafi->ctx.MobSlot, PID_MobSlot_Segment );
+		// 	// aafObject *Segment = aaf_get_propertyValue( aafi->ctx.MobSlot, PID_MobSlot_Segment );
+		// 	// printf("Segment %s\n", ClassIDToText( aafi->aafd, Segment->Class->ID ) );
+		// 	// printObjectProperties( aafi->aafd, Segment );
         //
-		// 	printf("Segment %s\n", ClassIDToText( aafi->aafd, Segment->Class->ID ) );
 		// 	printf("\n\n");
 		// }
 
@@ -1832,7 +1871,7 @@ p.49	 *	To create a SourceReference that refers to a MobSlot within
 
 
 
-
+		// printObjectProperties( aafi->aafd, SourceClip );
 
 		parse_EssenceDescriptor( aafi, EssenceDesc );
 
@@ -2637,11 +2676,13 @@ int aafi_retrieveData( AAF_Iface *aafi )
 			 *		  which case the OperationGroup's effect (Gain, Pan) applies to the
 			 *		  OperationGroup::InputSegments SourceClip(s).
 			 *
-			 *	TODO Can a CompositionMob contains something different than a AAFClassID_TimelineMobSlot ???
+			 *	CompositionMob can have TimelineMobSlots, StaticMobSlots, EventMobSlots
 			 */
 
 			if ( auidCmp( aafi->ctx.MobSlot->Class->ID, &AAFClassID_TimelineMobSlot ) == 0 )
 			{
+				trace_obj( aafi, aafi->ctx.MobSlot, ANSI_COLOR_YELLOW );
+				printf( "%s\n", DataDefToText( aafi->ctx.DataDef ) );
 				continue;
 			}
 
@@ -2729,6 +2770,16 @@ int aafi_retrieveData( AAF_Iface *aafi )
 
 					retrieve_EssenceData( aafi );
 				}
+				else
+				{
+					// trace_obj( aafi, aafi->ctx.MobSlot, ANSI_COLOR_YELLOW );
+					// printf( "%s\n", DataDefToText( aafi->ctx.DataDef ) );
+				}
+			}
+			else
+			{
+				// trace_obj( aafi, aafi->ctx.MobSlot, ANSI_COLOR_YELLOW );
+				// printf( "%s\n", DataDefToText( aafi->ctx.DataDef ) );
 			}
 
 		}
