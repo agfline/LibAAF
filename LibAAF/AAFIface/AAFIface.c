@@ -175,14 +175,15 @@ static void trace_obj( AAF_Iface *aafi, aafObject *Obj, char *color )
 		}
 		else if ( auidCmp( Obj->Class->ID, &AAFClassID_MasterMob ) || auidCmp( Obj->Class->ID, &AAFClassID_SourceMob ) )
 		{
-			char *name = aaf_get_propertyValueText( Obj, PID_Mob_Name );
+			char *name  = aaf_get_propertyValueText( Obj, PID_Mob_Name );
 			snprintf( buf, 1024, "%s (%s) > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), name, tmp );
 			free( name );
 		}
 		else if ( auidCmp( Obj->Class->ID, &AAFClassID_CompositionMob ) )
 		{
 			char *name = aaf_get_propertyValueText( Obj, PID_Mob_Name );
-			snprintf( buf, 1024, "%s (%s) > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), name, tmp );
+			const char *usage = UsageCodeToText( aaf_get_propertyValue( Obj, PID_Mob_UsageCode ) );
+			snprintf( buf, 1024, "%s (%s : %s) > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), usage, name, tmp );
 			free( name );
 		}
 		else if ( auidCmp( Obj->Class->ID, &AAFClassID_OperationGroup ) )
@@ -1696,7 +1697,7 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 		int64_t *startTime = (int64_t*)aaf_get_propertyValue( SourceClip, PID_SourceClip_StartTime );
 
 		if ( startTime == NULL )
-			_fatal( "Missing SourceClip::StartTime." );
+			_fatal( "Missing SourceClip::StartTime.\n" );
 
 		audioClip->essence_offset = *startTime;
 
@@ -2641,6 +2642,8 @@ int aafi_retrieveData( AAF_Iface *aafi )
 
 			/******************************************************************/
 
+			printObjectProperties( aafi->aafd, aafi->ctx.Mob );
+
 
 			aafi->compositionName = aaf_get_propertyValueText( aafi->ctx.Mob, PID_Mob_Name );
 		}
@@ -2683,6 +2686,7 @@ int aafi_retrieveData( AAF_Iface *aafi )
 			{
 				trace_obj( aafi, aafi->ctx.MobSlot, ANSI_COLOR_YELLOW );
 				printf( "%s\n", DataDefToText( aafi->ctx.DataDef ) );
+
 				continue;
 			}
 
@@ -2712,6 +2716,7 @@ int aafi_retrieveData( AAF_Iface *aafi )
 					 */
 
 					// aafPID_t PIDTimelineMobAttributeList = aaf_get_PropertyIDByName( aafi->aafd, "TimelineMobAttributeList" );
+					// // aafPID_t PIDTimelineMobAttributeList = aaf_get_PropertyIDByName( aafi->aafd, "MobAttributeList" );
                     //
 					// if ( PIDTimelineMobAttributeList != 0 )
 					// {
@@ -2721,6 +2726,8 @@ int aafi_retrieveData( AAF_Iface *aafi )
 					// 	aaf_foreach_ObjectInSet( &TaggedValue, TaggedValues, NULL )
 					// 	{
 					// 		char *name = aaf_get_propertyValueText( TaggedValue, PID_TaggedValue_Name );
+                    //
+					// 		printf("TaggedValue %s\n", name );
                     //
 					// 		if ( strncmp( "_TRACK_FORMAT", name, 13 ) == 0 )
 					// 		{
@@ -2772,18 +2779,59 @@ int aafi_retrieveData( AAF_Iface *aafi )
 				}
 				else
 				{
-					// trace_obj( aafi, aafi->ctx.MobSlot, ANSI_COLOR_YELLOW );
-					// printf( "%s\n", DataDefToText( aafi->ctx.DataDef ) );
+					trace_obj( aafi, aafi->ctx.MobSlot, ANSI_COLOR_YELLOW );
+					printf( "%s\n", DataDefToText( aafi->ctx.DataDef ) );
 				}
+			}
+			else if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_SourceMob ) )
+			{
+				/* See below.. */
 			}
 			else
 			{
-				// trace_obj( aafi, aafi->ctx.MobSlot, ANSI_COLOR_YELLOW );
-				// printf( "%s\n", DataDefToText( aafi->ctx.DataDef ) );
+				trace_obj( aafi, aafi->ctx.MobSlot, ANSI_COLOR_YELLOW );
+				printf( "%s\n", DataDefToText( aafi->ctx.DataDef ) );
 			}
 
 		}
 
+	}
+
+
+
+
+
+	aaf_foreach_ObjectInSet( &(aafi->ctx.Mob), aafi->aafd->Mobs, &AAFClassID_SourceMob )
+	{
+
+		aafObject *MobSlots = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_Slots );
+
+		aaf_foreach_ObjectInSet( &(aafi->ctx.MobSlot), MobSlots, NULL )
+		{
+
+			/*
+			 *	Check if the SourceMob was parsed.
+			 *	If it was not, we can print the trace.
+			 *
+			 *	NOTE We do it after the main loop, so we're sure all MasterMobs was parsed.
+			 */
+
+			aafMobID_t *MobID = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_MobID );
+
+			aafiAudioEssence *audioEssence = NULL;
+
+			foreachAudioEssence( audioEssence, aafi->Audio->Essences )
+			{
+				if ( mobIDCmp( MobID, audioEssence->sourceMobID ) )
+					break;
+			}
+
+			if ( audioEssence == NULL )
+			{
+				trace_obj( aafi, aafi->ctx.MobSlot, ANSI_COLOR_YELLOW );
+				printf( "%s\n", DataDefToText( aafi->ctx.DataDef ) );
+			}
+		}
 	}
 
 	return 0;
