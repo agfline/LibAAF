@@ -289,20 +289,17 @@ typedef struct aafiEssenceDataNode
 typedef struct aafiAudioEssence
 {
 
-	// Holds this essence file path once it has been exported
-	// or the file path of the original essence file when not
-	// embedded.
-	// TODO: shouldn't we dissociate the two paths ?
+	char       *original_file;	// NetworkLocator::URLString should point to original essence file if external
 
-	char       *file;			// NetworkLocator::URLString if essence is not embedded
+	char       *file_name;      // Mob::Name -> file name
 
-	char       *file_name;      // Mob::Name correspond to file names on Logic Pro and Pro Tools AAF
-								// looks like clip names are derived from this *-01, *-02, etc.
+	char       *source_file;    // Holds the file path, once the essence has been exported, copied or linked.
+
 
 	uint64_t    length; 		// Length of Essence Data
 
 
-	// This should be tested to check if essence is embedded or not.
+	// This can be tested to check if essence is embedded or not.
 
 	aafiEssenceDataNode *node;
 

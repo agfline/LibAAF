@@ -721,7 +721,7 @@ int main( int argc, char *argv[] )
 		{
 			// printf("DATANODE %p\n", audioEssence->node );
 			if ( audioEssence->type == AAFI_TYPE_PCM || audioEssence->type == AAFI_TYPE_WAVE || audioEssence->type == AAFI_TYPE_AIFC )
-				printf( " %s%u:  Type: %s  Duration: %u h  %02u mn  %02u s  %03u ms   %u Ch - %u Hz - %u bit  %s  %s\n",
+				printf( " %s%u:  Type: %s  Duration: %u h  %02u mn  %02u s  %03u ms   %u Ch - %u Hz - %u bit  file : %s  file_name : %s\n",
 					( i < 10 ) ? " " : "", i,
 					( audioEssence->type == AAFI_TYPE_PCM  ) ? "PCM"  :
 					( audioEssence->type == AAFI_TYPE_WAVE ) ? "WAVE" :
@@ -734,7 +734,7 @@ int main( int argc, char *argv[] )
 					audioEssence->nChannels,
 					audioEssence->nSamplesPerSec,
 					audioEssence->wBitsPerSample,
-					(audioEssence->node != NULL) ? "file: EMBEDDED" : audioEssence->file,
+					(audioEssence->node != NULL) ? "EMBEDDED" : audioEssence->original_file,
 					audioEssence->file_name
 				);
 			else

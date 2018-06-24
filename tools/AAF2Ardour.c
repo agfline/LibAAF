@@ -1,4 +1,4 @@
-#include <stdio.h>
+audioEssence#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -80,13 +80,13 @@ int main( int argc, char *argv[] )
 	aafiAudioTrack   *audioTrack = NULL;
 	aafiTimelineItem *audioItem  = NULL;
 	aafiAudioClip    *audioClip  = NULL;
-	aafiAudioEssence *audioMedia = NULL;
+	aafiAudioEssence *audioEssence = NULL;
 
-	foreachAudioEssence( audioMedia, aafi->Audio->Essences )
+	foreachAudioEssence( audioEssence, aafi->Audio->Essences )
 	{
 		offset += snprintf( buf+offset, buf_sz-offset, "    <Source name=\"%s.wav\" type=\"audio\" flags=\"\" id=\"%u\" captured-for=\"PAD 1\" channel=\"0\" origin=\"\" gain=\"1\"/>\n",
-						audioMedia->file_name,
-						(uint16_t)((uint64_t)((&audioMedia->sourceMobID)) & 0xffff) );
+						audioEssence->file_name,
+						(uint16_t)((uint64_t)((&audioEssence->sourceMobID)) & 0xffff) );
 
 	}
 

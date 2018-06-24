@@ -317,8 +317,8 @@ int extractAudioEssence( AAF_Iface *aafi, aafiAudioEssence *audioEssence, const 
 {
 
 	/*
-	 *	If the audioEssence->file is not NULL, it means that the essence isn't embedded in the
-	 *	AAF. The essence file can therefore be retrieved from the URI hold by audioEssence->file.
+	 *	If the audioEssence->node is NULL, it means that the essence isn't embedded in the
+	 *	AAF. The essence file can therefore be retrieved from the URI hold by audioEssence->original_file.
 	 */
 
 	if ( audioEssence->node == NULL )
@@ -419,12 +419,12 @@ int extractAudioEssence( AAF_Iface *aafi, aafiAudioEssence *audioEssence, const 
 	// }
 
 	// save filename
-	audioEssence->file = malloc( strlen( file ) + 2 );
+	audioEssence->source_file = malloc( strlen( file ) + 2 );
 
-	if ( audioEssence->file == NULL )
+	if ( audioEssence->source_file == NULL )
 		_fatal( "%s.\n", strerror( errno ) );
 
-	snprintf( audioEssence->file, strlen( file ) + 1, "%s", file );
+	snprintf( audioEssence->source_file, strlen( file ) + 1, "%s", file );
 
 
 	// printf( "WRITING %s\n", filePath );
@@ -794,8 +794,9 @@ aafiAudioEssence * aafi_newAudioEssence( AAF_Iface *aafi )
 
 	audioEssence->next = aafi->Audio->Essences;
 
-	audioEssence->file        = NULL;
-	audioEssence->file_name   = aaf_get_propertyValueText( aafi->ctx.Mob, PID_Mob_Name );
+	audioEssence->original_file = NULL;
+	audioEssence->source_file   = NULL;
+	audioEssence->file_name     = aaf_get_propertyValueText( aafi->ctx.Mob, PID_Mob_Name );
 
 	aafi->Audio->Essences = audioEssence;
 
@@ -816,9 +817,14 @@ static void aafi_freeAudioEssences( aafiAudioEssence **audioEssence )
 	{
 		nextAudioEssence = (*audioEssence)->next;
 
-		if ( (*audioEssence)->file != NULL )
+		if ( (*audioEssence)->original_file != NULL )
 		{
-			free( (*audioEssence)->file );
+			free( (*audioEssence)->original_file );
+		}
+
+		if ( (*audioEssence)->source_file != NULL )
+		{
+			free( (*audioEssence)->source_file );
 		}
 
 		if ( (*audioEssence)->file_name != NULL )
@@ -1058,12 +1064,12 @@ static void parse_Locator( AAF_Iface *aafi, aafObject *Locator )
 		 *	embedded so it is not a valid way to test if essence is embedded or not.
 		 */
 
-		audioEssence->file = aaf_get_propertyValueText( Locator, PID_NetworkLocator_URLString );
+		audioEssence->original_file = aaf_get_propertyValueText( Locator, PID_NetworkLocator_URLString );
 
-		if ( audioEssence->file == NULL )
+		if ( audioEssence->original_file == NULL )
 			_warning( "Missing Locator::PID_NetworkLocator_URLString.\n" );
 
-		url_decode( audioEssence->file, audioEssence->file );
+		url_decode( audioEssence->original_file, audioEssence->original_file );
 
 	}
 	else if ( auidCmp( Locator->Class->ID, &AAFClassID_TextLocator ) )
