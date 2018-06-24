@@ -553,7 +553,7 @@ typedef struct aafiContext
 	 *	Mob::Slots > MobSlot::Segment > Component::DataDefinition
 	 */
 
-	aafUID_t  *DataDef;
+	// aafUID_t  *DataDef;
 
 
 

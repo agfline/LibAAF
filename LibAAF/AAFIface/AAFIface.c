@@ -916,38 +916,38 @@ static void aafi_freeEssenceDataNode( aafiEssenceDataNode **node )
 
 
 
-aafUID_t * getMobSlotDataDef( aafObject *DataDefinition, aafObject *MobSlot )
-{
-	aafUID_t *DataDefVal = NULL;
-
-	if ( MobSlot == NULL )
-		return NULL;
-
-	aafObject *Segment = aaf_get_propertyValue( MobSlot, PID_MobSlot_Segment );
-
-	if ( Segment )
-	{
-//		printf( "   : %s\n", ClassIDToText( aafi->aafd, Segment->Class->ID ) );
-
-		aafWeakRef_t *weakRef = aaf_get_propertyValue( Segment, PID_Component_DataDefinition );
-
-		aafObject *DataDef = aaf_get_ObjectByWeakRef( DataDefinition, weakRef );
-
-		if ( DataDef )
-		{
-//			printf( "   :: %s\n", ClassIDToText( aafi->aafd, DataDef->Class->ID ) );
-
-//			aafProperty *DataDefProp = getProperty( DataDef, PID_DefinitionObject_Name );
-//			printf( "   :: > %s\n", CFB_utf16Toascii( DataDefProp->val, DataDefProp->len ) );
-
-			DataDefVal = aaf_get_propertyValue( DataDef, PID_DefinitionObject_Identification );
-//			printf( "   :: > %s\n", DataDefToText( DataDefVal ) );
-//			getPropertyValue( Segment, PID_Component_DataDefinition ); // WeakRef
-		}
-	}
-
-	return DataDefVal;
-}
+// aafUID_t * getMobSlotDataDef( aafObject *DataDefinition, aafObject *MobSlot )
+// {
+// 	aafUID_t *DataDefVal = NULL;
+//
+// 	if ( MobSlot == NULL )
+// 		return NULL;
+//
+// 	aafObject *Segment = aaf_get_propertyValue( MobSlot, PID_MobSlot_Segment );
+//
+// 	if ( Segment )
+// 	{
+// //		printf( "   : %s\n", ClassIDToText( aafi->aafd, Segment->Class->ID ) );
+//
+// 		aafWeakRef_t *weakRef = aaf_get_propertyValue( Segment, PID_Component_DataDefinition );
+//
+// 		aafObject *DataDef = aaf_get_ObjectByWeakRef( DataDefinition, weakRef );
+//
+// 		if ( DataDef )
+// 		{
+// //			printf( "   :: %s\n", ClassIDToText( aafi->aafd, DataDef->Class->ID ) );
+//
+// //			aafProperty *DataDefProp = getProperty( DataDef, PID_DefinitionObject_Name );
+// //			printf( "   :: > %s\n", CFB_utf16Toascii( DataDefProp->val, DataDefProp->len ) );
+//
+// 			DataDefVal = aaf_get_propertyValue( DataDef, PID_DefinitionObject_Identification );
+// //			printf( "   :: > %s\n", DataDefToText( DataDefVal ) );
+// //			getPropertyValue( Segment, PID_Component_DataDefinition ); // WeakRef
+// 		}
+// 	}
+//
+// 	return DataDefVal;
+// }
 
 
 
@@ -1134,6 +1134,33 @@ static uint64_t getAIFCSampleRate( unsigned char *buf )
 
   return m;
 }
+
+
+
+aafUID_t * get_Component_DataDefinition( AAF_Iface *aafi, aafObject *Component )
+{
+	aafWeakRef_t *weakRef = aaf_get_propertyValue( Component, PID_Component_DataDefinition );
+
+	if ( weakRef == NULL )
+		_warning( "Missing Component::DataDefinition.\n" );
+
+
+	aafObject *DataDefinition = aaf_get_ObjectByWeakRef( aafi->aafd->DataDefinition, weakRef );
+
+	if ( DataDefinition == NULL )
+		_warning( "Could not retrieve WeakRef from Dictionary::DataDefinition.\n" );
+
+
+	aafUID_t  *DataIdentification = aaf_get_propertyValue( DataDefinition, PID_DefinitionObject_Identification );
+
+	if ( DataIdentification == NULL )
+		_warning( "Missing DataDefinition's DefinitionObject::Identification.\n" );
+
+
+	return DataIdentification;
+}
+
+
 
 
 aafUID_t * get_FileDescriptor_ContainerFormat( AAF_Iface *aafi, aafObject *FileDescriptor )
@@ -2663,11 +2690,15 @@ int aafi_retrieveData( AAF_Iface *aafi )
 		aaf_foreach_ObjectInSet( &(aafi->ctx.MobSlot), MobSlots, NULL )
 		{
 
-			/* Get MobSlot::Segment > Component::DataDefinition */
-			aafi->ctx.DataDef = getMobSlotDataDef( aafi->aafd->DataDefinition, aafi->ctx.MobSlot );
+			aafObject *Segment = aaf_get_propertyValue( aafi->ctx.MobSlot, PID_MobSlot_Segment );
 
-			if ( aafi->ctx.DataDef == NULL )
-				_fatal( "Could not retrieve MobSlot's DataDefinition.\n" );
+			if ( Segment == NULL )
+				_fatal( "Missing MobSlot::Segment.\n" );
+
+			aafUID_t *DataDefinition = get_Component_DataDefinition( aafi, Segment );
+
+			if ( DataDefinition == NULL )
+				_fatal( "Could not retrieve MobSlot::Segment DataDefinition.\n" );
 
 
 			/*
@@ -2691,20 +2722,20 @@ int aafi_retrieveData( AAF_Iface *aafi )
 			if ( auidCmp( aafi->ctx.MobSlot->Class->ID, &AAFClassID_TimelineMobSlot ) == 0 )
 			{
 				trace_obj( aafi, aafi->ctx.MobSlot, ANSI_COLOR_YELLOW );
-				printf( "%s\n", DataDefToText( aafi->ctx.DataDef ) );
+				printf( "%s\n", DataDefToText( DataDefinition ) );
 
 				continue;
 			}
 
 
 
+
 			if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_CompositionMob ) )
 			{
-
 				/* Retrieve Clips and TimeCode */
 
-				if ( auidCmp( aafi->ctx.DataDef, &AAFDataDef_Sound ) ||
-					 auidCmp( aafi->ctx.DataDef, &AAFDataDef_LegacySound ) )
+				if ( auidCmp( DataDefinition, &AAFDataDef_Sound ) ||
+					 auidCmp( DataDefinition, &AAFDataDef_LegacySound ) )
 				{
 
 					/* TODO rename as aafi_addAudioTrack() */
@@ -2752,20 +2783,15 @@ int aafi_retrieveData( AAF_Iface *aafi )
 					/***********************************************************************************************************************/
 
 
-
 					/* (re)set timeline position */
 					aafi->ctx.current_pos = 0;
-
-					aafObject *Segment = aaf_get_propertyValue( aafi->ctx.MobSlot, PID_MobSlot_Segment );
 
 					parse_Segment( aafi, Segment );
 
 				}
-				else if ( auidCmp( aafi->ctx.DataDef, &AAFDataDef_Timecode ) ||
-						  auidCmp( aafi->ctx.DataDef, &AAFDataDef_LegacyTimecode ) )
+				else if ( auidCmp( DataDefinition, &AAFDataDef_Timecode ) ||
+						  auidCmp( DataDefinition, &AAFDataDef_LegacyTimecode ) )
 				{
-					aafObject *Segment = aaf_get_propertyValue( aafi->ctx.MobSlot, PID_MobSlot_Segment );
-
 					parse_Segment( aafi, Segment );
 				}
 
@@ -2774,11 +2800,9 @@ int aafi_retrieveData( AAF_Iface *aafi )
 			{
 				/* Retrieve Essences */
 
-				if ( auidCmp( aafi->ctx.DataDef, &AAFDataDef_Sound ) ||
-					 auidCmp( aafi->ctx.DataDef, &AAFDataDef_LegacySound ) )
+				if ( auidCmp( DataDefinition, &AAFDataDef_Sound ) ||
+					 auidCmp( DataDefinition, &AAFDataDef_LegacySound ) )
 				{
-					aafObject *Segment = aaf_get_propertyValue( aafi->ctx.MobSlot, PID_MobSlot_Segment );
-
 					parse_Segment( aafi, Segment );
 
 					retrieve_EssenceData( aafi );
@@ -2786,7 +2810,7 @@ int aafi_retrieveData( AAF_Iface *aafi )
 				else
 				{
 					trace_obj( aafi, aafi->ctx.MobSlot, ANSI_COLOR_YELLOW );
-					printf( "%s\n", DataDefToText( aafi->ctx.DataDef ) );
+					printf( "%s\n", DataDefToText( DataDefinition ) );
 				}
 			}
 			else if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_SourceMob ) )
@@ -2796,7 +2820,7 @@ int aafi_retrieveData( AAF_Iface *aafi )
 			else
 			{
 				trace_obj( aafi, aafi->ctx.MobSlot, ANSI_COLOR_YELLOW );
-				printf( "%s\n", DataDefToText( aafi->ctx.DataDef ) );
+				printf( "%s\n", DataDefToText( DataDefinition ) );
 			}
 
 		}
@@ -2822,6 +2846,10 @@ int aafi_retrieveData( AAF_Iface *aafi )
 			 *	NOTE We do it after the main loop, so we're sure all MasterMobs was parsed.
 			 */
 
+			aafObject *Segment = aaf_get_propertyValue( aafi->ctx.MobSlot, PID_MobSlot_Segment );
+
+ 			aafUID_t  *DataDefinition = get_Component_DataDefinition( aafi, Segment );
+
 			aafMobID_t *MobID = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_MobID );
 
 			aafiAudioEssence *audioEssence = NULL;
@@ -2835,7 +2863,7 @@ int aafi_retrieveData( AAF_Iface *aafi )
 			if ( audioEssence == NULL )
 			{
 				trace_obj( aafi, aafi->ctx.MobSlot, ANSI_COLOR_YELLOW );
-				printf( "%s\n", DataDefToText( aafi->ctx.DataDef ) );
+				printf( "%s\n", DataDefToText( DataDefinition ) );
 			}
 		}
 	}
