@@ -1408,7 +1408,7 @@ aafiAudioEssence * getEssenceBySourceMobID( AAF_Iface *aafi, aafMobID_t *sourceM
 //
 // 			aafiAudioClip *audioClip = (aafiAudioClip*)&audioItem->data;
 //
-// 			if ( mobIDCmp( audioClip->sourceMobID, sourceMobID ) )
+// 			if ( mobIDCmp( audioClip->masterMobID, sourceMobID ) )
 // 			{
 // 				return audioClip;
 // 			}
@@ -1710,9 +1710,9 @@ p.49	 *	To create a SourceReference that refers to a MobSlot within
 		 *	should always point to the corresponding "MasterMob", that is a different Mob.
 		 */
 
-		audioClip->sourceMobID = (aafMobID_t*)aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceID );
+		audioClip->masterMobID = (aafMobID_t*)aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceID );
 
-		if ( audioClip->sourceMobID == NULL )
+		if ( audioClip->masterMobID == NULL )
 		{
 			aafObject *Mob = NULL;
 
@@ -1722,7 +1722,7 @@ p.49	 *	To create a SourceReference that refers to a MobSlot within
 					break;
 			}
 
-			audioClip->sourceMobID = aaf_get_propertyValue( Mob, PID_Mob_MobID );
+			audioClip->masterMobID = aaf_get_propertyValue( Mob, PID_Mob_MobID );
 
 			_warning( "Missing SourceReference::SourceID, retrieving from parent Mob.\n" );
 		}
@@ -1730,7 +1730,7 @@ p.49	 *	To create a SourceReference that refers to a MobSlot within
 
 
 
-		// aafObject *mob = aaf_get_MobByID( aafi->aafd->Mobs, audioClip->sourceMobID );
+		// aafObject *mob = aaf_get_MobByID( aafi->aafd->Mobs, audioClip->masterMobID );
 		// // aafSlotID_t *SlotID = aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceMobSlotID );
 		// // aafObject *MobSlots = aaf_get_propertyValue( mob, PID_Mob_Slots );
         // //
@@ -1757,7 +1757,7 @@ p.49	 *	To create a SourceReference that refers to a MobSlot within
 
 		/* link the clip with the essence, if the essence was already parsed. */
 
-		audioClip->Essence = getEssenceBySourceMobID( aafi, audioClip->sourceMobID );
+		audioClip->Essence = getEssenceBySourceMobID( aafi, audioClip->masterMobID );
 
 
 		if ( aafi->ctx.current_track_is_multichannel == 0 )
@@ -1901,7 +1901,7 @@ p.49	 *	To create a SourceReference that refers to a MobSlot within
 
 				aafiAudioClip *audioClip = (aafiAudioClip*)&audioItem->data;
 
-				if ( mobIDCmp( audioClip->sourceMobID, audioEssence->masterMobID ) )
+				if ( mobIDCmp( audioClip->masterMobID, audioEssence->masterMobID ) )
 				{
 					audioClip->Essence = audioEssence;
 				}
