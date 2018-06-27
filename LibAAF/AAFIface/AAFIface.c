@@ -150,6 +150,8 @@ static int    retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRat
 static void   parse_Parameter( AAF_Iface *aafi, aafObject *Parameter );
 
 
+static aafUID_t * get_OperationGroup_OperationIdentification( AAF_Iface *aafi, aafObject *OperationGroup );
+
 
 
 
@@ -188,25 +190,9 @@ static void trace_obj( AAF_Iface *aafi, aafObject *Obj, char *color )
 		}
 		else if ( auidCmp( Obj->Class->ID, &AAFClassID_OperationGroup ) )
 		{
-			aafWeakRef_t *OpDef = aaf_get_propertyValue( Obj, PID_OperationGroup_Operation );
+			aafUID_t *OperationIdentification = get_OperationGroup_OperationIdentification( aafi, Obj );
 
-			if ( OpDef == NULL )
-				_fatal( "Missing OperationGroup::Operation.\n" );
-
-
-			aafObject *OpDefObj = aaf_get_ObjectByWeakRef( aafi->aafd->OperationDefinition, OpDef );
-
-			if ( OpDefObj == NULL )
-				_fatal( "Could not retrieve OperationDefinition from dictionary.\n" );
-
-
-			aafUID_t *OpIdent = aaf_get_propertyValue( OpDefObj, PID_DefinitionObject_Identification );
-
-			if ( OpIdent == NULL )
-				_fatal( "Missing DefinitionObject::Identification.\n" );
-
-
-			const char *name = OperationDefToText( aafi->aafd, OpIdent ) /*printUID( OpIdent )*/;
+			const char *name = OperationDefToText( aafi->aafd, OperationIdentification ) /*printUID( OpIdent )*/;
 			snprintf( buf, 1024, "%s (%s) > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), name, tmp );
 		}
 		else
@@ -1189,6 +1175,32 @@ aafUID_t * get_FileDescriptor_ContainerFormat( AAF_Iface *aafi, aafObject *FileD
 
 
 
+static aafUID_t * get_OperationGroup_OperationIdentification( AAF_Iface *aafi, aafObject *OperationGroup )
+{
+	aafWeakRef_t *OperationDefWeakRef = aaf_get_propertyValue( OperationGroup, PID_OperationGroup_Operation );
+
+	if ( OperationDefWeakRef == NULL )
+		_fatal( "Missing OperationGroup::Operation.\n" );
+
+
+	aafObject *OperationDefinition = aaf_get_ObjectByWeakRef( aafi->aafd->OperationDefinition, OperationDefWeakRef );
+
+	if ( OperationDefinition == NULL )
+		_fatal( "Could not retrieve OperationDefinition from dictionary.\n" );
+
+
+	aafUID_t *OperationIdentification = aaf_get_propertyValue( OperationDefinition, PID_DefinitionObject_Identification );
+
+	if ( OperationIdentification == NULL )
+		_fatal( "Missing DefinitionObject::Identification.\n" );
+
+
+	return OperationIdentification;
+}
+
+
+
+
 
 
 /*
@@ -2005,27 +2017,7 @@ static void parse_Timecode( AAF_Iface *aafi, aafObject *Timecode )
 static void parse_Parameter( AAF_Iface *aafi, aafObject *Parameter )
 {
 
-	/* Retrieves Operation's Identification */
-
-	aafWeakRef_t *OpDef = aaf_get_propertyValue( Parameter->Parent, PID_OperationGroup_Operation );
-
-	if ( OpDef == NULL )
-		_fatal( "Missing OperationGroup::Operation.\n" );
-
-
-	aafObject *OpDefObj = aaf_get_ObjectByWeakRef( aafi->aafd->OperationDefinition, OpDef );
-
-	if ( OpDefObj == NULL )
-		_fatal( "Could not retrieve OperationDefinition from dictionary.\n" );
-
-
-	aafUID_t *OpIdent = aaf_get_propertyValue( OpDefObj, PID_DefinitionObject_Identification );
-
-	if ( OpIdent == NULL )
-		_fatal( "Missing DefinitionObject::Identification.\n" );
-
-
-
+	aafUID_t *OperationIdentification = get_OperationGroup_OperationIdentification( aafi, Parameter->Parent );
 
 
 	// aafUID_t *paramDef = aaf_get_propertyValue( Parameter, PID_Parameter_Definition );
@@ -2035,7 +2027,7 @@ static void parse_Parameter( AAF_Iface *aafi, aafObject *Parameter )
 	if ( auidCmp( Parameter->Class->ID, &AAFClassID_ConstantValue ) )
 	{
 
-		if ( auidCmp( OpIdent, &AAFOperationDef_MonoAudioGain ) )
+		if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioGain ) )
 		{
 
 			trace_obj( aafi, Parameter, ANSI_COLOR_MAGENTA );
@@ -2140,7 +2132,7 @@ static void parse_Parameter( AAF_Iface *aafi, aafObject *Parameter )
 			// 	printf("time_%i : %i/%i   value_%i : %i/%i\n", i, Trans->time_a[i].numerator, Trans->time_a[i].denominator, i, Trans->value_a[i].numerator, Trans->value_a[i].denominator  );
 			// }
 		}
-		else if ( auidCmp( OpIdent, &AAFOperationDef_MonoAudioGain ) )
+		else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioGain ) )
 		{
 
 			aafObject *Points = aaf_get_propertyValue( Parameter, PID_VaryingValue_PointList );
@@ -2236,26 +2228,7 @@ static int retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRation
 static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 {
 
-	/* Retrieves Operation's Identification */
-
-	aafWeakRef_t *OpDef = aaf_get_propertyValue( OpGroup, PID_OperationGroup_Operation );
-
-	if ( OpDef == NULL )
-		_fatal( "Missing OperationGroup::Operation.\n" );
-
-
-	aafObject *OpDefObj = aaf_get_ObjectByWeakRef( aafi->aafd->OperationDefinition, OpDef );
-
-	if ( OpDefObj == NULL )
-		_fatal( "Could not retrieve OperationDefinition from dictionary.\n" );
-
-
-	aafUID_t *OpIdent = aaf_get_propertyValue( OpDefObj, PID_DefinitionObject_Identification );
-
-	if ( OpIdent == NULL )
-		_fatal( "Missing DefinitionObject::Identification.\n" );
-
-
+	aafUID_t *OperationIdentification = get_OperationGroup_OperationIdentification( aafi, OpGroup );
 
 
 	if ( auidCmp( OpGroup->Parent->Class->ID, &AAFClassID_Transition ) )
@@ -2264,7 +2237,7 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 		aafiTransition *Trans = aafi->ctx.current_transition;
 
 
-		if ( auidCmp( OpIdent, &AAFOperationDef_MonoAudioDissolve ) )
+		if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioDissolve ) )
 		{
 			/*
 			 *	Mono Audio Dissolve (Fade, Cross Fade)
@@ -2351,7 +2324,7 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 
 			}
 		}
-		else if ( auidCmp( OpIdent, &AAFOperationDef_TwoParameterMonoAudioDissolve ) )
+		else if ( auidCmp( OperationIdentification, &AAFOperationDef_TwoParameterMonoAudioDissolve ) )
 		{
 			/*
 			 *	Two Parameters Mono Audio Dissolve
@@ -2364,7 +2337,7 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 
 			// Trans->flags |= AAFI_TRANS_TWO_CURVE;
 		}
-		else if ( auidCmp( OpIdent, &AAFOperationDef_StereoAudioDissolve ) )
+		else if ( auidCmp( OperationIdentification, &AAFOperationDef_StereoAudioDissolve ) )
 		{
 			/*
 			 *	Stereo Audio Dissolve
@@ -2380,7 +2353,7 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 			trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
 		}
 	}
-	else if ( auidCmp( OpIdent, &AAFOperationDef_MonoAudioPan ) )
+	else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioPan ) )
 	{
 		/*
 		 *	Mono Audio Pan (Track Pan)
@@ -2393,7 +2366,7 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 
 		return;
 	}
-	else if ( auidCmp( OpIdent, &AAFOperationDef_AudioChannelCombiner ) )
+	else if ( auidCmp( OperationIdentification, &AAFOperationDef_AudioChannelCombiner ) )
 	{
 		trace_obj( aafi, OpGroup, ANSI_COLOR_MAGENTA );
 
@@ -2463,7 +2436,7 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 		aafi->ctx.current_gain = Gain;
 
 
-		if ( auidCmp( OpIdent, &AAFOperationDef_MonoAudioGain ) )
+		if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioGain ) )
 		{
 
 			aafObject *Parameters = aaf_get_propertyValue( OpGroup, PID_OperationGroup_Parameters );
@@ -2495,7 +2468,7 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 			parse_Parameter( aafi, Parameter );
 
 		}
-		else if ( auidCmp( OpIdent, &AAFOperationDef_MonoAudioMixdown ) )
+		else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioMixdown ) )
 		{
 
 			/*
@@ -2508,7 +2481,7 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 			_warning( "AAFOperationDef_MonoAudioMixdown not supported yet.\n" );
 
 		}
-		else if ( auidCmp( OpIdent, &AAFOperationDef_StereoAudioGain ) )
+		else if ( auidCmp( OperationIdentification, &AAFOperationDef_StereoAudioGain ) )
 		{
 
 			/*
