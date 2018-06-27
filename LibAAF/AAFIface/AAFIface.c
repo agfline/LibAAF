@@ -146,8 +146,11 @@ static void   parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 
 static void   retrieve_EssenceData( AAF_Iface *aafi );
 
-static int    retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRational_t *times[], aafRational_t *values[] );
 static void   parse_Parameter( AAF_Iface *aafi, aafObject *Parameter );
+static void   parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue );
+static void   parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue );
+
+static int    retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRational_t *times[], aafRational_t *values[] );
 
 
 static aafUID_t * get_OperationGroup_OperationIdentification( AAF_Iface *aafi, aafObject *OperationGroup );
@@ -962,8 +965,6 @@ static void retrieve_EssenceData( AAF_Iface *aafi )
 		 *	It means essence is not embedded.
 		 */
 
-		// _warning( "Could not retrieve EssenceData\n" );
-
 		return;
 	}
 
@@ -1431,31 +1432,6 @@ aafiAudioEssence * getEssenceBySourceMobID( AAF_Iface *aafi, aafMobID_t *sourceM
 }
 
 
-// aafiAudioClip * getClipBySourceMobID( AAF_Iface *aafi, aafMobID_t *sourceMobID )
-// {
-// 	aafiAudioTrack   * audioTrack = NULL;
-// 	aafiTimelineItem * audioItem  = NULL;
-//
-// 	foreach_audioTrack( audioTrack, aafi )
-// 	{
-// 		foreach_audioItem( audioItem, audioTrack )
-// 		{
-// 			if ( audioItem->type != AAFI_CLIP )
-// 			{
-// 				continue;
-// 			}
-//
-// 			aafiAudioClip *audioClip = (aafiAudioClip*)&audioItem->data;
-//
-// 			if ( mobIDCmp( audioClip->masterMobID, sourceMobID ) )
-// 			{
-// 				return audioClip;
-// 			}
-// 		}
-// 	}
-//
-// 	return NULL;
-// }
 
 
 
@@ -1479,23 +1455,26 @@ aafiAudioEssence * getEssenceBySourceMobID( AAF_Iface *aafi, aafMobID_t *sourceM
 
 
 
+/******************************************************************************
+                            C O M P O N E N T S
+ ******************************************************************************
 
+                       Component (abs)
+                            |
+                      ,-----------.
+                      |           |
+                 Transition    Segment (abs)
+                                  |
+                                  |--> Sequence
+                                  |--> Filler
+                                  |--> TimeCode
+                                  |--> OperationGroup
+                                  `--> SourceReference (abs)
+                                              |
+                                              `--> SourceClip
 
-/*
-		        Component (abs)
-		            |
-		      ,-----------.
-		      |           |
-         Transition    Segment (abs)
-		                  |
-		                  |--> Sequence
-		                  |--> Filler
-		                  |--> TimeCode
-		                  |--> OperationGroup
-		                  `--> SourceReference (abs)
-						              |
-						              `--> SourceClip
-*/
+******************************************************************************
+******************************************************************************/
 
 static void parse_Component( AAF_Iface *aafi, aafObject *Component )
 {
@@ -1518,6 +1497,62 @@ static void parse_Component( AAF_Iface *aafi, aafObject *Component )
 	}
 }
 
+
+
+
+static void parse_Transition( AAF_Iface *aafi, aafObject *Transition )
+{
+
+	int64_t *length = aaf_get_propertyValue( Transition, PID_Component_Length );
+
+	if ( length == NULL )
+		_fatal( "Missing Filler Component::Length.\n" );
+
+	aafi->ctx.current_pos += *length;
+
+
+	aafiTimelineItem *Item  = aafi_newTimelineItem( aafi->ctx.current_track, AAFI_TRANS );
+
+
+	aafiTransition   *Trans = (aafiTransition*)&Item->data;
+
+
+	aafi->ctx.current_transition = Trans;
+
+
+	/* Set transition type */
+
+	if ( Transition->prev != NULL && auidCmp( Transition->prev->Class->ID, &AAFClassID_Filler ) )
+	{
+		Trans->flags |= AAFI_TRANS_FADE_IN;
+	}
+	else if ( Transition->next != NULL && auidCmp( Transition->next->Class->ID, &AAFClassID_Filler ) )
+	{
+		Trans->flags |= AAFI_TRANS_FADE_OUT;
+	}
+	else if ( Transition->next != NULL && auidCmp( Transition->next->Class->ID, &AAFClassID_Filler ) == 0 &&
+	          Transition->prev != NULL && auidCmp( Transition->prev->Class->ID, &AAFClassID_Filler ) == 0 )
+	{
+		Trans->flags |= AAFI_TRANS_XFADE;
+	}
+
+
+	aafPosition_t *cut_point = aaf_get_propertyValue( Transition, PID_Transition_CutPoint );
+
+	if ( cut_point == NULL )
+		_fatal( "Missing Transition::CutPoint.\n" );
+
+	Trans->cut_pt = *cut_point;
+
+
+	aafObject * OpGroup = aaf_get_propertyValue( Transition, PID_Transition_OperationGroup );
+
+	if ( OpGroup == NULL )
+		_fatal( "Missing Transition::OperationGroup.\n" );
+
+
+	parse_OperationGroup( aafi, OpGroup );
+}
 
 
 
@@ -1630,7 +1665,6 @@ static void parse_Segment( AAF_Iface *aafi, aafObject *Segment )
 
 
 
-
 static void parse_Filler( AAF_Iface *aafi, aafObject *Filler )
 {
 	trace_obj( aafi, Filler, ANSI_COLOR_MAGENTA );
@@ -1661,7 +1695,6 @@ static void parse_Filler( AAF_Iface *aafi, aafObject *Filler )
 
 
 
-
 static void parse_Sequence( AAF_Iface *aafi, aafObject *Sequence )
 {
 	/* Get Sequence's Components */
@@ -1675,6 +1708,351 @@ static void parse_Sequence( AAF_Iface *aafi, aafObject *Sequence )
 	}
 }
 
+
+
+
+static void parse_Timecode( AAF_Iface *aafi, aafObject *Timecode )
+{
+	trace_obj( aafi, Timecode, ANSI_COLOR_MAGENTA );
+
+	aafiTimecode *tc = calloc( sizeof(aafiTimecode), sizeof(unsigned char) );
+
+	if ( tc == NULL )
+		_fatal( "%s.\n", strerror( errno ) );
+
+
+
+	int64_t  *tc_start = (int64_t *)aaf_get_propertyValue( Timecode, PID_Timecode_Start );
+
+	if ( tc_start == NULL )
+		_fatal( "Missing Timecode::Start.\n" );
+
+
+	uint16_t *tc_fps   = (uint16_t*)aaf_get_propertyValue( Timecode, PID_Timecode_FPS   );
+
+	if ( tc_fps == NULL )
+		_fatal( "Missing Timecode::FPS.\n" );
+
+
+	uint8_t  *tc_drop  = (uint8_t *)aaf_get_propertyValue( Timecode, PID_Timecode_Drop  );
+
+	if ( tc_drop == NULL )
+		_fatal( "Missing Timecode::Drop.\n" );
+
+
+
+	tc->start = *tc_start;
+	tc->fps   = *tc_fps;
+	tc->drop  = *tc_drop;
+
+
+	aafi->Audio->tc = tc;
+}
+
+
+
+
+static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
+{
+
+	aafUID_t *OperationIdentification = get_OperationGroup_OperationIdentification( aafi, OpGroup );
+
+
+	if ( auidCmp( OpGroup->Parent->Class->ID, &AAFClassID_Transition ) )
+	{
+
+		aafiTransition *Trans = aafi->ctx.current_transition;
+
+
+		if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioDissolve ) )
+		{
+			/*
+			 *	Mono Audio Dissolve (Fade, Cross Fade)
+			 *
+			 *	The same parameter (curve/level) is applied to the outgoing fade on first
+			 *	clip and to the incoming fade on second clip.
+			 */
+
+			Trans->flags |= AAFI_TRANS_SINGLE_CURVE;
+
+
+			aafObject * Param  = aaf_get_propertyValue( OpGroup, PID_OperationGroup_Parameters );
+			// aafObject * Param  = NULL;
+
+			if ( Param == NULL )
+			{
+				trace_obj( aafi, OpGroup, ANSI_COLOR_MAGENTA );
+
+				/* TODO is there realy some transition here ??? (fairlight AAF) */
+
+				_warning( "No PID_OperationGroup_Parameters on transition : falling back on default AAFInterpolationDef_Linear.\n" );
+
+				Trans->flags |= AAFI_INTERPOL_LINEAR;
+
+				Trans->time_a  = calloc( 2, sizeof(aafRational_t) );
+				Trans->value_a = calloc( 2, sizeof(aafRational_t) );
+
+				Trans->time_a[0].numerator   = 0;
+				Trans->time_a[0].denominator = 0;
+				Trans->time_a[1].numerator   = 1;
+				Trans->time_a[1].denominator = 1;
+
+				if ( Trans->flags & AAFI_TRANS_FADE_IN ||
+				     Trans->flags & AAFI_TRANS_XFADE )
+				{
+					Trans->value_a[0].numerator   = 0;
+					Trans->value_a[0].denominator = 0;
+					Trans->value_a[1].numerator   = 1;
+					Trans->value_a[1].denominator = 1;
+				}
+				else if ( Trans->flags & AAFI_TRANS_FADE_OUT )
+				{
+					Trans->value_a[0].numerator   = 1;
+					Trans->value_a[0].denominator = 1;
+					Trans->value_a[1].numerator   = 0;
+					Trans->value_a[1].denominator = 0;
+				}
+
+				// printf( "\n\nxxx OperationGroup xxx\n" );
+				// printObjectProperties( aafi->aafd, OpGroup );
+				// printf( "\n\nxxx Transition xxx\n" );
+				// printObjectProperties( aafi->aafd, Transition );
+
+			}
+			else
+			{
+
+				/*
+				 *	Since this is a Single Parameter, we should have only one Parameter Object
+				 *	within the vector. So there's no need to loop through the vector.
+				 *	But still, we can have custom objects..
+				 */
+
+				if ( Param->Header->_entryCount > 1 )
+				{
+					_fatal( "Multiple Parameters in MonoAudioDissolve Transition OperationGroup.\n" );
+				}
+
+				// printf( " Count of Params : %u\n", Params->Header->_entryCount );
+	            //
+				// aaf_foreach_ObjectInSet( &Param, Params, NULL )
+				// {
+				// 	aafUID_t *ParamDef = aaf_get_propertyValue( Param, PID_Parameter_Definition );
+	            //
+				// 	if ( auidCmp( ParamDef, &AAFParameterDef_Level ) )
+				// 		break;
+				// }
+	            //
+				// if ( Param == NULL )
+				// 	_fatal( "Could not retrieve Parameter Object.\n" );
+
+
+				parse_Parameter( aafi, Param );
+
+			}
+		}
+		else if ( auidCmp( OperationIdentification, &AAFOperationDef_TwoParameterMonoAudioDissolve ) )
+		{
+			/*
+			 *	Two Parameters Mono Audio Dissolve
+			 *
+			 *	Two distinct parameters are used for outgoing and incoming fades.
+			 */
+
+			trace_obj( aafi, OpGroup , ANSI_COLOR_RED);
+			_warning( "AAFOperationDef_TwoParameterMonoAudioDissolve not supported yet.\n" );
+
+			// Trans->flags |= AAFI_TRANS_TWO_CURVE;
+		}
+		else if ( auidCmp( OperationIdentification, &AAFOperationDef_StereoAudioDissolve ) )
+		{
+			/*
+			 *	Stereo Audio Dissolve
+			 *
+			 *	TODO Unknown usage and implementation
+			 */
+
+			trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
+			_warning( "AAFOperationDef_StereoAudioDissolve not supported yet.\n" );
+		}
+		else
+		{
+			trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
+		}
+	}
+	else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioPan ) )
+	{
+		/*
+		 *	Mono Audio Pan (Track Pan)
+		 *
+		 *	TODO : Only Track-based
+		 */
+
+		trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
+		_warning( "AAFOperationDef_MonoAudioPan not supported yet.\n" );
+
+		return;
+	}
+	else if ( auidCmp( OperationIdentification, &AAFOperationDef_AudioChannelCombiner ) )
+	{
+		trace_obj( aafi, OpGroup, ANSI_COLOR_MAGENTA );
+
+		/**************************************************************************************/
+
+		aafi->ctx.current_track_is_multichannel = 1;
+		aafi->ctx.current_multichannel_track_channel = 0;
+
+
+		aafObject *InputSegments = aaf_get_propertyValue( OpGroup, PID_OperationGroup_InputSegments );
+		aafObject *InputSegment  = NULL;
+
+		aaf_foreach_ObjectInSet( &InputSegment, InputSegments, NULL )
+		{
+			parse_Segment( aafi, InputSegment );
+			aafi->ctx.current_multichannel_track_channel++;
+		}
+
+
+		/*
+		 *	Sets the track format.
+		 */
+
+		if ( aafi->ctx.current_multichannel_track_channel == 2 )
+		{
+			aafi->ctx.current_track->format = AAFI_TRACK_FORMAT_STEREO;
+		}
+		else if ( aafi->ctx.current_multichannel_track_channel == 6 )
+		{
+			aafi->ctx.current_track->format = AAFI_TRACK_FORMAT_5_1;
+		}
+		else if ( aafi->ctx.current_multichannel_track_channel == 8 )
+		{
+			aafi->ctx.current_track->format = AAFI_TRACK_FORMAT_7_1;
+		}
+		else
+		{
+			/* TODO What to do then ? */
+			_warning( "Unknown track format (%u).\n", aafi->ctx.current_multichannel_track_channel );
+		}
+
+
+		/*
+		 *	Update the current position.
+		 */
+
+		aafi->ctx.current_pos += aafi->ctx.current_multichannel_track_clip_length;
+
+
+		/*
+		 *	Reset multichannel track context.
+		 */
+
+		aafi->ctx.current_multichannel_track_channel = 0;
+		aafi->ctx.current_track_is_multichannel = 0;
+
+		/**************************************************************************************/
+
+		// return;
+	}
+
+	/* TODO else if () */
+	else
+	{
+		aafiAudioGain *Gain = calloc( sizeof(aafiAudioGain), sizeof(unsigned char) );
+
+		aafi->ctx.current_gain = Gain;
+
+
+		if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioGain ) )
+		{
+
+			aafObject *Parameters = aaf_get_propertyValue( OpGroup, PID_OperationGroup_Parameters );
+			aafObject *Parameter  = NULL;
+
+			if ( Parameters == NULL )
+				_fatal( "Could not retrieve Amplitude Parameter.\n" );
+
+			/*
+			 *	Retrieves the Amplitude Parameter
+			 *
+			 *	We have to loop because of custom Parameters.
+			 *	Seen in AVID Media Composer AAFs.
+			 */
+
+			aaf_foreach_ObjectInSet( &Parameter, Parameters, NULL )
+			{
+				aafUID_t *paramDef = aaf_get_propertyValue( Parameter, PID_Parameter_Definition );
+
+				// printf("ParamDef %s (%s)\n\n", ParameterToText(paramDef), printUID(paramDef) );
+
+				if ( auidCmp( paramDef, &AAFParameterDef_Amplitude ) )
+					break;
+			}
+
+			if ( Parameter == NULL )
+				_fatal( "Could not retrieve Amplitude Parameter.\n" );
+
+			parse_Parameter( aafi, Parameter );
+
+		}
+		else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioMixdown ) )
+		{
+
+			/*
+			 *	Mono Audio Mixdown
+			 *
+			 *	TODO Unknown usage and implementation
+			 */
+
+			trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
+			_warning( "AAFOperationDef_MonoAudioMixdown not supported yet.\n" );
+
+		}
+		else if ( auidCmp( OperationIdentification, &AAFOperationDef_StereoAudioGain ) )
+		{
+
+			/*
+			 *	Stereo Audio Gain
+			 *
+			 *	TODO Unknown usage and implementation
+			 */
+
+			trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
+			_warning( "AAFOperationDef_StereoAudioGain not supported yet.\n" );
+
+		}
+		else
+		{
+			trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
+			return;
+		}
+
+
+		/*
+		 *	Parses each SourceClip in the OperationGroup::InputSegments and apply gain
+		 */
+
+
+		aafObject *InputSegments = aaf_get_propertyValue( OpGroup, PID_OperationGroup_InputSegments );
+		aafObject *InputSegment  = NULL;
+
+		// TODO : Shall have one input if MonoAudioGain.
+
+		aaf_foreach_ObjectInSet( &InputSegment, InputSegments, NULL )
+		{
+
+			if ( auidCmp( InputSegment->Class->ID, &AAFClassID_SourceClip) == 0 )
+			{
+				continue;
+			}
+
+			aafiAudioClip *audioClip = (aafiAudioClip*)parse_SourceClip( aafi, InputSegment );
+
+			audioClip->gain = Gain;
+		}
+	}
+
+}
 
 
 
@@ -1958,47 +2336,20 @@ p.49	 *	To create a SourceReference that refers to a MobSlot within
 
 
 
-static void parse_Timecode( AAF_Iface *aafi, aafObject *Timecode )
-{
-	trace_obj( aafi, Timecode, ANSI_COLOR_MAGENTA );
-
-	aafiTimecode *tc = calloc( sizeof(aafiTimecode), sizeof(unsigned char) );
-
-	if ( tc == NULL )
-		_fatal( "%s.\n", strerror( errno ) );
 
 
 
-	int64_t  *tc_start = (int64_t *)aaf_get_propertyValue( Timecode, PID_Timecode_Start );
-
-	if ( tc_start == NULL )
-		_fatal( "Missing Timecode::Start.\n" );
-
-
-	uint16_t *tc_fps   = (uint16_t*)aaf_get_propertyValue( Timecode, PID_Timecode_FPS   );
-
-	if ( tc_fps == NULL )
-		_fatal( "Missing Timecode::FPS.\n" );
-
-
-	uint8_t  *tc_drop  = (uint8_t *)aaf_get_propertyValue( Timecode, PID_Timecode_Drop  );
-
-	if ( tc_drop == NULL )
-		_fatal( "Missing Timecode::Drop.\n" );
 
 
 
-	tc->start = *tc_start;
-	tc->fps   = *tc_fps;
-	tc->drop  = *tc_drop;
 
 
-	aafi->Audio->tc = tc;
-}
+
+
 
 
 /*
-		        Parameter
+		        Parameter (abs)
 		            |
 		    ,--------------.
 		    |              |
@@ -2011,133 +2362,152 @@ static void parse_Timecode( AAF_Iface *aafi, aafObject *Timecode )
 static void parse_Parameter( AAF_Iface *aafi, aafObject *Parameter )
 {
 
-	aafUID_t *OperationIdentification = get_OperationGroup_OperationIdentification( aafi, Parameter->Parent );
-
-
 	// aafUID_t *paramDef = aaf_get_propertyValue( Parameter, PID_Parameter_Definition );
-    //
 	// printf("ParamDef : %s\n", ParameterToText(paramDef) );
 
 	if ( auidCmp( Parameter->Class->ID, &AAFClassID_ConstantValue ) )
 	{
 
-		if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioGain ) )
-		{
+		parse_ConstantValue( aafi, Parameter );
 
-			trace_obj( aafi, Parameter, ANSI_COLOR_MAGENTA );
-
-			aafiAudioGain *Gain = aafi->ctx.current_gain;
-
-
-			Gain->flags   |= AAFI_AUDIO_GAIN_CONSTANT;
-
-
-			aafRational_t *multiplier = aaf_get_propertyIndirectValue( Parameter, PID_ConstantValue_Value );
-
-			if ( multiplier == NULL )
-				_fatal( "Could not retrieve Constant Value.\n" );
-
-
-			Gain->value    = calloc( 1, sizeof(aafRational_t*) );
-			Gain->pts_cnt  = 1;
-			memcpy( &Gain->value[0], multiplier, sizeof(aafRational_t) );
-			// Gain->value[0] = multiplier;
-
-			// printf( "RAW   %i/%i\n", multiplier->numerator, multiplier->denominator );
-			// printf( "GAIN  %+05.1lf dB\n", 20 * log10( rationalToFloat( Gain->value[0] ) ) );
-
-		}
 	}
 	else if ( auidCmp( Parameter->Class->ID, &AAFClassID_VaryingValue ) )
 	{
 
-		aafUID_t *InterpolationIdentification = get_Parameter_InterpolationIdentification( aafi, Parameter );
+		parse_VaryingValue( aafi, Parameter );
+
+	}
+}
 
 
-		aafiInterpolation_e interpolation = 0;
 
-		if ( auidCmp( InterpolationIdentification, &AAFInterpolationDef_None ) )
+
+static void parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue )
+{
+	aafUID_t *OperationIdentification = get_OperationGroup_OperationIdentification( aafi, ConstantValue->Parent );
+
+
+	if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioGain ) )
+	{
+
+		trace_obj( aafi, ConstantValue, ANSI_COLOR_MAGENTA );
+
+		aafiAudioGain *Gain = aafi->ctx.current_gain;
+
+
+		Gain->flags   |= AAFI_AUDIO_GAIN_CONSTANT;
+
+
+		aafRational_t *multiplier = aaf_get_propertyIndirectValue( ConstantValue, PID_ConstantValue_Value );
+
+		if ( multiplier == NULL )
+			_fatal( "Could not retrieve Constant Value.\n" );
+
+
+		Gain->value    = calloc( 1, sizeof(aafRational_t*) );
+		Gain->pts_cnt  = 1;
+		memcpy( &Gain->value[0], multiplier, sizeof(aafRational_t) );
+		// Gain->value[0] = multiplier;
+
+		// printf( "RAW   %i/%i\n", multiplier->numerator, multiplier->denominator );
+		// printf( "GAIN  %+05.1lf dB\n", 20 * log10( rationalToFloat( Gain->value[0] ) ) );
+
+	}
+}
+
+
+
+
+static void parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue )
+{
+	aafUID_t *OperationIdentification = get_OperationGroup_OperationIdentification( aafi, VaryingValue->Parent );
+
+
+	aafUID_t *InterpolationIdentification = get_Parameter_InterpolationIdentification( aafi, VaryingValue );
+
+	aafiInterpolation_e interpolation = 0;
+
+	if ( auidCmp( InterpolationIdentification, &AAFInterpolationDef_None ) )
+	{
+		interpolation = AAFI_INTERPOL_NONE;
+	}
+	else if ( auidCmp( InterpolationIdentification, &AAFInterpolationDef_Linear ) )
+	{
+		interpolation = AAFI_INTERPOL_LINEAR;
+	}
+	else if ( auidCmp( InterpolationIdentification, &AAFInterpolationDef_Power ) )
+	{
+		interpolation = AAFI_INTERPOL_POWER;
+	}
+	else if ( auidCmp( InterpolationIdentification, &AAFInterpolationDef_Constant ) )
+	{
+		interpolation = AAFI_INTERPOL_CONSTANT;
+	}
+	else if ( auidCmp( InterpolationIdentification, &AAFInterpolationDef_BSpline ) )
+	{
+		interpolation = AAFI_INTERPOL_BSPLINE;
+	}
+	else if ( auidCmp( InterpolationIdentification, &AAFInterpolationDef_Log ) )
+	{
+		interpolation = AAFI_INTERPOL_LOG;
+	}
+	else
+	{
+		/* TODO should fallback to some predefined default */
+		_warning( "Unknwon Interpolation\n" );
+	}
+
+
+
+	if ( auidCmp( VaryingValue->Parent->Parent->Class->ID, &AAFClassID_Transition ) )
+	{
+
+		aafiTransition *Trans = aafi->ctx.current_transition;
+
+		Trans->flags |= interpolation;
+
+
+		aafObject *Points = aaf_get_propertyValue( VaryingValue, PID_VaryingValue_PointList );
+
+		if ( Points == NULL )
+			_fatal( "Missing VaryingValue::PointList.\n" );
+
+		Trans->pts_cnt_a = retrieve_ControlPoints( aafi, Points, &(Trans->time_a), &(Trans->value_a) );
+
+		// int i = 0;
+        //
+		// for ( i = 0; i < Trans->pts_cnt_a; i++ )
+		// {
+		// 	printf("time_%i : %i/%i   value_%i : %i/%i\n", i, Trans->time_a[i].numerator, Trans->time_a[i].denominator, i, Trans->value_a[i].numerator, Trans->value_a[i].denominator  );
+		// }
+	}
+	else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioGain ) )
+	{
+
+		aafObject *Points = aaf_get_propertyValue( VaryingValue, PID_VaryingValue_PointList );
+
+		if ( Points == NULL )
 		{
-			interpolation = AAFI_INTERPOL_NONE;
-		}
-		else if ( auidCmp( InterpolationIdentification, &AAFInterpolationDef_Linear ) )
-		{
-			interpolation = AAFI_INTERPOL_LINEAR;
-		}
-		else if ( auidCmp( InterpolationIdentification, &AAFInterpolationDef_Power ) )
-		{
-			interpolation = AAFI_INTERPOL_POWER;
-		}
-		else if ( auidCmp( InterpolationIdentification, &AAFInterpolationDef_Constant ) )
-		{
-			interpolation = AAFI_INTERPOL_CONSTANT;
-		}
-		else if ( auidCmp( InterpolationIdentification, &AAFInterpolationDef_BSpline ) )
-		{
-			interpolation = AAFI_INTERPOL_BSPLINE;
-		}
-		else if ( auidCmp( InterpolationIdentification, &AAFInterpolationDef_Log ) )
-		{
-			interpolation = AAFI_INTERPOL_LOG;
-		}
-		else
-		{
-			/* TODO should fallback to some predefined default */
-			_warning( "Unknwon Interpolation\n" );
+			/* TODO WTF on fonk_3.AAF */
+
+			_warning( "Missing VaryingValue::PointList.\n" );
+			printObjectProperties( aafi->aafd, VaryingValue );
+			return;
 		}
 
+		aafiAudioGain *Gain = aafi->ctx.current_gain;
 
+		Gain->flags |= AAFI_AUDIO_GAIN_VARIABLE;
+		Gain->flags |= interpolation;
 
-		if ( auidCmp( Parameter->Parent->Parent->Class->ID, &AAFClassID_Transition ) )
-		{
+		Gain->pts_cnt = retrieve_ControlPoints( aafi, Points, &Gain->time, &Gain->value );
 
-			aafiTransition *Trans = aafi->ctx.current_transition;
-
-			Trans->flags |= interpolation;
-
-
-			aafObject *Points = aaf_get_propertyValue( Parameter, PID_VaryingValue_PointList );
-
-			if ( Points == NULL )
-				_fatal( "Missing VaryingValue::PointList.\n" );
-
-			Trans->pts_cnt_a = retrieve_ControlPoints( aafi, Points, &(Trans->time_a), &(Trans->value_a) );
-
-			// int i = 0;
-            //
-			// for ( i = 0; i < Trans->pts_cnt_a; i++ )
-			// {
-			// 	printf("time_%i : %i/%i   value_%i : %i/%i\n", i, Trans->time_a[i].numerator, Trans->time_a[i].denominator, i, Trans->value_a[i].numerator, Trans->value_a[i].denominator  );
-			// }
-		}
-		else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioGain ) )
-		{
-
-			aafObject *Points = aaf_get_propertyValue( Parameter, PID_VaryingValue_PointList );
-
-			if ( Points == NULL )
-			{
-				/* TODO WTF on fonk_3.AAF */
-
-				_warning( "Missing VaryingValue::PointList.\n" );
-				printObjectProperties( aafi->aafd, Parameter );
-				return;
-			}
-
-			aafiAudioGain *Gain = aafi->ctx.current_gain;
-
-			Gain->flags |= AAFI_AUDIO_GAIN_VARIABLE;
-			Gain->flags |= interpolation;
-
-			Gain->pts_cnt = retrieve_ControlPoints( aafi, Points, &Gain->time, &Gain->value );
-
-			// int i = 0;
-            //
-			// for ( i = 0; i < Gain->pts_cnt; i++ )
-			// {
-			// 	printf("time_%i : %i/%i   value_%i : %i/%i\n", i, Gain->time[i].numerator, Gain->time[i].denominator, i, Gain->value[i].numerator, Gain->value[i].denominator  );
-			// }
-		}
+		// int i = 0;
+        //
+		// for ( i = 0; i < Gain->pts_cnt; i++ )
+		// {
+		// 	printf("time_%i : %i/%i   value_%i : %i/%i\n", i, Gain->time[i].numerator, Gain->time[i].denominator, i, Gain->value[i].numerator, Gain->value[i].denominator  );
+		// }
 	}
 }
 
@@ -2190,385 +2560,11 @@ static int retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRation
 		return i;
 	}
 
-	/*
-	 *	Sets pts_cnt here in case the vector has "custom objects"
-	 *	TODO is this even possible ?
-	 */
-
-	// Trans->pts_cnt_a = i;
 
 	return Points->Header->_entryCount;
 }
 
 
-
-
-static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
-{
-
-	aafUID_t *OperationIdentification = get_OperationGroup_OperationIdentification( aafi, OpGroup );
-
-
-	if ( auidCmp( OpGroup->Parent->Class->ID, &AAFClassID_Transition ) )
-	{
-
-		aafiTransition *Trans = aafi->ctx.current_transition;
-
-
-		if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioDissolve ) )
-		{
-			/*
-			 *	Mono Audio Dissolve (Fade, Cross Fade)
-			 *
-			 *	The same parameter (curve/level) is applied to the outgoing fade on first
-			 *	clip and to the incoming fade on second clip.
-			 */
-
-			Trans->flags |= AAFI_TRANS_SINGLE_CURVE;
-
-
-			aafObject * Param  = aaf_get_propertyValue( OpGroup, PID_OperationGroup_Parameters );
-			// aafObject * Param  = NULL;
-
-			if ( Param == NULL )
-			{
-				trace_obj( aafi, OpGroup, ANSI_COLOR_MAGENTA );
-
-				/* TODO is there realy some transition here ??? (fairlight AAF) */
-
-				_warning( "No PID_OperationGroup_Parameters on transition : falling back on default AAFInterpolationDef_Linear.\n" );
-
-				Trans->flags |= AAFI_INTERPOL_LINEAR;
-
-				Trans->time_a  = calloc( 2, sizeof(aafRational_t) );
-				Trans->value_a = calloc( 2, sizeof(aafRational_t) );
-
-				Trans->time_a[0].numerator   = 0;
-				Trans->time_a[0].denominator = 0;
-				Trans->time_a[1].numerator   = 1;
-				Trans->time_a[1].denominator = 1;
-
-				if ( Trans->flags & AAFI_TRANS_FADE_IN ||
-				     Trans->flags & AAFI_TRANS_XFADE )
-				{
-					Trans->value_a[0].numerator   = 0;
-					Trans->value_a[0].denominator = 0;
-					Trans->value_a[1].numerator   = 1;
-					Trans->value_a[1].denominator = 1;
-				}
-				else if ( Trans->flags & AAFI_TRANS_FADE_OUT )
-				{
-					Trans->value_a[0].numerator   = 1;
-					Trans->value_a[0].denominator = 1;
-					Trans->value_a[1].numerator   = 0;
-					Trans->value_a[1].denominator = 0;
-				}
-
-				// printf( "\n\nxxx OperationGroup xxx\n" );
-				// printObjectProperties( aafi->aafd, OpGroup );
-				// printf( "\n\nxxx Transition xxx\n" );
-				// printObjectProperties( aafi->aafd, Transition );
-
-			}
-			else
-			{
-
-				/*
-				 *	Since this is a Single Parameter, we should have only one Parameter Object
-				 *	within the vector. So there's no need to loop through the vector.
-				 *	But still, we can have custom objects..
-				 */
-
-				if ( Param->Header->_entryCount > 1 )
-				{
-					_fatal( "Multiple Parameters in MonoAudioDissolve Transition OperationGroup.\n" );
-				}
-
-				// printf( " Count of Params : %u\n", Params->Header->_entryCount );
-	            //
-				// aaf_foreach_ObjectInSet( &Param, Params, NULL )
-				// {
-				// 	aafUID_t *ParamDef = aaf_get_propertyValue( Param, PID_Parameter_Definition );
-	            //
-				// 	if ( auidCmp( ParamDef, &AAFParameterDef_Level ) )
-				// 		break;
-				// }
-	            //
-				// if ( Param == NULL )
-				// 	_fatal( "Could not retrieve Parameter Object.\n" );
-
-
-				parse_Parameter( aafi, Param );
-
-			}
-		}
-		else if ( auidCmp( OperationIdentification, &AAFOperationDef_TwoParameterMonoAudioDissolve ) )
-		{
-			/*
-			 *	Two Parameters Mono Audio Dissolve
-			 *
-			 *	Two distinct parameters are used for outgoing and incoming fades.
-			 */
-
-			trace_obj( aafi, OpGroup , ANSI_COLOR_RED);
-			_warning( "AAFOperationDef_TwoParameterMonoAudioDissolve not supported yet.\n" );
-
-			// Trans->flags |= AAFI_TRANS_TWO_CURVE;
-		}
-		else if ( auidCmp( OperationIdentification, &AAFOperationDef_StereoAudioDissolve ) )
-		{
-			/*
-			 *	Stereo Audio Dissolve
-			 *
-			 *	TODO Unknown usage and implementation
-			 */
-
-			trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
-			_warning( "AAFOperationDef_StereoAudioDissolve not supported yet.\n" );
-		}
-		else
-		{
-			trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
-		}
-	}
-	else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioPan ) )
-	{
-		/*
-		 *	Mono Audio Pan (Track Pan)
-		 *
-		 *	TODO : Only Track-based
-		 */
-
-		trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
-		_warning( "AAFOperationDef_MonoAudioPan not supported yet.\n" );
-
-		return;
-	}
-	else if ( auidCmp( OperationIdentification, &AAFOperationDef_AudioChannelCombiner ) )
-	{
-		trace_obj( aafi, OpGroup, ANSI_COLOR_MAGENTA );
-
-		/**************************************************************************************/
-
-		// printObjectProperties( aafi->aafd, OpGroup );
-
-		aafi->ctx.current_track_is_multichannel = 1;
-		aafi->ctx.current_multichannel_track_channel = 0;
-
-
-		aafObject *InputSegments = aaf_get_propertyValue( OpGroup, PID_OperationGroup_InputSegments );
-		aafObject *InputSegment  = NULL;
-
-		aaf_foreach_ObjectInSet( &InputSegment, InputSegments, NULL )
-		{
-			// printObjectProperties( aafi->aafd, InputSegment );
-
-			parse_Segment( aafi, InputSegment );
-
-			aafi->ctx.current_multichannel_track_channel++;
-		}
-
-
-		/*
-		 *	Sets the track format.
-		 */
-
-		if ( aafi->ctx.current_multichannel_track_channel == 2 )
-		{
-			aafi->ctx.current_track->format = AAFI_TRACK_FORMAT_STEREO;
-		}
-		else if ( aafi->ctx.current_multichannel_track_channel == 6 )
-		{
-			aafi->ctx.current_track->format = AAFI_TRACK_FORMAT_5_1;
-		}
-		else if ( aafi->ctx.current_multichannel_track_channel == 8 )
-		{
-			aafi->ctx.current_track->format = AAFI_TRACK_FORMAT_7_1;
-		}
-
-
-		/*
-		 *	Update the current position.
-		 */
-
-		aafi->ctx.current_pos += aafi->ctx.current_multichannel_track_clip_length;
-
-
-		/*
-		 *	Reset multichannel track context.
-		 */
-
-		aafi->ctx.current_multichannel_track_channel = 0;
-		aafi->ctx.current_track_is_multichannel = 0;
-
-		/**************************************************************************************/
-
-		return;
-	}
-
-	/* TODO else if () */
-	else
-	{
-		aafiAudioGain *Gain = calloc( sizeof(aafiAudioGain), sizeof(unsigned char) );
-
-		aafi->ctx.current_gain = Gain;
-
-
-		if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioGain ) )
-		{
-
-			aafObject *Parameters = aaf_get_propertyValue( OpGroup, PID_OperationGroup_Parameters );
-			aafObject *Parameter  = NULL;
-
-			if ( Parameters == NULL )
-				_fatal( "Could not retrieve Amplitude Parameter.\n" );
-
-			/*
-			 *	Retrieves the Amplitude Parameter
-			 *
-			 *	We have to loop because of custom Parameters.
-			 *	Seen in AVID Media Composer AAFs.
-			 */
-
-			aaf_foreach_ObjectInSet( &Parameter, Parameters, NULL )
-			{
-				aafUID_t *paramDef = aaf_get_propertyValue( Parameter, PID_Parameter_Definition );
-
-				// printf("ParamDef %s (%s)\n\n", ParameterToText(paramDef), printUID(paramDef) );
-
-				if ( auidCmp( paramDef, &AAFParameterDef_Amplitude ) )
-					break;
-			}
-
-			if ( Parameter == NULL )
-				_fatal( "Could not retrieve Amplitude Parameter.\n" );
-
-			parse_Parameter( aafi, Parameter );
-
-		}
-		else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioMixdown ) )
-		{
-
-			/*
-			 *	Mono Audio Mixdown
-			 *
-			 *	TODO Unknown usage and implementation
-			 */
-
-			trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
-			_warning( "AAFOperationDef_MonoAudioMixdown not supported yet.\n" );
-
-		}
-		else if ( auidCmp( OperationIdentification, &AAFOperationDef_StereoAudioGain ) )
-		{
-
-			/*
-			 *	Stereo Audio Gain
-			 *
-			 *	TODO Unknown usage and implementation
-			 */
-
-			trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
-			_warning( "AAFOperationDef_StereoAudioGain not supported yet.\n" );
-
-		}
-		else
-		{
-			trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
-			return;
-		}
-
-
-		/*
-		 *	Parses each SourceClip in the OperationGroup::InputSegments and apply gain
-		 */
-
-
-		aafObject *InputSegments = aaf_get_propertyValue( OpGroup, PID_OperationGroup_InputSegments );
-		aafObject *InputSegment  = NULL;
-
-		// TODO : Shall have one input if MonoAudioGain.
-
-		aaf_foreach_ObjectInSet( &InputSegment, InputSegments, NULL )
-		{
-
-			if ( auidCmp( InputSegment->Class->ID, &AAFClassID_SourceClip) == 0 )
-			{
-				continue;
-			}
-
-			aafiAudioClip *audioClip = (aafiAudioClip*)parse_SourceClip( aafi, InputSegment );
-
-			audioClip->gain = Gain;
-		}
-	}
-
-}
-
-
-
-
-
-static void parse_Transition( AAF_Iface *aafi, aafObject *Transition )
-{
-
-	// printObjectProperties( aafi->aafd, Transition );
-	// printf("\n\n" );
-
-
-
-	int64_t *length = aaf_get_propertyValue( Transition, PID_Component_Length );
-
-	if ( length == NULL )
-		_fatal( "Missing Filler Component::Length.\n" );
-
-	aafi->ctx.current_pos += *length;
-
-
-
-
-
-	aafiTimelineItem *Item  = aafi_newTimelineItem( aafi->ctx.current_track, AAFI_TRANS );
-	aafiTransition   *Trans = (aafiTransition*)&Item->data;
-
-	aafi->ctx.current_transition = Trans;
-
-
-	/* Set transition type */
-
-	if ( Transition->prev != NULL && auidCmp( Transition->prev->Class->ID, &AAFClassID_Filler ) )
-	{
-		Trans->flags |= AAFI_TRANS_FADE_IN;
-	}
-	else if ( Transition->next != NULL && auidCmp( Transition->next->Class->ID, &AAFClassID_Filler ) )
-	{
-		Trans->flags |= AAFI_TRANS_FADE_OUT;
-	}
-	else if ( Transition->next != NULL && auidCmp( Transition->next->Class->ID, &AAFClassID_Filler ) == 0 &&
-	          Transition->prev != NULL && auidCmp( Transition->prev->Class->ID, &AAFClassID_Filler ) == 0 )
-	{
-		Trans->flags |= AAFI_TRANS_XFADE;
-	}
-
-
-
-	aafPosition_t *cut_point = aaf_get_propertyValue( Transition, PID_Transition_CutPoint );
-
-	if ( cut_point == NULL )
-		_fatal( "Missing Transition::CutPoint.\n" );
-
-	Trans->cut_pt = *cut_point;
-
-
-
-	aafObject * OpGroup = aaf_get_propertyValue( Transition, PID_Transition_OperationGroup );
-
-	if ( OpGroup == NULL )
-		_fatal( "Missing Transition::OperationGroup.\n" );
-
-	parse_OperationGroup( aafi, OpGroup );
-
-}
 
 
 
@@ -2592,25 +2588,18 @@ int aafi_retrieveData( AAF_Iface *aafi )
 	/*
 	 *	Loop through CompositionMobs
 	 *
-	 *	There should be only one, since a CompositionMob
-	 *	represents the overall composition (i.e project).
-	 *	Observations on files confirm that.
+	 *	There should be only one, since a CompositionMob represents the overall
+	 *	composition (i.e project). Observations on files confirm that.
 	 *
-	 *	However, the AAF Edit Protocol says that there could be
-	 *	multiple CompositionMobs (Mob::UsageCode TopLevel), containing
-	 *	other CompositionMobs (Mob::UsageCode LowerLevel). This was
-	 *	never encountered for now.
+	 *	However, the AAF Edit Protocol says that there could be multiple CompositionMobs
+	 *	(Mob::UsageCode TopLevel), containing other CompositionMobs (Mob::UsageCode LowerLevel).
+	 *	This was never encountered for now.
 	 *
 	 *	TODO implement fallback
 	 */
 
 	aaf_foreach_ObjectInSet( &(aafi->ctx.Mob), aafi->aafd->Mobs, NULL )
 	{
-		// 	printf("\n");
-		// 	printf("Object  : %s\n", aaf_get_ObjectPath( aafi->ctx.Mob ) );
-		// 	printf("ClassID : %s\n", ClassIDToText( aafi->aafd, aafi->ctx.Mob->Class->ID ) );
-		// 	printf("MobName : %s\n", aaf_get_propertyValueText( aafi->ctx.Mob, PID_Mob_Name ) );
-		// 	printf("\n");
 
 		if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_CompositionMob ) )
 		{
