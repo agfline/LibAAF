@@ -693,7 +693,7 @@ uint64_t cfb_getStream( CFB_Data *cfbd, cfbNode *node, unsigned char **stream, u
 //		return;
 
 
-	uint64_t stream_len = getNodeStreamLen( cfbd, node );  //node->_ulSizeLow;
+	uint64_t stream_len = cfb_getNodeStreamLen( cfbd, node );  //node->_ulSizeLow;
 
 
 	*stream    = malloc( stream_len );
