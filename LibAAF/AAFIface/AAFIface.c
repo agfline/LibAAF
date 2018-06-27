@@ -229,35 +229,27 @@ int extractAudioEssence( AAF_Iface *aafi, aafiAudioEssence *audioEssence, const 
 	// aafByte_t *audioBuf = malloc( 512 * 4096 ); // 2 097 152 bytes
 	// size_t     audioBuf_len = 0;
 	// size_t i = 0;
-    //
-	aafiEssenceDataNode *node = audioEssence->node;
 
-	// for ( node = audioEssence->nodes; node != NULL; node = node->next )
-	// {
-		/* TODO multiple aafiEssenceDataNode ???? */
+	cfb_foreachSectorInStream( aafi->aafd->cfbd, audioEssence->node, &nodeBuf, &len, &id )
+	{
 
-		cfb_foreachSectorInStream( aafi->aafd->cfbd, node->node, &nodeBuf, &len, &id )
+		if ( audioEssence->type == AAFI_TYPE_AIFC )
 		{
+			size_t i = 0;
 
-			if ( audioEssence->type == AAFI_TYPE_AIFC )
+			for( i = 0; i < len; i += 2 )
 			{
-				size_t i = 0;
-
-				for( i = 0; i < len; i += 2 )
-				{
-					swap( nodeBuf, i, i+1 );
-				}
+				swap( nodeBuf, i, i+1 );
 			}
-
-			fwrite( nodeBuf, sizeof(aafByte_t), len, fp );
-
-			// i++;
 		}
 
-		if ( nodeBuf )
-			free( nodeBuf );
+		fwrite( nodeBuf, sizeof(aafByte_t), len, fp );
 
-	// }
+		// i++;
+	}
+
+	if ( nodeBuf )
+		free( nodeBuf );
 
 	// save filename
 	audioEssence->source_file = malloc( strlen( file ) + 2 );
@@ -671,73 +663,10 @@ void aafi_freeAudioEssences( aafiAudioEssence **audioEssence )
 			free( (*audioEssence)->file_name );
 		}
 
-		if ( (*audioEssence)->node != NULL )
-		{
-			aafi_freeEssenceDataNode( &((*audioEssence)->node) );
-		}
-
 		free( *audioEssence );
 	}
 
 	*audioEssence = NULL;
-}
-
-
-
-
-
-
-
-
-aafiEssenceDataNode * aafi_newEssenceDataNode( aafiAudioEssence *audioEssence )
-{
-	aafiEssenceDataNode *dataNode = calloc( sizeof(aafiEssenceDataNode), sizeof(char) );
-
-	if ( dataNode == NULL )
-		_fatal( "%s.\n", strerror( errno ) );
-
-	/*
-	 *	Add to audio essence's nodes list
-	 */
-
-	// aafiEssenceDataNode *tmp = audioEssence->nodes;
-    //
-	// if ( tmp != NULL )
-	// {
-	// 	for (; tmp != NULL; tmp = tmp->next )
-	// 		if ( tmp->next == NULL )
-	// 			break;
-    //
-	// 	tmp->next = dataNode;
-	// }
-	// else
-
-	audioEssence->node = dataNode;
-
-
-	return dataNode;
-}
-
-
-
-
-void aafi_freeEssenceDataNode( aafiEssenceDataNode **node )
-{
-	if ( node == NULL || *node == NULL )
-	{
-		return;
-	}
-
-	free( *node );
-
-	*node = NULL;
-	// aafiEssenceDataNode *nextNode = NULL;
-
-	// for ( node = (*nodes); node != NULL; node = nextNode )
-	// {
-	//		nextNode = node->next;
-
-	// }
 }
 
 

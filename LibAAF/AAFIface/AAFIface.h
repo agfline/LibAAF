@@ -271,22 +271,6 @@ typedef struct aafiAudioGain
 
 
 
-/**
- *	This structure makes a linked list of CFB Nodes. It is used to store the (potential)
- *	multiple nodes that compose a Data bit Stream.
- *
- *	NOTE There is no such list. Each essence is represented by only one EssenceData which
- *	points to the first cfbNode of the data stream.
- */
-
-typedef struct aafiEssenceDataNode
-{
-	cfbNode                    *node;
-	// struct aafiEssenceDataNode *next;
-
-} aafiEssenceDataNode;
-
-
 typedef struct aafiAudioEssence
 {
 
@@ -301,8 +285,7 @@ typedef struct aafiAudioEssence
 
 
 	// This can be tested to check if essence is embedded or not.
-
-	aafiEssenceDataNode *node;
+	cfbNode     *node;
 
 
 	aafMobID_t  *sourceMobID;	// Holds the SourceMob Mob::ID references this EssenceData
@@ -696,9 +679,6 @@ void   aafi_freeTransition( aafiTransition *trans );
 aafiAudioEssence * aafi_newAudioEssence( AAF_Iface *aafi );
 void   aafi_freeAudioEssences( aafiAudioEssence **essences );
 
-
-aafiEssenceDataNode * aafi_newEssenceDataNode( aafiAudioEssence *audioEssence );
-void   aafi_freeEssenceDataNode( aafiEssenceDataNode **nodes );
 
 
 /**
