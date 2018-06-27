@@ -39,18 +39,13 @@
 #include <string.h>
 #include <errno.h>
 
-// #include <ctype.h>	// isxdigit()
-
-//#include <math.h>	// log10() for gain calc
-
 #include "../libAAF.h"
+#include "../common/debug.h"
 
 #include "thirdparty/libriff.h"
 #include "thirdparty/libwav.h"
 
-#include "../common/debug.h"
 
-#include "AAFIParser.h"
 
 
 
@@ -81,7 +76,9 @@ static void   parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 static void   parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor );
 static void   parse_WAVEDescriptor( AAF_Iface *aafi, aafObject *WAVEDescriptor );
 static void   parse_AIFCDescriptor( AAF_Iface *aafi, aafObject *AIFCDescriptor );
+
 static void   parse_Locator( AAF_Iface *aafi, aafObject *Locator );
+static void   parse_NetworkLocator( AAF_Iface *aafi, aafObject *NetworkLocator );
 
 
 static void   retrieve_EssenceData( AAF_Iface *aafi );
@@ -454,12 +451,11 @@ static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 
 		_warning( "No support for AAFClassID_SoundDescriptor." );
 
+		// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, EssenceDesc );
+		// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
+
 		// printObjectProperties( aafi->aafd, EssenceDesc );
 
-
-		// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, EssenceDesc );
-
-		// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
 	}
 	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_AES3PCMDescriptor ) )
 	{
@@ -472,20 +468,16 @@ static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 
 		_warning( "No support for AAFClassID_AES3PCMDescriptor." );
 
-		printObjectProperties( aafi->aafd, EssenceDesc );
-
-
 		// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, EssenceDesc );
-
 		// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
+
+		printObjectProperties( aafi->aafd, EssenceDesc );
 
 	}
 	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_MultipleDescriptor ) )
 	{
 
 		/*
-		 *	Yet another thing missing from the specs... no, realy. thank you guys.
-		 *
 		 *	A MultipleDescriptor contains a vector of FileDescriptor objects and is
 		 *	used when the file source consists of multiple tracks of essence (e.g MXF).
 		 *	Each essence track is described by a MobSlots object in the SourceMob and a
@@ -498,16 +490,24 @@ static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 
 		_warning( "MultipleDescriptor not supported yet.\n\n" );
 
+		// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, EssenceDesc );
+		// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
+
 		printObjectProperties( aafi->aafd, EssenceDesc );
 
 	}
 	else
 	{
+
 		trace_obj( aafi, EssenceDesc, ANSI_COLOR_RED );
 
 		_warning( "Unsupported (yet ?) ClassID : %s\n", ClassIDToText( aafi->aafd, EssenceDesc->Class->ID ) );
 
+		aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, EssenceDesc );
+		printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
+
 		printObjectProperties( aafi->aafd, EssenceDesc );
+
 	}
 
 
@@ -652,7 +652,7 @@ static void parse_AIFCDescriptor( AAF_Iface *aafi, aafObject *AIFCDescriptor )
 
 
 /*
-		         Locator
+		         Locator (abs)
 		            |
 		    ,---------------.
 		    |               |
@@ -663,25 +663,10 @@ static void parse_AIFCDescriptor( AAF_Iface *aafi, aafObject *AIFCDescriptor )
 static void parse_Locator( AAF_Iface *aafi, aafObject *Locator )
 {
 
-	trace_obj( aafi, Locator, ANSI_COLOR_MAGENTA );
-
-	aafiAudioEssence *audioEssence = aafi->ctx.current_audioEssence;
-
-
 	if ( auidCmp( Locator->Class->ID, &AAFClassID_NetworkLocator ) )
 	{
-		/*
-		 *	This holds an URI pointing to the essence file, when it is not embedded.
-		 *	However, sometimes it holds an URI to the AAF file itself when essence is
-		 *	embedded so it is not a valid way to test if essence is embedded or not.
-		 */
 
-		audioEssence->original_file = aaf_get_propertyValueText( Locator, PID_NetworkLocator_URLString );
-
-		if ( audioEssence->original_file == NULL )
-			_warning( "Missing Locator::PID_NetworkLocator_URLString.\n" );
-
-		url_decode( audioEssence->original_file, audioEssence->original_file );
+		parse_NetworkLocator( aafi, Locator );
 
 	}
 	else if ( auidCmp( Locator->Class->ID, &AAFClassID_TextLocator ) )
@@ -696,10 +681,43 @@ static void parse_Locator( AAF_Iface *aafi, aafObject *Locator )
 		 *       never encountered anyway..
 		 */
 
+		trace_obj( aafi, Locator, ANSI_COLOR_RED );
+
 		_warning( "Got an AAFClassID_TextLocator : \"%s\"\n", aaf_get_propertyValueText( Locator, PID_TextLocator_Name ) );
 
 	}
+	else
+	{
 
+		trace_obj( aafi, Locator, ANSI_COLOR_RED );
+
+	}
+
+}
+
+
+
+
+static void parse_NetworkLocator( AAF_Iface *aafi, aafObject *NetworkLocator )
+{
+	/*
+	 *	This holds an URI pointing to the essence file, when it is not embedded.
+	 *	However, sometimes it holds an URI to the AAF file itself when essence is
+	 *	embedded so it is not a valid way to test if essence is embedded or not.
+	 */
+
+	trace_obj( aafi, NetworkLocator, ANSI_COLOR_MAGENTA );
+
+
+	aafiAudioEssence *audioEssence = aafi->ctx.current_audioEssence;
+
+
+	audioEssence->original_file = aaf_get_propertyValueText( NetworkLocator, PID_NetworkLocator_URLString );
+
+	if ( audioEssence->original_file == NULL )
+		_warning( "Missing NetworkLocator::PID_NetworkLocator_URLString.\n" );
+
+	url_decode( audioEssence->original_file, audioEssence->original_file );
 }
 
 
