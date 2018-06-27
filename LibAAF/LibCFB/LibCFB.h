@@ -772,7 +772,7 @@ typedef struct CFB_Data
  *	When 512 bytes sectors we don't care about _ulSizeHigh.
  */
 
-#define getNodeStreamLen( cfbd, node )                                           \
+#define cfb_getNodeStreamLen( cfbd, node )                                           \
 	( cfbd->hdr->_uSectorShift > 9 ) ?                                           \
 	(uint64_t)(( (uint64_t)(node->_ulSizeHigh) << 32 ) | ( node->_ulSizeLow )) : \
 	node->_ulSizeLow;
