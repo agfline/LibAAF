@@ -870,16 +870,16 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 
 	if ( csectDif != cfbd->hdr->_csectDif )
 	{
-		cfbd->hdr->_csectDif = csectDif;
+		_warning( "cfbd->hdr->_csectDif value seems wrong (%u). Correcting from cfbd->hdr->_csectFat.\n", cfbd->hdr->_csectDif );
 
-		_warning("cfbd->hdr->_csectDif value seems wrong. Correcting from cfbd->hdr->_csectFat.\n");
+		cfbd->hdr->_csectDif = csectDif;
 	}
 
 	if ( csectDif == 0 && cfbd->hdr->_sectDifStart != CFB_END_OF_CHAIN )
 	{
-		cfbd->hdr->_sectDifStart = CFB_END_OF_CHAIN;
+		_warning( "cfbd->hdr->_sectDifStart is 0x%08x (%u) but should be CFB_END_OF_CHAIN. Correcting.\n", cfbd->hdr->_sectDifStart, cfbd->hdr->_sectDifStart );
 
-		_warning("cfbd->hdr->_sectDifStart should be CFB_END_OF_CHAIN. Correcting.\n");
+		cfbd->hdr->_sectDifStart = CFB_END_OF_CHAIN;
 	}
 
 
@@ -1718,6 +1718,13 @@ void cfb_printNode( cfbNode *node, const char * (*clsidToText)( cfbCLSID_t * ) )
 
 void cfb_printStream( unsigned char * stream, size_t stream_sz )
 {
+	if ( stream == NULL )
+	{
+		_warning( "Stream pointer is NULL.\n" );
+		return;
+	}
+
+
 	uint32_t i = 0;
 
 	char hex[48];
