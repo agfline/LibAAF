@@ -14,7 +14,7 @@ BINDIR = ./bin
 
 
 
-all: libAAF tools doc
+all: libAAF tools
 
 
 
@@ -31,5 +31,3 @@ doc:
 clean:
 	-rm -f $(OBJDIR)/*.o $(OBJDIR)/*.a $(BINDIR)/AAFExtract $(BINDIR)/AAFInfo $(BINDIR)/AAF2Ardour
 	@echo
-
-
