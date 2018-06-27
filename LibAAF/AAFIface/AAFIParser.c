@@ -552,14 +552,50 @@ static void parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor )
 
 	audioEssence->type            = AAFI_TYPE_PCM;
 
-	audioEssence->wFormatTag      =  0x0001;	// PCM
-	audioEssence->nChannels       = *(uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_SoundDescriptor_Channels         );
-	audioEssence->nSamplesPerSec  = *(uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_FileDescriptor_SampleRate        );
-	audioEssence->nAvgBytesPerSec = *(uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_PCMDescriptor_AverageBPS         );
-	audioEssence->nBlockAlign     = *(uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_PCMDescriptor_BlockAlign         );
-	audioEssence->wBitsPerSample  = *(uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_SoundDescriptor_QuantizationBits );
 
-	/* TODO parse the rest of the class, error checking */
+	audioEssence->wFormatTag      =  0x0001;	// PCM
+
+
+	uint32_t *nChannels = (uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_SoundDescriptor_Channels );
+
+	if ( nChannels == NULL )
+		_fatal( "Missing PCMDescriptor::PID_SoundDescriptor_Channels.\n" );
+
+	audioEssence->nChannels       = *nChannels;
+
+
+	uint32_t *nSamplesPerSec = (uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_FileDescriptor_SampleRate );
+
+	if ( nSamplesPerSec == NULL )
+		_fatal( "Missing PCMDescriptor::PID_FileDescriptor_SampleRate.\n" );
+
+	audioEssence->nSamplesPerSec  = *nSamplesPerSec;
+
+
+	uint32_t *nAvgBytesPerSec = (uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_PCMDescriptor_AverageBPS );
+
+	if ( nAvgBytesPerSec == NULL )
+		_fatal( "Missing PCMDescriptor::PID_PCMDescriptor_AverageBPS.\n" );
+
+	audioEssence->nAvgBytesPerSec = *nAvgBytesPerSec;
+
+
+	uint32_t *nBlockAlign = (uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_PCMDescriptor_BlockAlign );
+
+	if ( nBlockAlign == NULL )
+		_fatal( "Missing PCMDescriptor::PID_PCMDescriptor_BlockAlign.\n" );
+
+	audioEssence->nBlockAlign     = *nBlockAlign;
+
+
+	uint32_t *wBitsPerSample = (uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_SoundDescriptor_QuantizationBits );
+
+	if ( wBitsPerSample == NULL )
+		_fatal( "Missing PCMDescriptor::PID_SoundDescriptor_QuantizationBits.\n" );
+
+	audioEssence->wBitsPerSample  = *wBitsPerSample;
+
+	/* TODO parse the rest of the class */
 
 	// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, PCMDescriptor );
 
