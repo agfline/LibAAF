@@ -3,11 +3,11 @@
 
 #include "AAFCore/AAFClass.h"
 #include "AAFCore/AAFCore.h"
-//#include "AAFCore/AAFNavigation.h"
 #include "AAFCore/AAFUtils.h"
 #include "AAFCore/AAFToText.h"
 
 #include "AAFIface/AAFIface.h"
+#include "AAFIface/AAFIParser.h"
 
 #include "AAFCore/AAFDefs/AAFClassDefUIDs.h"
 #include "AAFCore/AAFDefs/AAFTypeDefUIDs.h"

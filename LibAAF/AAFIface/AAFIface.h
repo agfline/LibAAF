@@ -37,6 +37,7 @@
 #include "../AAFCore/AAFTypes.h"
 #include "../AAFCore/AAFClass.h"
 
+
 #define AAFI_TYPE_PCM		0x01
 #define AAFI_TYPE_WAVE		0x02
 #define AAFI_TYPE_AIFC		0x03
@@ -670,6 +671,7 @@ void aafi_release( AAF_Iface **aafi );
 
 int aafi_load_file( AAF_Iface *aafi, const char * file );
 
+
 char * aafi_get_essence_filename( aafiAudioEssence *audioEssence, char **filename, char *fb_str, uint32_t *fb_num );
 
 aafiTransition * get_fadein( aafiTimelineItem *audioItem );
@@ -677,10 +679,27 @@ aafiTransition * get_fadein( aafiTimelineItem *audioItem );
 aafiTransition * get_fadeout( aafiTimelineItem *audioItem );
 
 
-
 int extractAudioEssence( AAF_Iface *aafi, aafiAudioEssence *aafiae, const char *file );
-// int retrieveEssences( AAF_Iface *aafi );
-int aafi_retrieveData( AAF_Iface *aafi );
+
+
+aafiAudioTrack * aafi_newAudioTrack( AAF_Iface *aafi, aafObject *MobSlot, uint32_t number );
+void   aafi_freeAudioTracks( aafiAudioTrack **tracks );
+
+
+aafiTimelineItem * aafi_newTimelineItem( aafiAudioTrack *track, int itemType );
+void   aafi_freeTimelineItems( aafiTimelineItem **items );
+
+
+void   aafi_freeTransition( aafiTransition *trans );
+
+
+aafiAudioEssence * aafi_newAudioEssence( AAF_Iface *aafi );
+void   aafi_freeAudioEssences( aafiAudioEssence **essences );
+
+
+aafiEssenceDataNode * aafi_newEssenceDataNode( aafiAudioEssence *audioEssence );
+void   aafi_freeEssenceDataNode( aafiEssenceDataNode **nodes );
+
 
 /**
  *	@}
