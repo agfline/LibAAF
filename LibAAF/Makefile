@@ -97,9 +97,9 @@ AAFIface/AAFIface.o: AAFCore/AAFDefs/AAFDataDefs.h
 AAFIface/AAFIface.o: AAFCore/AAFDefs/AAFOperationDefs.h
 AAFIface/AAFIface.o: AAFCore/AAFDefs/AAFParameterDefs.h
 AAFIface/AAFIface.o: AAFCore/AAFDefs/AAFInterpolatorDefs.h
-AAFIface/AAFIface.o: AAFCore/AAFDefs/AAFContainerDefs.h
+AAFIface/AAFIface.o: AAFCore/AAFDefs/AAFContainerDefs.h common/debug.h
 AAFIface/AAFIface.o: AAFIface/thirdparty/libriff.h
-AAFIface/AAFIface.o: AAFIface/thirdparty/libwav.h common/debug.h
+AAFIface/AAFIface.o: AAFIface/thirdparty/libwav.h
 AAFIface/AAFIParser.o: libAAF.h AAFCore/AAFClass.h AAFCore/AAFTypes.h
 AAFIface/AAFIParser.o: LibCFB/LibCFB.h LibCFB/CFBTypes.h AAFCore/AAFCore.h
 AAFIface/AAFIParser.o: AAFCore/AAFCore.h AAFCore/AAFUtils.h
@@ -114,10 +114,9 @@ AAFIface/AAFIParser.o: AAFCore/AAFDefs/AAFDataDefs.h
 AAFIface/AAFIParser.o: AAFCore/AAFDefs/AAFOperationDefs.h
 AAFIface/AAFIParser.o: AAFCore/AAFDefs/AAFParameterDefs.h
 AAFIface/AAFIParser.o: AAFCore/AAFDefs/AAFInterpolatorDefs.h
-AAFIface/AAFIParser.o: AAFCore/AAFDefs/AAFContainerDefs.h
+AAFIface/AAFIParser.o: AAFCore/AAFDefs/AAFContainerDefs.h common/debug.h
 AAFIface/AAFIParser.o: AAFIface/thirdparty/libriff.h
-AAFIface/AAFIParser.o: AAFIface/thirdparty/libwav.h common/debug.h
-AAFIface/AAFIParser.o: AAFIface/AAFIParser.h
+AAFIface/AAFIParser.o: AAFIface/thirdparty/libwav.h
 AAFIface/thirdparty/libbext.o: AAFIface/thirdparty/libbext.h
 AAFIface/thirdparty/libriff.o: AAFIface/thirdparty/libriff.h
 AAFIface/thirdparty/libwav.o: AAFIface/thirdparty/libriff.h
