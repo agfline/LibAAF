@@ -88,6 +88,10 @@ static void   parse_Sequence( AAF_Iface *aafi, aafObject *Sequence );
 static void   parse_Filler( AAF_Iface *aafi, aafObject *Filler );
 
 static void   parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc );
+static void   parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor );
+static void   parse_WAVEDescriptor( AAF_Iface *aafi, aafObject *WAVEDescriptor );
+static void   parse_AIFCDescriptor( AAF_Iface *aafi, aafObject *AIFCDescriptor );
+
 
 static void   retrieve_EssenceData( AAF_Iface *aafi );
 
@@ -1169,101 +1173,29 @@ aafUID_t * get_Parameter_InterpolationIdentification( AAF_Iface *aafi, aafObject
 						|--> PhysicalDescriptor
 						`--> TapeDescriptor
 
-
-	TODO : Split it out !
-
 ******************************************************************************
 ******************************************************************************/
 
 static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 {
 
-	aafiAudioEssence *audioEssence = aafi->ctx.current_audioEssence;
-
-
 	if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_PCMDescriptor ) )
 	{
-		trace_obj( aafi, EssenceDesc, ANSI_COLOR_MAGENTA );
 
-		audioEssence->type            = AAFI_TYPE_PCM;
+		parse_PCMDescriptor( aafi, EssenceDesc );
 
-		audioEssence->wFormatTag      =  0x0001;	// PCM
-		audioEssence->nChannels       = *(uint32_t*)aaf_get_propertyValue( EssenceDesc, PID_SoundDescriptor_Channels         );
-		audioEssence->nSamplesPerSec  = *(uint32_t*)aaf_get_propertyValue( EssenceDesc, PID_FileDescriptor_SampleRate        );
-		audioEssence->nAvgBytesPerSec = *(uint32_t*)aaf_get_propertyValue( EssenceDesc, PID_PCMDescriptor_AverageBPS         );
-		audioEssence->nBlockAlign     = *(uint32_t*)aaf_get_propertyValue( EssenceDesc, PID_PCMDescriptor_BlockAlign         );
-		audioEssence->wBitsPerSample  = *(uint32_t*)aaf_get_propertyValue( EssenceDesc, PID_SoundDescriptor_QuantizationBits );
-
-
-		// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, EssenceDesc );
-
-		// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
 	}
 	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_WAVEDescriptor ) )
 	{
 
-		trace_obj( aafi, EssenceDesc, ANSI_COLOR_MAGENTA );
+		parse_WAVEDescriptor( aafi, EssenceDesc );
 
-		audioEssence->type = AAFI_TYPE_WAVE;
-
-
-		aafProperty *summary = aaf_get_property( EssenceDesc, PID_WAVEDescriptor_Summary );
-
-		if ( summary == NULL )
-			_fatal( "Missing WAVEDescriptor::Summary.\n" );
-
-		struct chunk *cklist = get_riff_chunk_list( summary->val, summary->len );
-
-		struct chunk *ckfmt  = get_riff_chunk_by_id( cklist, "fmt " );
-
-		struct fmt   *fmtck  = (struct fmt*)(ckfmt->bytes - RIFF_CK_HEADER_SZ);
-
-		audioEssence->wFormatTag = fmtck->format_tag;
-		audioEssence->nChannels  = fmtck->channels;
-		audioEssence->nSamplesPerSec = fmtck->samples_per_sec;
-		audioEssence->nAvgBytesPerSec = fmtck->avg_bytes_per_sec;
-		audioEssence->nBlockAlign = fmtck->block_align;
-		audioEssence->wBitsPerSample = fmtck->bits_per_sample;
-
-		free_riff_chunk_list( &cklist );
-
-		/*
-		 *	The summary should end with the data chunk header, so the last 4 bytes are for
-		 *	data chunk size, that is audio length in bytes.
-		 *	NOTE this should match the EssenceData stream size
-		 */
-
-		audioEssence->length = *(uint32_t*)(summary->val + (summary->len - 4));
-
-
-		// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, EssenceDesc );
-
-		// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
 	}
 	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_AIFCDescriptor ) )
 	{
 
-		trace_obj( aafi, EssenceDesc, ANSI_COLOR_MAGENTA );
+		parse_AIFCDescriptor( aafi, EssenceDesc );
 
-		audioEssence->type = AAFI_TYPE_AIFC;
-
-
-		/* TODO This is proof of concept : do it with proper lib */
-
-		aafProperty *summary = aaf_get_property( EssenceDesc, PID_AIFCDescriptor_Summary );
-
-
-		audioEssence->wFormatTag      = 0x0001; // PCM
-		audioEssence->nChannels       = Reverse16( *(uint16_t*)(summary->val+20) );
-		audioEssence->nSamplesPerSec  = getAIFCSampleRate( (unsigned char*)(summary->val+28) );
-		audioEssence->wBitsPerSample  = Reverse16( *(uint16_t*)(summary->val+26) );
-		audioEssence->nBlockAlign     = audioEssence->nChannels * audioEssence->wBitsPerSample / 8;
-		audioEssence->nAvgBytesPerSec = audioEssence->nSamplesPerSec * audioEssence->nBlockAlign;
-
-
-		// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, EssenceDesc );
-
-		// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
 	}
 	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_SoundDescriptor ) )
 	{
@@ -1361,7 +1293,106 @@ static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 
 
 
+static void parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor )
+{
+	trace_obj( aafi, PCMDescriptor, ANSI_COLOR_MAGENTA );
 
+
+	aafiAudioEssence *audioEssence = aafi->ctx.current_audioEssence;
+
+	audioEssence->type            = AAFI_TYPE_PCM;
+
+	audioEssence->wFormatTag      =  0x0001;	// PCM
+	audioEssence->nChannels       = *(uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_SoundDescriptor_Channels         );
+	audioEssence->nSamplesPerSec  = *(uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_FileDescriptor_SampleRate        );
+	audioEssence->nAvgBytesPerSec = *(uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_PCMDescriptor_AverageBPS         );
+	audioEssence->nBlockAlign     = *(uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_PCMDescriptor_BlockAlign         );
+	audioEssence->wBitsPerSample  = *(uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_SoundDescriptor_QuantizationBits );
+
+	/* TODO parse the rest of the class, error checking */
+
+	// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, PCMDescriptor );
+
+	// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
+}
+
+
+
+
+static void parse_WAVEDescriptor( AAF_Iface *aafi, aafObject *WAVEDescriptor )
+{
+	trace_obj( aafi, WAVEDescriptor, ANSI_COLOR_MAGENTA );
+
+
+	aafiAudioEssence *audioEssence = aafi->ctx.current_audioEssence;
+
+	audioEssence->type = AAFI_TYPE_WAVE;
+
+
+	aafProperty *summary = aaf_get_property( WAVEDescriptor, PID_WAVEDescriptor_Summary );
+
+	if ( summary == NULL )
+		_fatal( "Missing WAVEDescriptor::Summary.\n" );
+
+	struct chunk *cklist = get_riff_chunk_list( summary->val, summary->len );
+
+	struct chunk *ckfmt  = get_riff_chunk_by_id( cklist, "fmt " );
+
+	struct fmt   *fmtck  = (struct fmt*)(ckfmt->bytes - RIFF_CK_HEADER_SZ);
+
+	audioEssence->wFormatTag = fmtck->format_tag;
+	audioEssence->nChannels  = fmtck->channels;
+	audioEssence->nSamplesPerSec = fmtck->samples_per_sec;
+	audioEssence->nAvgBytesPerSec = fmtck->avg_bytes_per_sec;
+	audioEssence->nBlockAlign = fmtck->block_align;
+	audioEssence->wBitsPerSample = fmtck->bits_per_sample;
+
+	free_riff_chunk_list( &cklist );
+
+	/*
+	 *	The summary should end with the data chunk header, so the last 4 bytes are for
+	 *	data chunk size, that is audio length in bytes.
+	 *	NOTE this should match the EssenceData stream size
+	 */
+
+	audioEssence->length = *(uint32_t*)(summary->val + (summary->len - 4));
+
+
+	// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, WAVEDescriptor );
+
+	// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
+}
+
+
+
+
+static void parse_AIFCDescriptor( AAF_Iface *aafi, aafObject *AIFCDescriptor )
+{
+	trace_obj( aafi, AIFCDescriptor, ANSI_COLOR_MAGENTA );
+
+
+	aafiAudioEssence *audioEssence = aafi->ctx.current_audioEssence;
+
+	audioEssence->type = AAFI_TYPE_AIFC;
+
+
+	/* TODO This is proof of concept : do it with proper lib */
+
+	aafProperty *summary = aaf_get_property( AIFCDescriptor, PID_AIFCDescriptor_Summary );
+
+
+	audioEssence->wFormatTag      = 0x0001; // PCM
+	audioEssence->nChannels       = Reverse16( *(uint16_t*)(summary->val+20) );
+	audioEssence->nSamplesPerSec  = getAIFCSampleRate( (unsigned char*)(summary->val+28) );
+	audioEssence->wBitsPerSample  = Reverse16( *(uint16_t*)(summary->val+26) );
+	audioEssence->nBlockAlign     = audioEssence->nChannels * audioEssence->wBitsPerSample / 8;
+	audioEssence->nAvgBytesPerSec = audioEssence->nSamplesPerSec * audioEssence->nBlockAlign;
+
+
+	// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, AIFCDescriptor );
+
+	// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
+}
 
 
 
