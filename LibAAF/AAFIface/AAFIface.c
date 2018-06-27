@@ -43,16 +43,11 @@
 #include <string.h>
 #include <errno.h>
 
-// #include <ctype.h>	// isxdigit()
-
-//#include <math.h>	// log10() for gain calc
-
 #include "../libAAF.h"
+#include "../common/debug.h"
 
 #include "thirdparty/libriff.h"
 #include "thirdparty/libwav.h"
-
-#include "../common/debug.h"
 
 
 
