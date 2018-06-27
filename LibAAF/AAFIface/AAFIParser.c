@@ -61,16 +61,18 @@
 
 
 
+static void trace_obj( AAF_Iface *aafi, aafObject *Obj, char *color );
 
 
-static void   parse_Component( AAF_Iface *aafi, aafObject *Component );
-static void   parse_Transition( AAF_Iface *aafi, aafObject *Transition );
-static void   parse_Segment( AAF_Iface *aafi, aafObject *Segment );
-static void   parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup );
-static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip );
-static void   parse_Timecode( AAF_Iface *aafi, aafObject *Timecode );
-static void   parse_Sequence( AAF_Iface *aafi, aafObject *Sequence );
-static void   parse_Filler( AAF_Iface *aafi, aafObject *Filler );
+static aafUID_t  * get_Component_DataDefinition( AAF_Iface *aafi, aafObject *Component );
+static aafUID_t  * get_FileDescriptor_ContainerFormat( AAF_Iface *aafi, aafObject *FileDescriptor );
+static aafUID_t  * get_OperationGroup_OperationIdentification( AAF_Iface *aafi, aafObject *OperationGroup );
+static aafUID_t  * get_Parameter_InterpolationIdentification( AAF_Iface *aafi, aafObject *Parameter );
+
+static aafObject * get_EssenceData_By_MobID( AAF_Iface *aafi, aafMobID_t *MobID );
+
+static aafiAudioEssence * getEssenceBySourceMobID( AAF_Iface *aafi, aafMobID_t *sourceMobID );
+
 
 static void   parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc );
 static void   parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor );
@@ -80,19 +82,24 @@ static void   parse_AIFCDescriptor( AAF_Iface *aafi, aafObject *AIFCDescriptor )
 static void   parse_Locator( AAF_Iface *aafi, aafObject *Locator );
 static void   parse_NetworkLocator( AAF_Iface *aafi, aafObject *NetworkLocator );
 
-
 static void   retrieve_EssenceData( AAF_Iface *aafi );
+
+
+static void   parse_Component( AAF_Iface *aafi, aafObject *Component );
+static void   parse_Transition( AAF_Iface *aafi, aafObject *Transition );
+static void   parse_Segment( AAF_Iface *aafi, aafObject *Segment );
+static void   parse_Filler( AAF_Iface *aafi, aafObject *Filler );
+static void   parse_Sequence( AAF_Iface *aafi, aafObject *Sequence );
+static void   parse_Timecode( AAF_Iface *aafi, aafObject *Timecode );
+static void   parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup );
+static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip );
+
 
 static void   parse_Parameter( AAF_Iface *aafi, aafObject *Parameter );
 static void   parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue );
 static void   parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue );
 static int    retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRational_t *times[], aafRational_t *values[] );
 
-
-static aafUID_t * get_Component_DataDefinition( AAF_Iface *aafi, aafObject *Component );
-static aafUID_t * get_FileDescriptor_ContainerFormat( AAF_Iface *aafi, aafObject *FileDescriptor );
-static aafUID_t * get_OperationGroup_OperationIdentification( AAF_Iface *aafi, aafObject *OperationGroup );
-static aafUID_t * get_Parameter_InterpolationIdentification( AAF_Iface *aafi, aafObject *Parameter );
 
 
 
@@ -269,39 +276,12 @@ static aafUID_t * get_Parameter_InterpolationIdentification( AAF_Iface *aafi, aa
 
 
 
-
-
-
-
-cfbNode * getEssenceDataStreamNode( AAF_Data *aafd, aafObject *EssenceData )
-{
-
-	aafProperty *DataProp = aaf_get_property( EssenceData, PID_EssenceData_Data );
-
-
-	char DataNodeName[CFB_NODE_NAME_SZ];
-	utf16toa( DataNodeName, CFB_NODE_NAME_SZ, DataProp->val, DataProp->len );
-
-
-	char DataPath[CFB_PATH_NAME_SZ];
-	char *path = aaf_get_ObjectPath( EssenceData );
-
-	snprintf( DataPath, CFB_PATH_NAME_SZ, "/%s/%s", path, DataNodeName );
-
-	free( path );
-
-	cfbNode *DataNode = cfb_getNodeByPath( aafd->cfbd, DataPath, 0 );
-
-
-	return DataNode;
-}
-
-
-aafObject * getEssenceDataByMobID( aafObject *EssenceData, aafMobID_t *MobID )
+static aafObject * get_EssenceData_By_MobID( AAF_Iface *aafi, aafMobID_t *MobID )
 {
 	aafMobID_t *DataMobID = NULL;
+	aafObject  *EssenceData = NULL;
 
-	for (; EssenceData != NULL; EssenceData = EssenceData->next )
+	for ( EssenceData = aafi->aafd->EssenceData; EssenceData != NULL; EssenceData = EssenceData->next )
 	{
 		DataMobID = aaf_get_propertyValue( EssenceData, PID_EssenceData_MobID );
 
@@ -313,45 +293,40 @@ aafObject * getEssenceDataByMobID( aafObject *EssenceData, aafMobID_t *MobID )
 }
 
 
-static void retrieve_EssenceData( AAF_Iface *aafi )
+
+
+
+
+
+
+static aafiAudioEssence * getEssenceBySourceMobID( AAF_Iface *aafi, aafMobID_t *sourceMobID )
 {
-	aafiAudioEssence *audioEssence = aafi->ctx.current_audioEssence;
+	aafiAudioEssence * audioEssence = NULL;
 
-	/* Get EssenceData Object */
-	aafObject *EssenceData = getEssenceDataByMobID( aafi->aafd->EssenceData, aafi->ctx.current_audioEssence->sourceMobID );
 
-	if ( EssenceData == NULL )
+	for ( audioEssence = aafi->Audio->Essences; audioEssence != NULL; audioEssence = audioEssence->next )
 	{
-		/*
-		 *	It means essence is not embedded.
-		 */
-
-		return;
+		if ( mobIDCmp( audioEssence->masterMobID, sourceMobID ) )
+			break;
 	}
 
-	trace_obj( aafi, EssenceData, ANSI_COLOR_MAGENTA );
 
-
-	aafiEssenceDataNode *dataNode = aafi_newEssenceDataNode( audioEssence );
-
-
-	/* Get EssenceData Stream */
-	dataNode->node = getEssenceDataStreamNode( aafi->aafd, EssenceData );
-
-	if ( dataNode->node == NULL )
-		_fatal( "Could not retrieve Data Stream Node.\n" );
-
-
-	/* Retrieve data stream length */
-	uint64_t dataLen = getNodeStreamLen( aafi->aafd->cfbd, dataNode->node );
-
-	if ( dataLen == 0 )
-		_warning( "Got 0 Bytes data stream length.\n" );
-
-
-	// audioEssence->length += dataLen;
-	audioEssence->length = dataLen;
+	return audioEssence;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 inline uint16_t Reverse16( uint16_t value )
@@ -763,20 +738,67 @@ static void parse_NetworkLocator( AAF_Iface *aafi, aafObject *NetworkLocator )
 
 
 
-aafiAudioEssence * getEssenceBySourceMobID( AAF_Iface *aafi, aafMobID_t *sourceMobID )
+static void retrieve_EssenceData( AAF_Iface *aafi )
 {
-	aafiAudioEssence * audioEssence = NULL;
+
+	aafiAudioEssence *audioEssence = aafi->ctx.current_audioEssence;
 
 
-	for ( audioEssence = aafi->Audio->Essences; audioEssence != NULL; audioEssence = audioEssence->next )
+	aafObject *EssenceData = get_EssenceData_By_MobID( aafi, aafi->ctx.current_audioEssence->sourceMobID );
+
+	if ( EssenceData == NULL )
 	{
-		if ( mobIDCmp( audioEssence->masterMobID, sourceMobID ) )
-			break;
+		/*
+		 *	It means essence is not embedded.
+		 */
+
+		return;
 	}
 
+	trace_obj( aafi, EssenceData, ANSI_COLOR_MAGENTA );
 
-	return audioEssence;
+
+	/*
+	 *	The EssenceData::Data property has the stored form SF_DATA_STREAM, so
+	 *	it holds the name of the Data stream, which should be located at
+	 *	/Path/To/EssenceData/DataStream
+	 */
+
+	char *StreamName = aaf_get_propertyValueText( EssenceData, PID_EssenceData_Data );
+
+	if ( StreamName == NULL )
+		_fatal( "Missing EssenceData::PID_EssenceData_Data.\n" );
+
+
+
+	char DataPath[CFB_PATH_NAME_SZ];
+
+	char *path = aaf_get_ObjectPath( EssenceData );
+
+	snprintf( DataPath, CFB_PATH_NAME_SZ, "/%s/%s", path, StreamName );
+
+	free( StreamName );
+	free( path );
+
+
+
+	cfbNode *DataNode = cfb_getNodeByPath( aafi->aafd->cfbd, DataPath, 0 );
+
+	if ( DataNode == NULL )
+		_fatal( "Could not retrieve Data stream node.\n" );
+
+	audioEssence->node = DataNode;
+
+
+
+	uint64_t dataLen = cfb_getNodeStreamLen( aafi->aafd->cfbd, DataNode );
+
+	if ( dataLen == 0 )
+		_warning( "Got 0 Bytes Data stream length.\n" );
+
+	audioEssence->length = dataLen;
 }
+
 
 
 
