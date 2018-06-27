@@ -902,38 +902,6 @@ static void aafi_freeEssenceDataNode( aafiEssenceDataNode **node )
 
 
 
-// aafUID_t * getMobSlotDataDef( aafObject *DataDefinition, aafObject *MobSlot )
-// {
-// 	aafUID_t *DataDefVal = NULL;
-//
-// 	if ( MobSlot == NULL )
-// 		return NULL;
-//
-// 	aafObject *Segment = aaf_get_propertyValue( MobSlot, PID_MobSlot_Segment );
-//
-// 	if ( Segment )
-// 	{
-// //		printf( "   : %s\n", ClassIDToText( aafi->aafd, Segment->Class->ID ) );
-//
-// 		aafWeakRef_t *weakRef = aaf_get_propertyValue( Segment, PID_Component_DataDefinition );
-//
-// 		aafObject *DataDef = aaf_get_ObjectByWeakRef( DataDefinition, weakRef );
-//
-// 		if ( DataDef )
-// 		{
-// //			printf( "   :: %s\n", ClassIDToText( aafi->aafd, DataDef->Class->ID ) );
-//
-// //			aafProperty *DataDefProp = getProperty( DataDef, PID_DefinitionObject_Name );
-// //			printf( "   :: > %s\n", CFB_utf16Toascii( DataDefProp->val, DataDefProp->len ) );
-//
-// 			DataDefVal = aaf_get_propertyValue( DataDef, PID_DefinitionObject_Identification );
-// //			printf( "   :: > %s\n", DataDefToText( DataDefVal ) );
-// //			getPropertyValue( Segment, PID_Component_DataDefinition ); // WeakRef
-// 		}
-// 	}
-//
-// 	return DataDefVal;
-// }
 
 
 
@@ -1196,6 +1164,32 @@ static aafUID_t * get_OperationGroup_OperationIdentification( AAF_Iface *aafi, a
 
 
 	return OperationIdentification;
+}
+
+
+
+
+aafUID_t * get_Parameter_InterpolationIdentification( AAF_Iface *aafi, aafObject *Parameter )
+{
+	aafWeakRef_t *InterpolationDefWeakRef = aaf_get_propertyValue( Parameter, PID_VaryingValue_Interpolation );
+
+	if ( InterpolationDefWeakRef == NULL )
+		_fatal( "Missing Parameter::Interpolation.\n" );
+
+
+	aafObject *InterpolationDefinition = aaf_get_ObjectByWeakRef( aafi->aafd->InterpolationDefinition, InterpolationDefWeakRef );
+
+	if ( InterpolationDefinition == NULL )
+		_fatal( "Could not find InterpolationDefinition.\n" );
+
+
+	aafUID_t  *InterpolationIdentification  = aaf_get_propertyValue( InterpolationDefinition, PID_DefinitionObject_Identification );
+
+	if ( InterpolationIdentification == NULL )
+		_fatal( "Missing Parameter DefinitionObject::Identification.\n" );
+
+
+	return InterpolationIdentification;
 }
 
 
@@ -2057,48 +2051,32 @@ static void parse_Parameter( AAF_Iface *aafi, aafObject *Parameter )
 	else if ( auidCmp( Parameter->Class->ID, &AAFClassID_VaryingValue ) )
 	{
 
-		aafWeakRef_t *InterDef = aaf_get_propertyValue( Parameter, PID_VaryingValue_Interpolation );
-
-		if ( InterDef == NULL )
-			_fatal( "Missing Parameter::Interpolation.\n" );
-
-
-		aafObject *InterDefObj = aaf_get_ObjectByWeakRef( aafi->aafd->InterpolationDefinition, InterDef );
-
-		if ( InterDefObj == NULL )
-			_fatal( "Could not find InterpolationDefinition.\n" );
-
-
-		aafUID_t  *InterIdent  = aaf_get_propertyValue( InterDefObj, PID_DefinitionObject_Identification );
-
-		if ( InterIdent == NULL )
-			_fatal( "Missing Parameter DefinitionObject::Identification.\n" );
-
+		aafUID_t *InterpolationIdentification = get_Parameter_InterpolationIdentification( aafi, Parameter );
 
 
 		aafiInterpolation_e interpolation = 0;
 
-		if ( auidCmp( InterIdent, &AAFInterpolationDef_None ) )
+		if ( auidCmp( InterpolationIdentification, &AAFInterpolationDef_None ) )
 		{
 			interpolation = AAFI_INTERPOL_NONE;
 		}
-		else if ( auidCmp( InterIdent, &AAFInterpolationDef_Linear ) )
+		else if ( auidCmp( InterpolationIdentification, &AAFInterpolationDef_Linear ) )
 		{
 			interpolation = AAFI_INTERPOL_LINEAR;
 		}
-		else if ( auidCmp( InterIdent, &AAFInterpolationDef_Power ) )
+		else if ( auidCmp( InterpolationIdentification, &AAFInterpolationDef_Power ) )
 		{
 			interpolation = AAFI_INTERPOL_POWER;
 		}
-		else if ( auidCmp( InterIdent, &AAFInterpolationDef_Constant ) )
+		else if ( auidCmp( InterpolationIdentification, &AAFInterpolationDef_Constant ) )
 		{
 			interpolation = AAFI_INTERPOL_CONSTANT;
 		}
-		else if ( auidCmp( InterIdent, &AAFInterpolationDef_BSpline ) )
+		else if ( auidCmp( InterpolationIdentification, &AAFInterpolationDef_BSpline ) )
 		{
 			interpolation = AAFI_INTERPOL_BSPLINE;
 		}
-		else if ( auidCmp( InterIdent, &AAFInterpolationDef_Log ) )
+		else if ( auidCmp( InterpolationIdentification, &AAFInterpolationDef_Log ) )
 		{
 			interpolation = AAFI_INTERPOL_LOG;
 		}
