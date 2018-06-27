@@ -2087,19 +2087,34 @@ static void parse_Parameter( AAF_Iface *aafi, aafObject *Parameter )
 		aafiInterpolation_e interpolation = 0;
 
 		if ( auidCmp( InterIdent, &AAFInterpolationDef_None ) )
+		{
 			interpolation = AAFI_INTERPOL_NONE;
+		}
 		else if ( auidCmp( InterIdent, &AAFInterpolationDef_Linear ) )
+		{
 			interpolation = AAFI_INTERPOL_LINEAR;
+		}
 		else if ( auidCmp( InterIdent, &AAFInterpolationDef_Power ) )
+		{
 			interpolation = AAFI_INTERPOL_POWER;
+		}
 		else if ( auidCmp( InterIdent, &AAFInterpolationDef_Constant ) )
+		{
 			interpolation = AAFI_INTERPOL_CONSTANT;
+		}
 		else if ( auidCmp( InterIdent, &AAFInterpolationDef_BSpline ) )
+		{
 			interpolation = AAFI_INTERPOL_BSPLINE;
+		}
 		else if ( auidCmp( InterIdent, &AAFInterpolationDef_Log ) )
+		{
 			interpolation = AAFI_INTERPOL_LOG;
+		}
 		else
-			printf( "Unknwon Interpolation\n" );
+		{
+			/* TODO should fallback to some predefined default */
+			_warning( "Unknwon Interpolation\n" );
+		}
 
 
 
@@ -2127,16 +2142,22 @@ static void parse_Parameter( AAF_Iface *aafi, aafObject *Parameter )
 		}
 		else if ( auidCmp( OpIdent, &AAFOperationDef_MonoAudioGain ) )
 		{
-			aafiAudioGain *Gain = aafi->ctx.current_gain;
-
-			Gain->flags |= AAFI_AUDIO_GAIN_VARIABLE;
-			Gain->flags |= interpolation;
-
 
 			aafObject *Points = aaf_get_propertyValue( Parameter, PID_VaryingValue_PointList );
 
 			if ( Points == NULL )
-				_fatal( "Missing VaryingValue::PointList.\n" );
+			{
+				/* TODO WTF on fonk_3.AAF */
+
+				_warning( "Missing VaryingValue::PointList.\n" );
+				printObjectProperties( aafi->aafd, Parameter );
+				return;
+			}
+
+			aafiAudioGain *Gain = aafi->ctx.current_gain;
+
+			Gain->flags |= AAFI_AUDIO_GAIN_VARIABLE;
+			Gain->flags |= interpolation;
 
 			Gain->pts_cnt = retrieve_ControlPoints( aafi, Points, &Gain->time, &Gain->value );
 
