@@ -71,72 +71,17 @@
 
 
 
+static void   aafi_freeAudioTracks( aafiAudioTrack **tracks );
+static void   aafi_freeTimelineItems( aafiTimelineItem **items );
+static void   aafi_freeTransition( aafiTransition *trans );
 
-/*
-struct trace_log
-{
-	char trace[32][256];
-	int  trace_loop[32];
-	int  trace_levl;
-	int  trace_i;
-};
+static void   aafi_freeAudioEssences( aafiAudioEssence **essences );
+static void   aafi_freeEssenceDataNode( aafiEssenceDataNode **nodes );
 
-
-#define INIT_TRACE()                                                       \
-	struct trace_log *TRACE_LOG = calloc( sizeof(struct trace_log), 1 );   \
-
-
-#define PUSH_TRACE( ... )                                                  \
-	snprintf( TRACE_LOG->trace[TRACE_LOG->trace_levl], 256, __VA_ARGS__ ); \
-	TRACE_LOG->trace_loop[TRACE_LOG->trace_levl] = 0;                      \
-	TRACE_LOG->trace_levl++;
-
-
-
-#define POP_TRACE() \
-	TRACE_LOG->trace_levl--;
-
-
-
-#define PRINT_TRACE( color, ... )                                                                    \
-	PUSH_TRACE( __VA_ARGS__ );                                                                       \
-	printf( color );                                                                                 \
-	for ( TRACE_LOG->trace_i = 0; TRACE_LOG->trace_i < TRACE_LOG->trace_levl; TRACE_LOG->trace_i++ ) \
-		if ( TRACE_LOG->trace_loop[TRACE_LOG->trace_i] == 0 )                                        \
-		{                                                                                            \
-			if ( TRACE_LOG->trace_i + 1 < TRACE_LOG->trace_levl )                                    \
-				printf( "%s > ", TRACE_LOG->trace[TRACE_LOG->trace_i] );                             \
-			else                                                                                     \
-				printf( "%s", TRACE_LOG->trace[TRACE_LOG->trace_i] );                                \
-			TRACE_LOG->trace_loop[TRACE_LOG->trace_i] = 1;                                           \
-		}                                                                                            \
-		else                                                                                         \
-			if ( TRACE_LOG->trace_loop[TRACE_LOG->trace_i + 1] == 1 )                                \
-				printf( "%*c   ", (uint32_t)strlen( TRACE_LOG->trace[TRACE_LOG->trace_i] ), ' ' );   \
-			else                                                                                     \
-				printf( "%*c > ", (uint32_t)strlen( TRACE_LOG->trace[TRACE_LOG->trace_i] ), ' ' );   \
-	printf( "\n" ANSI_COLOR_RESET );                                                                 \
-	POP_TRACE();
-
-
-#define END_OF_TRACE() \
-	free( TRACE_LOG );
-*/
-
-
-
-
-static void aafi_freeAudioTracks( aafiAudioTrack **tracks );
-static void aafi_freeTimelineItems( aafiTimelineItem **items );
-static void aafi_freeTransition( aafiTransition *trans );
-
-static void aafi_freeAudioEssences( aafiAudioEssence **essences );
-static void aafi_freeEssenceDataNode( aafiEssenceDataNode **nodes );
-
-static void   parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup );
-static void   parse_Transition( AAF_Iface *aafi, aafObject *Transition );
 static void   parse_Component( AAF_Iface *aafi, aafObject *Component );
+static void   parse_Transition( AAF_Iface *aafi, aafObject *Transition );
 static void   parse_Segment( AAF_Iface *aafi, aafObject *Segment );
+static void   parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup );
 static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip );
 static void   parse_Timecode( AAF_Iface *aafi, aafObject *Timecode );
 static void   parse_Sequence( AAF_Iface *aafi, aafObject *Sequence );
@@ -149,11 +94,12 @@ static void   retrieve_EssenceData( AAF_Iface *aafi );
 static void   parse_Parameter( AAF_Iface *aafi, aafObject *Parameter );
 static void   parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue );
 static void   parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue );
-
 static int    retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRational_t *times[], aafRational_t *values[] );
 
 
 static aafUID_t * get_OperationGroup_OperationIdentification( AAF_Iface *aafi, aafObject *OperationGroup );
+
+
 
 
 
@@ -244,6 +190,7 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 
 
 
+
 void aafi_release( AAF_Iface **aafi )
 {
 	if ( *aafi == NULL )
@@ -282,6 +229,7 @@ void aafi_release( AAF_Iface **aafi )
 
 
 
+
 int aafi_load_file( AAF_Iface *aafi, const char * file )
 {
 	if ( aaf_load_file( aafi->aafd, file ) )
@@ -293,6 +241,8 @@ int aafi_load_file( AAF_Iface *aafi, const char * file )
 
 	return 0;
 }
+
+
 
 
 void swap( unsigned char *tab, int i, int j )
@@ -673,7 +623,7 @@ aafiAudioTrack * aafi_newAudioTrack( AAF_Iface *aafi, aafObject *MobSlot, uint32
 	if ( MobSlot != NULL )
 	{
 		/*
-p.11	 *	In a CompositionMob or MasterMob, PhysicalTrackNumber is the output channel number that the
+	 	 *	p.11 : In a CompositionMob or MasterMob, PhysicalTrackNumber is the output channel number that the
 		 *	MobSlot should be routed to when played.
 		 */
 
@@ -933,7 +883,6 @@ cfbNode * getEssenceDataStreamNode( AAF_Data *aafd, aafObject *EssenceData )
 }
 
 
-
 aafObject * getEssenceDataByMobID( aafObject *EssenceData, aafMobID_t *MobID )
 {
 	aafMobID_t *DataMobID = NULL;
@@ -948,8 +897,6 @@ aafObject * getEssenceDataByMobID( aafObject *EssenceData, aafMobID_t *MobID )
 
 	return EssenceData;
 }
-
-
 
 
 static void retrieve_EssenceData( AAF_Iface *aafi )
@@ -1198,7 +1145,17 @@ aafUID_t * get_Parameter_InterpolationIdentification( AAF_Iface *aafi, aafObject
 
 
 
-/*
+
+
+
+
+
+
+
+/******************************************************************************
+                      E s s e n c e D e s c r i p t o r
+ ******************************************************************************
+
                 EssenceDescriptor (abs)
 				        |
 						|--> FileDescriptor (abs)
@@ -1211,7 +1168,12 @@ aafUID_t * get_Parameter_InterpolationIdentification( AAF_Iface *aafi, aafObject
 						|
 						|--> PhysicalDescriptor
 						`--> TapeDescriptor
-*/
+
+
+	TODO : Split it out !
+
+******************************************************************************
+******************************************************************************/
 
 static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 {
@@ -1378,7 +1340,7 @@ static void parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 	 *
 	 *  A NetworkLocator holds a URLString property :
 	 *
-p41: 	Absolute Uniform Resource Locator (URL) complying with RFC 1738 or relative
+	 *	p.41 : Absolute Uniform Resource Locator (URL) complying with RFC 1738 or relative
 	 *	Uniform Resource Identifier (URI) complying with RFC 2396 for file containing
 	 *	the essence. If it is a relative URI, the base URI is determined from the URI
 	 *	of the AAF file itself.
@@ -1456,7 +1418,7 @@ aafiAudioEssence * getEssenceBySourceMobID( AAF_Iface *aafi, aafMobID_t *sourceM
 
 
 /******************************************************************************
-                            C O M P O N E N T S
+                             C o m p o n e n t
  ******************************************************************************
 
                        Component (abs)
@@ -1559,6 +1521,8 @@ static void parse_Transition( AAF_Iface *aafi, aafObject *Transition )
 
 static void parse_Segment( AAF_Iface *aafi, aafObject *Segment )
 {
+
+	/* TODO This function is a bit messy.. */
 
 	// printf("PARENT CONTEXT : %s\n", ClassIDToText( aafi->aafd, Segment->Parent->Class->ID ) );
 
@@ -2120,7 +2084,7 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 
 
 		/*
-p.49	 *	To create a SourceReference that refers to a MobSlot within
+		 *	p.49 : To create a SourceReference that refers to a MobSlot within
 		 *	the same Mob as the SourceReference, omit the SourceID property.
 		 *
 		 *	NOTE: This should not happen here because The "CompositionMob > SourceClip::SourceID"
@@ -2217,7 +2181,7 @@ p.49	 *	To create a SourceReference that refers to a MobSlot within
 
 
 		/*
-p.49	 *	To create a SourceReference that refers to a MobSlot within
+		 *	p.49 : To create a SourceReference that refers to a MobSlot within
 		 *	the same Mob as the SourceReference, omit the SourceID property.
 		 */
 
@@ -2510,8 +2474,6 @@ static void parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue )
 		// }
 	}
 }
-
-
 
 
 
