@@ -1962,39 +1962,35 @@ int aafi_retrieveData( AAF_Iface *aafi )
 		{
 			/******************************************************************/
 
-			// printObjectProperties(aafi->ctx.Mob);
-            //
-			// aafObject *UserComments = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_UserComments );
-			// aafObject *UserComment  = NULL;
-            //
-			// aaf_foreach_ObjectInSet( &UserComment, UserComments, NULL )
-			// {
-			// 	printf("\n\n");
-			// 	printObjectProperties(UserComment);
-			// 	unsigned char *string = NULL;
-			// 	aafIndirect_t *indirectCom = aaf_get_propertyValue(UserComment, PID_TaggedValue_Value);
-			// 	unsigned char *com = indirectCom->Value;
-			// 	printf("Indirect Type : %s\n", TypeIDToText( &indirectCom->TypeDef) );
-			// 	printf("Indirect auid type : %s\n", printUID(&indirectCom->TypeDef) );
-			// 	// utf16toa( string, 20, com, 10 );
-			// 	// printf("%s\n", string );
-			// 	printf("\n\n");
-			// }
-            //
-			// aafObject *MobAttributeList = aaf_get_propertyValue( aafi->ctx.Mob, 0xfff9 );
-			// aafObject *MobAttribute     = NULL;
-            //
-			// aaf_foreach_ObjectInSet( &MobAttribute, MobAttributeList, NULL )
-			// {
-			// 	printf("\nMobAttribute\n");
-			// 	printObjectProperties(MobAttribute);
-			// 	printf("\n\n");
-			// }
+			trace_obj( aafi, aafi->ctx.Mob, ANSI_COLOR_MAGENTA );
+
+			aafObject *UserComments = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_UserComments );
+			aafObject *UserComment  = NULL;
+
+
+			aaf_foreach_ObjectInSet( &UserComment, UserComments, NULL )
+			{
+
+				char *name   = aaf_get_propertyValueText( UserComment, PID_TaggedValue_Name );
+
+				if ( name == NULL )
+					_warning( "Missing UserComment TaggedValue::Name.\n" );
+
+
+				char *text = aaf_get_propertyIndirectValueText( UserComment, PID_TaggedValue_Value );
+
+				if ( text == NULL )
+					_warning( "Missing UserComment TaggedValue::Value.\n" );
+
+
+				aafiUserComment *Comment = aafi_newUserComment( &aafi->Comments );
+
+				Comment->name = name;
+				Comment->text = text;
+
+			}
 
 			/******************************************************************/
-
-			// printObjectProperties( aafi->aafd, aafi->ctx.Mob );
-
 
 			aafi->compositionName = aaf_get_propertyValueText( aafi->ctx.Mob, PID_Mob_Name );
 		}

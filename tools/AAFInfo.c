@@ -765,6 +765,24 @@ int main( int argc, char *argv[] )
 
 	if ( aaf_clips )
 	{
+		printf( "Composition Name : %s\n", aafi->compositionName );
+		printf( "==================\n\n" );
+
+		aafiUserComment *Comment = aafi->Comments;
+
+		if ( Comment != NULL )
+		{
+			printf( "UserComments :\n==============\n" );
+
+			while ( Comment != NULL )
+			{
+				printf( "   * %s : %s\n", Comment->name, Comment->text );
+
+				Comment = Comment->next;
+			}
+
+			printf("\n\n");
+		}
 
 		aafiAudioTrack   *audioTrack = NULL;
 		aafiTimelineItem *audioItem  = NULL;
@@ -774,15 +792,16 @@ int main( int argc, char *argv[] )
 
 		foreach_audioTrack( audioTrack, aafi )
 		{
-			printf( "\n\n" );
-			printf( "Track (%u) - %s - \"%s\"     edit_rate %i/%i\n",
+
+			printf( "Track (%u) - %s - \"%s\"     edit_rate %i/%i (%02.2f)\n",
 			        audioTrack->number,
-					(audioTrack->format == AAFI_TRACK_FORMAT_MONO) ? "MONO" :
+					(audioTrack->format == AAFI_TRACK_FORMAT_MONO)   ? "MONO"   :
 					(audioTrack->format == AAFI_TRACK_FORMAT_STEREO) ? "STEREO" :
-					(audioTrack->format == AAFI_TRACK_FORMAT_5_1) ? "5.1" :
-					(audioTrack->format == AAFI_TRACK_FORMAT_7_1) ? "7.1" : "Unknown",
+					(audioTrack->format == AAFI_TRACK_FORMAT_5_1)    ? "5.1"    :
+					(audioTrack->format == AAFI_TRACK_FORMAT_7_1)    ? "7.1"    : "Unknown",
 			        (audioTrack->name != NULL) ? audioTrack->name : "",
-			        audioTrack->edit_rate->numerator, audioTrack->edit_rate->denominator
+			        audioTrack->edit_rate->numerator, audioTrack->edit_rate->denominator,
+					rationalToFloat(audioTrack->edit_rate)
 			 );
 
 			foreach_audioItem( audioItem, audioTrack )
@@ -853,21 +872,6 @@ int main( int argc, char *argv[] )
 
 				audioClip = (aafiAudioClip*)&audioItem->data;
 
-				// aafiAudioEssence *audioEssence = NULL;
-                //
-				// uint32_t y = 0;
-                //
-				// foreachAudioEssence( audioEssence, aafi->Audio->Essences )
-				// {
-				// 	if ( audioEssence == audioClip->Essence )
-				// 		break;
-                //
-				// 	y++;
-				// }
-
-//				printf( "pos : %li\n", 1 / rationalToint64( audioClip->track->edit_rate) );
-
-
 				aafiTransition *fadein  = get_fadein( audioItem );
 				aafiTransition *fadeout = get_fadeout( audioItem );
 
@@ -878,7 +882,6 @@ int main( int argc, char *argv[] )
 						" End:%02u:%02u:%02u:%02u  Fadein: %s  Fadeout: %s  SourceFile: %s\n",
 					i, ( i < 10 ) ? " " : "",
 					audioClip->track->number,
-					// y, ( y < 10 ) ? " " : "",
 					gainToStr( str, audioClip ),
 					eu2tc_h( audioClip, (audioClip->pos + audioClip->track->Audio->tc->start) ),
 					eu2tc_m( audioClip, (audioClip->pos + audioClip->track->Audio->tc->start) ),
@@ -917,6 +920,7 @@ int main( int argc, char *argv[] )
 				i++;
 			}
 
+			printf( "\n\n" );
 		}
 
 		printf( "\n\n" );

@@ -496,6 +496,22 @@ typedef struct aafiAudioTrack
 
 
 
+typedef struct aafiUserComment
+{
+	char *name;
+
+	char *text;
+
+	struct aafiUserComment *next;
+
+} aafiUserComment;
+
+
+
+
+
+
+
 typedef struct aafiAudio
 {
 	/**
@@ -591,6 +607,9 @@ typedef struct AAF_Iface
 
 	char       *compositionName;
 
+
+	aafiUserComment  *Comments;
+
 } AAF_Iface;
 
 
@@ -671,6 +690,9 @@ void   aafi_freeAudioTracks( aafiAudioTrack **tracks );
 
 aafiTimelineItem * aafi_newTimelineItem( aafiAudioTrack *track, int itemType );
 void   aafi_freeTimelineItems( aafiTimelineItem **items );
+
+aafiUserComment * aafi_newUserComment( aafiUserComment **CommentList );
+void aafi_freeUserComments( aafiUserComment **CommentList );
 
 
 void   aafi_freeTransition( aafiTransition *trans );

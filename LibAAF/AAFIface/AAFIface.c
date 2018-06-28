@@ -102,6 +102,11 @@ void aafi_release( AAF_Iface **aafi )
 		free( (*aafi)->compositionName );
 	}
 
+	if ( (*aafi)->Comments )
+	{
+		aafi_freeUserComments( &((*aafi)->Comments) );
+	}
+
 	if ( (*aafi)->Audio != NULL )
 	{
 		if ( (*aafi)->Audio->Tracks != NULL )
@@ -118,6 +123,7 @@ void aafi_release( AAF_Iface **aafi )
 		{
 			free( (*aafi)->Audio->tc );
 		}
+
 
 		free( (*aafi)->Audio );
 	}
@@ -442,6 +448,65 @@ void aafi_freeTimelineItems( aafiTimelineItem **items )
 	}
 
 	*items = NULL;
+}
+
+
+
+
+
+
+
+
+aafiUserComment * aafi_newUserComment( aafiUserComment **CommentList )
+{
+
+	aafiUserComment *UserComment = calloc( sizeof(aafiUserComment),  1 );
+
+	if ( UserComment == NULL )
+		_fatal( "%s.\n", strerror( errno ) );
+
+
+	if ( CommentList != NULL )
+	{
+		UserComment->next = *CommentList;
+		*CommentList = UserComment;
+	}
+	else
+	{
+		*CommentList = UserComment;
+	}
+
+
+	return UserComment;
+}
+
+
+
+
+void aafi_freeUserComments( aafiUserComment **CommentList )
+{
+	aafiUserComment *UserComment = *CommentList;
+	aafiUserComment *tmp = NULL;
+
+	while( UserComment != NULL )
+	{
+		tmp = UserComment;
+		UserComment = UserComment->next;
+
+		if ( tmp->name != NULL )
+		{
+			free( tmp->name );
+		}
+
+		if ( tmp->text != NULL )
+		{
+			free( tmp->text );
+		}
+
+		free( tmp );
+	}
+
+	*CommentList = NULL;
 }
 
 
