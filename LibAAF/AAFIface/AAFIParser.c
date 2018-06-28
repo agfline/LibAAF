@@ -959,7 +959,8 @@ static void parse_Segment( AAF_Iface *aafi, aafObject *Segment )
 				trace_obj( aafi, Segment, ANSI_COLOR_RED );
 
 			}
-			else if ( auidCmp( Segment->Parent->Class->ID, &AAFClassID_Sequence ) )
+			else if ( auidCmp( Segment->Parent->Class->ID, &AAFClassID_Sequence ) ||
+		              auidCmp( Segment->Parent->Class->ID, &AAFClassID_OperationGroup ) )
 			{
 
 				parse_OperationGroup( aafi, Segment );
@@ -1403,15 +1404,19 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 		aaf_foreach_ObjectInSet( &InputSegment, InputSegments, NULL )
 		{
 
-			if ( auidCmp( InputSegment->Class->ID, &AAFClassID_SourceClip) == 0 )
-			{
-				continue;
-			}
+			// if ( auidCmp( InputSegment->Class->ID, &AAFClassID_SourceClip) == 0 )
+			// {
+			// 	trace_obj( aafi, InputSegment, ANSI_COLOR_CYAN );
+			// 	continue;
+			// }
 
-			aafiAudioClip *audioClip = (aafiAudioClip*)parse_SourceClip( aafi, InputSegment );
+			// aafiAudioClip *audioClip = (aafiAudioClip*)parse_SourceClip( aafi, InputSegment );
+			parse_Segment( aafi, InputSegment );
 
-			audioClip->gain = aafi->ctx.current_gain;
+			// audioClip->gain = aafi->ctx.current_gain;
 		}
+
+		aafi->ctx.current_gain = NULL;
 	}
 
 }
@@ -1435,30 +1440,32 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 		if ( length == NULL )
 			_fatal( "Missing SourceClip Component::Length.\n" );
 
-		if ( *length == 1 )
-		{
-			/*
-			 *	If length equals 1 EditUnit, the clip is probably a padding for "Media Composer Compatibility".
-			 *	Therefore, we don't need it.
-			 *
-			 *	TODO BUT this could also be some rendered fade.. we should find a way to distinguish between the two.
-			 */
-
-			// printObjectProperties( aafi->aafd, SourceClip );
-
-			_warning( "Got a 1 EU length clip, probably some NLE compatibility padding : Skipping.\n" );
-
-	 		if ( aafi->ctx.current_track_is_multichannel == 0 )
-	 		{
-	 			aafi->ctx.current_pos += *length;
-	 		}
-	 		else
-	 		{
-	 			aafi->ctx.current_multichannel_track_clip_length = *length;
-	 		}
-
-			return NULL;
-		}
+		// if ( *length == 1 )
+		// {
+		// 	/*
+		// 	 *	If length equals 1 EditUnit, the clip is probably a padding for "Media Composer Compatibility".
+		// 	 *	Therefore, we don't need it.
+		// 	 *
+		// 	 *	TODO BUT this could also be some rendered fade.. we should find a way to distinguish between the two.
+		// 	 */
+        //
+		// 	// printObjectProperties( aafi->aafd, SourceClip );
+        //
+		// 	_warning( "Got a 1 EU length clip, probably some NLE compatibility padding : Skipping.\n" );
+        //
+        //
+        //
+	 	// 	if ( aafi->ctx.current_track_is_multichannel == 0 )
+	 	// 	{
+	 	// 		aafi->ctx.current_pos += *length;
+	 	// 	}
+	 	// 	else
+	 	// 	{
+	 	// 		aafi->ctx.current_multichannel_track_clip_length = *length;
+	 	// 	}
+        //
+		// 	return NULL;
+		// }
 
 
 
@@ -1471,6 +1478,9 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 
 
 		audioClip->len = *length;
+
+
+		audioClip->gain = aafi->ctx.current_gain;
 
 
 		int64_t *startTime = (int64_t*)aaf_get_propertyValue( SourceClip, PID_SourceClip_StartTime );
@@ -1757,6 +1767,7 @@ static void parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue )
 
 		Gain->value    = calloc( 1, sizeof(aafRational_t*) );
 		Gain->pts_cnt  = 1;
+
 		memcpy( &Gain->value[0], multiplier, sizeof(aafRational_t) );
 		// Gain->value[0] = multiplier;
 
