@@ -736,7 +736,7 @@ aafProperty * aaf_get_property( aafObject *Obj,
  *	             0 otherwise.
  */
 
-aafPID_t aaf_get_PropertyIDByName( AAF_Data   *aafd, 
+aafPID_t aaf_get_PropertyIDByName( AAF_Data   *aafd,
                                    const char *name );
 
 
@@ -784,6 +784,10 @@ char * aaf_get_propertyValueText( aafObject *Obj,
 
 void * aaf_get_propertyIndirectValue( aafObject *Obj,
                                       aafPID_t   pid );
+
+
+
+char * aaf_get_propertyIndirectValueText( aafObject *Obj, aafPID_t pid );
 
 
 /**

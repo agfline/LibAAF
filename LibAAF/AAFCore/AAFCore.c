@@ -32,6 +32,7 @@
 #include "AAFDefs/AAFClassDefUIDs.h"
 #include "AAFDefs/AAFPropertyIDs.h"
 #include "AAFDefs/AAFFileKinds.h"
+#include "AAFDefs/AAFTypeDefUIDs.h"
 
 #include "../common/debug.h"
 
@@ -783,6 +784,34 @@ void * aaf_get_propertyIndirectValue( aafObject *Obj, aafPID_t pid )
 	// TODO ? ensures the Indirect->Value is what it pretend to be by size check.
 
 	return Indirect->Value;
+}
+
+
+
+char * aaf_get_propertyIndirectValueText( aafObject *Obj, aafPID_t pid )
+{
+
+	aafProperty *Prop = aaf_get_property( Obj, pid );
+
+	if ( Prop == NULL )
+	{
+		return NULL;
+	}
+
+	aafIndirect_t *Indirect = Prop->val;
+
+	if ( auidCmp( &Indirect->TypeDef, &AAFTypeID_String ) == 0 )
+	{
+		_warning( "Indirect value is not of type String.\n" );
+		return NULL;
+	}
+
+	char *string  = malloc( (( Prop->len - sizeof(aafIndirect_t)) >> 1 ) + 1 );
+
+	utf16toa( string, ((Prop->len - sizeof(aafIndirect_t)) >> 1) + 1, (uint16_t*)Indirect->Value, (Prop->len - sizeof(aafIndirect_t)) );
+	// utf16toa(char *astr, uint16_t alen, uint16_t *wstr, uint16_t wlen)
+
+	return string;
 }
 
 
