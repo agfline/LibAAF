@@ -426,25 +426,11 @@ void aafi_freeTimelineItems( aafiTimelineItem **items )
 			{
 				if ( audioClip->gain->time != NULL )
 				{
-					// int i;
-                    //
-					// for ( i = 0; i < audioClip->gain->pts_cnt; i++ )
-					// {
-					// 	free( audioClip->gain->time[i] );
-					// }
-
 					free( audioClip->gain->time );
 				}
 
 				if ( audioClip->gain->value != NULL )
 				{
-					// int i;
-                    //
-					// for ( i = 0; i < audioClip->gain->pts_cnt; i++ )
-					// {
-					// 	free( audioClip->gain->value[i] );
-					// }
-
 					free( audioClip->gain->value );
 				}
 
