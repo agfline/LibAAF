@@ -75,7 +75,8 @@ AAFCore/AAFCore.o: AAFCore/AAFTypes.h LibCFB/LibCFB.h LibCFB/CFBTypes.h
 AAFCore/AAFCore.o: AAFCore/AAFCore.h AAFCore/AAFClass.h AAFCore/AAFUtils.h
 AAFCore/AAFCore.o: AAFCore/AAFToText.h AAFCore/AAFDefs/AAFClassDefUIDs.h
 AAFCore/AAFCore.o: AAFCore/AAFTypes.h AAFCore/AAFDefs/AAFPropertyIDs.h
-AAFCore/AAFCore.o: AAFCore/AAFDefs/AAFFileKinds.h common/debug.h
+AAFCore/AAFCore.o: AAFCore/AAFDefs/AAFFileKinds.h
+AAFCore/AAFCore.o: AAFCore/AAFDefs/AAFTypeDefUIDs.h common/debug.h
 AAFCore/AAFClass.o: AAFCore/AAFTypes.h LibCFB/LibCFB.h LibCFB/CFBTypes.h
 AAFCore/AAFClass.o: AAFCore/AAFClass.h AAFCore/AAFCore.h AAFCore/AAFUtils.h
 AAFCore/AAFClass.o: AAFCore/AAFToText.h AAFCore/AAFDefs/AAFClassDefUIDs.h
