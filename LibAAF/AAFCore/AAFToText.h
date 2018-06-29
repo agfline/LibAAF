@@ -57,7 +57,7 @@ const char * OperationDefToText( AAF_Data *aafd, const aafUID_t *auid );
 
 const char * InterpolationToText( const aafUID_t *auid );
 
-const char * ParameterToText( const aafUID_t *auid );
+const char * ParameterToText( AAF_Data *aafd, const aafUID_t *auid );
 
 const char * TransferCharacteristicToText( const aafUID_t *auid );
 

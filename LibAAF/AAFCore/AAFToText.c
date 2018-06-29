@@ -1076,7 +1076,7 @@ const char * InterpolationToText( const aafUID_t *auid )
 }
 
 
-const char * ParameterToText( const aafUID_t *auid )
+const char * ParameterToText( AAF_Data *aafd, const aafUID_t *auid )
 {
 	if ( auid == NULL )
 		return NULL;
@@ -1275,7 +1275,31 @@ const char * ParameterToText( const aafUID_t *auid )
 
 
 	if ( auidCmp( auid, &AAFUID_NULL ) )
-		return "";
+		return "AAFUID_NULL";
+
+
+
+	static char TEXTParameterDef[1024];
+
+	aafObject *ParameterDefinitions = aaf_get_propertyValue( aafd->Dictionary, PID_Dictionary_ParameterDefinitions );
+	aafObject *ParameterDefinition  = NULL;
+
+	aaf_foreach_ObjectInSet( &ParameterDefinition, ParameterDefinitions, NULL )
+	{
+		aafUID_t *ParamDefIdent = aaf_get_propertyValue( ParameterDefinition, PID_DefinitionObject_Identification );
+
+		if ( ParamDefIdent && auidCmp( ParamDefIdent, auid ) )
+		{
+			char *name = aaf_get_propertyValueText( ParameterDefinition, PID_DefinitionObject_Name );
+			snprintf( TEXTParameterDef, 1024, "%s", name );
+			free( name );
+
+			// printf("Description : %s\n", aaf_get_propertyValueText( ParameterDefinition, PID_DefinitionObject_Description ) );
+
+			return TEXTParameterDef;
+		}
+	}
+
 
 	return "Unknown value";
 }
