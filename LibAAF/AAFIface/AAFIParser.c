@@ -101,6 +101,9 @@ static void   parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue );
 static int    retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRational_t *times[], aafRational_t *values[] );
 
 
+static void   parse_Mob( AAF_Iface *aafi, aafObject *Mob );
+static void   parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot );
+
 
 
 
@@ -1939,212 +1942,265 @@ static int retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRation
 
 
 
-int aafi_retrieveData( AAF_Iface *aafi )
+/******************************************************************************
+                                   M o b
+ ******************************************************************************
+
+                              Mob (abs)
+                               |
+                               |--> CompositionMob
+                               |--> MasterMob
+                               `--> SourceMob
+
+******************************************************************************
+******************************************************************************/
+
+static void parse_Mob( AAF_Iface *aafi, aafObject *Mob )
 {
 
-	/*
-	 *	Loop through CompositionMobs
-	 *
-	 *	There should be only one, since a CompositionMob represents the overall
-	 *	composition (i.e project). Observations on files confirm that.
-	 *
-	 *	However, the AAF Edit Protocol says that there could be multiple CompositionMobs
-	 *	(Mob::UsageCode TopLevel), containing other CompositionMobs (Mob::UsageCode LowerLevel).
-	 *	This was never encountered for now.
-	 *
-	 *	TODO implement fallback
-	 */
-
-	aaf_foreach_ObjectInSet( &(aafi->ctx.Mob), aafi->aafd->Mobs, NULL )
+	if ( auidCmp( Mob->Class->ID, &AAFClassID_CompositionMob ) )
 	{
+		/*
+		 *	Retrieve Composition's Name
+		 */
 
-		if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_CompositionMob ) )
-		{
-			/******************************************************************/
-
-			trace_obj( aafi, aafi->ctx.Mob, ANSI_COLOR_MAGENTA );
-
-			aafObject *UserComments = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_UserComments );
-			aafObject *UserComment  = NULL;
+		aafi->compositionName = aaf_get_propertyValueText( Mob, PID_Mob_Name );
 
 
-			aaf_foreach_ObjectInSet( &UserComment, UserComments, NULL )
-			{
 
-				char *name   = aaf_get_propertyValueText( UserComment, PID_TaggedValue_Name );
+		/*
+		 *	Retrieve Composition's UserComments
+		 */
 
-				if ( name == NULL )
-					_warning( "Missing UserComment TaggedValue::Name.\n" );
+		trace_obj( aafi, Mob, ANSI_COLOR_MAGENTA );
 
-
-				char *text = aaf_get_propertyIndirectValueText( UserComment, PID_TaggedValue_Value );
-
-				if ( text == NULL )
-					_warning( "Missing UserComment TaggedValue::Value.\n" );
+		aafObject *UserComments = aaf_get_propertyValue( Mob, PID_Mob_UserComments );
+		aafObject *UserComment  = NULL;
 
 
-				aafiUserComment *Comment = aafi_newUserComment( &aafi->Comments );
-
-				Comment->name = name;
-				Comment->text = text;
-
-			}
-
-			/******************************************************************/
-
-			aafi->compositionName = aaf_get_propertyValueText( aafi->ctx.Mob, PID_Mob_Name );
-		}
-
-
-		/* Get MobSlots */
-		aafObject *MobSlots = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_Slots );
-
-
-		/* Loop through MobSlots */
-		aaf_foreach_ObjectInSet( &(aafi->ctx.MobSlot), MobSlots, NULL )
+		aaf_foreach_ObjectInSet( &UserComment, UserComments, NULL )
 		{
 
-			aafObject *Segment = aaf_get_propertyValue( aafi->ctx.MobSlot, PID_MobSlot_Segment );
+			char *name   = aaf_get_propertyValueText( UserComment, PID_TaggedValue_Name );
 
-			if ( Segment == NULL )
-				_fatal( "Missing MobSlot::Segment.\n" );
-
-			aafUID_t *DataDefinition = get_Component_DataDefinition( aafi, Segment );
-
-			if ( DataDefinition == NULL )
-				_fatal( "Could not retrieve MobSlot::Segment DataDefinition.\n" );
+			if ( name == NULL )
+				_warning( "Missing UserComment TaggedValue::Name.\n" );
 
 
-			/*
-			 *	Each TimelineMobSlot represents a track, either audio or video.
-			 *
-			 *	The Timeline MobSlot::Segment should hold a Sequence of Components.
-			 *	This Sequence represents the timeline track. Therefore, each SourceClip
-			 *	contained in the Sequence::Components represents a clip on the timeline.
-			 *
-			 *	A CompositionMob's SourceClip can be :
-			 *
-			 *		- directly inside the Sequence::Components.
-			 *
-			 *		- inside a Sequence::Components > OperationGroup::InputSegments, in
-			 *		  which case the OperationGroup's effect (Gain, Pan) applies to the
-			 *		  OperationGroup::InputSegments SourceClip(s).
-			 *
-			 *	CompositionMob can have TimelineMobSlots, StaticMobSlots, EventMobSlots
-			 */
+			char *text = aaf_get_propertyIndirectValueText( UserComment, PID_TaggedValue_Value );
 
-			if ( auidCmp( aafi->ctx.MobSlot->Class->ID, &AAFClassID_TimelineMobSlot ) == 0 )
-			{
-				trace_obj( aafi, aafi->ctx.MobSlot, ANSI_COLOR_YELLOW );
-				printf( "%s\n", DataDefToText( DataDefinition ) );
-
-				continue;
-			}
+			if ( text == NULL )
+				_warning( "Missing UserComment TaggedValue::Value.\n" );
 
 
+			aafiUserComment *Comment = aafi_newUserComment( &aafi->Comments );
 
-
-			if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_CompositionMob ) )
-			{
-				/* Retrieve Clips and TimeCode */
-
-				if ( auidCmp( DataDefinition, &AAFDataDef_Sound ) ||
-					 auidCmp( DataDefinition, &AAFDataDef_LegacySound ) )
-				{
-
-					/* TODO rename as aafi_addAudioTrack() */
-					aafi_newAudioTrack( aafi, aafi->ctx.MobSlot, -1 );
-
-
-					/***********************************************************************************************************************/
-
-					/*
-					 *	The following seems to be ProTools proprietary.
-					 *	If a track is multi-channel, it specifies its format : 2 (stereo), 6 (5.1) or 8 (7.1).
-					 *
-					 *	In the current implementation we don't need this. We guess the format at the OperationGroup level with the
-					 *	AAFOperationDef_AudioChannelCombiner OperationDefinition, which also looks to be ProTools specific.
-					 */
-
-					// aafPID_t PIDTimelineMobAttributeList = aaf_get_PropertyIDByName( aafi->aafd, "TimelineMobAttributeList" );
-					// // aafPID_t PIDTimelineMobAttributeList = aaf_get_PropertyIDByName( aafi->aafd, "MobAttributeList" );
-                    //
-					// if ( PIDTimelineMobAttributeList != 0 )
-					// {
-					// 	aafObject *TaggedValues = aaf_get_propertyValue( aafi->ctx.MobSlot, PIDTimelineMobAttributeList );
-					// 	aafObject *TaggedValue  = NULL;
-                    //
-					// 	aaf_foreach_ObjectInSet( &TaggedValue, TaggedValues, NULL )
-					// 	{
-					// 		char *name = aaf_get_propertyValueText( TaggedValue, PID_TaggedValue_Name );
-                    //
-					// 		printf("TaggedValue %s\n", name );
-                    //
-					// 		if ( strncmp( "_TRACK_FORMAT", name, 13 ) == 0 )
-					// 		{
-					// 			uint32_t *format = (uint32_t*)aaf_get_propertyIndirectValue( TaggedValue, PID_TaggedValue_Value );
-                    //
-					// 			if ( format != NULL )
-					// 				aafi->ctx.current_track->format = *format;
-                    //
-					// 			printf("Format : %u\n", aafi->ctx.current_track->format );
-					// 		}
-                    //
-					// 		free( name );
-					// 	}
-					// }
-
-					/***********************************************************************************************************************/
-
-
-					/* (re)set timeline position */
-					aafi->ctx.current_pos = 0;
-
-					parse_Segment( aafi, Segment );
-
-				}
-				else if ( auidCmp( DataDefinition, &AAFDataDef_Timecode ) ||
-						  auidCmp( DataDefinition, &AAFDataDef_LegacyTimecode ) )
-				{
-					parse_Segment( aafi, Segment );
-				}
-
-			}
-			else if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_MasterMob ) )
-			{
-				/* Retrieve Essences */
-
-				if ( auidCmp( DataDefinition, &AAFDataDef_Sound ) ||
-					 auidCmp( DataDefinition, &AAFDataDef_LegacySound ) )
-				{
-					parse_Segment( aafi, Segment );
-
-					retrieve_EssenceData( aafi );
-				}
-				else
-				{
-					trace_obj( aafi, aafi->ctx.MobSlot, ANSI_COLOR_YELLOW );
-					printf( "%s\n", DataDefToText( DataDefinition ) );
-				}
-			}
-			else if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_SourceMob ) )
-			{
-				/* See below.. */
-			}
-			else
-			{
-				trace_obj( aafi, aafi->ctx.MobSlot, ANSI_COLOR_YELLOW );
-				printf( "%s\n", DataDefToText( DataDefinition ) );
-			}
+			Comment->name = name;
+			Comment->text = text;
 
 		}
 
 	}
 
 
+	/*
+	 *	Loops through MobSlots
+	 */
+
+	aafObject *MobSlots = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_Slots );
+
+	aaf_foreach_ObjectInSet( &(aafi->ctx.MobSlot), MobSlots, NULL )
+	{
+
+		parse_MobSlot( aafi, aafi->ctx.MobSlot );
+
+	}
+
+}
 
 
 
+
+
+
+
+
+/******************************************************************************
+                               M o b S l o t
+ ******************************************************************************
+
+                            MobSlot (abs)
+                               |
+                               |--> TimelineMobSlot
+                               |--> EventMobSlot
+                               `--> StaticMobSlot
+
+******************************************************************************
+******************************************************************************/
+
+static void parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot )
+{
+
+	aafObject *Segment = aaf_get_propertyValue( MobSlot, PID_MobSlot_Segment );
+
+	if ( Segment == NULL )
+		_fatal( "Missing MobSlot::Segment.\n" );
+
+
+	aafUID_t *DataDefinition = get_Component_DataDefinition( aafi, Segment );
+
+	if ( DataDefinition == NULL )
+		_fatal( "Could not retrieve MobSlot::Segment DataDefinition.\n" );
+
+
+
+
+	if ( auidCmp( MobSlot->Class->ID, &AAFClassID_TimelineMobSlot ) )
+	{
+
+		/*
+		 *	Each TimelineMobSlot represents a track, either audio or video.
+		 *
+		 *	The Timeline MobSlot::Segment should hold a Sequence of Components.
+		 *	This Sequence represents the timeline track. Therefore, each SourceClip
+		 *	contained in the Sequence::Components represents a clip on the timeline.
+		 *
+		 *	CompositionMob can have TimelineMobSlots, StaticMobSlots, EventMobSlots
+		 */
+
+		if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_CompositionMob ) )
+		{
+			/*
+			 *	There should be only one Composition, since a CompositionMob represents the overall
+			 *	composition (i.e project). Observations on files confirm that.
+			 *
+			 *	However, the AAF Edit Protocol says that there could be multiple CompositionMobs
+			 *	(Mob::UsageCode TopLevel), containing other CompositionMobs (Mob::UsageCode LowerLevel).
+			 *	This was not encountered yet, even on Avid exports with AAF_EditProtocol enabled.
+			 */
+
+			if ( auidCmp( DataDefinition, &AAFDataDef_Sound ) ||
+				 auidCmp( DataDefinition, &AAFDataDef_LegacySound ) )
+			{
+
+				/* TODO rename as aafi_addAudioTrack() */
+				aafi_newAudioTrack( aafi, MobSlot, -1 );
+
+
+				/***********************************************************************************************************************/
+
+				/*
+				 *	The following seems to be ProTools proprietary.
+				 *	If a track is multi-channel, it specifies its format : 2 (stereo), 6 (5.1) or 8 (7.1).
+				 *
+				 *	In the current implementation we don't need this. We guess the format at the OperationGroup level with the
+				 *	AAFOperationDef_AudioChannelCombiner OperationDefinition, which also looks to be ProTools specific.
+				 */
+
+				// aafPID_t PIDTimelineMobAttributeList = aaf_get_PropertyIDByName( aafi->aafd, "TimelineMobAttributeList" );
+				// // aafPID_t PIDTimelineMobAttributeList = aaf_get_PropertyIDByName( aafi->aafd, "MobAttributeList" );
+				//
+				// if ( PIDTimelineMobAttributeList != 0 )
+				// {
+				// 	aafObject *TaggedValues = aaf_get_propertyValue( aafi->ctx.MobSlot, PIDTimelineMobAttributeList );
+				// 	aafObject *TaggedValue  = NULL;
+				//
+				// 	aaf_foreach_ObjectInSet( &TaggedValue, TaggedValues, NULL )
+				// 	{
+				// 		char *name = aaf_get_propertyValueText( TaggedValue, PID_TaggedValue_Name );
+				//
+				// 		printf("TaggedValue %s\n", name );
+				//
+				// 		if ( strncmp( "_TRACK_FORMAT", name, 13 ) == 0 )
+				// 		{
+				// 			uint32_t *format = (uint32_t*)aaf_get_propertyIndirectValue( TaggedValue, PID_TaggedValue_Value );
+				//
+				// 			if ( format != NULL )
+				// 				aafi->ctx.current_track->format = *format;
+				//
+				// 			printf("Format : %u\n", aafi->ctx.current_track->format );
+				// 		}
+				//
+				// 		free( name );
+				// 	}
+				// }
+
+				/***********************************************************************************************************************/
+
+
+				/* (re)set timeline position */
+				aafi->ctx.current_pos = 0;
+
+				parse_Segment( aafi, Segment );
+
+			}
+			else if ( auidCmp( DataDefinition, &AAFDataDef_Timecode ) ||
+					  auidCmp( DataDefinition, &AAFDataDef_LegacyTimecode ) )
+			{
+				parse_Segment( aafi, Segment );
+			}
+			else
+			{
+				trace_obj( aafi, MobSlot, ANSI_COLOR_YELLOW );
+				printf( "%s\n", DataDefToText( DataDefinition ) );
+			}
+
+		}
+		else if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_MasterMob ) )
+		{
+			/* Retrieve Essences */
+
+			if ( auidCmp( DataDefinition, &AAFDataDef_Sound ) ||
+				 auidCmp( DataDefinition, &AAFDataDef_LegacySound ) )
+			{
+				parse_Segment( aafi, Segment );
+
+				retrieve_EssenceData( aafi );
+			}
+			else
+			{
+				trace_obj( aafi, MobSlot, ANSI_COLOR_YELLOW );
+				printf( "%s\n", DataDefToText( DataDefinition ) );
+			}
+		}
+		else if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_SourceMob ) )
+		{
+			/* See below.. */
+		}
+		else
+		{
+			trace_obj( aafi, MobSlot, ANSI_COLOR_YELLOW );
+			printf( "%s\n", DataDefToText( DataDefinition ) );
+		}
+
+	}
+	else
+	{
+		trace_obj( aafi, MobSlot, ANSI_COLOR_YELLOW );
+		printf( "%s\n", DataDefToText( DataDefinition ) );
+	}
+}
+
+
+
+
+
+
+
+
+int aafi_retrieveData( AAF_Iface *aafi )
+{
+
+	aaf_foreach_ObjectInSet( &(aafi->ctx.Mob), aafi->aafd->Mobs, NULL )
+	{
+
+		parse_Mob( aafi, aafi->ctx.Mob );
+
+	}
+
+
+	/*
+	 */
 	aaf_foreach_ObjectInSet( &(aafi->ctx.Mob), aafi->aafd->Mobs, &AAFClassID_SourceMob )
 	{
 
@@ -2157,7 +2213,7 @@ int aafi_retrieveData( AAF_Iface *aafi )
 			 *	Check if the SourceMob was parsed.
 			 *	If it was not, we can print the trace.
 			 *
-			 *	NOTE We do it after the main loop, so we're sure all MasterMobs was parsed.
+			 *	NOTE We do it after the main loop, so we make sure all MasterMobs was parsed.
 			 */
 
 			aafObject *Segment = aaf_get_propertyValue( aafi->ctx.MobSlot, PID_MobSlot_Segment );
