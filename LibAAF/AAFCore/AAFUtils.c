@@ -132,7 +132,7 @@ void printObjectProperties( AAF_Data *aafd, aafObject *Obj )
 
 char * printUID( aafUID_t *auid )
 {
-	char *buf = malloc( 74 );
+	static char buf[74];
 
 	snprintf( buf, 74, "{0x%08x, 0x%04x, 0x%04x, { 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x }}",
 		auid->Data1,
