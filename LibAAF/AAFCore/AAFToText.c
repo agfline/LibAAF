@@ -866,7 +866,7 @@ const char * TypeIDToText( const aafUID_t *auid )
 }
 
 
-const char * DataDefToText( const aafUID_t *auid )
+const char * DataDefToText( AAF_Data *aafd, const aafUID_t *auid )
 {
 	if ( auid == NULL )
 		return NULL;
@@ -909,7 +909,29 @@ const char * DataDefToText( const aafUID_t *auid )
 
 
 	if ( auidCmp( auid, &AAFUID_NULL ) )
-		return "";
+		return "AAFUID_NULL";
+
+
+
+	static char TEXTDataDef[1024];
+
+	aafObject *DataDefinitions = aaf_get_propertyValue( aafd->Dictionary, PID_Dictionary_DataDefinitions );
+	aafObject *DataDefinition  = NULL;
+
+	aaf_foreach_ObjectInSet( &DataDefinition, DataDefinitions, NULL )
+	{
+		aafUID_t *DataDefIdent = aaf_get_propertyValue( DataDefinition, PID_DefinitionObject_Identification );
+
+		if ( DataDefIdent && auidCmp( DataDefIdent, auid ) )
+		{
+			char *name = aaf_get_propertyValueText( DataDefinition, PID_DefinitionObject_Name );
+			snprintf( TEXTDataDef, 1024, "%s", name );
+			free( name );
+
+			return TEXTDataDef;
+		}
+	}
+
 
 	return "Unknown value";
 

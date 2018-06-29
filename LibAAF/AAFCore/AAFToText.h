@@ -51,7 +51,7 @@ const char * TypeIDToText( const aafUID_t *auid );
 
 const char * OPDefToText( const aafUID_t *auid );
 
-const char * DataDefToText( const aafUID_t *auid );
+const char * DataDefToText( AAF_Data *aafd, const aafUID_t *auid );
 
 const char * OperationDefToText( AAF_Data *aafd, const aafUID_t *auid );
 
