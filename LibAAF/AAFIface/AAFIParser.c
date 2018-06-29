@@ -1135,7 +1135,7 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 			 *	Mono Audio Dissolve (Fade, Cross Fade)
 			 *
 			 *	The same parameter (curve/level) is applied to the outgoing fade on first
-			 *	clip and to the incoming fade on second clip.
+			 *	clip (if any) and to the incoming fade on second clip (if any).
 			 */
 
 			Trans->flags |= AAFI_TRANS_SINGLE_CURVE;
@@ -1150,7 +1150,7 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 
 				/* TODO is there realy some transition here ??? (fairlight AAF) */
 
-				_warning( "No PID_OperationGroup_Parameters on transition : falling back on default AAFInterpolationDef_Linear.\n" );
+				_warning( "Missing OperationGroup::Parameters on transition : falling back on default AAFInterpolationDef_Linear.\n" );
 
 				Trans->flags |= AAFI_INTERPOL_LINEAR;
 
@@ -1177,11 +1177,6 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 					Trans->value_a[1].numerator   = 0;
 					Trans->value_a[1].denominator = 0;
 				}
-
-				// printf( "\n\nxxx OperationGroup xxx\n" );
-				// printObjectProperties( aafi->aafd, OpGroup );
-				// printf( "\n\nxxx Transition xxx\n" );
-				// printObjectProperties( aafi->aafd, Transition );
 
 			}
 			else
@@ -1218,11 +1213,7 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 		}
 		else if ( auidCmp( OperationIdentification, &AAFOperationDef_TwoParameterMonoAudioDissolve ) )
 		{
-			/*
-			 *	Two Parameters Mono Audio Dissolve
-			 *
-			 *	Two distinct parameters are used for outgoing and incoming fades.
-			 */
+			/* Two distinct parameters are used for the outgoing and incoming fades. */
 
 			trace_obj( aafi, OpGroup , ANSI_COLOR_RED);
 			_warning( "AAFOperationDef_TwoParameterMonoAudioDissolve not supported yet.\n" );
@@ -1231,11 +1222,7 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 		}
 		else if ( auidCmp( OperationIdentification, &AAFOperationDef_StereoAudioDissolve ) )
 		{
-			/*
-			 *	Stereo Audio Dissolve
-			 *
-			 *	TODO Unknown usage and implementation
-			 */
+			/* 	TODO Unknown usage and implementation */
 
 			trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
 			_warning( "AAFOperationDef_StereoAudioDissolve not supported yet.\n" );
@@ -1244,19 +1231,7 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 		{
 			trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
 		}
-	}
-	else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioPan ) )
-	{
-		/*
-		 *	Mono Audio Pan (Track Pan)
-		 *
-		 *	TODO : Only Track-based
-		 */
 
-		trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
-		_warning( "AAFOperationDef_MonoAudioPan not supported yet.\n" );
-
-		return;
 	}
 	else if ( auidCmp( OperationIdentification, &AAFOperationDef_AudioChannelCombiner ) )
 	{
@@ -1319,109 +1294,85 @@ static void parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 
 		// return;
 	}
-
-	/* TODO else if () */
-	else
+	else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioGain ) )
 	{
 
-		aafi->ctx.current_gain = calloc( sizeof(aafiAudioGain), sizeof(unsigned char) );
+		aafObject *Parameters = aaf_get_propertyValue( OpGroup, PID_OperationGroup_Parameters );
+		aafObject *Parameter  = NULL;
 
+		if ( Parameters == NULL )
+			_fatal( "Could not retrieve Amplitude Parameter.\n" );
 
-		if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioGain ) )
+		/*
+		 *	We have to loop because of custom Parameters.
+		 *	Seen in AVID Media Composer AAFs (test.aaf). TODO ParamDef PanVol_IsTrimGainEffect ?
+		 */
+
+		// printf("_entryCount : %u\n", Parameters->Header->_entryCount );
+
+		aaf_foreach_ObjectInSet( &Parameter, Parameters, NULL )
 		{
-
-			aafObject *Parameters = aaf_get_propertyValue( OpGroup, PID_OperationGroup_Parameters );
-			aafObject *Parameter  = NULL;
-
-			if ( Parameters == NULL )
-				_fatal( "Could not retrieve Amplitude Parameter.\n" );
-
-			/*
-			 *	Retrieves the Amplitude Parameter
-			 *
-			 *	We have to loop because of custom Parameters.
-			 *	Seen in AVID Media Composer AAFs.
-			 */
-
-			// printf("_entryCount : %u\n", Parameters->Header->_entryCount );
-
-			aaf_foreach_ObjectInSet( &Parameter, Parameters, NULL )
-			{
-				aafUID_t *paramDef = aaf_get_propertyValue( Parameter, PID_Parameter_Definition );
-
-				// printf("ParamDef %s (%s)\n\n", ParameterToText(paramDef), printUID(paramDef) );
-
-				if ( auidCmp( paramDef, &AAFParameterDef_Amplitude ) )
-					break;
-			}
-
-			if ( Parameter == NULL )
-				_fatal( "Could not retrieve Amplitude Parameter.\n" );
 
 			parse_Parameter( aafi, Parameter );
 
 		}
-		else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioMixdown ) )
-		{
 
-			/*
-			 *	Mono Audio Mixdown
-			 *
-			 *	TODO Unknown usage and implementation
-			 */
+	}
+	else if ( auidCmp( OperationIdentification, &AAFOperationDef_StereoAudioGain ) )
+	{
 
-			trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
-			_warning( "AAFOperationDef_MonoAudioMixdown not supported yet.\n" );
+		/* TODO Unknown usage and implementation */
 
-		}
-		else if ( auidCmp( OperationIdentification, &AAFOperationDef_StereoAudioGain ) )
-		{
+		trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
+		_warning( "AAFOperationDef_StereoAudioGain not supported yet.\n" );
 
-			/*
-			 *	Stereo Audio Gain
-			 *
-			 *	TODO Unknown usage and implementation
-			 */
+	}
+	else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioPan ) )
+	{
+		/* TODO Should Only be Track-based (first Segment of TimelineMobSlot.) */
 
-			trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
-			_warning( "AAFOperationDef_StereoAudioGain not supported yet.\n" );
+		trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
+		_warning( "AAFOperationDef_MonoAudioPan not supported yet.\n" );
 
-		}
-		else
-		{
-			trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
-			return;
-		}
+	}
+	else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioMixdown ) )
+	{
+
+		/* TODO Unknown usage and implementation */
+
+		trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
+		_warning( "AAFOperationDef_MonoAudioMixdown not supported yet.\n" );
+
+	}
+	else
+	{
+		trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
+	}
 
 
-		/*
-		 *	Parses each SourceClip in the OperationGroup::InputSegments and apply gain
-		 */
 
+	/*
+	 *	Parses Segments in the OperationGroup::InputSegments, only if
+	 *	OperationGroup is not a Transition as a Transition has no InputSegments,
+	 *	and not an AudioChannelCombiner as they were already parsed.
+	 */
+
+	if ( auidCmp( OpGroup->Parent->Class->ID, &AAFClassID_Transition ) == 0 &&
+		 auidCmp( OperationIdentification, &AAFOperationDef_AudioChannelCombiner ) == 0 )
+	{
 
 		aafObject *InputSegments = aaf_get_propertyValue( OpGroup, PID_OperationGroup_InputSegments );
 		aafObject *InputSegment  = NULL;
 
-		// TODO : Shall have one input if MonoAudioGain.
-
 		aaf_foreach_ObjectInSet( &InputSegment, InputSegments, NULL )
 		{
 
-			// if ( auidCmp( InputSegment->Class->ID, &AAFClassID_SourceClip) == 0 )
-			// {
-			// 	trace_obj( aafi, InputSegment, ANSI_COLOR_CYAN );
-			// 	continue;
-			// }
-
-			// aafiAudioClip *audioClip = (aafiAudioClip*)parse_SourceClip( aafi, InputSegment );
 			parse_Segment( aafi, InputSegment );
 
-			// audioClip->gain = aafi->ctx.current_gain;
 		}
 
 		aafi->ctx.current_gain = NULL;
 	}
-
 }
 
 
@@ -1431,7 +1382,6 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 {
 	trace_obj( aafi, SourceClip, ANSI_COLOR_MAGENTA );
 
-	// printObjectProperties( aafi->aafd, SourceClip );
 
 	/*** Clip ***/
 
@@ -1477,13 +1427,11 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 		aafiAudioClip    *audioClip = (aafiAudioClip*)&item->data;
 
 
-		audioClip->pos = aafi->ctx.current_pos;
-
-
-		audioClip->len = *length;
-
-
 		audioClip->gain = aafi->ctx.current_gain;
+
+		audioClip->pos  = aafi->ctx.current_pos;
+
+		audioClip->len  = *length;
 
 
 		int64_t *startTime = (int64_t*)aaf_get_propertyValue( SourceClip, PID_SourceClip_StartTime );
@@ -1574,16 +1522,6 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 		aafi->ctx.current_audioEssence = audioEssence;
 
 
-		// aafMobID_t *sourceMobID = (aafMobID_t*)aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceID );
-		// aafObject *mob       = aaf_get_MobByID( aafi->aafd->Mobs, sourceMobID );
-		// aafSlotID_t *SlotID  = aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceMobSlotID );
-		// aafObject *MobSlots  = aaf_get_propertyValue( mob, PID_Mob_Slots );
-		// aafObject *MobSlot   = aaf_get_MobSlotBySlotID( MobSlots, *SlotID );
-		// printf("\n:::: Essence SourceMob ::::\n");
-		// // printObjectProperties( aafi->aafd, MobSlot );
-		// printObjectProperties(mob);
-		// printf("\n\n");
-
 
 		audioEssence->masterMobID = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_MobID );
 
@@ -1622,49 +1560,11 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 
 
 
-		// printf("SourceMob ??? %s\n", ClassIDToText( aafi->aafd, SourceMob->Class->ID ) );
-        //
-		// aafObject *SourceMobSlots = aaf_get_propertyValue( SourceMob, PID_Mob_Slots );
-		// aafObject *SourceMobSlot  = NULL;
-        //
-		// aaf_foreach_ObjectInSet( &SourceMobSlot, SourceMobSlots, NULL )
-		// {
-		// 	printf(">>>> SourceMobSlot %s\n", ClassIDToText( aafi->aafd, SourceMobSlot->Class->ID ) );
-		// 	printObjectProperties( aafi->aafd, SourceMobSlot );
-        //
-		// 	// aafObject *Segment = aaf_get_propertyValue( aafi->ctx.MobSlot, PID_MobSlot_Segment );
-		// 	// printf("Segment %s\n", ClassIDToText( aafi->aafd, Segment->Class->ID ) );
-		// 	// printObjectProperties( aafi->aafd, Segment );
-        //
-		// 	printf("\n\n");
-		// }
-
-
-
 		aafObject *EssenceDesc = aaf_get_propertyValue( SourceMob, PID_SourceMob_EssenceDescription );
 
 		if ( EssenceDesc == NULL )
 			_fatal( "Could not retrieve EssenceDesc.\n" );
 
-
-
-
-
-		// aafSlotID_t *SlotID  = aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceMobSlotID );
-		// aafObject *MobSlots  = aaf_get_propertyValue( SourceMob, PID_Mob_Slots );
-		// aafObject *MobSlot   = aaf_get_MobSlotBySlotID( MobSlots, *SlotID );
-		// printf("\n:::: Essence SourceMob ::::\n");
-		// // printObjectProperties( aafi->aafd, MobSlot );
-		// printObjectProperties(SourceMob);
-		// printf("\n\n");
-		// printf("EssenceDescriptor : %s\n", ClassIDToText( aafi->aafd, EssenceDesc->Class->ID ) );
-		// printObjectProperties(EssenceDesc);
-		// printf("\n\n\n\n");
-
-
-
-
-		// printObjectProperties( aafi->aafd, SourceClip );
 
 		parse_EssenceDescriptor( aafi, EssenceDesc );
 
@@ -1726,9 +1626,6 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 static void parse_Parameter( AAF_Iface *aafi, aafObject *Parameter )
 {
 
-	// aafUID_t *paramDef = aaf_get_propertyValue( Parameter, PID_Parameter_Definition );
-	// printf("ParamDef : %s\n", ParameterToText(paramDef) );
-
 	if ( auidCmp( Parameter->Class->ID, &AAFClassID_ConstantValue ) )
 	{
 
@@ -1748,18 +1645,23 @@ static void parse_Parameter( AAF_Iface *aafi, aafObject *Parameter )
 
 static void parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue )
 {
+	aafUID_t *ParamDef = aaf_get_propertyValue( ConstantValue, PID_Parameter_Definition );
+
 	aafUID_t *OperationIdentification = get_OperationGroup_OperationIdentification( aafi, ConstantValue->Parent );
 
 
-	if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioGain ) )
+	if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioGain ) &&
+         auidCmp( ParamDef, &AAFParameterDef_Amplitude ) )
 	{
 
 		trace_obj( aafi, ConstantValue, ANSI_COLOR_MAGENTA );
 
+
+		if ( aafi->ctx.current_gain == NULL )
+		     aafi->ctx.current_gain = calloc( sizeof(aafiAudioGain), sizeof(unsigned char) );
+
+
 		aafiAudioGain *Gain = aafi->ctx.current_gain;
-
-
-		Gain->flags   |= AAFI_AUDIO_GAIN_CONSTANT;
 
 
 		aafRational_t *multiplier = aaf_get_propertyIndirectValue( ConstantValue, PID_ConstantValue_Value );
@@ -1772,11 +1674,17 @@ static void parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue )
 		Gain->pts_cnt  = 1;
 
 		memcpy( &Gain->value[0], multiplier, sizeof(aafRational_t) );
-		// Gain->value[0] = multiplier;
 
-		// printf( "RAW   %i/%i\n", multiplier->numerator, multiplier->denominator );
-		// printf( "GAIN  %+05.1lf dB\n", 20 * log10( rationalToFloat( Gain->value[0] ) ) );
+		Gain->flags   |= AAFI_AUDIO_GAIN_CONSTANT;
 
+		// printObjectProperties( aafi->aafd, ConstantValue );
+
+	}
+	else
+	{
+		trace_obj( aafi, ConstantValue, ANSI_COLOR_RED );
+		printf("ParamDef %s (%s)\n\n", ParameterToText( aafi->aafd, ParamDef ), printUID( ParamDef ) );
+		printObjectProperties( aafi->aafd, ConstantValue );
 	}
 }
 
@@ -1785,6 +1693,8 @@ static void parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue )
 
 static void parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue )
 {
+	aafUID_t *ParamDef = aaf_get_propertyValue( VaryingValue, PID_Parameter_Definition );
+
 	aafUID_t *OperationIdentification = get_OperationGroup_OperationIdentification( aafi, VaryingValue->Parent );
 
 
@@ -1819,7 +1729,7 @@ static void parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue )
 	else
 	{
 		/* TODO should fallback to some predefined default */
-		_warning( "Unknwon Interpolation\n" );
+		_warning( "Unknwon Interpolation.\n" );
 	}
 
 
@@ -1846,7 +1756,8 @@ static void parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue )
 		// 	printf("time_%i : %i/%i   value_%i : %i/%i\n", i, Trans->time_a[i].numerator, Trans->time_a[i].denominator, i, Trans->value_a[i].numerator, Trans->value_a[i].denominator  );
 		// }
 	}
-	else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioGain ) )
+	else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioGain ) &&
+              auidCmp( ParamDef, &AAFParameterDef_Amplitude ) )
 	{
 
 		aafObject *Points = aaf_get_propertyValue( VaryingValue, PID_VaryingValue_PointList );
@@ -1855,18 +1766,18 @@ static void parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue )
 		{
 
 			/*
-			 *	Some files like ProTools and Logic break standard by having no PointList entry.
+			 *	Some files like the ProTools and Logic ones break standard by having no PointList entry.
 			 */
 
 			trace_obj( aafi, VaryingValue, ANSI_COLOR_YELLOW );
 
 			_warning( "Missing VaryingValue::PointList.\n" );
 
-			free( aafi->ctx.current_gain );
-			aafi->ctx.current_gain = NULL;
-
 			return;
 		}
+
+		if ( aafi->ctx.current_gain == NULL )
+			 aafi->ctx.current_gain = calloc( sizeof(aafiAudioGain), sizeof(unsigned char) );
 
 		aafiAudioGain *Gain = aafi->ctx.current_gain;
 
@@ -2142,7 +2053,7 @@ static void parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot )
 			else
 			{
 				trace_obj( aafi, MobSlot, ANSI_COLOR_YELLOW );
-				printf( "%s\n", DataDefToText( DataDefinition ) );
+				printf( "%s\n", DataDefToText( aafi->aafd, DataDefinition ) );
 			}
 
 		}
@@ -2160,7 +2071,7 @@ static void parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot )
 			else
 			{
 				trace_obj( aafi, MobSlot, ANSI_COLOR_YELLOW );
-				printf( "%s\n", DataDefToText( DataDefinition ) );
+				printf( "%s\n", DataDefToText( aafi->aafd, DataDefinition ) );
 			}
 		}
 		else if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_SourceMob ) )
@@ -2170,14 +2081,14 @@ static void parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot )
 		else
 		{
 			trace_obj( aafi, MobSlot, ANSI_COLOR_YELLOW );
-			printf( "%s\n", DataDefToText( DataDefinition ) );
+			printf( "%s\n", DataDefToText( aafi->aafd, DataDefinition ) );
 		}
 
 	}
 	else
 	{
 		trace_obj( aafi, MobSlot, ANSI_COLOR_YELLOW );
-		printf( "%s\n", DataDefToText( DataDefinition ) );
+		printf( "%s\n", DataDefToText( aafi->aafd, DataDefinition ) );
 	}
 }
 
@@ -2233,7 +2144,7 @@ int aafi_retrieveData( AAF_Iface *aafi )
 			if ( audioEssence == NULL )
 			{
 				trace_obj( aafi, aafi->ctx.MobSlot, ANSI_COLOR_YELLOW );
-				printf( "%s\n", DataDefToText( DataDefinition ) );
+				printf( "%s\n", DataDefToText( aafi->aafd, DataDefinition ) );
 			}
 
 		}
