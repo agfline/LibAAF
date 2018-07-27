@@ -6,6 +6,7 @@
 #include <getopt.h>
 
 #include "../LibAAF/libAAF.h"
+#include "./thirdparty/libTC.h"
 
 
 #define ANSI_COLOR_RED     "\x1b[31m"
@@ -765,8 +766,25 @@ int main( int argc, char *argv[] )
 
 	if ( aaf_clips )
 	{
-		printf( "Composition Name : %s\n", aafi->compositionName );
-		printf( "==================\n\n" );
+		printf( "Composition Name     : %s\n", aafi->compositionName );
+		printf( "======================\n" );
+
+		enum TC_FORMAT format = tc_fps2format( (float)(aafi->Audio->tc->fps ), aafi->Audio->tc->drop );
+
+		struct timecode tc_comp;
+		tc_set_by_unitValue( &tc_comp, aafi->Audio->tc->start, (rational_t*)aafi->Audio->tc->edit_rate, format );
+
+
+		printf("Composition TC Start : %s (%u fps %s)\n",
+			tc_comp.string,
+			// eu2tc_h( aafi->Audio->tc->edit_rate, 90004*1920 ),
+			// eu2tc_m( aafi->Audio->tc->edit_rate, 90004*1920 ),
+			// eu2tc_s( aafi->Audio->tc->edit_rate, 90004*1920 ),
+			// eu2tc_f( aafi->Audio->tc->edit_rate, aafi->Audio->tc, 90004*1920),
+			aafi->Audio->tc->fps,
+			(aafi->Audio->tc->drop) ? "DF" : "NDF"
+		);
+		printf( "======================\n\n" );
 
 		aafiUserComment *Comment = aafi->Comments;
 
@@ -793,15 +811,15 @@ int main( int argc, char *argv[] )
 		foreach_audioTrack( audioTrack, aafi )
 		{
 
-			printf( "Track (%u) - %s - \"%s\"     edit_rate %i/%i (%02.2f)\n",
+			printf( "Track (%u) - %s - edit_rate %i/%i (%02.2f)  -  \"%s\"\n",
 			        audioTrack->number,
 					(audioTrack->format == AAFI_TRACK_FORMAT_MONO)   ? "MONO"   :
 					(audioTrack->format == AAFI_TRACK_FORMAT_STEREO) ? "STEREO" :
 					(audioTrack->format == AAFI_TRACK_FORMAT_5_1)    ? "5.1"    :
 					(audioTrack->format == AAFI_TRACK_FORMAT_7_1)    ? "7.1"    : "Unknown",
-			        (audioTrack->name != NULL) ? audioTrack->name : "",
 			        audioTrack->edit_rate->numerator, audioTrack->edit_rate->denominator,
-					rationalToFloat(audioTrack->edit_rate)
+					rationalToFloat(audioTrack->edit_rate),
+					(audioTrack->name != NULL) ? audioTrack->name : ""
 			 );
 
 			foreach_audioItem( audioItem, audioTrack )
@@ -877,24 +895,46 @@ int main( int argc, char *argv[] )
 
 				char str[16];
 
+				struct timecode tc_in;
+				struct timecode tc_out;
+				struct timecode tc_len;
+
+				// enum TC_FORMAT format = tc_fps2format( (float)(aafi->Audio->tc->fps ), aafi->Audio->tc->drop );
+
+				// printf( "EditRate : %f\n", rationalToFloat(audioClip->track->edit_rate) );
+				// printf( "EditRate : %f\n", rationalToFloat(audioClip->track->edit_rate) );
+
+				// printf( "Format : %s\n", TC_FORMAT_STR[format] );
+
+				tc_set_by_unitValue( &tc_in,  (audioClip->pos + audioClip->track->Audio->tc->start),                  (rational_t*)audioClip->track->edit_rate, format );
+				tc_set_by_unitValue( &tc_out, (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start), (rational_t*)audioClip->track->edit_rate, format );
+				tc_set_by_unitValue( &tc_len,  audioClip->len,                                                        (rational_t*)audioClip->track->edit_rate, format );
+
 				printf( " Clip:%u%s  Track:%u  Gain:%s "
-						" Start:%02u:%02u:%02u:%02u  Len:%02u:%02u:%02u:%02u "
-						" End:%02u:%02u:%02u:%02u  Fadein: %s  Fadeout: %s  SourceFile: %s\n",
+						" Start:%s  Len:%s  End:%s  "
+						" Fadein: %s  Fadeout: %s  SourceFile: %s\n",
 					i, ( i < 10 ) ? " " : "",
 					audioClip->track->number,
 					gainToStr( str, audioClip ),
-					eu2tc_h( audioClip, (audioClip->pos + audioClip->track->Audio->tc->start) ),
-					eu2tc_m( audioClip, (audioClip->pos + audioClip->track->Audio->tc->start) ),
-					eu2tc_s( audioClip, (audioClip->pos + audioClip->track->Audio->tc->start) ),
-					eu2tc_f( audioClip, (audioClip->pos + audioClip->track->Audio->tc->start) ),
-					eu2tc_h( audioClip, (audioClip->len) ),
-					eu2tc_m( audioClip, (audioClip->len) ),
-					eu2tc_s( audioClip, (audioClip->len) ),
-					eu2tc_f( audioClip, (audioClip->len) ),
-					eu2tc_h( audioClip, (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start) ),
-					eu2tc_m( audioClip, (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start) ),
-					eu2tc_s( audioClip, (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start) ),
-					eu2tc_f( audioClip, (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start) ),
+					tc_in.string,
+					tc_len.string,
+					tc_out.string,
+					// tc_in.hours,  tc_in.minutes,  tc_in.seconds,  tc_in.frames,
+					// tc_len.hours, tc_len.minutes, tc_len.seconds, tc_len.frames,
+					// tc_out.hours, tc_out.minutes, tc_out.seconds, tc_out.frames,
+					// eu2tc_h( audioClip->track->edit_rate, (audioClip->pos + audioClip->track->Audio->tc->start) ),
+					// eu2tc_m( audioClip->track->edit_rate, (audioClip->pos + audioClip->track->Audio->tc->start) ),
+					// eu2tc_s( audioClip->track->edit_rate, (audioClip->pos + audioClip->track->Audio->tc->start) ),
+					// eu2tc_f( audioClip->track->edit_rate, audioClip->track->Audio->tc, (audioClip->pos + audioClip->track->Audio->tc->start) ),
+					// eu2tc_h( audioClip->track->edit_rate, (audioClip->len) ),
+					// eu2tc_m( audioClip->track->edit_rate, (audioClip->len) ),
+					// eu2tc_s( audioClip->track->edit_rate, (audioClip->len) ),
+					// eu2tc_f( audioClip->track->edit_rate, audioClip->track->Audio->tc, (audioClip->len) ),
+					// eu2tc_h( audioClip->track->edit_rate, (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start) ),
+					// eu2tc_m( audioClip->track->edit_rate, (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start) ),
+					// eu2tc_s( audioClip->track->edit_rate, (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start) ),
+					// eu2tc_f( audioClip->track->edit_rate, audioClip->track->Audio->tc, (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start) ),
+					// (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start),
 					( fadein != NULL ) ?
 						(fadein->flags & AAFI_INTERPOL_NONE)     ? "CURV_NON" :
 						(fadein->flags & AAFI_INTERPOL_LINEAR)   ? "CURV_LIN" :

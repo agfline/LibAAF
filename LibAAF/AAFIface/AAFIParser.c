@@ -1005,7 +1005,10 @@ static void parse_Segment( AAF_Iface *aafi, aafObject *Segment )
 	{
 
 		/*
-		 *	TODO Provides support for multiple essences ???
+		 *	Should provide support for multiple essences representing the same
+		 *	source material with different resolution, compression, codec, etc.
+		 *
+		 *	TODO To be tested with Avid and rendered effects.
 		 */
 
 		trace_obj( aafi, Segment, ANSI_COLOR_RED );
@@ -1087,7 +1090,7 @@ static void parse_Timecode( AAF_Iface *aafi, aafObject *Timecode )
 
 
 
-	int64_t  *tc_start = (int64_t *)aaf_get_propertyValue( Timecode, PID_Timecode_Start );
+	aafPosition_t *tc_start = (int64_t *)aaf_get_propertyValue( Timecode, PID_Timecode_Start );
 
 	if ( tc_start == NULL )
 		_fatal( "Missing Timecode::Start.\n" );
@@ -1105,11 +1108,16 @@ static void parse_Timecode( AAF_Iface *aafi, aafObject *Timecode )
 		_fatal( "Missing Timecode::Drop.\n" );
 
 
+	aafRational_t *tc_edit_rate = (aafRational_t*)aaf_get_propertyValue( aafi->ctx.MobSlot, PID_TimelineMobSlot_EditRate );
+
+	if ( tc_edit_rate == NULL )
+		_fatal( "Missing Timecode TimelineMobSlot::EditRate.\n" );
+
 
 	tc->start = *tc_start;
 	tc->fps   = *tc_fps;
 	tc->drop  = *tc_drop;
-
+	tc->edit_rate = tc_edit_rate;
 
 	aafi->Audio->tc = tc;
 }

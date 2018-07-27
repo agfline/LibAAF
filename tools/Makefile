@@ -24,7 +24,7 @@ clean:
 	rm -f $(BINDIR)/AAFInfo $(BINDIR)/AAFExtract $(BINDIR)/AAF2Ardour $(BINDIR)/Ardour/session/Ardour.ardour $(BINDIR)/Ardour/session/interchange/testF3/audiofiles/* $(BINDIR)/Ardour/session/peaks/*
 
 
-$(BINDIR)/AAFInfo: AAFInfo.c
+$(BINDIR)/AAFInfo: AAFInfo.c thirdparty/libTC.c
 	$(CC) -o $@ $^ -L$(OBJDIR) $(CFLAGS) -lAAF -lm
 
 $(BINDIR)/AAFExtract: AAFExtract.c

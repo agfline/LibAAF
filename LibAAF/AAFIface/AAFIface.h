@@ -417,6 +417,13 @@ typedef struct aafiTimecode
 
 	uint8_t        drop;
 
+	/**
+	 *	Keeps track of the TimelineMobSlot EditRate.
+	 *	TODO do we care ?
+	 */
+
+	aafRational_t *edit_rate;
+
 } aafiTimecode;
 
 
@@ -639,18 +646,19 @@ typedef struct AAF_Iface
 #define eu2sample( audioClip, val ) \
 	(int64_t)(val * (audioClip->Essence->nSamplesPerSec * (1 / rationalToFloat(audioClip->track->edit_rate))))
 
-#define eu2tc_h( audioClip, val ) \
-	(uint16_t)((val * (1 / rationalToFloat(audioClip->track->edit_rate))) / 3600)
+/*
+#define eu2tc_h( edit_rate, val ) \
+	(uint16_t)((val * (1 / rationalToFloat(edit_rate))) / 3600)
 
-#define eu2tc_m( audioClip, val ) \
-	(uint16_t)((int64_t)(val * (1 / rationalToFloat(audioClip->track->edit_rate))) % 3600 / 60)
+#define eu2tc_m( edit_rate, val ) \
+	(uint16_t)((int64_t)(val * (1 / rationalToFloat(edit_rate))) % 3600 / 60)
 
-#define eu2tc_s( audioClip, val ) \
-	(uint16_t)((int64_t)(val * (1 / rationalToFloat(audioClip->track->edit_rate))) % 3600 % 60)
+#define eu2tc_s( edit_rate, val ) \
+	(uint16_t)((int64_t)(val * (1 / rationalToFloat(edit_rate))) % 3600 % 60)
 
-#define eu2tc_f( audioClip, val ) \
-	(uint16_t)(((val / ((int64_t)rationalToFloat(audioClip->track->edit_rate)) / audioClip->track->Audio->tc->fps)) % audioClip->track->Audio->tc->fps)
-
+#define eu2tc_f( edit_rate, tc, val ) \
+	(uint16_t)(((int64_t)(val * (1 / rationalToFloat(edit_rate))) % tc->fps) * tc->fps)
+*/
 
 
 

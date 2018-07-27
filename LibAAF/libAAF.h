@@ -8,6 +8,7 @@
 
 #include "AAFIface/AAFIface.h"
 #include "AAFIface/AAFIParser.h"
+// #include "AAFIface/thirdparty/libTC.h"
 
 #include "AAFCore/AAFDefs/AAFClassDefUIDs.h"
 #include "AAFCore/AAFDefs/AAFTypeDefUIDs.h"
