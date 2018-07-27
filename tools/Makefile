@@ -35,7 +35,5 @@ $(BINDIR)/AAF2Ardour: $(OBJDIR)/Ardour.o AAF2Ardour.c
 
 
 ### Ardour
-$(OBJDIR)/Ardour.o: Ardour/Ardour.c Ardour/Ardour.h
+$(OBJDIR)/Ardour.o: thirdparty/Ardour/Ardour.c
 	$(CC) -c -o $@ $< $(CFLAGS)
-
-

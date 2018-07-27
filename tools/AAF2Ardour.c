@@ -5,7 +5,7 @@
 
 #include "../LibAAF/libAAF.h"
 
-#include "./Ardour/Ardour.h"
+#include "./thirdparty/Ardour/Ardour.h"
 
 
 
