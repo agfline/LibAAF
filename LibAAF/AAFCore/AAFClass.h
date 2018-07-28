@@ -89,7 +89,7 @@ aafPropertyDef * getPropertyDefinitionByID( aafClass *Classes, aafPID_t PID );
 void printClasses( aafClass *Class, int depth );
 
 
-void setDefaultClasses( AAF_Data *aafd );
+int setDefaultClasses( AAF_Data *aafd );
 
 
 #endif // ! __AAFClass_h__
