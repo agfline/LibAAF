@@ -539,10 +539,18 @@ void aaf_release( AAF_Data **aafd )
 
 char * aaf_get_ObjectPath( aafObject *Obj )
 {
-	char *path = calloc( CFB_PATH_NAME_SZ, sizeof(char) );
+	// char *path = calloc( CFB_PATH_NAME_SZ, sizeof(char) );
+    //
+	// if ( path == NULL )
+	// {
+	// 	_error( "%s.\n", strerror( errno ) );
+	// 	return NULL;
+	// }
 
-	if ( path == NULL )
-		_fatal( "%s.\n", strerror( errno ) );
+	static char path[CFB_PATH_NAME_SZ];
+
+	path[0] = '\0';
+	// memset( path, 0x00, CFB_PATH_NAME_SZ );
 
 
 	uint32_t offset  = 0;
@@ -556,8 +564,8 @@ char * aaf_get_ObjectPath( aafObject *Obj )
 		if ( offset + pathLen + 1 > CFB_PATH_NAME_SZ )
 			_fatal( "Retrieved path length is bigger than CFB_PATH_NAME_SZ.\n" );
 
-		if ( pathLen > 0 )
-			memcpy( path+(++offset), path, pathLen );
+		// if ( pathLen > 0 )
+		memcpy( path+(++offset), path, pathLen+1 ); // +1 for \0
 
 		memcpy( path, Obj->Name, offset );
 
@@ -567,6 +575,8 @@ char * aaf_get_ObjectPath( aafObject *Obj )
 
 		Obj = Obj->Parent;
 	}
+
+	path[pathLen+offset] = '\0';
 
 	return path;
 }
