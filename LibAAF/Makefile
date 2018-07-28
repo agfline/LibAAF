@@ -56,7 +56,7 @@ clean:
 
 # DO NOT DELETE
 
-LibCFB/LibCFB.o: LibCFB/LibCFB.h LibCFB/CFBTypes.h
+LibCFB/LibCFB.o: LibCFB/LibCFB.h LibCFB/CFBTypes.h common/debug.h
 AAFCore/AAFToText.o: AAFCore/AAFTypes.h LibCFB/LibCFB.h LibCFB/CFBTypes.h
 AAFCore/AAFToText.o: AAFCore/AAFUtils.h AAFCore/AAFCore.h AAFCore/AAFToText.h
 AAFCore/AAFToText.o: AAFCore/AAFClass.h AAFCore/AAFDefs/AAFClassDefUIDs.h
