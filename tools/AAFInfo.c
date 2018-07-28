@@ -1056,11 +1056,11 @@ int main( int argc, char *argv[] )
 
 		for ( Object = aafd->Objects; Object != NULL; Object = Object->nextObj )
 		{
-			char *objPath = aaf_get_ObjectPath( Object );
+			// char *objPath = aaf_get_ObjectPath( Object );
 
-			printf( "\n\n\n Object @ %s\n", objPath );
+			printf( "\n\n\n Object @ %s\n", aaf_get_ObjectPath( Object ) );
 
-			free( objPath );
+			// free( objPath );
 
 
 			aafProperty *Prop = NULL;
