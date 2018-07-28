@@ -781,7 +781,7 @@ static void retrieve_EssenceData( AAF_Iface *aafi )
 	snprintf( DataPath, CFB_PATH_NAME_SZ, "/%s/%s", path, StreamName );
 
 	free( StreamName );
-	free( path );
+	// free( path );
 
 
 
