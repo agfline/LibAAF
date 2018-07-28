@@ -45,6 +45,21 @@
 
 
 
+#define attachNewProperty( Class, Prop, Pid, IsReq ) \
+	Prop = malloc( sizeof(aafPropertyDef) );         \
+	if ( Prop == NULL )                              \
+	{                                                \
+		_error( "%s.\n", strerror( errno ) );        \
+		return -1;                                   \
+	}                                                \
+	Prop->pid         = Pid;                         \
+	Prop->isReq       = IsReq;                       \
+	Prop->meta        = 0;                           \
+	Prop->next        = Class->Properties;           \
+	Class->Properties = Prop;                        \
+
+
+
 
 int classExists( AAF_Data *aafd, aafUID_t *ClassID )
 {

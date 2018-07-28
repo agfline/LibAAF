@@ -101,6 +101,21 @@
 
 
 
+#define attachNewProperty( Class, Prop, Pid, IsReq ) \
+	Prop = malloc( sizeof(aafPropertyDef) );         \
+	if ( Prop == NULL )                              \
+	{                                                \
+		_error( "%s.\n", strerror( errno ) );        \
+		return NULL;                                 \
+	}                                                \
+	Prop->pid         = Pid;                         \
+	Prop->isReq       = IsReq;                       \
+	Prop->meta        = 0;                           \
+	Prop->next        = Class->Properties;           \
+	Class->Properties = Prop;                        \
+
+
+
 
 
 /*

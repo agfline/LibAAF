@@ -63,17 +63,20 @@
  *	@param Pid    The Pid of the new aafPropertyDef struct.
  *	@param IsReq  Tells if the property is either REQUIRED or OPTIONAL.
  */
-
+/*	NOTE Moved to AAFClass.c and AAFCore.c due to specific return types.
 #define attachNewProperty( Class, Prop, Pid, IsReq ) \
 	Prop = malloc( sizeof(aafPropertyDef) );         \
 	if ( Prop == NULL )                              \
-		_fatal( "%s.\n", strerror( errno ) );        \
+	{                                                \
+		_error( "%s.\n", strerror( errno ) );        \
+		return -1;                                   \
+	}                                                \
 	Prop->pid         = Pid;                         \
 	Prop->isReq       = IsReq;                       \
 	Prop->meta        = 0;                           \
 	Prop->next        = Class->Properties;           \
 	Class->Properties = Prop;                        \
-
+*/
 
 
 
