@@ -63,13 +63,19 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 	AAF_Iface *aafi = calloc( sizeof(AAF_Iface), sizeof(unsigned char) );
 
 	if ( aafi == NULL )
-		_fatal( "%s.\n", strerror( errno ) );
+	{
+		_error( "%s.\n", strerror( errno ) );
+		return NULL;
+	}
 
 
 	aafi->Audio = calloc( 1, sizeof(aafiAudio) );
 
 	if ( aafi->Audio == NULL )
-		_fatal( "%s.\n", strerror( errno ) );
+	{
+		_error( "%s.\n", strerror( errno ) );
+		return NULL;
+	}
 
 
 	if ( aafd != NULL )
@@ -180,7 +186,10 @@ int extractAudioEssence( AAF_Iface *aafi, aafiAudioEssence *audioEssence, const 
 	FILE *fp = fopen( filePath, "w+" );
 
 	if ( fp == NULL )
-		_fatal( "%s.\n", strerror(errno) );
+	{
+		_error( "%s.\n", strerror( errno ) );
+		return -1;
+	}
 
 	if ( audioEssence->type == AAFI_TYPE_PCM || audioEssence->type == AAFI_TYPE_WAVE || audioEssence->type == AAFI_TYPE_AIFC )
 	{
@@ -261,7 +270,10 @@ int extractAudioEssence( AAF_Iface *aafi, aafiAudioEssence *audioEssence, const 
 	audioEssence->source_file = malloc( strlen( file ) + 2 );
 
 	if ( audioEssence->source_file == NULL )
-		_fatal( "%s.\n", strerror( errno ) );
+	{
+		_error( "%s.\n", strerror( errno ) );
+		return -1;
+	}
 
 	snprintf( audioEssence->source_file, strlen( file ) + 1, "%s", file );
 
@@ -359,7 +371,10 @@ aafiTimelineItem * aafi_newTimelineItem( aafiAudioTrack *track, int itemType )
 		item = calloc( sizeof(aafiTimelineItem) + sizeof(aafiAudioClip),  1 );
 
 		if ( item == NULL )
-			_fatal( "%s.\n", strerror( errno ) );
+		{
+			_error( "%s.\n", strerror( errno ) );
+			return NULL;
+		}
 
 
 		item->type |= AAFI_CLIP;
@@ -373,7 +388,10 @@ aafiTimelineItem * aafi_newTimelineItem( aafiAudioTrack *track, int itemType )
 		item = calloc( sizeof(aafiTimelineItem) + sizeof(aafiTransition), 1 );
 
 		if ( item == NULL )
-			_fatal( "%s.\n", strerror( errno ) );
+		{
+			_error( "%s.\n", strerror( errno ) );
+			return NULL;
+		}
 
 		item->type |= AAFI_TRANS;
 	}
@@ -463,7 +481,10 @@ aafiUserComment * aafi_newUserComment( aafiUserComment **CommentList )
 	aafiUserComment *UserComment = calloc( sizeof(aafiUserComment),  1 );
 
 	if ( UserComment == NULL )
-		_fatal( "%s.\n", strerror( errno ) );
+	{
+		_error( "%s.\n", strerror( errno ) );
+		return NULL;
+	}
 
 
 	if ( CommentList != NULL )
@@ -551,7 +572,10 @@ aafiAudioTrack * aafi_newAudioTrack( AAF_Iface *aafi, aafObject *MobSlot, uint32
 	aafiAudioTrack *track = calloc( sizeof(aafiAudioTrack), sizeof(unsigned char) );
 
 	if ( track == NULL )
-		_fatal( "%s.\n", strerror( errno ) );
+	{
+		_error( "%s.\n", strerror( errno ) );
+		return NULL;
+	}
 
 
 	track->next = NULL;
@@ -584,7 +608,10 @@ aafiAudioTrack * aafi_newAudioTrack( AAF_Iface *aafi, aafObject *MobSlot, uint32
 		track->edit_rate = aaf_get_propertyValue( MobSlot, PID_TimelineMobSlot_EditRate );
 
 		if ( track->edit_rate == NULL )
-			_fatal( "Missing TimelineMobSlot::EditRate.\n" );
+		{
+			_error( "%s.\n", strerror( errno ) );
+			return NULL;
+		}
 	}
 	else
 		track->number = number;
@@ -664,7 +691,10 @@ aafiAudioEssence * aafi_newAudioEssence( AAF_Iface *aafi )
 	aafiAudioEssence * audioEssence = calloc( sizeof(aafiAudioEssence), sizeof(char) );
 
 	if ( audioEssence == NULL )
-		_fatal( "%s.\n", strerror( errno ) );
+	{
+		_error( "%s.\n", strerror( errno ) );
+		return NULL;
+	}
 
 
 	// printf( "%p \n", audioEssence );
