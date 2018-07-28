@@ -423,7 +423,7 @@ int aaf_load_file( AAF_Data *aafd, const char *file )
 
 	aafd->cfbd = cfb_alloc();
 
-	if ( cfb_load_file( aafd->cfbd, file ) )
+	if ( cfb_load_file( aafd->cfbd, file ) < 0 )
 		return 1;
 
 	/*

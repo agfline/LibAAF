@@ -171,7 +171,7 @@
  *
  *	This macro interrupts the execution and exits the program.
  */
-
+/*
 #define _fatal( ... )                                \
 	if ( 1 )                                         \
 	{                                                \
@@ -182,7 +182,7 @@
 	    fprintf( stderr, __VA_ARGS__ );              \
 	    exit( 1 );                                   \
 	}
-
+*/
 /**
  *	@}
  */
@@ -245,7 +245,7 @@ CFB_Data * cfb_alloc()
 	CFB_Data * cfbd = calloc( sizeof(CFB_Data), sizeof(unsigned char) );
 
 	if ( cfbd == NULL )
-		_fatal( "%s.\n", strerror(errno) );
+		_error( "%s.\n", strerror(errno) );
 
 	return cfbd;
 }
@@ -312,26 +312,54 @@ int cfb_load_file( CFB_Data *cfbd, const char * file )
 	strncpy( cfbd->file, file, strlen(file) );
 
 
-	cfb_openFile( cfbd );
+	if ( cfb_openFile( cfbd ) < 0 )
+	{
+		return -1;
+	}
 
-	cfb_getFileSize( cfbd );
+	if ( cfb_getFileSize( cfbd ) < 0 )
+	{
+		return -1;
+	}
 
 	/*
 	 *	Ensures we have a valid CFB file.
 	 */
 
 	if ( cfb_is_valid( cfbd ) == 0 )
-		return 1;
+	{
+		return -1;
+	}
 
-	cfb_retrieveFileHeader( cfbd );
+	if ( cfb_retrieveFileHeader( cfbd ) < 0 )
+	{
+		_error( "Could not retrieve CFB header.\n" );
+		return -1;
+	}
 
-	cfb_retrieveDiFAT( cfbd );
+	if ( cfb_retrieveDiFAT( cfbd ) < 0 )
+	{
+		_error( "Could not retrieve CFB DiFAT.\n" );
+		return -1;
+	}
 
-	cfb_retrieveFAT( cfbd );
+	if ( cfb_retrieveFAT( cfbd ) < 0 )
+	{
+		_error( "Could not retrieve CFB FAT.\n" );
+		return -1;
+	}
 
-	cfb_retrieveMiniFAT( cfbd );
+	if ( cfb_retrieveMiniFAT( cfbd ) < 0 )
+	{
+		_error( "Could not retrieve CFB MiniFAT.\n" );
+		return -1;
+	}
 
-	cfb_retrieveNodes( cfbd );
+	if ( cfb_retrieveNodes( cfbd ) < 0 )
+	{
+		_error( "Could not retrieve CFB Nodes.\n" );
+		return -1;
+	}
 
 	return 0;
 }
@@ -347,13 +375,16 @@ int cfb_new_file( CFB_Data *cfbd, const char *file, int sectSize )
 		 sectSize != 4096 )
 	{
 		_error( "Only standard sector sizes (512 and 4096 bytes) are supported.\n" );
-		return 1;
+		return -1;
 	}
 
 	cfbHeader *hdr = malloc( sizeof(cfbHeader) );
 
 	if ( cfbd->hdr == NULL )
-		_fatal( "%s.\n", strerror( errno ) );
+	{
+		_error( "%s.\n", strerror( errno ) );
+		return -1;
+	}
 
 	hdr->_abSig = 0xe11ab1a1e011cfd0;
 
@@ -424,10 +455,15 @@ static int cfb_is_valid( CFB_Data *cfbd )
 {
 	uint64_t signature = 0;
 
-	if ( cfbd->file_sz < sizeof(uint64_t) )
+	if ( cfbd->file_sz < sizeof(struct StructuredStorageHeader) )
+	{
 		return 0;
+	}
 
-	cfb_readFile( cfbd, (unsigned char*)&signature, 0, sizeof(uint64_t) );
+	if ( cfb_readFile( cfbd, (unsigned char*)&signature, 0, sizeof(uint64_t) ) != sizeof(uint64_t) )
+	{
+		return 0;
+	}
 
 	if ( signature != 0xe11ab1a1e011cfd0 )
 	{
@@ -455,6 +491,12 @@ static int cfb_getFileSize( CFB_Data * cfbd )
 
 	cfbd->file_sz = ftell( cfbd->fp );
 
+	if ( cfbd->file_sz == 0 )
+	{
+		_error( "File is empty (filesize is 0 byte).\n" );
+		return -1;
+	}
+
 	return 0;
 }
 
@@ -473,7 +515,7 @@ static int cfb_openFile( CFB_Data *cfbd )
 	cfbd->fp = fopen( cfbd->file, "rb" );
 
 	if ( cfbd->fp == NULL )
-		_fatal( "%s.\n", strerror(errno) );
+		_error( "%s.\n", strerror(errno) );
 
 	return 0;
 }
@@ -498,24 +540,32 @@ static uint64_t cfb_readFile( CFB_Data *cfbd, unsigned char *buf, uint64_t offse
 
 
 	if ( len + offset > cfbd->file_sz )
-		_fatal( "Requested data goes %lu bytes beyond the EOF : offset %lu | length %lu\n",
+	{
+		_error( "Requested data goes %lu bytes beyond the EOF : offset %lu | length %lu\n",
 		        (len + offset) - cfbd->file_sz,
 				offset,
 				len );
+		return 0;
+	}
 
 
 	int rc = fseek( fp, offset, SEEK_SET );
 
 	if ( rc < 0 )
-		_fatal( "%s.\n", strerror(errno) );
+	{
+		_error( "%s.\n", strerror(errno) );
+		return 0;
+	}
 
 
 
 	uint64_t byteRead = fread( buf, sizeof(unsigned char), len, fp );
 
 	if ( byteRead < len )
+	{
 		_warning( "Could only retrieve %lu bytes out of %lu requested.\n",
 		          byteRead, len );
+	}
 
 
 	return byteRead;
@@ -536,7 +586,9 @@ static void cfb_closeFile( CFB_Data *cfbd )
 		return;
 
 	if ( fclose( cfbd->fp ) != 0 )
-		_fatal( "%s.\n", strerror(errno) );
+	{
+		_error( "%s.\n", strerror(errno) );
+	}
 }
 
 
@@ -585,7 +637,10 @@ unsigned char * cfb_getSector( CFB_Data *cfbd, cfbSectorID_t id )
 
 
 	if ( cfbd->fat_sz > 0 && id >= cfbd->fat_sz )
-		_fatal( "Asking for an out of range FAT sector @ index %u (max FAT index is %u)\n", id, cfbd->fat_sz );
+	{
+		_error( "Asking for an out of range FAT sector @ index %u (max FAT index is %u)\n", id, cfbd->fat_sz );
+		return NULL;
+	}
 
 
 
@@ -597,11 +652,18 @@ unsigned char * cfb_getSector( CFB_Data *cfbd, cfbSectorID_t id )
 	unsigned char *buf = calloc( sectorSize, sizeof(unsigned char) );
 
 	if ( buf == NULL )
-		_fatal( "%s.\n", strerror(errno) );
+	{
+		_error( "%s.\n", strerror(errno) );
+		return NULL;
+	}
 
 
 
-	cfb_readFile( cfbd, buf, fileOffset, sectorSize );
+	if ( cfb_readFile( cfbd, buf, fileOffset, sectorSize ) == 0 )
+	{
+		free( buf );
+		return NULL;
+	}
 
 
 	return buf;
@@ -631,19 +693,23 @@ unsigned char * cfb_getMiniSector( CFB_Data *cfbd, cfbSectorID_t id )
 
 
 	if ( cfbd->fat_sz > 0 && id >= cfbd->miniFat_sz )
-		_fatal( "Asking for an out of range MiniFAT sector @ index %u (Maximum MiniFAT index is %u)\n", id, cfbd->miniFat_sz );
+	{
+		_error( "Asking for an out of range MiniFAT sector @ index %u (Maximum MiniFAT index is %u)\n", id, cfbd->miniFat_sz );
+		return NULL;
+	}
 
 	int MiniSectorSize = 1 << cfbd->hdr->_uMiniSectorShift;
 	int SectorSize     = 1 << cfbd->hdr->_uSectorShift;
 
 
 
-	unsigned char * buf = malloc( MiniSectorSize );
+	unsigned char * buf = calloc( MiniSectorSize, sizeof(unsigned char) );
 
 	if ( buf == NULL )
-		_fatal( "%s.\n", strerror(errno) );
-
-	memset( buf, 0x00, MiniSectorSize );
+	{
+		_error( "%s.\n", strerror(errno) );
+		return NULL;
+	}
 
 
 
@@ -663,7 +729,11 @@ unsigned char * cfb_getMiniSector( CFB_Data *cfbd, cfbSectorID_t id )
 
 
 
-	cfb_readFile( cfbd, buf, offset, MiniSectorSize );
+	if ( cfb_readFile( cfbd, buf, offset, MiniSectorSize ) == 0 )
+	{
+		free( buf );
+		return NULL;
+	}
 
 
 	return buf;
@@ -696,12 +766,13 @@ uint64_t cfb_getStream( CFB_Data *cfbd, cfbNode *node, unsigned char **stream, u
 	uint64_t stream_len = cfb_getNodeStreamLen( cfbd, node );  //node->_ulSizeLow;
 
 
-	*stream    = malloc( stream_len );
+	*stream    = calloc( stream_len, sizeof(unsigned char) );
 
 	if ( stream == NULL )
-		_fatal( "%s.\n", strerror( errno ) );
-
-	memset(*stream, 0x00, stream_len );
+	{
+		_error( "%s.\n", strerror( errno ) );
+		return 0;
+	}
 
 
 
@@ -839,10 +910,17 @@ static int cfb_retrieveFileHeader( CFB_Data *cfbd )
 	cfbd->hdr = calloc( sizeof(cfbHeader), sizeof(unsigned char) );
 
 	if ( cfbd->hdr == NULL )
-		_fatal( "%s.\n", strerror(errno) );
+	{
+		_error( "%s.\n", strerror(errno) );
+		return -1;
+	}
 
 
-	cfb_readFile( cfbd, (unsigned char*)cfbd->hdr, 0, sizeof(cfbHeader) );
+	if ( cfb_readFile( cfbd, (unsigned char*)cfbd->hdr, 0, sizeof(cfbHeader) ) == 0 )
+	{
+		free( cfbd->hdr );
+		return -1;
+	}
 
 
 	return 0;
@@ -896,7 +974,10 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 	DiFAT = calloc( DiFAT_sz, sizeof(cfbSectorID_t) );
 
 	if ( DiFAT == NULL )
-		_fatal( "%s.\n", strerror( errno ) );
+	{
+		_error( "%s.\n", strerror( errno ) );
+		return -1;
+	}
 
 
 
@@ -966,7 +1047,10 @@ static int cfb_retrieveFAT( CFB_Data * cfbd )
 	FAT = calloc( FAT_sz, sizeof(cfbSectorID_t) );
 
 	if ( FAT == NULL )
-		_fatal( "%s.\n", strerror( errno ) );
+	{
+		_error( "%s.\n", strerror( errno ) );
+		return -1;
+	}
 
 
 
@@ -1022,7 +1106,10 @@ static int cfb_retrieveMiniFAT( CFB_Data * cfbd )
 	cfbSectorID_t * miniFat = calloc( miniFat_sz, sizeof(cfbSectorID_t) );
 
 	if ( miniFat == NULL )
-		_fatal( "%s.\n", strerror(errno) );
+	{
+		_error( "%s.\n", strerror(errno) );
+		return -1;
+	}
 
 
 
@@ -1077,6 +1164,12 @@ static int cfb_retrieveNodes( CFB_Data *cfbd )
 
 
 	cfbNode **node  = calloc( cfbd->nodes_cnt, sizeof(cfbNode*) );
+
+	if ( node == NULL )
+	{
+		_error( "%s.\n", strerror( errno ) );
+		return -1;
+	}
 
 	unsigned char *buf = NULL;
 	cfbSectorID_t  id  = cfbd->hdr->_sectDirStart;
@@ -1203,7 +1296,10 @@ cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const char *path, cfbSID_t id )
 	{
 
 		if ( id >= cfbd->nodes_cnt )
-			_fatal( "Out of range Node index %d, max %u.\n", id, cfbd->nodes_cnt );
+		{
+			_error( "Out of range Node index %d, max %u.\n", id, cfbd->nodes_cnt );
+			return NULL;
+		}
 
 
 		char   *ab = cfb_utf16toa( cfbd->nodes[id]->_ab, cfbd->nodes[id]->_cb );
@@ -1289,7 +1385,10 @@ cfbNode * cfb_getChildNode( CFB_Data *cfbd, const char *name, cfbNode *startNode
 	while ( 1 )
 	{
 		if ( id >= cfbd->nodes_cnt )
-			_fatal( "Out of range Node index %u, max %u.\n", id, cfbd->nodes_cnt );
+		{
+			_error( "Out of range Node index %u, max %u.\n", id, cfbd->nodes_cnt );
+			return NULL;
+		}
 
 
 		if ( cfbd->nodes[id]->_cb == utf16len )
