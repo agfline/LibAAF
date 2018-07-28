@@ -60,7 +60,7 @@
  *
  *	This macro interrupts the execution and exits the program.
  */
-
+/*
 #define _fatal( ... )                                \
 	if ( 1 )                                         \
 	{                                                \
@@ -71,6 +71,6 @@
 		fprintf( stderr, __VA_ARGS__ );              \
 		exit( 1 );                                   \
 	}
-
+*/
 
 #endif // ! __debug_h__
