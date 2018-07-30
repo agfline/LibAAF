@@ -274,9 +274,11 @@ typedef struct aafiAudioGain
 typedef struct aafiAudioEssence
 {
 
-	char       *original_file;	// NetworkLocator::URLString should point to original essence file if external
+	char       *original_file;	// NetworkLocator::URLString should point to original essence file if external (and in some cases, points to the AAF itself if internal..)
 
-	char       *file_name;      // Mob::Name -> file name
+	char       *file_name;      // MasterMob::Name -> file name
+
+	char       *unique_file_name; // unique name generated from file_name. Sometimes, multiple files share the same filenames so this unique name should be used on export.
 
 	char       *source_file;    // Holds the file path, once the essence has been exported, copied or linked.
 
@@ -294,12 +296,21 @@ typedef struct aafiAudioEssence
 	uint16_t  type;
 
 	// WAVE fmt chunk fields are used to describe Audio Essence
-	uint16_t  wFormatTag;			// SoundDescriptor::Compression (null for PCM) = 0x1
-	uint16_t  nChannels;			// SoundDescriptor::Channels
-	uint32_t  nSamplesPerSec;		// FileDescriptor::SampleRate
-	uint32_t  nAvgBytesPerSec;		// PCMDescriptor::AverageBPS
-	uint16_t  nBlockAlign;			// PCMDescriptor::BlockAlign
-	uint16_t  wBitsPerSample;		// SoundDescriptor::QuantizationBits
+	// uint16_t  wFormatTag;			// SoundDescriptor::Compression (null for PCM) = 0x1
+	// uint16_t  nChannels;			// SoundDescriptor::Channels
+	// uint32_t  nSamplesPerSec;		// FileDescriptor::SampleRate
+	// uint32_t  nAvgBytesPerSec;		// PCMDescriptor::AverageBPS
+	// uint16_t  nBlockAlign;			// PCMDescriptor::BlockAlign
+	// uint16_t  wBitsPerSample;		// SoundDescriptor::QuantizationBits
+
+
+	aafProperty *summary;
+
+	uint32_t  format;
+	uint32_t  samplerate;
+	int16_t   samplesize;
+	int16_t   channels;
+	// int16_t   isunsigned;		// TODO should be taken into account for libsndfile PCM ??? Can PCMDescriptor describe unsigned audio ?
 
 
 	// BWF BEXT chunk data
@@ -644,7 +655,7 @@ typedef struct AAF_Iface
 
 
 #define eu2sample( audioClip, val ) \
-	(int64_t)(val * (audioClip->Essence->nSamplesPerSec * (1 / rationalToFloat(audioClip->track->edit_rate))))
+	(int64_t)(val * (audioClip->Essence->samplerate * (1 / rationalToFloat(audioClip->track->edit_rate))))
 
 /*
 #define eu2tc_h( edit_rate, val ) \
@@ -682,14 +693,9 @@ void aafi_release( AAF_Iface **aafi );
 int aafi_load_file( AAF_Iface *aafi, const char * file );
 
 
-char * aafi_get_essence_filename( aafiAudioEssence *audioEssence, char **filename, char *fb_str, uint32_t *fb_num );
-
 aafiTransition * get_fadein( aafiTimelineItem *audioItem );
 
 aafiTransition * get_fadeout( aafiTimelineItem *audioItem );
-
-
-int extractAudioEssence( AAF_Iface *aafi, aafiAudioEssence *aafiae, const char *file );
 
 
 aafiAudioTrack * aafi_newAudioTrack( AAF_Iface *aafi, aafObject *MobSlot, uint32_t number );

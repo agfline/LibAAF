@@ -46,9 +46,6 @@
 #include "../libAAF.h"
 #include "../common/debug.h"
 
-#include "thirdparty/libriff.h"
-#include "thirdparty/libwav.h"
-
 
 
 
@@ -150,172 +147,6 @@ int aafi_load_file( AAF_Iface *aafi, const char * file )
 	aafi_retrieveData( aafi );
 
 	return 0;
-}
-
-
-
-
-
-
-
-
-static void swap( unsigned char *tab, int i, int j )
-{
-	unsigned char c = tab[i];
-	tab[i] = tab[j];
-	tab[j] = c;
-}
-
-int extractAudioEssence( AAF_Iface *aafi, aafiAudioEssence *audioEssence, const char *file )
-{
-
-	/*
-	 *	If the audioEssence->node is NULL, it means that the essence isn't embedded in the
-	 *	AAF. The essence file can therefore be retrieved from the URI hold by audioEssence->original_file.
-	 */
-
-	if ( audioEssence->node == NULL )
-		return 1;
-
-	char filePath[1024];
-
-	snprintf( filePath, 1024, "%s.wav", file );
-
-	// printf("%s\n", filePath );
-
-	FILE *fp = fopen( filePath, "w+" );
-
-	if ( fp == NULL )
-	{
-		_error( "%s.\n", strerror( errno ) );
-		return -1;
-	}
-
-	if ( audioEssence->type == AAFI_TYPE_PCM || audioEssence->type == AAFI_TYPE_WAVE || audioEssence->type == AAFI_TYPE_AIFC )
-	{
-		/* Write WAVE Header */
-		unsigned char header[44];
-
-		header[0]  = 'R';
-		header[1]  = 'I';
-		header[2]  = 'F';
-		header[3]  = 'F';
-
-		*(uint32_t*)(header+4)  = audioEssence->length + 36;
-
-		header[8]  = 'W';
-		header[9]  = 'A';
-		header[10] = 'V';
-		header[11] = 'E';
-
-		header[12] = 'f';
-		header[13] = 'm';
-		header[14] = 't';
-		header[15] = ' ';
-
-		*(uint32_t*)(header+16) = 16;
-		*(uint16_t*)(header+20) = audioEssence->wFormatTag;
-		*(uint16_t*)(header+22) = audioEssence->nChannels;
-		*(uint32_t*)(header+24) = audioEssence->nSamplesPerSec;
-		*(uint32_t*)(header+28) = audioEssence->nAvgBytesPerSec;
-		*(uint16_t*)(header+32) = audioEssence->nBlockAlign;
-		*(uint16_t*)(header+34) = audioEssence->wBitsPerSample;
-
-		header[36] = 'd';
-		header[37] = 'a';
-		header[38] = 't';
-		header[39] = 'a';
-
-		*(uint32_t*)(header+40) = (uint32_t)audioEssence->length;
-
-		fwrite( header, sizeof(unsigned char), 44, fp );
-
-		fseek( fp, 44, SEEK_SET );
-	}
-
-	printf("length : %lu\n", audioEssence->length );
-
-
-	uint32_t id     = 0;
-	size_t   len    = 0;
-	// uint64_t offset = 44;
-
-	aafByte_t *nodeBuf  = NULL;
-	// aafByte_t *audioBuf = malloc( 512 * 4096 ); // 2 097 152 bytes
-	// size_t     audioBuf_len = 0;
-	// size_t i = 0;
-
-	cfb_foreachSectorInStream( aafi->aafd->cfbd, audioEssence->node, &nodeBuf, &len, &id )
-	{
-
-		if ( audioEssence->type == AAFI_TYPE_AIFC )
-		{
-			size_t i = 0;
-
-			for( i = 0; i < len; i += 2 )
-			{
-				swap( nodeBuf, i, i+1 );
-			}
-		}
-
-		fwrite( nodeBuf, sizeof(aafByte_t), len, fp );
-
-		// i++;
-	}
-
-	if ( nodeBuf )
-		free( nodeBuf );
-
-	// save filename
-	audioEssence->source_file = malloc( strlen( file ) + 2 );
-
-	if ( audioEssence->source_file == NULL )
-	{
-		_error( "%s.\n", strerror( errno ) );
-		return -1;
-	}
-
-	snprintf( audioEssence->source_file, strlen( file ) + 1, "%s", file );
-
-
-	// printf( "WRITING %s\n", filePath );
-
-	fclose( fp );
-
-	return 0;
-}
-
-
-
-
-
-
-
-
-/*
-	NOTE: we can't fallback on Locator::URLString since that field can sometimes points the aaf file itself.
-	TODO: preserve/add or leave/remove file extension
-*/
-
-char * aafi_get_essence_filename( aafiAudioEssence *audioEssence, char **filename, char *fb_str, uint32_t *fb_num/*, uint8_t include_ext*/ )
-{
-	if ( *filename == NULL )
-	{
-		/* TODO use FILE_MAX for size */
-		*filename = malloc(1024);
-	}
-
-
-	if ( audioEssence->file_name != NULL )
-	{
-		snprintf( *filename, 1024, "%s", audioEssence->file_name );
-	}
-	else
-	{
-		snprintf( *filename, 1024, "%s_%02u", fb_str, (*fb_num)++ );
-	}
-
-	return *filename;
 }
 
 
@@ -697,15 +528,11 @@ aafiAudioEssence * aafi_newAudioEssence( AAF_Iface *aafi )
 	}
 
 
-	// printf( "%p \n", audioEssence );
-	// printf( "%p \n", aafi->Audio );
-	// printf( "%p \n", aafi->Audio->Essences );
-
 	audioEssence->next = aafi->Audio->Essences;
 
-	audioEssence->original_file = NULL;
-	audioEssence->source_file   = NULL;
-	audioEssence->file_name     = aaf_get_propertyValueText( aafi->ctx.Mob, PID_Mob_Name );
+	// audioEssence->original_file = NULL;
+	// audioEssence->source_file   = NULL;
+	// audioEssence->file_name     = aaf_get_propertyValueText( aafi->ctx.Mob, PID_Mob_Name );
 
 	aafi->Audio->Essences = audioEssence;
 
@@ -742,6 +569,11 @@ void aafi_freeAudioEssences( aafiAudioEssence **audioEssence )
 		if ( (*audioEssence)->file_name != NULL )
 		{
 			free( (*audioEssence)->file_name );
+		}
+
+		if ( (*audioEssence)->unique_file_name != NULL )
+		{
+			free( (*audioEssence)->unique_file_name );
 		}
 
 		free( *audioEssence );

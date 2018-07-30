@@ -40,25 +40,20 @@ int main( int argc, char *argv[] )
 	progPath[strlen(progPath)-10] = 0x00;
 
 
-	aafiAudioEssence *audioEssence = NULL;
-	char *filename = NULL;
+
 	char  target[255];
-	uint32_t i = 0;
+
+	snprintf( target, 255, "%sArdour/session/interchange/AAF/audiofiles/", progPath );
+
+
+
+	aafiAudioEssence *audioEssence = NULL;
 
 	foreachAudioEssence( audioEssence, aafi->Audio->Essences )
 	{
-		// char file[255];
-
-		// snprintf( file, 255, "%sArdour/session/interchange/AAF/audiofiles/%s_%d", progPath, aafi->compositionName, i++ );
-
-		aafi_get_essence_filename( audioEssence, &filename, aafi->compositionName, &i );
-
-		snprintf( target, 255, "%sArdour/session/interchange/AAF/audiofiles/%s", progPath, filename );
-
-		extractAudioEssence( aafi, audioEssence, target );
+		aafi_extract_audio_essence( aafi, audioEssence, target, NULL, (SF_FORMAT_WAV | SF_FORMAT_PCM_16) );
 	}
 
-	free( filename );
 
 
 

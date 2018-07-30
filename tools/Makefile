@@ -25,13 +25,13 @@ clean:
 
 
 $(BINDIR)/AAFInfo: AAFInfo.c thirdparty/libTC.c
-	$(CC) -o $@ $^ -L$(OBJDIR) $(CFLAGS) -lAAF -lm
+	$(CC) -o $@ $^ -L$(OBJDIR) $(CFLAGS) -lsndfile -lAAF -lm
 
 $(BINDIR)/AAFExtract: AAFExtract.c
-	$(CC) -o $@ $^ -L$(OBJDIR) $(CFLAGS) -lAAF -lm
+	$(CC) -o $@ $^ -L$(OBJDIR) $(CFLAGS) -lsndfile -lAAF -lm
 
 $(BINDIR)/AAF2Ardour: $(OBJDIR)/Ardour.o AAF2Ardour.c
-	$(CC) -o $@ $^ -L$(OBJDIR) $(CFLAGS) -lAAF -lm
+	$(CC) -o $@ $^ -L$(OBJDIR) $(CFLAGS) -lsndfile -lAAF -lm
 
 
 ### Ardour
