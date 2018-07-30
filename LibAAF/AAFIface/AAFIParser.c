@@ -789,6 +789,8 @@ static int retrieve_EssenceData( AAF_Iface *aafi )
 
 	audioEssence->node = DataNode;
 
+	audioEssence->is_embedded = 1;
+
 
 	// NOTE Might be tweaked by parse_audio_summary()
 

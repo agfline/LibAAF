@@ -303,6 +303,7 @@ typedef struct aafiAudioEssence
 	// uint16_t  nBlockAlign;			// PCMDescriptor::BlockAlign
 	// uint16_t  wBitsPerSample;		// SoundDescriptor::QuantizationBits
 
+	uint8_t is_embedded;
 
 	aafProperty *summary;
 

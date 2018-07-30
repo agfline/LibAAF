@@ -194,7 +194,7 @@ int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 
     if ( file == NULL )
     {
-        if ( audioEssence->node != NULL )
+        if ( audioEssence->is_embedded )
         {
             /*
              *  The summary should be a copy of the header without audio samples.
@@ -205,7 +205,7 @@ int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
              *  full WAVE/AIFC header.
              */
 
-		    _warning( "libsndfile could not read the descriptor summary : %s.\n", sf_strerror( NULL ) );
+		    _warning( "libsndfile could not read descriptor summary : %s.\n", sf_strerror( NULL ) );
             _warning( "Falling back on audio file stream node.." );
 
             uint32_t   id   = 0;
@@ -236,7 +236,7 @@ int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
         }
         else
         {
-            _error( "libsndfile could not read the descriptor summary : %s.\n", sf_strerror( NULL ) );
+            _error( "libsndfile could not read descriptor summary : %s.\n", sf_strerror( NULL ) );
 		    return -1 ;
         }
     }
@@ -284,9 +284,9 @@ int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 
     if ( iterator == NULL )
     {
-        if ( audioEssence->node != NULL )
+        if ( audioEssence->is_embedded )
         {
-            _warning( "Could not retrieve \"%s\" chunk. Falling back on stream length calculation.", chunk );
+            _warning( "Could not retrieve \"%s\" chunk. Falling back on stream length calculation.\n", chunk );
 
             /*
              *  NOTE nothing guarentee there are no chunk after audio data, in which
@@ -313,7 +313,7 @@ int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 
     if ( err != SF_ERR_NO_ERROR )
     {
-        if ( audioEssence->node != NULL )
+        if ( audioEssence->is_embedded )
         {
             _warning( "Could not retrieve \"%s\" chunk (%s). Falling back on stream length calculation.", chunk, sf_error_number(err) );
 
@@ -356,9 +356,9 @@ int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence,
     SF_INFO        sfinfo;
     SNDFILE       *infile = NULL;
 
-    if ( audioEssence->node == NULL )
+    if ( audioEssence->is_embedded == 0 )
     {
-        _error( "Essence has no node attached to it. Is the essence embedded ?\n" );
+        _error( "Essence is not embedded : nothing to extract.\n" );
         return -1;
     }
 

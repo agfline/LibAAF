@@ -35,15 +35,21 @@ int main( int argc, char *argv[] )
 
 	char *path = "/tmp";
 
+	int format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
+
+
 
 	aafiAudioEssence *audioEssence = NULL;
 
 	foreachAudioEssence( audioEssence, aafi->Audio->Essences )
 	{
-		aafi_extract_audio_essence( aafi, audioEssence, path, NULL, (SF_FORMAT_WAV | SF_FORMAT_PCM_16) );
-
-		printf( ":: %s\n", audioEssence->exported_file );
+		if ( audioEssence->is_embedded )
+		{
+			aafi_extract_audio_essence( aafi, audioEssence, path, NULL, format );
+			printf( ":: %s\n", audioEssence->exported_file );
+		}
 	}
+
 
 
 	aafi_release( &aafi );

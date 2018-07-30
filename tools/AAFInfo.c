@@ -735,7 +735,7 @@ int main( int argc, char *argv[] )
 					audioEssence->channels,
 					audioEssence->samplerate,
 					audioEssence->samplesize,
-					(audioEssence->node != NULL) ? "EMBEDDED" : audioEssence->original_file,
+					( audioEssence->is_embedded ) ? "EMBEDDED" : audioEssence->original_file,
 					audioEssence->unique_file_name
 				);
 			}
