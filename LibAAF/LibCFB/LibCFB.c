@@ -774,7 +774,7 @@ int cfb__foreachSectorInStream( CFB_Data *cfbd, cfbNode *node, unsigned char **b
 	*sectID = ( *sectID == 0 ) ? node->_sectStart : *sectID;
 
 
-	size_t stream_sz = node->_ulSizeLow;
+	size_t stream_sz = cfb_getNodeStreamLen( cfbd, node );
 
 	if ( stream_sz < cfbd->hdr->_ulMiniSectorCutoff )
 	{		/* Mini-Stream */
