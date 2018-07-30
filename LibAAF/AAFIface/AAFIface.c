@@ -531,7 +531,7 @@ aafiAudioEssence * aafi_newAudioEssence( AAF_Iface *aafi )
 	audioEssence->next = aafi->Audio->Essences;
 
 	// audioEssence->original_file = NULL;
-	// audioEssence->source_file   = NULL;
+	// audioEssence->exported_file   = NULL;
 	// audioEssence->file_name     = aaf_get_propertyValueText( aafi->ctx.Mob, PID_Mob_Name );
 
 	aafi->Audio->Essences = audioEssence;
@@ -561,9 +561,9 @@ void aafi_freeAudioEssences( aafiAudioEssence **audioEssence )
 			free( (*audioEssence)->original_file );
 		}
 
-		if ( (*audioEssence)->source_file != NULL )
+		if ( (*audioEssence)->exported_file != NULL )
 		{
-			free( (*audioEssence)->source_file );
+			free( (*audioEssence)->exported_file );
 		}
 
 		if ( (*audioEssence)->file_name != NULL )

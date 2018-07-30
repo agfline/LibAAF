@@ -42,7 +42,7 @@ int main( int argc, char *argv[] )
 	{
 		aafi_extract_audio_essence( aafi, audioEssence, path, NULL, (SF_FORMAT_WAV | SF_FORMAT_PCM_16) );
 
-		printf( ":: %s\n", audioEssence->source_file );
+		printf( ":: %s\n", audioEssence->exported_file );
 	}
 
 

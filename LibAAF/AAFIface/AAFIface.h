@@ -278,9 +278,9 @@ typedef struct aafiAudioEssence
 
 	char       *file_name;      // MasterMob::Name -> file name
 
-	char       *unique_file_name; // unique name generated from file_name. Sometimes, multiple files share the same filenames so this unique name should be used on export.
+	char       *unique_file_name; // unique name generated from file_name. Sometimes, multiple files share the same names so this unique name should be used on export.
 
-	char       *source_file;    // Holds the file path, once the essence has been exported, copied or linked.
+	char       *exported_file;    // Holds the file path, once the essence has been exported, copied or linked.
 
 
 	uint64_t    length; 		// Length of Essence Data
@@ -310,7 +310,6 @@ typedef struct aafiAudioEssence
 	uint32_t  samplerate;
 	int16_t   samplesize;
 	int16_t   channels;
-	// int16_t   isunsigned;		// TODO should be taken into account for libsndfile PCM ??? Can PCMDescriptor describe unsigned audio ?
 
 
 	// BWF BEXT chunk data
