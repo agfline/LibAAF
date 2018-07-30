@@ -528,13 +528,12 @@ static int parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor )
 {
 	trace_obj( aafi, PCMDescriptor, ANSI_COLOR_MAGENTA );
 
+	// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, PCMDescriptor );
+	// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
 
 	aafiAudioEssence *audioEssence = aafi->ctx.current_audioEssence;
 
 	audioEssence->type = AAFI_TYPE_PCM;
-
-
-	// audioEssence->wFormatTag      =  0x0001;	// PCM
 
 
 	uint32_t *channels = (uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_SoundDescriptor_Channels );
@@ -546,7 +545,7 @@ static int parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor )
 	}
 
 	audioEssence->channels = *channels;
-	// audioEssence->nChannels = *channels;
+
 
 
 	uint32_t *samplerate = (uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_FileDescriptor_SampleRate );
@@ -558,29 +557,7 @@ static int parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor )
 	}
 
 	audioEssence->samplerate = *samplerate;
-	// audioEssence->nSamplesPerSec = *samplerate;
 
-
-	// uint32_t *nAvgBytesPerSec = (uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_PCMDescriptor_AverageBPS );
-    //
-	// if ( nAvgBytesPerSec == NULL )
-	// {
-	// 	_error( "Missing PCMDescriptor PCMDescriptor::AverageBPS.\n" );
-	// 	return -1;
-	// }
-    //
-	// audioEssence->nAvgBytesPerSec = *nAvgBytesPerSec;
-
-
-	// uint32_t *nBlockAlign = (uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_PCMDescriptor_BlockAlign );
-    //
-	// if ( nBlockAlign == NULL )
-	// {
-	// 	_error( "Missing PCMDescriptor PCMDescriptor::BlockAlign.\n" );
-	// 	return -1;
-	// }
-    //
-	// audioEssence->nBlockAlign = *nBlockAlign;
 
 
 	uint32_t *samplesize = (uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_SoundDescriptor_QuantizationBits );
@@ -592,13 +569,10 @@ static int parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor )
 	}
 
 	audioEssence->samplesize = *samplesize;
-	// audioEssence->wBitsPerSample = *samplesize;
+
+
 
 	/* TODO parse the rest of the class */
-
-	// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, PCMDescriptor );
-
-	// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
 
 	return 0;
 }
@@ -610,10 +584,8 @@ static int parse_WAVEDescriptor( AAF_Iface *aafi, aafObject *WAVEDescriptor )
 {
 	trace_obj( aafi, WAVEDescriptor, ANSI_COLOR_MAGENTA );
 
-
 	// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, WAVEDescriptor );
 	// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
-
 
 	aafiAudioEssence *audioEssence = aafi->ctx.current_audioEssence;
 
@@ -630,43 +602,11 @@ static int parse_WAVEDescriptor( AAF_Iface *aafi, aafObject *WAVEDescriptor )
 
 	audioEssence->summary = summary;
 
-	// parse_audio_summary( audioEssence, summary->val, summary->len );
-
 	/*
-	 *	The summary should end with the data chunk header, so the last 4 bytes are for
-	 *	data chunk size, that is audio length in bytes.
-	 *	NOTE this should match the EssenceData stream size
+	 *	NOTE : Summary is parsed later in "post-processing" aafi_retrieveData(),
+	 *	to be sure clips and essences are linked, so we are able to fallback on
+	 *	essence stream in case summary does not contain the full header part.
 	 */
-
-	// audioEssence->length = *(uint32_t*)(summary->val + (summary->len - 4));
-
-
-
-
-	// struct chunk *cklist = get_riff_chunk_list( summary->val, summary->len );
-    //
-	// struct chunk *ckfmt  = get_riff_chunk_by_id( cklist, "fmt " );
-    //
-	// struct fmt   *fmtck  = (struct fmt*)(ckfmt->bytes - RIFF_CK_HEADER_SZ);
-    //
-	// audioEssence->wFormatTag = fmtck->format_tag;
-	// audioEssence->nChannels  = fmtck->channels;
-	// audioEssence->nSamplesPerSec = fmtck->samples_per_sec;
-	// audioEssence->nAvgBytesPerSec = fmtck->avg_bytes_per_sec;
-	// audioEssence->nBlockAlign = fmtck->block_align;
-	// audioEssence->wBitsPerSample = fmtck->bits_per_sample;
-    //
-	// free_riff_chunk_list( &cklist );
-    //
-	// /*
-	//  *	The summary should end with the data chunk header, so the last 4 bytes are for
-	//  *	data chunk size, that is audio length in bytes.
-	//  *	NOTE this should match the EssenceData stream size.
-	//  *	NOTE no, because stream is the complete file, including header
-	//  */
-    //
-	// audioEssence->length = *(uint32_t*)(summary->val + (summary->len - 4));
-
 
 	return 0;
 }
@@ -696,19 +636,11 @@ static int parse_AIFCDescriptor( AAF_Iface *aafi, aafObject *AIFCDescriptor )
 
 	audioEssence->summary = summary;
 
-	// cfb_printStream( summary->val, summary->len );
-    //
-	// parse_audio_summary( audioEssence, summary->val, summary->len );
-
-
-
-	// audioEssence->wFormatTag      = 0x0001; // PCM
-	// audioEssence->nChannels       = Reverse16( *(uint16_t*)(summary->val+20) );
-	// audioEssence->nSamplesPerSec  = getAIFCSampleRate( (unsigned char*)(summary->val+28) );
-	// audioEssence->wBitsPerSample  = Reverse16( *(uint16_t*)(summary->val+26) );
-	// audioEssence->nBlockAlign     = audioEssence->nChannels * audioEssence->wBitsPerSample / 8;
-	// audioEssence->nAvgBytesPerSec = audioEssence->nSamplesPerSec * audioEssence->nBlockAlign;
-
+	/*
+	 *	NOTE : Summary is parsed later in "post-processing" aafi_retrieveData(),
+	 *	to be sure clips and essences are linked, so we are able to fallback on
+	 *	essence stream in case summary does not contain the full header part.
+	 */
 
 	return 0;
 }
