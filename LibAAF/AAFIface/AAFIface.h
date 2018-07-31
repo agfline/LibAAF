@@ -274,58 +274,41 @@ typedef struct aafiAudioGain
 typedef struct aafiAudioEssence
 {
 
-	char       *original_file;	// NetworkLocator::URLString should point to original essence file if external (and in some cases, points to the AAF itself if internal..)
+	char          *original_file;	// NetworkLocator::URLString should point to original essence file if external (and in some cases, points to the AAF itself if internal..)
+	char          *file_name;      // MasterMob::Name -> file name
+	char          *unique_file_name; // unique name generated from file_name. Sometimes, multiple files share the same names so this unique name should be used on export.
+	char          *exported_file;    // Holds the file path, once the essence has been exported, copied or linked.
 
-	char       *file_name;      // MasterMob::Name -> file name
+	uint64_t       length; 		// Length of Essence Data
 
-	char       *unique_file_name; // unique name generated from file_name. Sometimes, multiple files share the same names so this unique name should be used on export.
+	cfbNode       *node;			// The node holding the audio stream if embedded
 
-	char       *exported_file;    // Holds the file path, once the essence has been exported, copied or linked.
+	aafMobID_t    *sourceMobID;	// Holds the SourceMob Mob::ID references this EssenceData
+	aafMobID_t    *masterMobID;	// Holds the MasterMob Mob::ID (used by CompoMob's Sequence SourceClips)
 
+	aafObject     *SourceMob;
 
-	uint64_t    length; 		// Length of Essence Data
+	uint16_t       type;	// depends on PCMDescriptor WAVEDescriptor AIFCDescriptor
 
+	uint8_t        is_embedded;
 
-	// This can be tested to check if essence is embedded or not.
-	cfbNode     *node;
+	aafProperty   *summary;
 
-
-	aafMobID_t  *sourceMobID;	// Holds the SourceMob Mob::ID references this EssenceData
-	aafMobID_t  *masterMobID;	// Holds the MasterMob Mob::ID (used by CompoMob's Sequence SourceClips)
-
-	uint16_t  type;
-
-	// WAVE fmt chunk fields are used to describe Audio Essence
-	// uint16_t  wFormatTag;			// SoundDescriptor::Compression (null for PCM) = 0x1
-	// uint16_t  nChannels;			// SoundDescriptor::Channels
-	// uint32_t  nSamplesPerSec;		// FileDescriptor::SampleRate
-	// uint32_t  nAvgBytesPerSec;		// PCMDescriptor::AverageBPS
-	// uint16_t  nBlockAlign;			// PCMDescriptor::BlockAlign
-	// uint16_t  wBitsPerSample;		// SoundDescriptor::QuantizationBits
-
-	uint8_t is_embedded;
-
-	aafProperty *summary;
-
-	uint32_t  format;
-	uint32_t  samplerate;
-	int16_t   samplesize;
-	int16_t   channels;
-
+	uint32_t       format;
+	uint32_t       samplerate;
+	int16_t        samplesize;
+	int16_t        channels;
 
 	// BWF BEXT chunk data
 	char           description[256];
-	char           originator[32];
+	char           originator[32];			// could be set with header::ProductName
 	char           originatorReference[32];
 	uint64_t       timeReference;			// SourceMob TimelineMobSlot::Origin
-	unsigned char  umid[64];				// SourceMob::MobID ( 32 bits )
-	char           originationDate[10];		// SourceMob::CreationDate
-	char           originationTime[8];		// SourceMob::CreationTime
+	unsigned char  umid[64];				// SourceMob::MobID (32 Bytes, basic form)
+	char           originationDate[10+1];		// SourceMob::CreationDate
+	char           originationTime[8+1];		// SourceMob::CreationTime
 
 	// TODO peakEnveloppe
-
-	// uint16_t subClipCnt;
-
 	struct aafiAudioEssence *next;
 
 } aafiAudioEssence;

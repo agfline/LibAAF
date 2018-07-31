@@ -60,6 +60,18 @@
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
 
+#define RESET_CONTEXT( ctx )                        \
+	ctx.MobSlot = NULL;                             \
+	ctx.current_track = NULL;                       \
+	ctx.current_track_is_multichannel = 0;          \
+	ctx.current_multichannel_track_channel = 0;     \
+	ctx.current_multichannel_track_clip_length = 0; \
+	ctx.current_pos = 0;                            \
+	ctx.current_transition = NULL;                  \
+	ctx.current_gain = NULL;                        \
+	ctx.current_audioEssence = NULL;                \
+
+
 
 static void trace_obj( AAF_Iface *aafi, aafObject *Obj, char *color );
 
@@ -101,10 +113,12 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip );
 static int   parse_Parameter( AAF_Iface *aafi, aafObject *Parameter );
 static int   parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue );
 static int   parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue );
-static int    retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRational_t *times[], aafRational_t *values[] );
+static int   retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRational_t *times[], aafRational_t *values[] );
 
 
 static int   parse_Mob( AAF_Iface *aafi, aafObject *Mob );
+static int   parse_SourceMob( AAF_Iface *aafi, aafObject *SourceMob );
+
 static int   parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot );
 
 
@@ -775,7 +789,6 @@ static int retrieve_EssenceData( AAF_Iface *aafi )
 	snprintf( DataPath, CFB_PATH_NAME_SZ, "/%s/%s", path, StreamName );
 
 	free( StreamName );
-	// free( path );
 
 
 
@@ -792,7 +805,6 @@ static int retrieve_EssenceData( AAF_Iface *aafi )
 	audioEssence->is_embedded = 1;
 
 
-	// NOTE Might be tweaked by parse_audio_summary()
 
 	uint64_t dataLen = cfb_getNodeStreamLen( aafi->aafd->cfbd, DataNode );
 
@@ -802,6 +814,7 @@ static int retrieve_EssenceData( AAF_Iface *aafi )
 		return -1;
 	}
 
+	/* NOTE Might be tweaked by parse_audio_summary() */
 	audioEssence->length = dataLen;
 
 
@@ -1640,6 +1653,12 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 			return NULL;
 		}
 
+		audioEssence->SourceMob = SourceMob;
+
+
+
+		parse_SourceMob( aafi, SourceMob );
+
 
 
 		aafObject *EssenceDesc = aaf_get_propertyValue( SourceMob, PID_SourceMob_EssenceDescription );
@@ -2015,6 +2034,18 @@ static int parse_Mob( AAF_Iface *aafi, aafObject *Mob )
 		}
 
 	}
+	else if ( auidCmp( Mob->Class->ID, &AAFClassID_MasterMob ) )
+	{
+
+		trace_obj( aafi, Mob, ANSI_COLOR_MAGENTA );
+
+	}
+	else if ( auidCmp( Mob->Class->ID, &AAFClassID_SourceMob ) )
+	{
+
+		trace_obj( aafi, Mob, ANSI_COLOR_MAGENTA );
+
+	}
 
 
 	/*
@@ -2030,6 +2061,52 @@ static int parse_Mob( AAF_Iface *aafi, aafObject *Mob )
 
 	}
 
+
+	return 0;
+}
+
+
+
+
+static int parse_SourceMob( AAF_Iface *aafi, aafObject *SourceMob )
+{
+	if ( aafi->ctx.current_audioEssence != NULL )
+	{
+		aafiAudioEssence *audioEssence = aafi->ctx.current_audioEssence;
+
+
+
+		aafMobID_t *MobID = aaf_get_propertyValue( SourceMob, PID_Mob_MobID );
+
+		if ( MobID == NULL )
+		{
+			_error( "Could not retrieve SourceMob Mob::MobID.\n" );
+			return -1;
+		}
+
+		memcpy( audioEssence->umid, MobID, sizeof(aafMobID_t) );
+
+
+
+		aafTimeStamp_t *CreationTime = aaf_get_propertyValue( SourceMob, PID_Mob_CreationTime );
+
+		if ( CreationTime == NULL )
+		{
+			_error( "Could not retrieve SourceMob Mob::CreationTime.\n" );
+			return -1;
+		}
+
+		snprintf( audioEssence->originationDate, sizeof(audioEssence->originationDate), "%04i:%02u:%02u",
+			CreationTime->date.year,
+			CreationTime->date.month,
+			CreationTime->date.day );
+
+		snprintf( audioEssence->originationTime, sizeof(audioEssence->originationTime), "%02u:%02u:%02u",
+			CreationTime->time.hour,
+			CreationTime->time.minute,
+			CreationTime->time.second );
+
+	}
 
 	return 0;
 }
@@ -2150,7 +2227,7 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot )
 				/***********************************************************************************************************************/
 
 
-				/* (re)set timeline position */
+				/* Reset timeline position */
 				aafi->ctx.current_pos = 0;
 
 				parse_Segment( aafi, Segment );
@@ -2187,7 +2264,22 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot )
 		}
 		else if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_SourceMob ) )
 		{
-			/* See below.. */
+
+			if ( aafi->ctx.current_audioEssence != NULL )
+			{
+				aafiAudioEssence *audioEssence = aafi->ctx.current_audioEssence;
+
+				aafPosition_t *Origin = aaf_get_propertyValue( MobSlot, PID_TimelineMobSlot_Origin );
+
+				if ( DataDefinition == NULL )
+				{
+					_error( "Could not retrieve MobSlot TimelineMobSlot::Origin.\n" );
+					return -1;
+				}
+
+				audioEssence->timeReference = *Origin;
+			}
+
 		}
 		else
 		{
@@ -2217,6 +2309,8 @@ int aafi_retrieveData( AAF_Iface *aafi )
 
 	aaf_foreach_ObjectInSet( &(aafi->ctx.Mob), aafi->aafd->Mobs, NULL )
 	{
+
+		RESET_CONTEXT( aafi->ctx );
 
 		parse_Mob( aafi, aafi->ctx.Mob );
 
@@ -2274,7 +2368,6 @@ int aafi_retrieveData( AAF_Iface *aafi )
 
 	foreachAudioEssence( audioEssence, aafi->Audio->Essences )
 	{
-		// printf("coucou\n" );
 		if ( audioEssence->summary != NULL )
 		{
 			parse_audio_summary( aafi, audioEssence );

@@ -440,6 +440,36 @@ int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence,
 
 
 
+    /* Prepare bext chunk if WAVE file */
+
+    SF_BROADCAST_INFO bext;
+
+    memset( &bext, 0, sizeof (bext) );
+
+    if ( format & SF_FORMAT_WAV )
+    {
+        /* Non-AAF standard, but makes sense */
+
+    	snprintf( bext.description, sizeof(bext .description), "%s %s %s",
+            aafi->aafd->Identification.CompanyName,
+            aafi->aafd->Identification.ProductName,
+            aafi->aafd->Identification.ProductVersionString );
+    	snprintf( bext.originator, sizeof(bext.originator), "%s", aafi->aafd->Identification.CompanyName );
+    	snprintf( bext.originator_reference, sizeof(bext.originator_reference), "%s", aafi->aafd->Identification.ProductName );
+
+
+        /* AAF Standard */
+
+        memcpy( bext.origination_date, audioEssence->originationDate, sizeof(bext.origination_date) );
+        memcpy( bext.origination_time, audioEssence->originationTime, sizeof(bext.origination_time) );
+        memcpy( bext.umid, audioEssence->umid, sizeof(bext.umid) );
+        bext.time_reference_high = (uint32_t)( audioEssence->timeReference >> 32 );
+        bext.time_reference_low  = (uint32_t)( audioEssence->timeReference & 0xffffffff );
+    	bext.coding_history_size = 0;
+    }
+
+
+
     /* Prepare output file */
 
     SNDFILE *outfile = sf_open( filePath, SFM_WRITE, &sfinfo );
@@ -450,6 +480,15 @@ int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence,
         sf_close( infile );
 		return -1;
 	}
+
+
+
+    /* Add bext chunk */
+
+    if ( ( format & SF_FORMAT_WAV ) && sf_command( outfile, SFC_SET_BROADCAST_INFO, &bext, sizeof(bext) ) == SF_FALSE )
+    {
+        _error ( "libsndfile could not add bext chunk.\n" );
+    }
 
 
 
