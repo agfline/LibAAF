@@ -552,7 +552,7 @@ int main( int argc, char *argv[] )
 		aafTimeStamp_t *Date = aafd->Header.LastModified;
 
 		printf( " LastModified         : %04u-%02u-%02u %02u:%02u:%02u.%02u\n",
-			( Date ) ? Date->date.year, : 0
+			( Date ) ? Date->date.year : 0,
 			( Date ) ? Date->date.month : 0,
 			( Date ) ? Date->date.day : 0,
 			( Date ) ? Date->time.hour : 0,
