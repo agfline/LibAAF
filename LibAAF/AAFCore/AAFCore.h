@@ -439,6 +439,38 @@ typedef struct _aafData
 	aafObject  *Objects;
 
 
+	struct Header {
+
+		aafObject *obj;
+
+		int16_t ByteOrder;
+		aafTimeStamp_t *LastModified;
+		aafVersionType_t *Version;
+		uint32_t ObjectModelVersion;
+		aafUID_t *OperationalPattern;
+		// EssenceContainers; TODO AUIDSet_t
+		// DescriptiveSchemes: TODO AUIDSet_t
+
+	} Header;
+
+
+	struct Identification {
+
+		aafObject            *obj;
+
+		char                 *CompanyName;
+		char                 *ProductName;
+		aafProductVersion_t  *ProductVersion;
+		char                 *ProductVersionString;
+		aafUID_t             *ProductID;
+		aafTimeStamp_t       *Date;
+		aafProductVersion_t  *ToolkitVersion;
+		char                 *Platform;
+		aafUID_t             *GenerationAUID;
+
+	} Identification;
+
+
 	/**
 	 *	Pointer to the first Root Object, that is to the the top of the Tree.
 	 */
@@ -450,7 +482,7 @@ typedef struct _aafData
 	 *	(Shortcut) pointer to the Header Object in the Tree.
 	 */
 
-	aafObject  *Header;
+	// aafObject  *Header;
 
 
 	/**
@@ -478,7 +510,7 @@ typedef struct _aafData
 	 *	(Shortcut) pointer to the Identification Object in the Tree.
 	 */
 
-	aafObject  *Identification;
+	// aafObject  *Identification;
 
 
 	/**

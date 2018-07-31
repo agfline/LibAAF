@@ -121,172 +121,107 @@ void printRawStream( AAF_Data *aafd, cfbNode *node )
 
 void printIdentification( AAF_Data *aafd )
 {
-	aafObject *Identif = aafd->Identification;
 
-	if ( Identif == NULL )
+	printf( " CompanyName          : %s\n", ( aafd->Identification.CompanyName ) ? aafd->Identification.CompanyName : "n/a" );
+
+
+
+	printf( " ProductName          : %s\n", ( aafd->Identification.ProductName ) ? aafd->Identification.ProductName : "n/a" );
+
+
+
+	aafProductVersion_t *Version = aafd->Identification.ProductVersion;
+
+	printf( " ProductVersion       : %u.%u.%u.%u (%u)\n",
+		( Version ) ? Version->major      : 0,
+		( Version ) ? Version->minor      : 0,
+		( Version ) ? Version->tertiary   : 0,
+		( Version ) ? Version->patchLevel : 0,
+		( Version ) ? Version->type       : 0
+	);
+
+
+
+	printf( " ProductVersionString : %s\n", ( aafd->Identification.ProductVersionString ) ? aafd->Identification.ProductVersionString : "n/a" );
+
+
+
+	aafUID_t *ProdID = aafd->Identification.ProductID;
+
+	if ( ProdID != NULL )
 	{
-		printf( "Missing IdentificationList.\n" );
+		printf( " ProductID            : {%08x %04x %04x {%02x %02x %02x %02x %02x %02x %02x %02x}}\n",
+			ProdID->Data1,
+			ProdID->Data2,
+			ProdID->Data3,
+			ProdID->Data4[0],
+			ProdID->Data4[1],
+			ProdID->Data4[2],
+			ProdID->Data4[3],
+			ProdID->Data4[4],
+			ProdID->Data4[5],
+			ProdID->Data4[6],
+			ProdID->Data4[7]
+		);
 	}
 	else
+		printf( " ProductID            : n/a\n" );
+
+
+
+
+	aafTimeStamp_t *Date = aafd->Identification.Date;
+
+	printf( " Date                 : %04i-%02u-%02u %02u:%02u:%02u.%02u\n",
+		( Date ) ? Date->date.year : 0,
+		( Date ) ? Date->date.month : 0,
+		( Date ) ? Date->date.day : 0,
+		( Date ) ? Date->time.hour : 0,
+		( Date ) ? Date->time.minute : 0,
+		( Date ) ? Date->time.second : 0,
+		( Date ) ? Date->time.fraction : 0
+	);
+
+
+
+	aafProductVersion_t *ToolkitVer = aafd->Identification.ToolkitVersion;
+
+	printf( " ToolkitVersion       : %u.%u.%u.%u (%u)\n",
+		( ToolkitVer ) ? ToolkitVer->major : 0,
+		( ToolkitVer ) ? ToolkitVer->minor : 0,
+		( ToolkitVer ) ? ToolkitVer->tertiary : 0,
+		( ToolkitVer ) ? ToolkitVer->patchLevel : 0,
+		( ToolkitVer ) ? ToolkitVer->type : 0
+	);
+
+
+
+	printf( " Platform             : %s\n", ( aafd->Identification.Platform ) ? aafd->Identification.Platform : "n/a" );
+
+
+
+	aafUID_t *Generation = aafd->Identification.GenerationAUID;
+
+	if ( Generation != NULL )
 	{
-		char *Company = aaf_get_propertyValueText( Identif, PID_Identification_CompanyName );
-
-		if ( Company != NULL )
-		{
-			printf( " CompanyName          : %s\n", Company );
-
-			free( Company );
-		}
-		else
-			printf( " CompanyName          : n/a\n" );
-
-
-
-
-		char *ProdName = aaf_get_propertyValueText( Identif, PID_Identification_ProductName );
-
-		if ( ProdName != NULL )
-		{
-			printf( " ProductName          : %s\n", ProdName );
-
-			free( ProdName );
-		}
-		else
-			printf( " ProductName          : n/a\n" );
-
-
-
-
-		aafProductVersion_t *ProdVer = aaf_get_propertyValue( Identif, PID_Identification_ProductVersion );
-		if ( ProdVer != NULL )
-		{
-			printf( " ProductVersion       : %u.%u.%u.%u (%u)\n",
-				ProdVer->major,
-				ProdVer->minor,
-				ProdVer->tertiary,
-				ProdVer->patchLevel,
-				ProdVer->type
-			);
-		}
-		else
-			printf( " ProductVersion       : n/a\n" );
-
-
-
-
-		char *ProdVerStr = aaf_get_propertyValueText( Identif, PID_Identification_ProductVersionString );
-
-		if ( ProdVerStr != NULL )
-		{
-			printf( " ProductVersionString : %s\n", ProdVerStr );
-
-			free( ProdVerStr );
-		}
-		else
-			printf( " ProductVersionString : n/a\n" );
-
-
-
-
-		aafUID_t *ProdID = aaf_get_propertyValue( Identif, PID_Identification_ProductID );
-
-		if ( ProdID != NULL )
-		{
-			printf( " ProductID            : {%08x %04x %04x {%02x %02x %02x %02x %02x %02x %02x %02x}}\n",
-				ProdID->Data1,
-				ProdID->Data2,
-				ProdID->Data3,
-				ProdID->Data4[0],
-				ProdID->Data4[1],
-				ProdID->Data4[2],
-				ProdID->Data4[3],
-				ProdID->Data4[4],
-				ProdID->Data4[5],
-				ProdID->Data4[6],
-				ProdID->Data4[7]
-			);
-		}
-		else
-			printf( " ProductID            : n/a\n" );
-
-
-
-
-		aafTimeStamp_t *Date = aaf_get_propertyValue( Identif, PID_Identification_Date );
-
-		if ( Date != NULL )
-		{
-			printf( " Date                 : %04u-%02u-%02u %02u:%02u:%02u.%02u\n",
-				Date->date.year,
-				Date->date.month,
-				Date->date.day,
-				Date->time.hour,
-				Date->time.minute,
-				Date->time.second,
-				Date->time.fraction
-			);
-		}
-		else
-			printf( " Date                 : n/a\n" );
-
-
-
-
-		aafProductVersion_t *ToolkitVer = aaf_get_propertyValue( Identif, PID_Identification_ToolkitVersion );
-
-		if ( ToolkitVer != NULL )
-		{
-			printf( " ToolkitVersion       : %u.%u.%u.%u (%u)\n",
-				ToolkitVer->major,
-				ToolkitVer->minor,
-				ToolkitVer->tertiary,
-				ToolkitVer->patchLevel,
-				ToolkitVer->type
-			);
-		}
-		else
-			printf( " ToolkitVersion       : n/a\n" );
-
-
-
-
-		char *Platform = aaf_get_propertyValueText( Identif, PID_Identification_Platform );
-
-		if ( Platform != NULL )
-		{
-			printf( " Platform             : %s\n", Platform );
-
-			free( Platform );
-		}
-		else
-			printf( " Platform             : n/a\n" );
-
-
-
-
-		aafUID_t *Generation = aaf_get_propertyValue( Identif, PID_Identification_GenerationAUID );
-
-		if ( Generation != NULL )
-		{
-			printf( " GenerationAUID       : {%08x %04x %04x {%02x %02x %02x %02x %02x %02x %02x %02x}}\n",
-				Generation->Data1,
-				Generation->Data2,
-				Generation->Data3,
-				Generation->Data4[0],
-				Generation->Data4[1],
-				Generation->Data4[2],
-				Generation->Data4[3],
-				Generation->Data4[4],
-				Generation->Data4[5],
-				Generation->Data4[6],
-				Generation->Data4[7]
-			);
-		}
-		else
-			printf( " GenerationAUID       : n/a\n" );
-
-
+		printf( " GenerationAUID       : {%08x %04x %04x {%02x %02x %02x %02x %02x %02x %02x %02x}}\n",
+			Generation->Data1,
+			Generation->Data2,
+			Generation->Data3,
+			Generation->Data4[0],
+			Generation->Data4[1],
+			Generation->Data4[2],
+			Generation->Data4[3],
+			Generation->Data4[4],
+			Generation->Data4[5],
+			Generation->Data4[6],
+			Generation->Data4[7]
+		);
 	}
+	else
+		printf( " GenerationAUID       : n/a\n" );
+
+
 
 	printf( "\n\n" );
 }
@@ -604,85 +539,49 @@ int main( int argc, char *argv[] )
 	if ( aaf_summary )
 	{
 
-		uint16_t *byteOrder = (uint16_t*)aaf_get_propertyValue( aafd->Header, PID_Header_ByteOrder );
+		uint16_t ByteOrder = aafd->Header.ByteOrder;
 
-		if ( byteOrder != NULL )
-			printf( " ByteOrder            : %s (0x%04x)\n",
-				(*byteOrder == AAF_HEADER_BYTEORDER_LE) ? "Little-Endian" :
-				(*byteOrder == AAF_HEADER_BYTEORDER_BE) ? "Big-Endian" :
-				"unknwon",
-				*byteOrder );
-		else
-			printf( " ByteOrder            : n/a\n" );
+		printf( " ByteOrder            : %s (0x%04x)\n",
+			( ByteOrder == AAF_HEADER_BYTEORDER_LE ) ? "Little-Endian" :
+			( ByteOrder == AAF_HEADER_BYTEORDER_BE ) ? "Big-Endian" :
+			"unknwon",
+			ByteOrder );
 
 
 
+		aafTimeStamp_t *Date = aafd->Header.LastModified;
 
-
-
-		aafTimeStamp_t *Date = aaf_get_propertyValue( aafd->Header, PID_Header_LastModified );
-
-		if ( Date != NULL )
-		{
-			printf( " LastModified         : %04u-%02u-%02u %02u:%02u:%02u.%02u\n",
-				Date->date.year,
-				Date->date.month,
-				Date->date.day,
-				Date->time.hour,
-				Date->time.minute,
-				Date->time.second,
-				Date->time.fraction
-			);
-		}
-		else
-			printf( " LastModified         : n/a\n" );
+		printf( " LastModified         : %04u-%02u-%02u %02u:%02u:%02u.%02u\n",
+			( Date ) ? Date->date.year, : 0
+			( Date ) ? Date->date.month : 0,
+			( Date ) ? Date->date.day : 0,
+			( Date ) ? Date->time.hour : 0,
+			( Date ) ? Date->time.minute : 0,
+			( Date ) ? Date->time.second : 0,
+			( Date ) ? Date->time.fraction : 0
+		);
 
 
 
 
+		aafVersionType_t *Vers = aafd->Header.Version;
 
-		aafVersionType_t *Vers = (aafVersionType_t*)aaf_get_propertyValue( aafd->Header, PID_Header_Version );
-
-		if ( Vers != NULL )
-			printf( " AAF ObjSpec Version  : %i.%i\n",
-				Vers->major,
-				Vers->minor );
-		else
-			printf( " AAF ObjSpec Version  : n/a\n" );
-
-
-
-/*
-		aafObject *Content = aaf_get_propertyValue( aafd->Header, PID_Header_Content );
-
-		if ( Content != NULL )
-			printf( " ContentStorage Obj   : %s\n",
-				Content->Name );
-		else
-			printf( " ContentStorage Obj   : n/a\n" );
-*/
+		printf( " AAF ObjSpec Version  : %i.%i\n",
+			( Vers ) ? Vers->major : 0,
+			( Vers ) ? Vers->minor : 0 );
 
 
 
 
-		uint32_t *ObjModelVer = (uint32_t*)aaf_get_propertyValue( aafd->Header, PID_Header_ObjectModelVersion );
+		uint32_t ObjModelVer = aafd->Header.ObjectModelVersion;
 
-		if ( ObjModelVer != NULL )
-			printf( " ObjectModel Version  : %u\n",
-				*ObjModelVer );
-		else
-			printf( " ObjectModel Version  : n/a\n" );
+		printf( " ObjectModel Version  : %u\n", ObjModelVer );
 
 
 
+		aafUID_t *Op = aafd->Header.OperationalPattern;
 
-		aafUID_t *Op = (aafUID_t*)aaf_get_propertyValue( aafd->Header, PID_Header_OperationalPattern );
-
-		if ( Op != NULL )
-			printf( " Operational Pattern  : %s\n",
-				OPDefToText( Op ) );
-		else
-			printf( " Operational Pattern  : n/a\n" );
+		printf( " Operational Pattern  : %s\n", ( Op ) ? OPDefToText( Op ) : "n/a" );
 
 
 

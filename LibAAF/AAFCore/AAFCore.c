@@ -412,6 +412,11 @@ static aafStrongRefVectorHeader_t * getStrongRefVectorList( CFB_Data  *cfbd,
 
 
 
+static int parse_Header( AAF_Data *aafd );
+
+static int parse_Identification( AAF_Data *aafd );
+
+
 
 
 AAF_Data *aaf_alloc()
@@ -466,6 +471,16 @@ int aaf_load_file( AAF_Data *aafd, const char *file )
 	}
 
 	if ( retrieveObjectTree( aafd ) < 0 )
+	{
+		return -1;
+	}
+
+	if ( parse_Header( aafd ) < 0 )
+	{
+		return -1;
+	}
+
+	if ( parse_Identification( aafd ) < 0 )
 	{
 		return -1;
 	}
@@ -554,6 +569,28 @@ void aaf_release( AAF_Data **aafd )
 
 		free( Object );
 	}
+
+
+	if ( (*aafd)->Identification.CompanyName != NULL )
+	{
+		free( (*aafd)->Identification.CompanyName );
+	}
+
+	if ( (*aafd)->Identification.ProductName != NULL )
+	{
+		free( (*aafd)->Identification.ProductName );
+	}
+
+	if ( (*aafd)->Identification.ProductVersionString != NULL )
+	{
+		free( (*aafd)->Identification.ProductVersionString );
+	}
+
+	if ( (*aafd)->Identification.Platform != NULL )
+	{
+		free( (*aafd)->Identification.Platform );
+	}
+
 
 	free( *aafd );
 
@@ -951,19 +988,215 @@ static aafProperty * newProperty( aafPropertyDef *Def )
 
 
 
+static int parse_Header( AAF_Data *aafd )
+{
+
+	aafObject *Header = aafd->Header.obj;
+
+	if ( Header == NULL )
+	{
+		_error( "Missing Header Object.\n" );
+		return -1;
+	}
+
+
+
+	int16_t *ByteOrder = aaf_get_propertyValue( Header, PID_Header_ByteOrder );
+
+	if ( ByteOrder == NULL )
+	{
+		_warning( "Missing Header::ByteOrder.\n" );
+	}
+
+	aafd->Header.ByteOrder = *ByteOrder;
+
+
+
+	aafTimeStamp_t *LastModified = aaf_get_propertyValue( Header, PID_Header_LastModified );
+
+	if ( LastModified == NULL )
+	{
+		_warning( "Missing Header::LastModified.\n" );
+	}
+
+	aafd->Header.LastModified = LastModified;
+
+
+
+	aafVersionType_t *Version = aaf_get_propertyValue( Header, PID_Header_Version );
+
+	if ( Version == NULL )
+	{
+		_warning( "Missing Header::Version.\n" );
+	}
+
+	aafd->Header.Version = Version;
+
+
+
+	uint32_t *ObjectModelVersion = aaf_get_propertyValue( Header, PID_Header_ObjectModelVersion );
+
+	if ( ObjectModelVersion == NULL )
+	{
+		_warning( "Missing Header::ObjectModelVersion.\n" );
+	}
+
+	aafd->Header.ObjectModelVersion = *ObjectModelVersion;
+
+
+
+	aafUID_t *OperationalPattern = aaf_get_propertyValue( Header, PID_Header_OperationalPattern );
+
+	if ( OperationalPattern == NULL )
+	{
+		_warning( "Missing Header::OperationalPattern.\n" );
+	}
+
+	aafd->Header.OperationalPattern = OperationalPattern;
+
+
+	return 0;
+}
+
+
+
+
+
+static int parse_Identification( AAF_Data *aafd )
+{
+
+	aafObject *Identif = aafd->Identification.obj;
+
+	if ( Identif == NULL )
+	{
+		_error( "Missing Identification Object.\n" );
+		return -1;
+	}
+
+
+
+	char *Company = aaf_get_propertyValueText( Identif, PID_Identification_CompanyName );
+
+	if ( Company == NULL )
+	{
+		_warning( "Missing Identification::CompanyName.\n" );
+	}
+
+	aafd->Identification.CompanyName = Company;
+
+
+
+	char *ProductName = aaf_get_propertyValueText( Identif, PID_Identification_ProductName );
+
+	if ( ProductName == NULL )
+	{
+		_warning( "Missing Identification::ProductName.\n" );
+	}
+
+	aafd->Identification.ProductName = ProductName;
+
+
+
+	aafProductVersion_t *ProductVersion = aaf_get_propertyValue( Identif, PID_Identification_ProductVersion );
+
+	if ( ProductVersion == NULL )
+	{
+		_warning( "Missing Identification::ProductVersion.\n" );
+	}
+
+	aafd->Identification.ProductVersion = ProductVersion;
+
+
+
+	char *ProductVersionString = aaf_get_propertyValueText( Identif, PID_Identification_ProductVersionString );
+
+	if ( ProductVersionString == NULL )
+	{
+		_warning( "Missing Identification::ProductVersionString.\n" );
+	}
+
+	aafd->Identification.ProductVersionString = ProductVersionString;
+
+
+
+	aafUID_t *ProductID = aaf_get_propertyValue( Identif, PID_Identification_ProductID );
+
+	if ( ProductID == NULL )
+	{
+		_warning( "Missing Identification::ProductID.\n" );
+	}
+
+	aafd->Identification.ProductID = ProductID;
+
+
+
+
+	aafTimeStamp_t *Date = aaf_get_propertyValue( Identif, PID_Identification_Date );
+
+	if ( Date == NULL )
+	{
+		_warning( "Missing Identification::Date.\n" );
+	}
+
+	aafd->Identification.Date = Date;
+
+
+
+
+	aafProductVersion_t *ToolkitVersion = aaf_get_propertyValue( Identif, PID_Identification_ToolkitVersion );
+
+	if ( ToolkitVersion == NULL )
+	{
+		_warning( "Missing Identification::ToolkitVersion.\n" );
+	}
+
+	aafd->Identification.ToolkitVersion = ToolkitVersion;
+
+
+
+
+	char *Platform = aaf_get_propertyValueText( Identif, PID_Identification_Platform );
+
+	if ( Platform == NULL )
+	{
+		_warning( "Missing Identification::Platform.\n" );
+	}
+
+	aafd->Identification.Platform = Platform;
+
+
+
+
+	aafUID_t *GenerationAUID = aaf_get_propertyValue( Identif, PID_Identification_GenerationAUID );
+
+	if ( GenerationAUID == NULL )
+	{
+		_warning( "Missing Identification::GenerationAUID.\n" );
+	}
+
+	aafd->Identification.GenerationAUID = GenerationAUID;
+
+
+	return 0;
+}
+
+
+
+
+
 static void setObjectShortcuts( AAF_Data *aafd )
 {
 //  aafd->Root = aafd->Root;
 
-	aafd->Header                  = aaf_get_propertyValue( aafd->Root,       PID_Root_Header                         );
+	aafd->Header.obj              = aaf_get_propertyValue( aafd->Root,       PID_Root_Header                         );
 //  aafd->MetaDictionary          = aaf_get_propertyValue( aafd->Root,       PID_Root_MetaDictionary                 );
 
 	aafd->ClassDefinition         = aaf_get_propertyValue( aafd->MetaDictionary, PID_MetaDictionary_ClassDefinitions );
 	aafd->TypeDefinition          = aaf_get_propertyValue( aafd->MetaDictionary, PID_MetaDictionary_TypeDefinitions  );
 
-	aafd->Identification          = aaf_get_propertyValue( aafd->Header,     PID_Header_IdentificationList           );
-	aafd->Content                 = aaf_get_propertyValue( aafd->Header,     PID_Header_Content                      );
-	aafd->Dictionary              = aaf_get_propertyValue( aafd->Header,     PID_Header_Dictionary                   );
+	aafd->Identification.obj      = aaf_get_propertyValue( aafd->Header.obj,     PID_Header_IdentificationList       );
+	aafd->Content                 = aaf_get_propertyValue( aafd->Header.obj,     PID_Header_Content                  );
+	aafd->Dictionary              = aaf_get_propertyValue( aafd->Header.obj,     PID_Header_Dictionary               );
 
 	aafd->Mobs                    = aaf_get_propertyValue( aafd->Content,    PID_ContentStorage_Mobs                 );
 	aafd->EssenceData             = aaf_get_propertyValue( aafd->Content,    PID_ContentStorage_EssenceData          );
@@ -1026,7 +1259,7 @@ static int retrieveObjectTree( AAF_Data *aafd )
 
 	aafByte_t      *value         = NULL;
 
-	aafPropertyDef *PDef   = NULL;
+	aafPropertyDef *PDef          = NULL;
 
 	if ( Header == NULL )
 	{
