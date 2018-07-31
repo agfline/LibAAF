@@ -112,30 +112,6 @@ void printRawStream( AAF_Data *aafd, cfbNode *node )
 
 
 
-void printIdentification( AAF_Data *aafd )
-{
-
-	printf( " CompanyName          : %s\n", ( aafd->Identification.CompanyName ) ? aafd->Identification.CompanyName : "n/a" );
-
-	printf( " ProductName          : %s\n", ( aafd->Identification.ProductName ) ? aafd->Identification.ProductName : "n/a" );
-
-	printf( " ProductVersion       : %s\n", ProductVersionToText( aafd->Identification.ProductVersion ) );
-
-	printf( " ProductVersionString : %s\n", ( aafd->Identification.ProductVersionString ) ? aafd->Identification.ProductVersionString : "n/a" );
-
-	printf( " ProductID            : %s\n", AUIDToText( aafd->Identification.ProductID ) );
-
-	printf( " Date                 : %s\n", TimestampToText( aafd->Identification.Date ) );
-
-	printf( " ToolkitVersion       : %s\n", ProductVersionToText( aafd->Identification.ToolkitVersion ) );
-
-	printf( " Platform             : %s\n", ( aafd->Identification.Platform ) ? aafd->Identification.Platform : "n/a" );
-
-	printf( " GenerationAUID       : %s\n", AUIDToText( aafd->Identification.GenerationAUID ) );
-
-
-	printf( "\n\n" );
-}
 
 
 
@@ -450,20 +426,30 @@ int main( int argc, char *argv[] )
 	if ( aaf_summary )
 	{
 
+		/* AAF Header */
+
 		printf( " ByteOrder            : %s (0x%04x)\n", ByteOrderToText( aafd->Header.ByteOrder ), aafd->Header.ByteOrder );
-
 		printf( " LastModified         : %s\n", TimestampToText( aafd->Header.LastModified ) );
-
 		printf( " AAF ObjSpec Version  : %s\n", VersionToText( aafd->Header.Version ) );
-
 		printf( " ObjectModel Version  : %u\n", aafd->Header.ObjectModelVersion );
-
 		printf( " Operational Pattern  : %s\n", OPDefToText( aafd->Header.OperationalPattern ) );
-
 
 		printf( "\n\n" );
 
-		printIdentification( aafd );
+
+		/* AAF Identification */
+
+		printf( " CompanyName          : %s\n", ( aafd->Identification.CompanyName ) ? aafd->Identification.CompanyName : "n/a" );
+		printf( " ProductName          : %s\n", ( aafd->Identification.ProductName ) ? aafd->Identification.ProductName : "n/a" );
+		printf( " ProductVersion       : %s\n", ProductVersionToText( aafd->Identification.ProductVersion ) );
+		printf( " ProductVersionString : %s\n", ( aafd->Identification.ProductVersionString ) ? aafd->Identification.ProductVersionString : "n/a" );
+		printf( " ProductID            : %s\n", AUIDToText( aafd->Identification.ProductID ) );
+		printf( " Date                 : %s\n", TimestampToText( aafd->Identification.Date ) );
+		printf( " ToolkitVersion       : %s\n", ProductVersionToText( aafd->Identification.ToolkitVersion ) );
+		printf( " Platform             : %s\n", ( aafd->Identification.Platform ) ? aafd->Identification.Platform : "n/a" );
+		printf( " GenerationAUID       : %s\n", AUIDToText( aafd->Identification.GenerationAUID ) );
+
+		printf( "\n\n" );
 	}
 
 
