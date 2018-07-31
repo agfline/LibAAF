@@ -637,6 +637,21 @@ typedef struct AAF_Iface
 	for ( ae = aeList; ae != NULL; ae = ae->next )
 
 
+
+#define aeDuration_h( audioEssence ) \
+	((uint16_t)(audioEssence->length / audioEssence->samplerate / (audioEssence->samplesize / 8)) / 3600)
+
+#define aeDuration_m( audioEssence ) \
+	((uint16_t)(audioEssence->length / audioEssence->samplerate / (audioEssence->samplesize / 8)) % 3600 / 60)
+
+#define aeDuration_s( audioEssence ) \
+	((uint16_t)(audioEssence->length / audioEssence->samplerate / (audioEssence->samplesize / 8)) % 3600 % 60)
+
+#define aeDuration_ms( audioEssence ) \
+	((uint16_t)(audioEssence->length / (audioEssence->samplerate / 1000) / (audioEssence->samplesize / 8)) % 3600000 % 60000 % 1000)
+
+
+
 #define eu2sample( audioClip, val ) \
 	(int64_t)(val * (audioClip->Essence->samplerate * (1 / rationalToFloat(audioClip->track->edit_rate))))
 

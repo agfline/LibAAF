@@ -617,43 +617,23 @@ int main( int argc, char *argv[] )
 
 		foreachAudioEssence( audioEssence, aafi->Audio->Essences )
 		{
-
-
-			if ( audioEssence->type == AAFI_TYPE_PCM || audioEssence->type == AAFI_TYPE_WAVE || audioEssence->type == AAFI_TYPE_AIFC )
-			{
-				printf( " %s%u:  Type: %s  Duration: %u h  %02u mn  %02u s  %03u ms   %u Ch - %u Hz - %u bit  file : %s  file_name : %s\n",
-					( i < 10 ) ? " " : "", i,
-					( audioEssence->type == AAFI_TYPE_PCM  ) ? "PCM"  :
-					( audioEssence->type == AAFI_TYPE_WAVE ) ? "WAVE" :
-					( audioEssence->type == AAFI_TYPE_AIFC ) ? "AIFC" :
-					( audioEssence->type == AAFI_TYPE_BWAV ) ? "BWAV" : "",
-					(uint16_t)(audioEssence->length / audioEssence->samplerate / (audioEssence->samplesize / 8)) / 3600,
-					(uint16_t)(audioEssence->length / audioEssence->samplerate / (audioEssence->samplesize / 8)) % 3600 / 60,
-					(uint16_t)(audioEssence->length / audioEssence->samplerate / (audioEssence->samplesize / 8)) % 3600 % 60,
-					(uint16_t)(audioEssence->length / (audioEssence->samplerate / 1000) / (audioEssence->samplesize / 8)) % 3600000 % 60000 % 1000,
-					audioEssence->channels,
-					audioEssence->samplerate,
-					audioEssence->samplesize,
-					( audioEssence->is_embedded ) ? "EMBEDDED" : audioEssence->original_file,
-					audioEssence->unique_file_name
-				);
-			}
-			else
-			{
-				// printf( "len : %lu\n", audioEssence->length );
-				// printf( "nSamplesPerSec : %u\n", audioEssence->nSamplesPerSec );
-				// printf( "wBitsPerSample : %u\n", audioEssence->wBitsPerSample );
-				// printf( " Audio_%s:%u%s   Duration %02u:%02u:%02u\n",
-				// 	( audioEssence->type == AAFI_TYPE_PCM  ) ? "PCM"  :
-				// 	( audioEssence->type == AAFI_TYPE_WAVE ) ? "WAVE" :
-				// 	( audioEssence->type == AAFI_TYPE_AIFC ) ? "AIFC" :
-				// 	( audioEssence->type == AAFI_TYPE_BWAV ) ? "BWAV" : "",
-				// 	i, ( i < 10 ) ? " " : "",
-				// 	(uint16_t)(audioEssence->length / 48000) / 3600,
-				// 	(uint16_t)(audioEssence->length / 48000) % 3600 / 60,
-				// 	(uint16_t)(audioEssence->length / 48000) % 3600 % 60
-				// );
-			}
+			
+			printf( " %s%u:  Type: %s  Duration: %u h  %02u mn  %02u s  %03u ms   %u Ch - %u Hz - %u bit  file : %s  file_name : %s\n",
+				( i < 10 ) ? " " : "", i,
+				( audioEssence->type == AAFI_TYPE_PCM  ) ? "PCM"  :
+				( audioEssence->type == AAFI_TYPE_WAVE ) ? "WAVE" :
+				( audioEssence->type == AAFI_TYPE_AIFC ) ? "AIFC" :
+				( audioEssence->type == AAFI_TYPE_BWAV ) ? "BWAV" : "",
+				aeDuration_h( audioEssence ),
+				aeDuration_m( audioEssence ),
+				aeDuration_s( audioEssence ),
+				aeDuration_ms( audioEssence ),
+				audioEssence->channels,
+				audioEssence->samplerate,
+				audioEssence->samplesize,
+				( audioEssence->is_embedded ) ? "EMBEDDED" : audioEssence->original_file,
+				audioEssence->unique_file_name
+			);
 
 			i++;
 		}
