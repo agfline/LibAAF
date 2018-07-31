@@ -17,10 +17,121 @@
 #include "AAFDefs/AAFContainerDefs.h"
 
 
+const char * TimestampToText( aafTimeStamp_t *ts )
+{
+	static char str[24];
+
+	if ( ts == NULL )
+	{
+		str[0] = 'n';
+		str[1] = '/';
+		str[2] = 'a';
+		str[3] = '\0';
+	}
+	else
+	{
+		snprintf( str, sizeof(str), "%04i-%02u-%02u %02u:%02u:%02u.%02u",
+			ts->date.year,
+			ts->date.month,
+			ts->date.day,
+			ts->time.hour,
+			ts->time.minute,
+			ts->time.second,
+			ts->time.fraction );
+	}
+
+	return str;
+}
+
+const char * VersionToText( aafVersionType_t *vers )
+{
+	static char str[16];
+
+	if ( vers == NULL )
+	{
+		str[0] = 'n';
+		str[1] = '/';
+		str[2] = 'a';
+		str[3] = '\0';
+	}
+	else
+	{
+		snprintf( str, sizeof(str), "%i.%i",
+			vers->major,
+			vers->minor );
+	}
+
+	return str;
+}
+
+const char * ProductVersionToText( aafProductVersion_t *vers )
+{
+	static char str[64];
+
+	if ( vers == NULL )
+	{
+		str[0] = 'n';
+		str[1] = '/';
+		str[2] = 'a';
+		str[3] = '\0';
+	}
+	else
+	{
+		snprintf( str, sizeof(str), "%u.%u.%u.%u %s (%i)",
+			vers->major,
+			vers->minor,
+		 	vers->tertiary,
+			vers->patchLevel,
+			ProductReleaseTypeToText( vers->type ),
+			// ( vers->type == AAFVersionUnknown )      ? "unknwon"       :
+			// ( vers->type == AAFVersionReleased )     ? "released"      :
+			// ( vers->type == AAFVersionDebug )        ? "debug"         :
+			// ( vers->type == AAFVersionPatched )      ? "patched"       :
+			// ( vers->type == AAFVersionBeta )         ? "beta"          :
+			// ( vers->type == AAFVersionPrivateBuild ) ? "private build" :
+			// "",
+			vers->type );
+	}
+
+	return str;
+}
+
+const char * AUIDToText( aafUID_t *auid )
+{
+	static char str[96];
+
+	if ( auid == NULL )
+	{
+		str[0] = 'n';
+		str[1] = '/';
+		str[2] = 'a';
+		str[3] = '\0';
+	}
+	else
+	{
+		// snprintf( str, sizeof(str), "0x%08x-0x%04x-0x%04x-0x%02x-0x%02x-0x%02x-0x%02x-0x%02x-0x%02x-0x%02x-0x%02x",
+		snprintf( str, sizeof(str), "{ 0x%08x 0x%04x 0x%04x { 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x } }",
+			auid->Data1,
+			auid->Data2,
+			auid->Data3,
+			auid->Data4[0],
+			auid->Data4[1],
+			auid->Data4[2],
+			auid->Data4[3],
+			auid->Data4[4],
+			auid->Data4[5],
+			auid->Data4[6],
+			auid->Data4[7] );
+	}
+
+	return str;
+}
+
+
 const char * FileKindToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
-		return NULL;
+		return "n/a";
 
 	/* AAFUID_NULL == AAFFileKind_DontCare */
 	// if ( auidCmp( auid, &AAFUID_NULL ) )
@@ -248,7 +359,7 @@ const char * BoolToText( aafBoolean_t b )
 const char * OperationCategoryToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
-		return NULL;
+		return "n/a";
 
 	if ( auidCmp( auid, &AAFUID_NULL ) )
 		return "";
@@ -263,7 +374,7 @@ const char * OperationCategoryToText( const aafUID_t *auid )
 const char * PluginCategoryToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
-		return NULL;
+		return "n/a";
 
 	if ( auidCmp( auid, &AAFUID_NULL ) )
 		return "";
@@ -371,7 +482,7 @@ const char * ElectroSpatialToText( aafElectroSpatialFormulation_t e )
 const char * OPDefToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
-		return NULL;
+		return "n/a";
 
 
 	if ( auidCmp( auid, &AAFOPDef_EditProtocol ) )
@@ -392,7 +503,7 @@ const char * OPDefToText( const aafUID_t *auid )
 const char * TypeIDToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
-		return NULL;
+		return "n/a";
 
 
 	if ( auidCmp( auid, &AAFTypeID_UInt8 ) )
@@ -869,7 +980,7 @@ const char * TypeIDToText( const aafUID_t *auid )
 const char * DataDefToText( AAF_Data *aafd, const aafUID_t *auid )
 {
 	if ( auid == NULL )
-		return NULL;
+		return "n/a";
 
 	if ( auidCmp( auid, &AAFDataDef_Picture ) )
 		return "AAFDataDef_Picture";
@@ -941,7 +1052,7 @@ const char * DataDefToText( AAF_Data *aafd, const aafUID_t *auid )
 const char * OperationDefToText( AAF_Data *aafd, const aafUID_t *auid )
 {
 	if ( auid == NULL )
-		return NULL;
+		return "n/a";
 
 	if ( auidCmp( auid, &AAFOperationDef_VideoDissolve ) )
 		return "AAFOperationDef_VideoDissolve";
@@ -1070,7 +1181,7 @@ const char * OperationDefToText( AAF_Data *aafd, const aafUID_t *auid )
 const char * InterpolationToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
-		return NULL;
+		return "n/a";
 
 	if ( auidCmp( auid, &AAFInterpolationDef_None ) )
 		return "AAFInterpolationDef_None";
@@ -1101,7 +1212,7 @@ const char * InterpolationToText( const aafUID_t *auid )
 const char * ParameterToText( AAF_Data *aafd, const aafUID_t *auid )
 {
 	if ( auid == NULL )
-		return NULL;
+		return "n/a";
 
 	if ( auidCmp( auid, &AAFParameterDef_Level ) )
 		return "AAFParameterDef_Level";
@@ -1330,7 +1441,7 @@ const char * ParameterToText( AAF_Data *aafd, const aafUID_t *auid )
 const char * TransferCharacteristicToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
-		return NULL;
+		return "n/a";
 
 	if ( auidCmp( auid, &AAFTransferCharacteristic_ITU470_PAL ) )
 		         return "AAFTransferCharacteristic_ITU470_PAL";
@@ -1361,7 +1472,7 @@ const char * TransferCharacteristicToText( const aafUID_t *auid )
 const char * CodingEquationsToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
-		return NULL;
+		return "n/a";
 
 	if ( auidCmp( auid, &AAFCodingEquations_ITU601 ) )
 		         return "AAFCodingEquations_ITU601";
@@ -1383,7 +1494,7 @@ const char * CodingEquationsToText( const aafUID_t *auid )
 const char * ColorPrimariesToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
-		return NULL;
+		return "n/a";
 
 	if ( auidCmp( auid, &AAFColorPrimaries_SMPTE170M ) )
 		         return "AAFColorPrimaries_SMPTE170M";
@@ -1405,7 +1516,7 @@ const char * ColorPrimariesToText( const aafUID_t *auid )
 const char * UsageCodeToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
-		return NULL;
+		return "n/a";
 
 	if ( auidCmp( auid, &AAFUsage_SubClip ) )
 		         return "AAFUsage_SubClip";
@@ -2159,7 +2270,7 @@ const char * PIDToText( AAF_Data *aafd, aafPID_t pid )
 const char * ClassIDToText( AAF_Data *aafd, const aafUID_t *auid )
 {
 	if ( auid == NULL )
-		return NULL;
+		return "n/a";
 
 	if ( auidCmp( auid, &AAFClassID_Root ) )
 		return "AAFClassID_Root";
@@ -2402,7 +2513,7 @@ const char * ClassIDToText( AAF_Data *aafd, const aafUID_t *auid )
 const char * ContainerToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
-		return NULL;
+		return "n/a";
 
 	if ( auidCmp( auid, &AAFContainerDef_External ) )
 		return "AAFContainerDef_External";
@@ -2691,7 +2802,7 @@ const char * ContainerToText( const aafUID_t *auid )
 const char * CompressionToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
-		return NULL;
+		return "n/a";
 
 	if ( auidCmp( auid, &AAFCompressionDef_AAF_CMPR_FULL_JPEG ) )
 		return "AAFCompressionDef_AAF_CMPR_FULL_JPEG";

@@ -41,6 +41,7 @@
 
 #include "../libAAF.h"
 #include "../common/debug.h"
+#include "../common/utils.h"
 
 // #include "thirdparty/libriff.h"
 // #include "thirdparty/libwav.h"
@@ -51,13 +52,6 @@
 
 
 
-#define ANSI_COLOR_RED     "\x1b[31m"
-#define ANSI_COLOR_GREEN   "\x1b[92m"
-#define ANSI_COLOR_YELLOW  "\x1b[93m"
-#define ANSI_COLOR_BLUE    "\x1b[34m"
-#define ANSI_COLOR_MAGENTA "\x1b[35m"
-#define ANSI_COLOR_CYAN    "\x1b[36m"
-#define ANSI_COLOR_RESET   "\x1b[0m"
 
 
 #define RESET_CONTEXT( ctx )                        \
@@ -164,7 +158,7 @@ static void trace_obj( AAF_Iface *aafi, aafObject *Obj, char *color )
 		{
 			aafUID_t *OperationIdentification = get_OperationGroup_OperationIdentification( aafi, Obj );
 
-			const char *name = OperationDefToText( aafi->aafd, OperationIdentification ) /*printUID( OpIdent )*/;
+			const char *name = OperationDefToText( aafi->aafd, OperationIdentification ) /*AUIDToText( OpIdent )*/;
 			snprintf( buf, 1024, "%s (%s) > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), name, tmp );
 		}
 		else
@@ -1792,7 +1786,7 @@ static int parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue )
 	else
 	{
 		trace_obj( aafi, ConstantValue, ANSI_COLOR_RED );
-		printf("ParamDef %s (%s)\n\n", ParameterToText( aafi->aafd, ParamDef ), printUID( ParamDef ) );
+		printf("ParamDef %s (%s)\n\n", ParameterToText( aafi->aafd, ParamDef ), AUIDToText( ParamDef ) );
 		printObjectProperties( aafi->aafd, ConstantValue );
 	}
 

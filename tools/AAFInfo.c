@@ -8,15 +8,8 @@
 #include "../LibAAF/libAAF.h"
 #include "./thirdparty/libTC.h"
 
-
-#define ANSI_COLOR_RED     "\x1b[31m"
-#define ANSI_COLOR_GREEN   "\x1b[92m"
-#define ANSI_COLOR_YELLOW  "\x1b[93m"
-#define ANSI_COLOR_BLUE    "\x1b[34m"
-#define ANSI_COLOR_MAGENTA "\x1b[35m"
-#define ANSI_COLOR_CYAN    "\x1b[36m"
-#define ANSI_COLOR_RESET   "\x1b[0m"
-
+// only for ANSI_COLORS
+#include "../LibAAF/common/utils.h"
 
 
 
@@ -124,103 +117,21 @@ void printIdentification( AAF_Data *aafd )
 
 	printf( " CompanyName          : %s\n", ( aafd->Identification.CompanyName ) ? aafd->Identification.CompanyName : "n/a" );
 
-
-
 	printf( " ProductName          : %s\n", ( aafd->Identification.ProductName ) ? aafd->Identification.ProductName : "n/a" );
 
-
-
-	aafProductVersion_t *Version = aafd->Identification.ProductVersion;
-
-	printf( " ProductVersion       : %u.%u.%u.%u (%u)\n",
-		( Version ) ? Version->major      : 0,
-		( Version ) ? Version->minor      : 0,
-		( Version ) ? Version->tertiary   : 0,
-		( Version ) ? Version->patchLevel : 0,
-		( Version ) ? Version->type       : 0
-	);
-
-
+	printf( " ProductVersion       : %s\n", ProductVersionToText( aafd->Identification.ProductVersion ) );
 
 	printf( " ProductVersionString : %s\n", ( aafd->Identification.ProductVersionString ) ? aafd->Identification.ProductVersionString : "n/a" );
 
+	printf( " ProductID            : %s\n", AUIDToText( aafd->Identification.ProductID ) );
 
+	printf( " Date                 : %s\n", TimestampToText( aafd->Identification.Date ) );
 
-	aafUID_t *ProdID = aafd->Identification.ProductID;
-
-	if ( ProdID != NULL )
-	{
-		printf( " ProductID            : {%08x %04x %04x {%02x %02x %02x %02x %02x %02x %02x %02x}}\n",
-			ProdID->Data1,
-			ProdID->Data2,
-			ProdID->Data3,
-			ProdID->Data4[0],
-			ProdID->Data4[1],
-			ProdID->Data4[2],
-			ProdID->Data4[3],
-			ProdID->Data4[4],
-			ProdID->Data4[5],
-			ProdID->Data4[6],
-			ProdID->Data4[7]
-		);
-	}
-	else
-		printf( " ProductID            : n/a\n" );
-
-
-
-
-	aafTimeStamp_t *Date = aafd->Identification.Date;
-
-	printf( " Date                 : %04i-%02u-%02u %02u:%02u:%02u.%02u\n",
-		( Date ) ? Date->date.year : 0,
-		( Date ) ? Date->date.month : 0,
-		( Date ) ? Date->date.day : 0,
-		( Date ) ? Date->time.hour : 0,
-		( Date ) ? Date->time.minute : 0,
-		( Date ) ? Date->time.second : 0,
-		( Date ) ? Date->time.fraction : 0
-	);
-
-
-
-	aafProductVersion_t *ToolkitVer = aafd->Identification.ToolkitVersion;
-
-	printf( " ToolkitVersion       : %u.%u.%u.%u (%u)\n",
-		( ToolkitVer ) ? ToolkitVer->major : 0,
-		( ToolkitVer ) ? ToolkitVer->minor : 0,
-		( ToolkitVer ) ? ToolkitVer->tertiary : 0,
-		( ToolkitVer ) ? ToolkitVer->patchLevel : 0,
-		( ToolkitVer ) ? ToolkitVer->type : 0
-	);
-
-
+	printf( " ToolkitVersion       : %s\n", ProductVersionToText( aafd->Identification.ToolkitVersion ) );
 
 	printf( " Platform             : %s\n", ( aafd->Identification.Platform ) ? aafd->Identification.Platform : "n/a" );
 
-
-
-	aafUID_t *Generation = aafd->Identification.GenerationAUID;
-
-	if ( Generation != NULL )
-	{
-		printf( " GenerationAUID       : {%08x %04x %04x {%02x %02x %02x %02x %02x %02x %02x %02x}}\n",
-			Generation->Data1,
-			Generation->Data2,
-			Generation->Data3,
-			Generation->Data4[0],
-			Generation->Data4[1],
-			Generation->Data4[2],
-			Generation->Data4[3],
-			Generation->Data4[4],
-			Generation->Data4[5],
-			Generation->Data4[6],
-			Generation->Data4[7]
-		);
-	}
-	else
-		printf( " GenerationAUID       : n/a\n" );
-
+	printf( " GenerationAUID       : %s\n", AUIDToText( aafd->Identification.GenerationAUID ) );
 
 
 	printf( "\n\n" );
@@ -539,50 +450,15 @@ int main( int argc, char *argv[] )
 	if ( aaf_summary )
 	{
 
-		uint16_t ByteOrder = aafd->Header.ByteOrder;
+		printf( " ByteOrder            : %s (0x%04x)\n", ByteOrderToText( aafd->Header.ByteOrder ), aafd->Header.ByteOrder );
 
-		printf( " ByteOrder            : %s (0x%04x)\n",
-			( ByteOrder == AAF_HEADER_BYTEORDER_LE ) ? "Little-Endian" :
-			( ByteOrder == AAF_HEADER_BYTEORDER_BE ) ? "Big-Endian" :
-			"unknwon",
-			ByteOrder );
+		printf( " LastModified         : %s\n", TimestampToText( aafd->Header.LastModified ) );
 
+		printf( " AAF ObjSpec Version  : %s\n", VersionToText( aafd->Header.Version ) );
 
+		printf( " ObjectModel Version  : %u\n", aafd->Header.ObjectModelVersion );
 
-		aafTimeStamp_t *Date = aafd->Header.LastModified;
-
-		printf( " LastModified         : %04u-%02u-%02u %02u:%02u:%02u.%02u\n",
-			( Date ) ? Date->date.year : 0,
-			( Date ) ? Date->date.month : 0,
-			( Date ) ? Date->date.day : 0,
-			( Date ) ? Date->time.hour : 0,
-			( Date ) ? Date->time.minute : 0,
-			( Date ) ? Date->time.second : 0,
-			( Date ) ? Date->time.fraction : 0
-		);
-
-
-
-
-		aafVersionType_t *Vers = aafd->Header.Version;
-
-		printf( " AAF ObjSpec Version  : %i.%i\n",
-			( Vers ) ? Vers->major : 0,
-			( Vers ) ? Vers->minor : 0 );
-
-
-
-
-		uint32_t ObjModelVer = aafd->Header.ObjectModelVersion;
-
-		printf( " ObjectModel Version  : %u\n", ObjModelVer );
-
-
-
-		aafUID_t *Op = aafd->Header.OperationalPattern;
-
-		printf( " Operational Pattern  : %s\n", ( Op ) ? OPDefToText( Op ) : "n/a" );
-
+		printf( " Operational Pattern  : %s\n", OPDefToText( aafd->Header.OperationalPattern ) );
 
 
 		printf( "\n\n" );
@@ -617,7 +493,7 @@ int main( int argc, char *argv[] )
 
 		foreachAudioEssence( audioEssence, aafi->Audio->Essences )
 		{
-			
+
 			printf( " %s%u:  Type: %s  Duration: %u h  %02u mn  %02u s  %03u ms   %u Ch - %u Hz - %u bit  file : %s  file_name : %s\n",
 				( i < 10 ) ? " " : "", i,
 				( audioEssence->type == AAFI_TYPE_PCM  ) ? "PCM"  :

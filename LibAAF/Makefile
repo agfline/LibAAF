@@ -59,8 +59,9 @@ clean:
 LibCFB/LibCFB.o: LibCFB/LibCFB.h LibCFB/CFBTypes.h common/debug.h
 AAFCore/AAFToText.o: AAFCore/AAFTypes.h LibCFB/LibCFB.h LibCFB/CFBTypes.h
 AAFCore/AAFToText.o: AAFCore/AAFUtils.h AAFCore/AAFCore.h AAFCore/AAFToText.h
-AAFCore/AAFToText.o: AAFCore/AAFClass.h AAFCore/AAFDefs/AAFClassDefUIDs.h
-AAFCore/AAFToText.o: AAFCore/AAFTypes.h AAFCore/AAFDefs/AAFPropertyIDs.h
+AAFCore/AAFToText.o: AAFCore/AAFClass.h common/utils.h
+AAFCore/AAFToText.o: AAFCore/AAFDefs/AAFClassDefUIDs.h AAFCore/AAFTypes.h
+AAFCore/AAFToText.o: AAFCore/AAFDefs/AAFPropertyIDs.h
 AAFCore/AAFToText.o: AAFCore/AAFDefs/AAFCompressionDefs.h
 AAFCore/AAFToText.o: AAFCore/AAFDefs/AAFDataDefs.h
 AAFCore/AAFToText.o: AAFCore/AAFDefs/AAFOperationDefs.h
@@ -73,26 +74,29 @@ AAFCore/AAFToText.o: AAFCore/AAFDefs/AAFOPDefs.h
 AAFCore/AAFToText.o: AAFCore/AAFDefs/AAFContainerDefs.h
 AAFCore/AAFCore.o: AAFCore/AAFTypes.h LibCFB/LibCFB.h LibCFB/CFBTypes.h
 AAFCore/AAFCore.o: AAFCore/AAFCore.h AAFCore/AAFClass.h AAFCore/AAFUtils.h
-AAFCore/AAFCore.o: AAFCore/AAFToText.h AAFCore/AAFDefs/AAFClassDefUIDs.h
-AAFCore/AAFCore.o: AAFCore/AAFTypes.h AAFCore/AAFDefs/AAFPropertyIDs.h
+AAFCore/AAFCore.o: AAFCore/AAFToText.h common/utils.h
+AAFCore/AAFCore.o: AAFCore/AAFDefs/AAFClassDefUIDs.h AAFCore/AAFTypes.h
+AAFCore/AAFCore.o: AAFCore/AAFDefs/AAFPropertyIDs.h
 AAFCore/AAFCore.o: AAFCore/AAFDefs/AAFFileKinds.h
 AAFCore/AAFCore.o: AAFCore/AAFDefs/AAFTypeDefUIDs.h common/debug.h
 AAFCore/AAFClass.o: AAFCore/AAFTypes.h LibCFB/LibCFB.h LibCFB/CFBTypes.h
 AAFCore/AAFClass.o: AAFCore/AAFClass.h AAFCore/AAFCore.h AAFCore/AAFUtils.h
-AAFCore/AAFClass.o: AAFCore/AAFToText.h AAFCore/AAFDefs/AAFClassDefUIDs.h
-AAFCore/AAFClass.o: AAFCore/AAFTypes.h AAFCore/AAFDefs/AAFTypeDefUIDs.h
+AAFCore/AAFClass.o: AAFCore/AAFToText.h common/utils.h
+AAFCore/AAFClass.o: AAFCore/AAFDefs/AAFClassDefUIDs.h AAFCore/AAFTypes.h
+AAFCore/AAFClass.o: AAFCore/AAFDefs/AAFTypeDefUIDs.h
 AAFCore/AAFClass.o: AAFCore/AAFDefs/AAFPropertyIDs.h common/debug.h
 AAFCore/AAFUtils.o: AAFCore/AAFTypes.h LibCFB/LibCFB.h LibCFB/CFBTypes.h
 AAFCore/AAFUtils.o: AAFCore/AAFUtils.h AAFCore/AAFCore.h AAFCore/AAFToText.h
-AAFCore/AAFUtils.o: AAFCore/AAFClass.h
+AAFCore/AAFUtils.o: AAFCore/AAFClass.h common/utils.h
 AAFIface/AAFIAudioFiles.o: libAAF.h AAFCore/AAFClass.h AAFCore/AAFTypes.h
 AAFIface/AAFIAudioFiles.o: LibCFB/LibCFB.h LibCFB/CFBTypes.h
 AAFIface/AAFIAudioFiles.o: AAFCore/AAFCore.h AAFCore/AAFCore.h
 AAFIface/AAFIAudioFiles.o: AAFCore/AAFUtils.h AAFCore/AAFToText.h
-AAFIface/AAFIAudioFiles.o: AAFCore/AAFClass.h AAFCore/AAFToText.h
-AAFIface/AAFIAudioFiles.o: AAFIface/AAFIface.h AAFCore/AAFTypes.h
-AAFIface/AAFIAudioFiles.o: AAFCore/AAFClass.h AAFIface/AAFIParser.h
-AAFIface/AAFIAudioFiles.o: AAFIface/AAFIface.h AAFIface/AAFIAudioFiles.h
+AAFIface/AAFIAudioFiles.o: AAFCore/AAFClass.h common/utils.h
+AAFIface/AAFIAudioFiles.o: AAFCore/AAFToText.h AAFIface/AAFIface.h
+AAFIface/AAFIAudioFiles.o: AAFCore/AAFTypes.h AAFCore/AAFClass.h
+AAFIface/AAFIAudioFiles.o: AAFIface/AAFIParser.h AAFIface/AAFIface.h
+AAFIface/AAFIAudioFiles.o: AAFIface/AAFIAudioFiles.h
 AAFIface/AAFIAudioFiles.o: AAFCore/AAFDefs/AAFClassDefUIDs.h
 AAFIface/AAFIAudioFiles.o: AAFCore/AAFTypes.h
 AAFIface/AAFIAudioFiles.o: AAFCore/AAFDefs/AAFTypeDefUIDs.h
@@ -101,12 +105,11 @@ AAFIface/AAFIAudioFiles.o: AAFCore/AAFDefs/AAFDataDefs.h
 AAFIface/AAFIAudioFiles.o: AAFCore/AAFDefs/AAFOperationDefs.h
 AAFIface/AAFIAudioFiles.o: AAFCore/AAFDefs/AAFParameterDefs.h
 AAFIface/AAFIAudioFiles.o: AAFCore/AAFDefs/AAFInterpolatorDefs.h
-AAFIface/AAFIAudioFiles.o: AAFCore/AAFDefs/AAFContainerDefs.h common/utils.h
-AAFIface/AAFIAudioFiles.o: common/debug.h
+AAFIface/AAFIAudioFiles.o: AAFCore/AAFDefs/AAFContainerDefs.h common/debug.h
 AAFIface/AAFIface.o: libAAF.h AAFCore/AAFClass.h AAFCore/AAFTypes.h
 AAFIface/AAFIface.o: LibCFB/LibCFB.h LibCFB/CFBTypes.h AAFCore/AAFCore.h
 AAFIface/AAFIface.o: AAFCore/AAFCore.h AAFCore/AAFUtils.h AAFCore/AAFToText.h
-AAFIface/AAFIface.o: AAFCore/AAFClass.h AAFCore/AAFToText.h
+AAFIface/AAFIface.o: AAFCore/AAFClass.h common/utils.h AAFCore/AAFToText.h
 AAFIface/AAFIface.o: AAFIface/AAFIface.h AAFCore/AAFTypes.h
 AAFIface/AAFIface.o: AAFCore/AAFClass.h AAFIface/AAFIParser.h
 AAFIface/AAFIface.o: AAFIface/AAFIface.h AAFIface/AAFIAudioFiles.h
@@ -121,7 +124,7 @@ AAFIface/AAFIface.o: AAFCore/AAFDefs/AAFContainerDefs.h common/debug.h
 AAFIface/AAFIParser.o: libAAF.h AAFCore/AAFClass.h AAFCore/AAFTypes.h
 AAFIface/AAFIParser.o: LibCFB/LibCFB.h LibCFB/CFBTypes.h AAFCore/AAFCore.h
 AAFIface/AAFIParser.o: AAFCore/AAFCore.h AAFCore/AAFUtils.h
-AAFIface/AAFIParser.o: AAFCore/AAFToText.h AAFCore/AAFClass.h
+AAFIface/AAFIParser.o: AAFCore/AAFToText.h AAFCore/AAFClass.h common/utils.h
 AAFIface/AAFIParser.o: AAFCore/AAFToText.h AAFIface/AAFIface.h
 AAFIface/AAFIParser.o: AAFCore/AAFTypes.h AAFCore/AAFClass.h
 AAFIface/AAFIParser.o: AAFIface/AAFIParser.h AAFIface/AAFIface.h

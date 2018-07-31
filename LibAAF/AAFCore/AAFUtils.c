@@ -129,28 +129,28 @@ void printObjectProperties( AAF_Data *aafd, aafObject *Obj )
 
 
 
-
-char * printUID( aafUID_t *auid )
-{
-	static char buf[74];
-
-	snprintf( buf, 74, "{0x%08x, 0x%04x, 0x%04x, { 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x }}",
-		auid->Data1,
-		auid->Data2,
-		auid->Data3,
-
-		auid->Data4[0],
-		auid->Data4[1],
-		auid->Data4[2],
-		auid->Data4[3],
-		auid->Data4[4],
-		auid->Data4[5],
-		auid->Data4[6],
-		auid->Data4[7]
-	);
-
-	return buf;
-}
+// 
+// char * printUID( aafUID_t *auid )
+// {
+// 	static char buf[74];
+//
+// 	snprintf( buf, 74, "{0x%08x, 0x%04x, 0x%04x, { 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x }}",
+// 		auid->Data1,
+// 		auid->Data2,
+// 		auid->Data3,
+//
+// 		auid->Data4[0],
+// 		auid->Data4[1],
+// 		auid->Data4[2],
+// 		auid->Data4[3],
+// 		auid->Data4[4],
+// 		auid->Data4[5],
+// 		auid->Data4[6],
+// 		auid->Data4[7]
+// 	);
+//
+// 	return buf;
+// }
 
 
 

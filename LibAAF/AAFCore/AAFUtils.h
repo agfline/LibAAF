@@ -87,7 +87,7 @@ void   printStream( unsigned char * stream, size_t stream_sz );
 
 void   printObjectProperties( AAF_Data *aafd, aafObject *Obj );
 
-char * printUID( aafUID_t *auid );
+// char * printUID( aafUID_t *auid );
 
 char * printMobID( aafMobID_t *mobid );
 
