@@ -66,13 +66,17 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 	}
 
 
-	aafi->Audio = calloc( 1, sizeof(aafiAudio) );
+	aafi->Audio = malloc( sizeof(aafiAudio) );
 
 	if ( aafi->Audio == NULL )
 	{
 		_error( "%s.\n", strerror( errno ) );
 		return NULL;
 	}
+
+	aafi->Audio->Essences = NULL;
+	aafi->Audio->tc = NULL;
+	aafi->Audio->Tracks = NULL;
 
 
 	if ( aafd != NULL )
@@ -100,15 +104,18 @@ void aafi_release( AAF_Iface **aafi )
 
 	aaf_release( &(*aafi)->aafd );
 
+
 	if ( (*aafi)->compositionName != NULL )
 	{
 		free( (*aafi)->compositionName );
 	}
 
+
 	if ( (*aafi)->Comments )
 	{
 		aafi_freeUserComments( &((*aafi)->Comments) );
 	}
+
 
 	if ( (*aafi)->Audio != NULL )
 	{
@@ -127,9 +134,9 @@ void aafi_release( AAF_Iface **aafi )
 			free( (*aafi)->Audio->tc );
 		}
 
-
 		free( (*aafi)->Audio );
 	}
+	
 
 	free( *aafi );
 }
@@ -530,9 +537,10 @@ aafiAudioEssence * aafi_newAudioEssence( AAF_Iface *aafi )
 
 	audioEssence->next = aafi->Audio->Essences;
 
-	// audioEssence->original_file = NULL;
-	// audioEssence->exported_file   = NULL;
-	// audioEssence->file_name     = aaf_get_propertyValueText( aafi->ctx.Mob, PID_Mob_Name );
+	audioEssence->original_file = NULL;
+	audioEssence->exported_file = NULL;
+	audioEssence->file_name = NULL;
+	audioEssence->unique_file_name = NULL;
 
 	aafi->Audio->Essences = audioEssence;
 
