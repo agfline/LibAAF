@@ -820,7 +820,7 @@ void cfb_release( CFB_Data **cfbd );
  *	@{
  */
 
-int cfb_load_file( CFB_Data *cfbd, const char *file );
+int cfb_load_file( CFB_Data **cfbd, const char *file );
 
 int cfb_new_file( CFB_Data *cfbd, const char *file, int sectSize );
 

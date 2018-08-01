@@ -157,7 +157,10 @@ CFB_Data * cfb_alloc()
 	CFB_Data * cfbd = calloc( sizeof(CFB_Data), sizeof(unsigned char) );
 
 	if ( cfbd == NULL )
+	{
 		_error( "%s.\n", strerror(errno) );
+		return NULL;
+	}
 
 	return cfbd;
 }
@@ -175,27 +178,41 @@ CFB_Data * cfb_alloc()
 
 void cfb_release( CFB_Data **cfbd )
 {
+	if ( cfbd == NULL || *cfbd == NULL )
+		return;
+
 	cfb_closeFile( *cfbd );
 
-
-	free( (*cfbd)->DiFAT );
-
-	free( (*cfbd)->fat );
-
-	free( (*cfbd)->miniFat );
-
-	cfbSID_t i = 0;
-
-	/* TODO foreachNodeInFile() ? */
-	while ( i < (*cfbd)->nodes_cnt )
+	if ( (*cfbd)->DiFAT != NULL )
 	{
-		free( (*cfbd)->nodes[i]);
-		i += ( 1 << (*cfbd)->hdr->_uSectorShift ) / sizeof(cfbNode);
+		free( (*cfbd)->DiFAT );
+		(*cfbd)->DiFAT = NULL;
 	}
 
-	free( (*cfbd)->nodes );
+	if ( (*cfbd)->fat != NULL )
+		free( (*cfbd)->fat );
 
-	free( (*cfbd)->hdr );
+	if ( (*cfbd)->miniFat != NULL )
+		free( (*cfbd)->miniFat );
+
+	if ( (*cfbd)->nodes != NULL )
+	{
+		cfbSID_t i = 0;
+
+		/* TODO foreachNodeInFile() ? */
+		while ( i < (*cfbd)->nodes_cnt )
+		{
+			free( (*cfbd)->nodes[i]);
+			i += ( 1 << (*cfbd)->hdr->_uSectorShift ) / sizeof(cfbNode);
+		}
+	}
+
+	if ( (*cfbd)->nodes != NULL )
+		free( (*cfbd)->nodes );
+
+	if ( (*cfbd)->hdr != NULL )
+		free( (*cfbd)->hdr );
+
 
 	free( *cfbd );
 
@@ -219,53 +236,62 @@ void cfb_release( CFB_Data **cfbd )
  *	                 1 on error
  */
 
-int cfb_load_file( CFB_Data *cfbd, const char * file )
+int cfb_load_file( CFB_Data **cfbd, const char * file )
 {
-	strncpy( cfbd->file, file, strlen(file) );
+	strncpy( (*cfbd)->file, file, strlen(file) );
 
 
-	if ( cfb_openFile( cfbd ) < 0 )
+	if ( cfb_openFile( *cfbd ) < 0 )
 	{
+		cfb_release( cfbd );
+		// printf("CFB %p\n", cfbd );
 		return -1;
 	}
 
-	if ( cfb_getFileSize( cfbd ) < 0 )
+	if ( cfb_getFileSize( *cfbd ) < 0 )
 	{
+		cfb_release( cfbd );
 		return -1;
 	}
 
-	if ( cfb_is_valid( cfbd ) == 0 )
+	if ( cfb_is_valid( *cfbd ) == 0 )
 	{
+		cfb_release( cfbd );
 		return -1;
 	}
 
-	if ( cfb_retrieveFileHeader( cfbd ) < 0 )
+	if ( cfb_retrieveFileHeader( *cfbd ) < 0 )
 	{
 		_error( "Could not retrieve CFB header.\n" );
+		cfb_release( cfbd );
 		return -1;
 	}
 
-	if ( cfb_retrieveDiFAT( cfbd ) < 0 )
+	if ( cfb_retrieveDiFAT( *cfbd ) < 0 )
 	{
 		_error( "Could not retrieve CFB DiFAT.\n" );
+		cfb_release( cfbd );
 		return -1;
 	}
 
-	if ( cfb_retrieveFAT( cfbd ) < 0 )
+	if ( cfb_retrieveFAT( *cfbd ) < 0 )
 	{
 		_error( "Could not retrieve CFB FAT.\n" );
+		cfb_release( cfbd );
 		return -1;
 	}
 
-	if ( cfb_retrieveMiniFAT( cfbd ) < 0 )
+	if ( cfb_retrieveMiniFAT( *cfbd ) < 0 )
 	{
 		_error( "Could not retrieve CFB MiniFAT.\n" );
+		cfb_release( cfbd );
 		return -1;
 	}
 
-	if ( cfb_retrieveNodes( cfbd ) < 0 )
+	if ( cfb_retrieveNodes( *cfbd ) < 0 )
 	{
 		_error( "Could not retrieve CFB Nodes.\n" );
+		cfb_release( cfbd );
 		return -1;
 	}
 
@@ -365,7 +391,7 @@ static int cfb_is_valid( CFB_Data *cfbd )
 
 	if ( cfbd->file_sz < sizeof(struct StructuredStorageHeader) )
 	{
-		_error( "Not a valid Compound File : File size is lower than header.\n" );
+		_error( "Not a valid Compound File : File size is lower than header size.\n" );
 		return 0;
 	}
 
@@ -396,13 +422,23 @@ static int cfb_is_valid( CFB_Data *cfbd )
 
 static int cfb_getFileSize( CFB_Data * cfbd )
 {
-	fseek( cfbd->fp, 0L, SEEK_END );
+	if ( fseek( cfbd->fp, 0L, SEEK_END ) < 0 )
+	{
+		_error( "fseek() failed : %s.\n", strerror(errno) );
+		return -1;
+	}
 
 	cfbd->file_sz = ftell( cfbd->fp );
 
+	if ( (long)cfbd->file_sz < 0 )
+	{
+		_error( "ftell() failed : %s.\n", strerror(errno) );
+		return -1;
+	}
+
 	if ( cfbd->file_sz == 0 )
 	{
-		_error( "File is empty (filesize is 0 byte).\n" );
+		_error( "File is empty (0 byte).\n" );
 		return -1;
 	}
 
@@ -424,7 +460,10 @@ static int cfb_openFile( CFB_Data *cfbd )
 	cfbd->fp = fopen( cfbd->file, "rb" );
 
 	if ( cfbd->fp == NULL )
+	{
 		_error( "%s.\n", strerror(errno) );
+		return -1;
+	}
 
 	return 0;
 }
@@ -891,7 +930,7 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 
 
 	/*
-	 *	Retrieve the 109 first DiFAT entries, from the last bytes of
+	 *	Retrieves the 109 first DiFAT entries, from the last bytes of
 	 *	the cfbHeader structure.
 	 */
 
@@ -906,6 +945,12 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 
 	cfb_foreachSectorInDiFATChain( cfbd, buf, id )
 	{
+		if ( buf == NULL )
+		{
+			_error( "Error retrieving sector %u (0x%08x) out of the DiFAT chain.\n", id, id );
+			return -1;
+		}
+
 		memcpy( (unsigned char*)DiFAT+offset, buf, (1<<cfbd->hdr->_uSectorShift)-4 );
 
 		offset += (1 << cfbd->hdr->_uSectorShift) - 4;
@@ -963,7 +1008,6 @@ static int cfb_retrieveFAT( CFB_Data * cfbd )
 
 
 
-
 	unsigned char *buf    = NULL;
 	cfbSectorID_t  id     = 0;
 	uint64_t       offset = 0;
@@ -981,6 +1025,12 @@ static int cfb_retrieveFAT( CFB_Data * cfbd )
 		}
 
 		buf = cfb_getSector( cfbd, cfbd->DiFAT[id] );
+
+		if ( buf == NULL )
+		{
+			_error( "Error retrieving FAT sector %u (0x%08x).\n", id, id );
+			return -1;
+		}
 
 		memcpy( ((unsigned char*)FAT)+offset, buf, (1<<cfbd->hdr->_uSectorShift) );
 
@@ -1012,7 +1062,7 @@ static int cfb_retrieveMiniFAT( CFB_Data * cfbd )
 	uint64_t miniFat_sz = cfbd->hdr->_csectMiniFat * (1<<cfbd->hdr->_uSectorShift)
 	                    / sizeof(cfbSectorID_t);
 
-	cfbSectorID_t * miniFat = calloc( miniFat_sz, sizeof(cfbSectorID_t) );
+	cfbSectorID_t *miniFat = calloc( miniFat_sz, sizeof(cfbSectorID_t) );
 
 	if ( miniFat == NULL )
 	{
@@ -1026,9 +1076,14 @@ static int cfb_retrieveMiniFAT( CFB_Data * cfbd )
 	cfbSectorID_t  id     = cfbd->hdr->_sectMiniFatStart;
 	uint64_t       offset = 0;
 
-
 	cfb_foreachSectorInChain( cfbd, buf, id )
 	{
+		if ( buf == NULL )
+		{
+			_error( "Error retrieving MiniFAT sector %u (0x%08x).\n", id, id );
+			return -1;
+		}
+
 		memcpy( (unsigned char*)miniFat+offset, buf, (1<<cfbd->hdr->_uSectorShift) );
 
 		free( buf );
@@ -1088,6 +1143,12 @@ static int cfb_retrieveNodes( CFB_Data *cfbd )
 	if ( cfbd->hdr->_uSectorShift == 9 ) // 512 bytes sectors
 		cfb_foreachSectorInChain( cfbd, buf, id )
 		{
+			if ( buf == NULL )
+			{
+				_error( "Error retrieving Directory sector %u (0x%08x).\n", id, id );
+				return -1;
+			}
+
 			node[i++] = (cfbNode*)buf;
 			node[i++] = (cfbNode*)(buf+128);
 			node[i++] = (cfbNode*)(buf+256);
@@ -1096,6 +1157,12 @@ static int cfb_retrieveNodes( CFB_Data *cfbd )
 	else if ( cfbd->hdr->_uSectorShift == 12 ) // 4096 bytes sectors
 		cfb_foreachSectorInChain( cfbd, buf, id )
 		{
+			if ( buf == NULL )
+			{
+				_error( "Error retrieving Directory sector %u (0x%08x).\n", id, id );
+				return -1;
+			}
+
 			node[i++] = (cfbNode*)buf;
 			node[i++] = (cfbNode*)(buf+128);
 			node[i++] = (cfbNode*)(buf+256);
@@ -1130,12 +1197,22 @@ static int cfb_retrieveNodes( CFB_Data *cfbd )
 			node[i++] = (cfbNode*)(buf+3968);
 		}
 	else    /* handle non-standard sector size, that is different than 512B or 4kB */
-	{       /* TODO has not been tested yet */
+	{       /* TODO has not been tested yet, should not even exist anyway */
 		uint32_t nodesPerSect = (1 << cfbd->hdr->_uMiniSectorShift) / sizeof(cfbNode);
 
 		cfb_foreachSectorInChain( cfbd, buf, id )
+		{
+			if ( buf == NULL )
+			{
+				_error( "Error retrieving Directory sector %u (0x%08x).\n", id, id );
+				return -1;
+			}
+
 			for ( i = 0; i < nodesPerSect; i++ )
+			{
 				node[i] = (cfbNode*)(buf + (i * 128));
+			}
+		}
 	}
 
 
