@@ -16,6 +16,11 @@
 #include "AAFDefs/AAFOPDefs.h"
 #include "AAFDefs/AAFContainerDefs.h"
 
+#include "../LibCFB/CFBDump.h"
+
+
+
+
 
 const char * TimestampToText( aafTimeStamp_t *ts )
 {
@@ -43,6 +48,9 @@ const char * TimestampToText( aafTimeStamp_t *ts )
 	return str;
 }
 
+
+
+
 const char * VersionToText( aafVersionType_t *vers )
 {
 	static char str[16];
@@ -64,6 +72,9 @@ const char * VersionToText( aafVersionType_t *vers )
 	return str;
 }
 
+
+
+
 const char * ProductVersionToText( aafProductVersion_t *vers )
 {
 	static char str[64];
@@ -83,49 +94,13 @@ const char * ProductVersionToText( aafProductVersion_t *vers )
 		 	vers->tertiary,
 			vers->patchLevel,
 			ProductReleaseTypeToText( vers->type ),
-			// ( vers->type == AAFVersionUnknown )      ? "unknwon"       :
-			// ( vers->type == AAFVersionReleased )     ? "released"      :
-			// ( vers->type == AAFVersionDebug )        ? "debug"         :
-			// ( vers->type == AAFVersionPatched )      ? "patched"       :
-			// ( vers->type == AAFVersionBeta )         ? "beta"          :
-			// ( vers->type == AAFVersionPrivateBuild ) ? "private build" :
-			// "",
 			vers->type );
 	}
 
 	return str;
 }
 
-const char * AUIDToText( aafUID_t *auid )
-{
-	static char str[96];
 
-	if ( auid == NULL )
-	{
-		str[0] = 'n';
-		str[1] = '/';
-		str[2] = 'a';
-		str[3] = '\0';
-	}
-	else
-	{
-		// snprintf( str, sizeof(str), "0x%08x-0x%04x-0x%04x-0x%02x-0x%02x-0x%02x-0x%02x-0x%02x-0x%02x-0x%02x-0x%02x",
-		snprintf( str, sizeof(str), "{ 0x%08x 0x%04x 0x%04x { 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x } }",
-			auid->Data1,
-			auid->Data2,
-			auid->Data3,
-			auid->Data4[0],
-			auid->Data4[1],
-			auid->Data4[2],
-			auid->Data4[3],
-			auid->Data4[4],
-			auid->Data4[5],
-			auid->Data4[6],
-			auid->Data4[7] );
-	}
-
-	return str;
-}
 
 
 const char * FileKindToText( const aafUID_t *auid )

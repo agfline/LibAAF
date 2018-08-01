@@ -20,4 +20,6 @@
 #include "AAFCore/AAFDefs/AAFInterpolatorDefs.h"
 #include "AAFCore/AAFDefs/AAFContainerDefs.h"
 
+#include "LibCFB/CFBDump.h"
+
 #endif // ! __libAAF_h__

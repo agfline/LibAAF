@@ -2,7 +2,16 @@
 
 #include "AAFTypes.h"
 #include "AAFClass.h"
+
+#include "../LibCFB/CFBTypes.h"
+#include "../LibCFB/CFBDump.h"
+
 #include "../common/utils.h"
+
+
+
+#define AUIDToText( auid ) \
+    CLSIDToText( (cfbCLSID_t*)auid )
 
 
 
@@ -11,9 +20,6 @@ const char * TimestampToText( aafTimeStamp_t *ts );
 const char * VersionToText( aafVersionType_t *vers );
 
 const char * ProductVersionToText( aafProductVersion_t *vers );
-
-const char * AUIDToText( aafUID_t *auid );
-
 
 
 const char * FileKindToText( const aafUID_t *auid );

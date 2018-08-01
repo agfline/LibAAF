@@ -122,14 +122,14 @@ void printObjectProperties( AAF_Data *aafd, aafObject *Obj )
 		printf( ":.: (0x%04x) %s\n", Prop->pid, PIDToText( aafd, Prop->pid ) );
 
 		// WARNING : Wont print strong references (set/vector) corectly.
-		cfb_printStream( Prop->val, Prop->len );
+		dump_hex( Prop->val, Prop->len );
 	}
 }
 
 
 
 
-// 
+//
 // char * printUID( aafUID_t *auid )
 // {
 // 	static char buf[74];

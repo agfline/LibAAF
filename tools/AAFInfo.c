@@ -85,27 +85,12 @@ void printPropertyStream( AAF_Data *aafd, cfbNode *node )
 			Prop->_length
 		);
 
-		cfb_printStream( value, Prop->_length );
+		dump_hex( value, Prop->_length );
 
 		printf( "\n\n" );
 	}
 
 	free( Header );
-
-}
-
-
-void printRawStream( AAF_Data *aafd, cfbNode *node )
-{
-
-	unsigned char *stream = NULL;
-	uint64_t       stream_sz = 0;
-
-	cfb_getStream( aafd->cfbd, node, &stream, &stream_sz );
-
-	cfb_printStream( stream, stream_sz );
-
-	free( stream );
 
 }
 
@@ -297,19 +282,25 @@ int main( int argc, char *argv[] )
 		cfbNode *node = cfb_getNodeByPath( aafd->cfbd, get_node_str, 0 );
 
 		if ( node == NULL )
+		{
 			printf( "Could not find node at \"%s\"\n", get_node_str );
+		}
 		else
 		{
-			cfb_printNode( node, NULL );
+			cfb_dump_node( aafd->cfbd, node, 0 );
 
 			char name[CFB_NODE_NAME_SZ];
 
 			utf16toa( name, CFB_NODE_NAME_SZ, node->_ab, node->_cb );
 
 			if ( strncmp( name, "properties", 10 ) == 0 )
+			{
 				printPropertyStream( aafd, node );
+			}
 			else if ( node->_mse == STGTY_STREAM )
-				printRawStream( aafd, node );
+			{
+				cfb_dump_nodeStream( aafd->cfbd, node );
+			}
 		}
 
 		printf( "\n\n" );
@@ -320,103 +311,28 @@ int main( int argc, char *argv[] )
 
 	if ( cfb_header )
 	{
-		printf( "_CFB_Header____________________________________________________________________________________\n\n" );
-
-		cfb_printHeader( aafd->cfbd );
-
-		printf( "\n\n" );
+		cfb_dump_header( aafd->cfbd );
 	}
 
 
 
 	if ( cfb_fat )
 	{
-		printf( "_CFB_FAT_______________________________________________________________________________________\n\n" );
-
-		uint32_t i = 0;
-
-		for ( i = 0; i < aafd->cfbd->fat_sz; i++ )
-			printf( " SECT[%u] : 0x%08x %s\n",
-				i,
-				aafd->cfbd->fat[i],
-				( aafd->cfbd->fat[i] == CFB_MAX_REG_SECT ) ? "(CFB_MAX_REG_SECT)" :
-				( aafd->cfbd->fat[i] == CFB_DIFAT_SECT   ) ? "(CFB_DIFAT_SECT)"   :
-				( aafd->cfbd->fat[i] == CFB_FAT_SECT     ) ? "(CFB_FAT_SECT)"     :
-				( aafd->cfbd->fat[i] == CFB_END_OF_CHAIN ) ? "(CFB_END_OF_CHAIN)" :
-				( aafd->cfbd->fat[i] == CFB_FREE_SECT    ) ? "(CFB_FREE_SECT)"    :
-				""
-			);
-
-		printf( "\n" );
-
-		printf( " End of FAT.\n\n" );
-
-		printf( " Total FAT entries   : %u\n", aafd->cfbd->fat_sz );
-		printf( " Count of FAT sector : %u\n", aafd->cfbd->hdr->_csectFat );
-
-		printf( "\n\n" );
+		cfb_dump_FAT( aafd->cfbd );
 	}
 
 
 
 	if ( cfb_minifat )
 	{
-		printf( "_CFB_MiniFAT___________________________________________________________________________________\n\n" );
-
-		uint32_t i = 0;
-
-		for ( i = 0; i < aafd->cfbd->miniFat_sz; i++ )
-			printf( " SECT[%u] : 0x%08x %s\n",
-				i,
-				aafd->cfbd->miniFat[i],
-				( aafd->cfbd->miniFat[i] == CFB_MAX_REG_SECT ) ? "(CFB_MAX_REG_SECT)" :
-				( aafd->cfbd->miniFat[i] == CFB_DIFAT_SECT   ) ? "(CFB_DIFAT_SECT)"   :
-				( aafd->cfbd->miniFat[i] == CFB_FAT_SECT     ) ? "(CFB_FAT_SECT)"     :
-				( aafd->cfbd->miniFat[i] == CFB_END_OF_CHAIN ) ? "(CFB_END_OF_CHAIN)" :
-				( aafd->cfbd->miniFat[i] == CFB_FREE_SECT    ) ? "(CFB_FREE_SECT)"    :
-				""
-			);
-
-		printf( "\n" );
-
-		printf( " End of MiniFAT.\n\n" );
-
-		printf( " Total MiniFAT entries   : %u\n", aafd->cfbd->miniFat_sz );
-		printf( " First MiniFAT sector ID : %u\n", aafd->cfbd->hdr->_sectMiniFatStart );
-		printf( " Count of MiniFAT sector : %u\n", aafd->cfbd->hdr->_csectMiniFat );
-
-		printf( "\n\n" );
+		cfb_dump_MiniFAT( aafd->cfbd );
 	}
 
 
 
 	if ( cfb_difat )
 	{
-		printf( "_CFB_DiFAT_____________________________________________________________________________________\n\n" );
-
-		uint32_t i = 0;
-
-		for ( i = 0; i < aafd->cfbd->DiFAT_sz; i++ )
-			printf( " SECT[%u] : 0x%08x %s\n",
-				i,
-				aafd->cfbd->DiFAT[i],
-				( aafd->cfbd->DiFAT[i] == CFB_MAX_REG_SECT ) ? "(CFB_MAX_REG_SECT)" :
-				( aafd->cfbd->DiFAT[i] == CFB_DIFAT_SECT   ) ? "(CFB_DIFAT_SECT)"   :
-				( aafd->cfbd->DiFAT[i] == CFB_FAT_SECT     ) ? "(CFB_FAT_SECT)"     :
-				( aafd->cfbd->DiFAT[i] == CFB_END_OF_CHAIN ) ? "(CFB_END_OF_CHAIN)" :
-				( aafd->cfbd->DiFAT[i] == CFB_FREE_SECT    ) ? "(CFB_FREE_SECT)"    :
-				""
-			);
-
-		printf( "\n" );
-
-		printf( " End of DiFAT.\n\n" );
-
-		printf( " Total DiFAT entries   : %u\n", aafd->cfbd->DiFAT_sz );
-		printf( " First DiFAT sector ID : %u\n", aafd->cfbd->hdr->_sectDifStart );
-		printf( " Count of DiFAT sector : Header + %u\n", aafd->cfbd->hdr->_csectDif );
-
-		printf( "\n\n" );
+		cfb_dump_DiFAT( aafd->cfbd );
 	}
 
 
@@ -459,10 +375,7 @@ int main( int argc, char *argv[] )
 	{
 		uint32_t i = 0;
 
-		cfb_printEachNodePath( aafd->cfbd, 0, NULL, &i, NULL );
-
-		printf( "\n\n" );
-
+		cfb_dump_nodePaths( aafd->cfbd, 0, NULL, &i, NULL );
 	}
 
 
@@ -812,7 +725,7 @@ int main( int argc, char *argv[] )
 				printf( ":.: (0x%04x) %s\n", Prop->pid, PIDToText( aafd, Prop->pid ) );
 				//
 				// WARNING : Wont print strong references (set/vector) corectly.
-				cfb_printStream( Prop->val, Prop->len );
+				dump_hex( Prop->val, Prop->len );
 			}
 		}
 	}

@@ -27,4 +27,6 @@
 
 char * eascii_to_ascii( char *str );
 
+void dump_hex( const unsigned char * stream, size_t stream_sz );
+
 #endif // ! __utils_h__

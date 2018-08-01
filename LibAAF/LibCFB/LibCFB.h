@@ -46,6 +46,7 @@
 #include <linux/limits.h>	// PATH_MAX
 
 #include "CFBTypes.h"
+// #include "CFBDump.h"
 
 
 
@@ -871,25 +872,6 @@ uint16_t * cfb_atoutf16( const char *astr, uint16_t alen );
  *	@}
  */
 
-
-/**
- *	@name Print functions
- *	@{
- */
-
-void cfb_printEachNodePath( CFB_Data *cfbd, uint32_t prevPath, char strArray[][CFB_PATH_NAME_SZ], uint32_t *str_i, cfbNode *node );
-
-void cfb_printHeader( CFB_Data *cfbd );
-
-void cfb_printFat( cfbSectorID_t * fat, const char * str, int size, int start, int end );
-
-void cfb_printNode( cfbNode *node, const char * (*clsidToText)( cfbCLSID_t * ) );
-
-void cfb_printStream( unsigned char * stream, size_t stream_sz );
-
-/**
- *	@}
- */
 
 
 /**
