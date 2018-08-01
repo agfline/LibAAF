@@ -8,7 +8,7 @@
 #include "../LibAAF/libAAF.h"
 #include "./thirdparty/libTC.h"
 
-// only for ANSI_COLORS
+// only for ANSI_COLORS macros
 #include "../LibAAF/common/utils.h"
 
 
@@ -81,7 +81,6 @@ int main( int argc, char *argv[] )
 	int cfb_nodes      = 0;
 
 	int aaf_summary    = 0;
-//	int aaf_origin     = 0;
 	int aaf_essences   = 0;
 	int aaf_clips      = 0;
 	int aaf_classes    = 0;
@@ -90,7 +89,6 @@ int main( int argc, char *argv[] )
 
 	char *get_node_str = NULL;
 
-//	int cfb_get_node = 0;
 
 	int cmd = 0;
 
@@ -99,7 +97,6 @@ int main( int argc, char *argv[] )
 
 		{ "help",			no_argument,		0,	'h'  },
 
-//		{ "cfb-summary",    no_argument,        0,  0x80 },
 		{ "cfb-header",     no_argument,        0,  0x81 },
 		{ "cfb-fat",        no_argument,        0,  0x82 },
 		{ "cfb-minifat",    no_argument,        0,  0x83 },
@@ -107,7 +104,6 @@ int main( int argc, char *argv[] )
 		{ "cfb-nodes",      no_argument,        0,  0x85 },
 
 		{ "aaf-summary",    no_argument,        0,  0x86 },
-//		{ "aaf-origin",     no_argument,        0,  0x87 },
 		{ "aaf-essences",   no_argument,        0,  0x88 },
 		{ "aaf-clips",      no_argument,        0,  0x89 },
 		{ "aaf-classes",    no_argument,        0,  0x8a },
@@ -115,9 +111,8 @@ int main( int argc, char *argv[] )
 		{ "aaf-properties", no_argument,        0,  0x8c },
 
 		{ "get-node",   	required_argument,	0,	0x99 },
-//		{ "get-node-id",	required_argument,	0,	0x87 },
 
-		{ 0,                0,                  0,  0    }
+		{ 0,                0,                  0,  0x00 }
 	};
 
 
@@ -134,7 +129,6 @@ int main( int argc, char *argv[] )
 
 		switch ( c )
 		{
-//			case 0x80:  cfb_summary    = 1;         cmd++;       break;
 			case 0x81:  cfb_header     = 1;         cmd++;       break;
 			case 0x82:  cfb_fat        = 1;         cmd++;       break;
 			case 0x83:  cfb_minifat    = 1;         cmd++;       break;
@@ -142,7 +136,6 @@ int main( int argc, char *argv[] )
 			case 0x85:  cfb_nodes      = 1;         cmd++;       break;
 
 			case 0x86:  aaf_summary    = 1;         cmd++;       break;
-//			case 0x87:  aaf_origin     = 1;         cmd++;       break;
 			case 0x88:  aaf_essences   = 1;         cmd++;       break;
 			case 0x89:  aaf_clips      = 1;         cmd++;       break;
 			case 0x8a:  aaf_classes    = 1;         cmd++;       break;
@@ -151,7 +144,6 @@ int main( int argc, char *argv[] )
 
 			case 0x99:	get_node_str   = optarg;    cmd++;       break;
 
-//			case 0x81:	get_node_id    = optarg;    cmd++;       break;
 
 			case 'h':	showHelp();                 cmd++;       break;
 
@@ -361,10 +353,6 @@ int main( int argc, char *argv[] )
 
 		printf("Composition TC Start : %s (%u fps %s)\n",
 			tc_comp.string,
-			// eu2tc_h( aafi->Audio->tc->edit_rate, 90004*1920 ),
-			// eu2tc_m( aafi->Audio->tc->edit_rate, 90004*1920 ),
-			// eu2tc_s( aafi->Audio->tc->edit_rate, 90004*1920 ),
-			// eu2tc_f( aafi->Audio->tc->edit_rate, aafi->Audio->tc, 90004*1920),
 			aafi->Audio->tc->fps,
 			(aafi->Audio->tc->drop) ? "DF" : "NDF"
 		);
@@ -503,21 +491,6 @@ int main( int argc, char *argv[] )
 					tc_in.string,
 					tc_len.string,
 					tc_out.string,
-					// tc_in.hours,  tc_in.minutes,  tc_in.seconds,  tc_in.frames,
-					// tc_len.hours, tc_len.minutes, tc_len.seconds, tc_len.frames,
-					// tc_out.hours, tc_out.minutes, tc_out.seconds, tc_out.frames,
-					// eu2tc_h( audioClip->track->edit_rate, (audioClip->pos + audioClip->track->Audio->tc->start) ),
-					// eu2tc_m( audioClip->track->edit_rate, (audioClip->pos + audioClip->track->Audio->tc->start) ),
-					// eu2tc_s( audioClip->track->edit_rate, (audioClip->pos + audioClip->track->Audio->tc->start) ),
-					// eu2tc_f( audioClip->track->edit_rate, audioClip->track->Audio->tc, (audioClip->pos + audioClip->track->Audio->tc->start) ),
-					// eu2tc_h( audioClip->track->edit_rate, (audioClip->len) ),
-					// eu2tc_m( audioClip->track->edit_rate, (audioClip->len) ),
-					// eu2tc_s( audioClip->track->edit_rate, (audioClip->len) ),
-					// eu2tc_f( audioClip->track->edit_rate, audioClip->track->Audio->tc, (audioClip->len) ),
-					// eu2tc_h( audioClip->track->edit_rate, (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start) ),
-					// eu2tc_m( audioClip->track->edit_rate, (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start) ),
-					// eu2tc_s( audioClip->track->edit_rate, (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start) ),
-					// eu2tc_f( audioClip->track->edit_rate, audioClip->track->Audio->tc, (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start) ),
 					// (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start),
 					( fadein != NULL ) ?
 						(fadein->flags & AAFI_INTERPOL_NONE)     ? "CURV_NON" :
@@ -550,8 +523,6 @@ int main( int argc, char *argv[] )
 		printf( "\n\n" );
 	}
 
-
-	
 
 
 
