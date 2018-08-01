@@ -76,6 +76,10 @@ AAFCore/AAFToText.o: AAFCore/AAFDefs/AAFExtEnum.h
 AAFCore/AAFToText.o: AAFCore/AAFDefs/AAFFileKinds.h
 AAFCore/AAFToText.o: AAFCore/AAFDefs/AAFOPDefs.h
 AAFCore/AAFToText.o: AAFCore/AAFDefs/AAFContainerDefs.h
+AAFCore/AAFDump.o: AAFCore/AAFTypes.h LibCFB/LibCFB.h LibCFB/CFBTypes.h
+AAFCore/AAFDump.o: AAFCore/AAFUtils.h AAFCore/AAFCore.h AAFCore/AAFToText.h
+AAFCore/AAFDump.o: AAFCore/AAFClass.h LibCFB/CFBTypes.h LibCFB/CFBDump.h
+AAFCore/AAFDump.o: LibCFB/LibCFB.h common/utils.h
 AAFCore/AAFCore.o: AAFCore/AAFTypes.h LibCFB/LibCFB.h LibCFB/CFBTypes.h
 AAFCore/AAFCore.o: AAFCore/AAFCore.h AAFCore/AAFClass.h AAFCore/AAFUtils.h
 AAFCore/AAFCore.o: AAFCore/AAFToText.h LibCFB/CFBTypes.h LibCFB/CFBDump.h
@@ -114,7 +118,7 @@ AAFIface/AAFIAudioFiles.o: AAFCore/AAFDefs/AAFOperationDefs.h
 AAFIface/AAFIAudioFiles.o: AAFCore/AAFDefs/AAFParameterDefs.h
 AAFIface/AAFIAudioFiles.o: AAFCore/AAFDefs/AAFInterpolatorDefs.h
 AAFIface/AAFIAudioFiles.o: AAFCore/AAFDefs/AAFContainerDefs.h
-AAFIface/AAFIAudioFiles.o: LibCFB/CFBDump.h common/debug.h
+AAFIface/AAFIAudioFiles.o: LibCFB/CFBDump.h AAFCore/AAFDump.h common/debug.h
 AAFIface/AAFIface.o: libAAF.h AAFCore/AAFClass.h AAFCore/AAFTypes.h
 AAFIface/AAFIface.o: LibCFB/LibCFB.h LibCFB/CFBTypes.h AAFCore/AAFCore.h
 AAFIface/AAFIface.o: AAFCore/AAFCore.h AAFCore/AAFUtils.h AAFCore/AAFToText.h
@@ -131,7 +135,7 @@ AAFIface/AAFIface.o: AAFCore/AAFDefs/AAFOperationDefs.h
 AAFIface/AAFIface.o: AAFCore/AAFDefs/AAFParameterDefs.h
 AAFIface/AAFIface.o: AAFCore/AAFDefs/AAFInterpolatorDefs.h
 AAFIface/AAFIface.o: AAFCore/AAFDefs/AAFContainerDefs.h LibCFB/CFBDump.h
-AAFIface/AAFIface.o: common/debug.h
+AAFIface/AAFIface.o: AAFCore/AAFDump.h common/debug.h
 AAFIface/AAFIParser.o: libAAF.h AAFCore/AAFClass.h AAFCore/AAFTypes.h
 AAFIface/AAFIParser.o: LibCFB/LibCFB.h LibCFB/CFBTypes.h AAFCore/AAFCore.h
 AAFIface/AAFIParser.o: AAFCore/AAFCore.h AAFCore/AAFUtils.h
@@ -149,4 +153,4 @@ AAFIface/AAFIParser.o: AAFCore/AAFDefs/AAFOperationDefs.h
 AAFIface/AAFIParser.o: AAFCore/AAFDefs/AAFParameterDefs.h
 AAFIface/AAFIParser.o: AAFCore/AAFDefs/AAFInterpolatorDefs.h
 AAFIface/AAFIParser.o: AAFCore/AAFDefs/AAFContainerDefs.h LibCFB/CFBDump.h
-AAFIface/AAFIParser.o: common/debug.h
+AAFIface/AAFIParser.o: AAFCore/AAFDump.h common/debug.h

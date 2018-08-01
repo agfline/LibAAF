@@ -441,7 +441,7 @@ static int parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 		// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, EssenceDesc );
 		// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
 
-		// printObjectProperties( aafi->aafd, EssenceDesc );
+		// aaf_dump_ObjectProperties( aafi->aafd, EssenceDesc );
 
 	}
 	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_AES3PCMDescriptor ) )
@@ -458,7 +458,7 @@ static int parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 		// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, EssenceDesc );
 		// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
 
-		printObjectProperties( aafi->aafd, EssenceDesc );
+		aaf_dump_ObjectProperties( aafi->aafd, EssenceDesc );
 
 	}
 	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_MultipleDescriptor ) )
@@ -480,7 +480,7 @@ static int parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 		// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, EssenceDesc );
 		// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
 
-		printObjectProperties( aafi->aafd, EssenceDesc );
+		aaf_dump_ObjectProperties( aafi->aafd, EssenceDesc );
 
 	}
 	else
@@ -493,7 +493,7 @@ static int parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 		aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, EssenceDesc );
 		printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
 
-		printObjectProperties( aafi->aafd, EssenceDesc );
+		aaf_dump_ObjectProperties( aafi->aafd, EssenceDesc );
 
 	}
 
@@ -1478,7 +1478,7 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 		// 	 *	TODO BUT this could also be some rendered fade.. we should find a way to distinguish between the two.
 		// 	 */
         //
-		// 	// printObjectProperties( aafi->aafd, SourceClip );
+		// 	// aaf_dump_ObjectProperties( aafi->aafd, SourceClip );
         //
 		// 	_warning( "Got a 1 EU length clip, probably some NLE compatibility padding : Skipping.\n" );
         //
@@ -1554,8 +1554,8 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 		// // aafObject *MobSlots = aaf_get_propertyValue( mob, PID_Mob_Slots );
         // //
 		// printf("\n:::: Clip ::::\n");
-		// // printObjectProperties( aafi->aafd, MobSlot );
-		// printObjectProperties(SourceClip);
+		// // aaf_dump_ObjectProperties( aafi->aafd, MobSlot );
+		// aaf_dump_ObjectProperties(SourceClip);
 		// printf("SourceMobSlotID : %u\n", *(uint32_t*)aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceMobSlotID ) );
 		// aafObject *Slots =  aaf_get_propertyValue( mob, PID_Mob_Slots );
         //
@@ -1780,14 +1780,14 @@ static int parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue )
 
 		Gain->flags   |= AAFI_AUDIO_GAIN_CONSTANT;
 
-		// printObjectProperties( aafi->aafd, ConstantValue );
+		// aaf_dump_ObjectProperties( aafi->aafd, ConstantValue );
 
 	}
 	else
 	{
 		trace_obj( aafi, ConstantValue, ANSI_COLOR_RED );
 		printf("ParamDef %s (%s)\n\n", ParameterToText( aafi->aafd, ParamDef ), AUIDToText( ParamDef ) );
-		printObjectProperties( aafi->aafd, ConstantValue );
+		aaf_dump_ObjectProperties( aafi->aafd, ConstantValue );
 	}
 
 	return 0;

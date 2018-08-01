@@ -26,6 +26,8 @@
 
 
 
+
+
 size_t utf16toa( char *astr, uint16_t alen, uint16_t *wstr, uint16_t wlen )
 {
      uint32_t i = 0;
@@ -52,22 +54,6 @@ size_t utf16toa( char *astr, uint16_t alen, uint16_t *wstr, uint16_t wlen )
      astr[--i] = 0x00;
 
      return i;
-}
-
-
-
-
-void printObjectProperties( AAF_Data *aafd, aafObject *Obj )
-{
-	aafProperty * Prop = NULL;
-
-	for ( Prop = Obj->Properties;  Prop != NULL; Prop = Prop->next )
-	{
-		printf( ":.: (0x%04x) %s\n", Prop->pid, PIDToText( aafd, Prop->pid ) );
-
-		// WARNING : Wont print strong references (set/vector) corectly.
-		dump_hex( Prop->val, Prop->len );
-	}
 }
 
 

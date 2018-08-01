@@ -21,5 +21,6 @@
 #include "AAFCore/AAFDefs/AAFContainerDefs.h"
 
 #include "LibCFB/CFBDump.h"
+#include "AAFCore/AAFDump.h"
 
 #endif // ! __libAAF_h__

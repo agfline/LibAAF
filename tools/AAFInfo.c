@@ -34,74 +34,6 @@ char * gainToStr( char *str, aafiAudioClip *aClip )
 
 
 
-
-void printPropertyStream( AAF_Data *aafd, cfbNode *node )
-{
-
-	aafPropertyIndexHeader_t *Header = NULL;
-	aafPropertyIndexEntry_t  *Prop   = NULL;
-	aafByte_t                *value  = NULL;
-
-	cfb_getStream( aafd->cfbd, node, (unsigned char**)&Header, NULL );
-
-	uint32_t i = 0;
-
-	printf(
-		" ## Property_Header__________________________________________________\n"
-		" _byteOrder     : 0x%02x\n"
-		" _formatVersion : 0x%02x\n"
-		" _entryCount    : %u\n",
-		Header->_byteOrder,
-		Header->_formatVersion,
-		Header->_entryCount
-	);
-
-	printf( "\n\n\n\n" );
-
-
-	/*
-	 *	Since the following for() loop is not intended to be used by the user, it has been defined
-	 *	as a local macro in AAFCore.c.
-	 */
-
-//	foreachPropertyEntry( Header, Prop, value, i )
-	for ( Prop = (aafPropertyIndexEntry_t*)(((char*)Header) + sizeof(aafPropertyIndexHeader_t)),    \
-	      value = ((unsigned char*)Prop) + (Header->_entryCount * sizeof(aafPropertyIndexEntry_t)), \
-	      i = 0;                                                                                    \
-	      i < Header->_entryCount;                                                                  \
-	      value += Prop->_length,                                                                   \
-	      Prop++,                                                                                   \
-	      i++ )
-	{
-
-		printf(
-			" #%u Property_Entry___________________________________________________\n"
-			" _pid        : 0x%04x (%s)\n"
-			" _storedForm : %s\n"
-			" _length     : %u bytes\n",
-			i,
-			Prop->_pid, PIDToText( aafd, Prop->_pid ),
-			StoredFormToText( Prop->_storedForm ),
-			Prop->_length
-		);
-
-		dump_hex( value, Prop->_length );
-
-		printf( "\n\n" );
-	}
-
-	free( Header );
-
-}
-
-
-
-
-
-
-
-
-
 void showHelp()
 {
 	printf(
@@ -295,7 +227,7 @@ int main( int argc, char *argv[] )
 
 			if ( strncmp( name, "properties", 10 ) == 0 )
 			{
-				printPropertyStream( aafd, node );
+				aaf_dump_nodeStreamProperties( aafd, node );
 			}
 			else if ( node->_mse == STGTY_STREAM )
 			{
@@ -307,13 +239,10 @@ int main( int argc, char *argv[] )
 	}
 
 
-
-
 	if ( cfb_header )
 	{
 		cfb_dump_header( aafd->cfbd );
 	}
-
 
 
 	if ( cfb_fat )
@@ -322,12 +251,10 @@ int main( int argc, char *argv[] )
 	}
 
 
-
 	if ( cfb_minifat )
 	{
 		cfb_dump_MiniFAT( aafd->cfbd );
 	}
-
 
 
 	if ( cfb_difat )
@@ -336,47 +263,49 @@ int main( int argc, char *argv[] )
 	}
 
 
-
-
-
-	if ( aaf_summary )
-	{
-
-		/* AAF Header */
-
-		printf( " ByteOrder            : %s (0x%04x)\n", ByteOrderToText( aafd->Header.ByteOrder ), aafd->Header.ByteOrder );
-		printf( " LastModified         : %s\n", TimestampToText( aafd->Header.LastModified ) );
-		printf( " AAF ObjSpec Version  : %s\n", VersionToText( aafd->Header.Version ) );
-		printf( " ObjectModel Version  : %u\n", aafd->Header.ObjectModelVersion );
-		printf( " Operational Pattern  : %s\n", OPDefToText( aafd->Header.OperationalPattern ) );
-
-		printf( "\n\n" );
-
-
-		/* AAF Identification */
-
-		printf( " CompanyName          : %s\n", ( aafd->Identification.CompanyName ) ? aafd->Identification.CompanyName : "n/a" );
-		printf( " ProductName          : %s\n", ( aafd->Identification.ProductName ) ? aafd->Identification.ProductName : "n/a" );
-		printf( " ProductVersion       : %s\n", ProductVersionToText( aafd->Identification.ProductVersion ) );
-		printf( " ProductVersionString : %s\n", ( aafd->Identification.ProductVersionString ) ? aafd->Identification.ProductVersionString : "n/a" );
-		printf( " ProductID            : %s\n", AUIDToText( aafd->Identification.ProductID ) );
-		printf( " Date                 : %s\n", TimestampToText( aafd->Identification.Date ) );
-		printf( " ToolkitVersion       : %s\n", ProductVersionToText( aafd->Identification.ToolkitVersion ) );
-		printf( " Platform             : %s\n", ( aafd->Identification.Platform ) ? aafd->Identification.Platform : "n/a" );
-		printf( " GenerationAUID       : %s\n", AUIDToText( aafd->Identification.GenerationAUID ) );
-
-		printf( "\n\n" );
-	}
-
-
-
-
 	if ( cfb_nodes )
 	{
 		uint32_t i = 0;
 
 		cfb_dump_nodePaths( aafd->cfbd, 0, NULL, &i, NULL );
 	}
+
+
+
+
+
+
+	if ( aaf_summary )
+	{
+		aaf_dump_Header( aafd );
+		aaf_dump_Identification( aafd );
+	}
+
+
+	if ( aaf_classes )
+	{
+		aaf_dump_Classes( aafd );
+	}
+
+
+	if ( aaf_meta )
+	{
+		aaf_dump_MetaDictionary( aafd );
+	}
+
+
+	if ( aaf_properties )
+	{
+		aafObject *Object = aafd->Objects;
+
+		for ( Object = aafd->Objects; Object != NULL; Object = Object->nextObj )
+		{
+			printf( "\n\n\n" ANSI_COLOR_MAGENTA " Object" ANSI_COLOR_RESET " @ %s\n", aaf_get_ObjectPath( Object ) );
+
+			aaf_dump_ObjectProperties( aafd, Object );
+		}
+	}
+
 
 
 
@@ -467,12 +396,12 @@ int main( int argc, char *argv[] )
 		{
 
 			printf( "Track (%u) - %s - edit_rate %i/%i (%02.2f)  -  \"%s\"\n",
-			        audioTrack->number,
+					audioTrack->number,
 					(audioTrack->format == AAFI_TRACK_FORMAT_MONO)   ? "MONO"   :
 					(audioTrack->format == AAFI_TRACK_FORMAT_STEREO) ? "STEREO" :
 					(audioTrack->format == AAFI_TRACK_FORMAT_5_1)    ? "5.1"    :
 					(audioTrack->format == AAFI_TRACK_FORMAT_7_1)    ? "7.1"    : "Unknown",
-			        audioTrack->edit_rate->numerator, audioTrack->edit_rate->denominator,
+					audioTrack->edit_rate->numerator, audioTrack->edit_rate->denominator,
 					rationalToFloat(audioTrack->edit_rate),
 					(audioTrack->name != NULL) ? audioTrack->name : ""
 			 );
@@ -498,10 +427,10 @@ int main( int argc, char *argv[] )
 						(Trans->flags & AAFI_INTERPOL_BSPLINE)  ? "CURV_BSP" :
 						""
 					);
-/*
+	/*
 					printf( "\n" );
 
-//					aafiTransition *Trans = (aafiTransition*)&audioItem->data;
+	//					aafiTransition *Trans = (aafiTransition*)&audioItem->data;
 
 					printf( " Fade     : %s\n",
 						(Trans->flags & AAFI_TRANS_FADE_IN)  ? "AAFI_TRANS_FADE_IN"  :
@@ -524,12 +453,12 @@ int main( int argc, char *argv[] )
 					int  i = 0;
 					for( i = 0; i < Trans->pts_cnt; i++ )
 					{
-//						printf( "   PT:  _t: %i/%i   _v: %i/%i\n",
-//							Trans->time[i]->numerator,
-//							Trans->time[i]->denominator,
-//							Trans->value[i]->numerator,
-//							Trans->value[i]->denominator
-//						);
+	//						printf( "   PT:  _t: %i/%i   _v: %i/%i\n",
+	//							Trans->time[i]->numerator,
+	//							Trans->time[i]->denominator,
+	//							Trans->value[i]->numerator,
+	//							Trans->value[i]->denominator
+	//						);
 
 						printf( "   PT:  _t: %.0f   _v: %.0f\n",
 							rationalToFloat( Trans->time[i] ),
@@ -538,7 +467,7 @@ int main( int argc, char *argv[] )
 					}
 
 					printf( "\n" );
-*/
+	*/
 
 					continue;
 				}
@@ -622,114 +551,7 @@ int main( int argc, char *argv[] )
 	}
 
 
-
-
-	if ( aaf_classes )
-	{
-
-		aafClass *ConcreteClass = NULL;
-		aafClass *Class         = NULL;
-
-		foreachClass( ConcreteClass, aafd->Classes )
-		{
-
-			foreachClassInheritance( Class, ConcreteClass )
-			{
-				// if ( Class->meta )
-				// 	printf( ANSI_COLOR_YELLOW
-				// 			"%s"
-				// 			ANSI_COLOR_RESET,
-				// 			Class->name );
-				// else
-					printf( "%s", ClassIDToText( aafd, Class->ID ) );
-
-				if ( Class->Parent != NULL )
-					printf( " > " );
-
-			}
-
-			printf( "\n" );
-
-		}
-
-		printf( "\n\n" );
-	}
-
-
-
-
-	if ( aaf_meta )
-	{
-
-		aafClass *Class = NULL;
-
-
-		foreachClass( Class, aafd->Classes )
-		{
-
-			int print = 0;
-
-			aafPropertyDef *PDef = NULL;
-
-			foreachPropertyDefinition( PDef, Class->Properties )
-			{
-				if ( Class->meta )
-				{
-					printf( ANSI_COLOR_YELLOW "%s::%s (0x%04x)\n" ANSI_COLOR_RESET,
-						Class->name,
-						PDef->name,
-						PDef->pid );
-
-					print++;
-				}
-				else if ( PDef->meta )
-				{
-					printf( "%s::" ANSI_COLOR_YELLOW "%s (0x%04x)\n" ANSI_COLOR_RESET,
-						ClassIDToText( aafd, Class->ID ),
-						PDef->name,
-						PDef->pid );
-
-					print++;
-				}
-			}
-
-			if ( print )
-				printf( "\n" );
-
-			print = 1;
-
-		}
-
-		printf( "\n\n" );
-	}
-
-
-	if ( aaf_properties )
-	{
-		// aafProperty *Prop = NULL;
-		aafObject *Object = aafd->Objects;
-
-		for ( Object = aafd->Objects; Object != NULL; Object = Object->nextObj )
-		{
-			// char *objPath = aaf_get_ObjectPath( Object );
-
-			printf( "\n\n\n Object @ %s\n", aaf_get_ObjectPath( Object ) );
-
-			// free( objPath );
-
-
-			aafProperty *Prop = NULL;
-
-			for ( Prop = Object->Properties; Prop != NULL; Prop = Prop->next )
-			{
-				printf( ":.: (0x%04x) %s\n", Prop->pid, PIDToText( aafd, Prop->pid ) );
-				//
-				// WARNING : Wont print strong references (set/vector) corectly.
-				dump_hex( Prop->val, Prop->len );
-			}
-		}
-	}
-
+	
 
 
 
