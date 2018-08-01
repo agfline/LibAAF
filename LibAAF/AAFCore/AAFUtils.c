@@ -19,7 +19,6 @@
 
 #include <stdio.h>
 #include <string.h>
-
 #include <ctype.h>	// isxdigit()
 
 #include "AAFTypes.h"
@@ -31,9 +30,13 @@ size_t utf16toa( char *astr, uint16_t alen, uint16_t *wstr, uint16_t wlen )
 {
      uint32_t i = 0;
 
-     // Remove the leading byte in SF_DATA_STREAM if strlen is odd
-     // -> /Header-2/EssenceData-1902/properties -> PID_EssenceData_Data : Data-2702
-     // TODO What is that leading byte doing here ???? -> 0x55 (U)
+     /*
+      *  Remove the leading byte in SF_DATA_STREAM if strlen is odd
+      *  -> /Header-2/EssenceData-1902/properties -> PID_EssenceData_Data : Data-2702
+      *
+      *  TODO What is that leading byte doing here ???? -> 0x55 (U)
+      */
+
      if ( wlen % 2 )
      {
          wstr = (uint16_t*)((char*)wstr + 1);
@@ -66,25 +69,6 @@ void printObjectProperties( AAF_Data *aafd, aafObject *Obj )
 		dump_hex( Prop->val, Prop->len );
 	}
 }
-
-
-/*
-char * printMobID( aafMobID_t *mobid )
-{
-	static char buf[2 * sizeof(aafMobID_t)];
-
-	uint32_t i = 0;
-    uint32_t offset = 0;
-
-	for ( i = 0; i < sizeof(aafMobID_t); i++ )
-    {
-		offset += snprintf( buf+offset, (2 * sizeof(aafMobID_t)), "%02x", ((unsigned char*)mobid)[i] );
-    }
-
-	return buf;
-}
-*/
-
 
 
 

@@ -22,6 +22,26 @@
 
 
 
+
+const char * MobIDToText( aafMobID_t *mobid )
+{
+	/* TODO can we format the output a little bit ? */
+	static char str[2 * sizeof(aafMobID_t)];
+
+	uint32_t i = 0;
+    uint32_t offset = 0;
+
+	for ( i = 0; i < sizeof(aafMobID_t); i++ )
+    {
+		offset += snprintf( str+offset, (2 * sizeof(aafMobID_t)), "%02x", ((unsigned char*)mobid)[i] );
+    }
+
+	return str;
+}
+
+
+
+
 const char * TimestampToText( aafTimeStamp_t *ts )
 {
 	static char str[24];

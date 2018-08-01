@@ -14,6 +14,7 @@
     CLSIDToText( (cfbCLSID_t*)auid )
 
 
+const char * MobIDToText( aafMobID_t *mobid );
 
 const char * TimestampToText( aafTimeStamp_t *ts );
 
