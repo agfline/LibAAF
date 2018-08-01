@@ -83,57 +83,12 @@
 
 size_t utf16toa( char *astr, uint16_t alen, uint16_t *wstr, uint16_t wlen );
 
-void   printStream( unsigned char * stream, size_t stream_sz );
-
 void   printObjectProperties( AAF_Data *aafd, aafObject *Obj );
-
-// char * printUID( aafUID_t *auid );
 
 char * printMobID( aafMobID_t *mobid );
 
 char  *url_decode( char *dst, char *src );
 
-/*
-int AAF_MobIDCompare( const aafMobID_t *MobID1, const aafMobID_t *MobID2 )
-{
-	if ( MobID1->SMPTELabel[0] != MobID2->SMPTELabel[0] ||
-		 MobID1->SMPTELabel[1] != MobID2->SMPTELabel[1] ||
-		 MobID1->SMPTELabel[2] != MobID2->SMPTELabel[2] ||
-		 MobID1->SMPTELabel[3] != MobID2->SMPTELabel[3] ||
-		 MobID1->SMPTELabel[4] != MobID2->SMPTELabel[4] ||
-		 MobID1->SMPTELabel[5] != MobID2->SMPTELabel[5] ||
-		 MobID1->SMPTELabel[6] != MobID2->SMPTELabel[6] ||
-		 MobID1->SMPTELabel[7] != MobID2->SMPTELabel[7] ||
-		 MobID1->SMPTELabel[8] != MobID2->SMPTELabel[8] ||
-		 MobID1->SMPTELabel[9] != MobID2->SMPTELabel[9] ||
-		 MobID1->SMPTELabel[10] != MobID2->SMPTELabel[10] ||
-		 MobID1->SMPTELabel[11] != MobID2->SMPTELabel[11] )
-			return 0;
 
-	if ( MobID1->length != MobID2->length )
-			return 0;
-
-	if ( MobID1->instanceHigh != MobID2->instanceHigh ||
-		 MobID1->instanceMid  != MobID2->instanceMid  ||
-		 MobID1->instanceLow  != MobID2->instanceLow )
-			return 0;
-
-	if ( MobID1->material.Data1 != MobID2->material.Data1 ||
-		 MobID1->material.Data2 != MobID2->material.Data2 ||
-		 MobID1->material.Data3 != MobID2->material.Data3 ||
-		 MobID1->material.Data4[0] != MobID2->material.Data4[0] ||
-		 MobID1->material.Data4[1] != MobID2->material.Data4[1] ||
-		 MobID1->material.Data4[2] != MobID2->material.Data4[2] ||
-		 MobID1->material.Data4[3] != MobID2->material.Data4[3] ||
-		 MobID1->material.Data4[4] != MobID2->material.Data4[4] ||
-		 MobID1->material.Data4[5] != MobID2->material.Data4[5] ||
-		 MobID1->material.Data4[6] != MobID2->material.Data4[6] ||
-		 MobID1->material.Data4[7] != MobID2->material.Data4[7] )
-			return 0;
-
-
-	return 1;
-}
-*/
 
 #endif // ! __AAFUtils_h__
