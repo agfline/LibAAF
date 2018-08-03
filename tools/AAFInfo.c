@@ -5,6 +5,8 @@
 #include <math.h>
 #include <getopt.h>
 
+#include <locale.h>
+
 #include "../LibAAF/libAAF.h"
 #include "./thirdparty/libTC.h"
 
@@ -72,6 +74,8 @@ void showHelp()
 
 int main( int argc, char *argv[] )
 {
+
+	setlocale(LC_ALL, "");
 
 //	int cfb_summary    = 0;
 	int cfb_header     = 0;
@@ -314,7 +318,7 @@ int main( int argc, char *argv[] )
 		foreachAudioEssence( audioEssence, aafi->Audio->Essences )
 		{
 
-			printf( " %s%u:  Type: %s  Duration: %u h  %02u mn  %02u s  %03u ms   %u Ch - %u Hz - %u bit  file : %s  file_name : %s\n",
+			printf( " %s%u:  Type: %s  Duration: %u h  %02u mn  %02u s  %03u ms   %u Ch - %u Hz - %u bit  file : %ls  file_name : %ls   (%ls)\n",
 				( i < 10 ) ? " " : "", i,
 				( audioEssence->type == AAFI_TYPE_PCM  ) ? "PCM"  :
 				( audioEssence->type == AAFI_TYPE_WAVE ) ? "WAVE" :
@@ -327,9 +331,12 @@ int main( int argc, char *argv[] )
 				audioEssence->channels,
 				audioEssence->samplerate,
 				audioEssence->samplesize,
-				( audioEssence->is_embedded ) ? "EMBEDDED" : audioEssence->original_file,
-				audioEssence->unique_file_name
+				( audioEssence->is_embedded ) ? L"EMBEDDED" : audioEssence->original_file,
+				audioEssence->unique_file_name,
+				audioEssence->file_name
 			);
+
+			// printf( "MOBID    %s\n", MobIDToText( audioEssence->sourceMobID ) );
 
 			i++;
 		}
@@ -484,7 +491,7 @@ int main( int argc, char *argv[] )
 
 				printf( " Clip:%u%s  Track:%u  Gain:%s "
 						" Start:%s  Len:%s  End:%s  "
-						" Fadein: %s  Fadeout: %s  SourceFile: %s\n",
+						" Fadein: %s  Fadeout: %s  SourceFile: %ls   (%ls)\n",
 					i, ( i < 10 ) ? " " : "",
 					audioClip->track->number,
 					gainToStr( str, audioClip ),
@@ -510,7 +517,8 @@ int main( int argc, char *argv[] )
 						(fadeout->flags & AAFI_INTERPOL_BSPLINE)  ? "CURV_BSP" :
 						"" :
 					"none    ",
-					(audioClip->Essence) ? audioClip->Essence->file_name : ""
+					(audioClip->Essence) ? audioClip->Essence->unique_file_name : L"",
+					audioClip->Essence->file_name
 				);
 
 

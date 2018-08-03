@@ -39,6 +39,9 @@
 #include <string.h>
 #include <errno.h>
 
+#include <wchar.h>
+#include <locale.h>
+
 #include "../libAAF.h"
 #include "../common/debug.h"
 #include "../common/utils.h"
@@ -70,7 +73,7 @@
 static void trace_obj( AAF_Iface *aafi, aafObject *Obj, char *color );
 
 
-static char * build_unique_filename( AAF_Iface *aafi, aafiAudioEssence *audioEssence );
+static wchar_t   * build_unique_filename( AAF_Iface *aafi, aafiAudioEssence *audioEssence );
 
 
 static aafUID_t  * get_Component_DataDefinition( AAF_Iface *aafi, aafObject *Component );
@@ -175,30 +178,69 @@ static void trace_obj( AAF_Iface *aafi, aafObject *Obj, char *color )
 
 
 
-static char * build_unique_filename( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
+static wchar_t * build_unique_filename( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 {
 	/* TODO 1024 should be a macro ! */
 
-	char *unique = malloc( 1024 );
-	int file_name_len = strlen( audioEssence->file_name );
+	wchar_t *unique = calloc( sizeof(wchar_t), 1024 );
 
-	strncpy( unique, audioEssence->file_name, 1024 );
+	size_t file_name_len = wcslen( audioEssence->file_name );
+
+	// printf("%i\n", file_name_len );
+
+	memcpy( unique, audioEssence->file_name, file_name_len * sizeof(wchar_t) );
+
+	// printf("%ls\n", unique );
 
 	aafiAudioEssence *ae = NULL;
-	int id = 0;
 
+	if ( 1 )
+	{
+		size_t i = 0;
+
+		for ( ; i < file_name_len; i++ )
+		{
+			/* if char is out of the Basic Latin range */
+			if ( unique[i] > 0xff )
+			{
+				printf("MobID : %s\n", MobIDToText( audioEssence->sourceMobID ) );
+				aafUID_t *uuid = &(audioEssence->sourceMobID->material);
+				swprintf( unique, 1024, L"%08x-%04x-%04x-%02x%02x%02x%02x%02x%02x%02x%02x",
+					uuid->Data1,
+					uuid->Data2,
+					uuid->Data3,
+					uuid->Data4[0],
+				 	uuid->Data4[1],
+					uuid->Data4[2],
+					uuid->Data4[3],
+					uuid->Data4[4],
+					uuid->Data4[5],
+					uuid->Data4[6],
+					uuid->Data4[7] );
+
+				audioEssence->unique_file_name = unique;
+
+				return unique;
+			}
+		}
+	}
+
+
+	int id = 0;
 
 	foreachAudioEssence( ae, aafi->Audio->Essences )
 	{
-		if ( ae->unique_file_name != NULL && strcmp( ae->unique_file_name, unique ) == 0 )
+		if ( ae->unique_file_name != NULL && wcscmp( ae->unique_file_name, unique ) == 0 )
 		{
-			snprintf( unique+file_name_len, 1024-file_name_len, "_%i", ++id );
-
+			swprintf( unique+file_name_len, (1024-file_name_len), L"_%i", ++id );
+			// printf("%ls\n", unique );
 			ae = aafi->Audio->Essences; // check again
 		}
 	}
 
 	audioEssence->unique_file_name = unique;
+
+	// printf("%ls\n", audioEssence->wunique_file_name );
 
 	return unique;
 }
@@ -361,7 +403,7 @@ static aafObject * get_EssenceData_By_MobID( AAF_Iface *aafi, aafMobID_t *MobID 
 
 
 
-
+/* TODO is this SourceMobID or SourceID (masterMobID) ??? */
 static aafiAudioEssence * getEssenceBySourceMobID( AAF_Iface *aafi, aafMobID_t *sourceMobID )
 {
 	aafiAudioEssence * audioEssence = NULL;
@@ -723,12 +765,13 @@ static int parse_NetworkLocator( AAF_Iface *aafi, aafObject *NetworkLocator )
 	aafiAudioEssence *audioEssence = aafi->ctx.current_audioEssence;
 
 
-	audioEssence->original_file = aaf_get_propertyValueText( NetworkLocator, PID_NetworkLocator_URLString );
+	// audioEssence->original_file = aaf_get_propertyValueText( NetworkLocator, PID_NetworkLocator_URLString );
+	audioEssence->original_file = aaf_get_propertyValueWstr( NetworkLocator, PID_NetworkLocator_URLString );
 
 	if ( audioEssence->original_file == NULL )
 		_warning( "Missing NetworkLocator NetworkLocator::URLString.\n" );
 
-	url_decode( audioEssence->original_file, audioEssence->original_file );
+	wurl_decode( audioEssence->original_file, audioEssence->original_file );
 
 	return 0;
 }
@@ -1601,10 +1644,7 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 		aafi->ctx.current_audioEssence = audioEssence;
 
 
-		audioEssence->file_name = aaf_get_propertyValueText( aafi->ctx.Mob, PID_Mob_Name );
-
-
-		audioEssence->unique_file_name = build_unique_filename( aafi, audioEssence );
+		audioEssence->file_name = aaf_get_propertyValueWstr( aafi->ctx.Mob, PID_Mob_Name );
 
 
 		audioEssence->masterMobID = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_MobID );
@@ -1665,6 +1705,11 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 
 
 		parse_EssenceDescriptor( aafi, EssenceDesc );
+
+
+
+		audioEssence->unique_file_name = build_unique_filename( aafi, audioEssence );
+
 
 
 		/* NOTE since multiple clips can point to the same MasterMob, we have to loop. */
@@ -2064,6 +2109,7 @@ static int parse_Mob( AAF_Iface *aafi, aafObject *Mob )
 
 static int parse_SourceMob( AAF_Iface *aafi, aafObject *SourceMob )
 {
+
 	if ( aafi->ctx.current_audioEssence != NULL )
 	{
 		aafiAudioEssence *audioEssence = aafi->ctx.current_audioEssence;
@@ -2101,6 +2147,7 @@ static int parse_SourceMob( AAF_Iface *aafi, aafObject *SourceMob )
 			CreationTime->time.second );
 
 	}
+
 
 	return 0;
 }

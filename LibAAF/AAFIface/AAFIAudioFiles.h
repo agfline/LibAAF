@@ -19,6 +19,6 @@ typedef struct
 
 int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence );
 
-int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence, const char *outfilepath, const char *forcedFileName, int format );
+int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence, const char *outfilepath, const wchar_t *forcedFileName, int format );
 
 #endif

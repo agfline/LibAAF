@@ -79,8 +79,8 @@ int main( int argc, char *argv[] )
 
 	foreachAudioEssence( audioEssence, aafi->Audio->Essences )
 	{
-		offset += snprintf( buf+offset, buf_sz-offset, "    <Source name=\"%s.wav\" type=\"audio\" flags=\"\" id=\"%u\" captured-for=\"PAD 1\" channel=\"0\" origin=\"\" gain=\"1\"/>\n",
-						audioEssence->file_name,
+		offset += snprintf( buf+offset, buf_sz-offset, "    <Source name=\"%ls.wav\" type=\"audio\" flags=\"\" id=\"%u\" captured-for=\"PAD 1\" channel=\"0\" origin=\"\" gain=\"1\"/>\n",
+						audioEssence->unique_file_name,
 						(uint16_t)((uint64_t)((&audioEssence->sourceMobID)) & 0xffff) );
 
 	}
@@ -103,8 +103,8 @@ int main( int argc, char *argv[] )
 
 			audioClip = (aafiAudioClip*)&audioItem->data;
 
-			offset += snprintf( buf+offset, buf_sz-offset, "<Region name=\"%s\" muted=\"0\" opaque=\"1\" locked=\"0\" video-locked=\"0\" automatic=\"1\" whole-file=\"1\" import=\"0\" external=\"0\" sync-marked=\"0\" left-of-split=\"0\" right-of-split=\"0\" hidden=\"0\" position-locked=\"0\" valid-transients=\"0\" start=\"%li\" length=\"%li\" position=\"%li\" beat=\"0\" sync-position=\"0\" ancestral-start=\"0\" ancestral-length=\"0\" stretch=\"1\" shift=\"1\" positional-lock-style=\"AudioTime\" layering-index=\"0\" envelope-active=\"0\" default-fade-in=\"0\" default-fade-out=\"0\" fade-in-active=\"1\" fade-out-active=\"1\" scale-amplitude=\"1\" id=\"%u\" type=\"audio\" first-edit=\"nothing\" source-0=\"%u\" master-source-0=\"%u\" channels=\"%u\"/>\n",
-	 					audioClip->Essence->file_name,
+			offset += snprintf( buf+offset, buf_sz-offset, "<Region name=\"%ls\" muted=\"0\" opaque=\"1\" locked=\"0\" video-locked=\"0\" automatic=\"1\" whole-file=\"1\" import=\"0\" external=\"0\" sync-marked=\"0\" left-of-split=\"0\" right-of-split=\"0\" hidden=\"0\" position-locked=\"0\" valid-transients=\"0\" start=\"%li\" length=\"%li\" position=\"%li\" beat=\"0\" sync-position=\"0\" ancestral-start=\"0\" ancestral-length=\"0\" stretch=\"1\" shift=\"1\" positional-lock-style=\"AudioTime\" layering-index=\"0\" envelope-active=\"0\" default-fade-in=\"0\" default-fade-out=\"0\" fade-in-active=\"1\" fade-out-active=\"1\" scale-amplitude=\"1\" id=\"%u\" type=\"audio\" first-edit=\"nothing\" source-0=\"%u\" master-source-0=\"%u\" channels=\"%u\"/>\n",
+	 					audioClip->Essence->unique_file_name,
 /*						ac->essenceStartOffset * (48000/25),*/
 						eu2sample( audioClip, audioClip->essence_offset ),
 /*						ac->length * (48000/25),*/
@@ -148,7 +148,7 @@ int main( int argc, char *argv[] )
 				// 			audioClip->Essence->file,
 				// 			audioClip->subClipNum );
 
-				snprintf( name, 255, "%s", audioClip->Essence->file_name );
+				snprintf( name, 255, "%ls", audioClip->Essence->unique_file_name );
 
 			offset += snprintf( buf+offset, buf_sz-offset, "      <Region name=\"%s\" muted=\"0\" opaque=\"1\" locked=\"0\" video-locked=\"0\" automatic=\"1\" whole-file=\"0\" import=\"0\" external=\"0\" sync-marked=\"0\" left-of-split=\"0\" right-of-split=\"0\" hidden=\"0\" position-locked=\"0\" valid-transients=\"0\" start=\"%li\" length=\"%li\" position=\"%li\" beat=\"0\" sync-position=\"0\" ancestral-start=\"0\" ancestral-length=\"0\" stretch=\"1\" shift=\"1\" positional-lock-style=\"AudioTime\" layering-index=\"0\" envelope-active=\"0\" default-fade-in=\"0\" default-fade-out=\"0\" fade-in-active=\"1\" fade-out-active=\"1\" scale-amplitude=\"1\" id=\"%u\" type=\"audio\" first-edit=\"nothing\" source-0=\"%u\" master-source-0=\"%u\" channels=\"1\"></Region>\n",
 		 					name,

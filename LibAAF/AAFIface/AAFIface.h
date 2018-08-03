@@ -274,10 +274,10 @@ typedef struct aafiAudioGain
 typedef struct aafiAudioEssence
 {
 
-	char          *original_file;	// NetworkLocator::URLString should point to original essence file if external (and in some cases, points to the AAF itself if internal..)
-	char          *file_name;      // MasterMob::Name -> file name
-	char          *unique_file_name; // unique name generated from file_name. Sometimes, multiple files share the same names so this unique name should be used on export.
-	char          *exported_file;    // Holds the file path, once the essence has been exported, copied or linked.
+	wchar_t       *original_file;	// NetworkLocator::URLString should point to original essence file if external (and in some cases, points to the AAF itself if internal..)
+	wchar_t       *exported_file;    // TODO, not that used.. to be tweaked.  ----  Holds the file path, once the essence has been exported, copied or linked.
+	wchar_t       *file_name;			// MasterMob::Name -> file name
+	wchar_t		  *unique_file_name;	// unique name generated from file_name. Sometimes, multiple files share the same names so this unique name should be used on export.
 
 	uint64_t       length; 		// Length of Essence Data
 
@@ -350,7 +350,7 @@ typedef struct aafiAudioClip
 	aafPosition_t          essence_offset; // start position in the source file
 
 
-	aafMobID_t            *masterMobID; // MobID of the associated MasterMob
+	aafMobID_t            *masterMobID; // MobID of the associated MasterMob (PID_SourceReference_SourceID)
 
 
 } aafiAudioClip;

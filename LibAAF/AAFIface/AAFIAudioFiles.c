@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h> // readlink()
+#include <wchar.h>
 
 #include <sndfile.h>
 
@@ -349,7 +350,7 @@ int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 
 
 
-int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence, const char *outfilepath, const char *forcedFileName, int format )
+int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence, const char *outfilepath, const wchar_t *forcedFileName, int format )
 {
     SF_VIRTUAL_IO  sfvirtual;
     VIO_DATA       user_data;
@@ -420,7 +421,7 @@ int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence,
 
     char filePath[1024];
 
-    snprintf( filePath, 1024, "%s/%s.%s",
+    snprintf( filePath, 1024, "%s/%ls.%s",
         outfilepath,
         ( forcedFileName != NULL ) ? forcedFileName : eascii_to_ascii(audioEssence->unique_file_name),
         sf_format_to_file_ext( format ) );
@@ -504,9 +505,9 @@ int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence,
 
 
 
-    audioEssence->exported_file = malloc( strlen(filePath) + 1 );
+    audioEssence->exported_file = malloc( (strlen(filePath) + 1) * sizeof(wchar_t) );
 
-    strncpy( audioEssence->exported_file, filePath, strlen(filePath) + 1 );
+    swprintf( audioEssence->exported_file, (strlen(filePath) + 1) * sizeof(wchar_t), L"%s", filePath );
 
 
 
