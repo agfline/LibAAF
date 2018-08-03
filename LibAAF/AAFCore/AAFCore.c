@@ -870,7 +870,16 @@ wchar_t * aaf_get_propertyValueWstr( aafObject *Obj, aafPID_t pid )
 
 	wchar_t *string  = malloc( ( Prop->len >> 1 ) * sizeof(wchar_t) );
 
-	w16tow32( string, Prop->val, Prop->len );
+	/*
+	 *  Remove the leading byte in SF_DATA_STREAM if strlen is odd
+	 *  -> PID_EssenceData_Data : Data-2702
+	 *
+	 *  TODO What is that leading byte doing here ???? -> 0x55 (U)
+	 */
+
+	w16tow32( string,
+		( Prop->len % 2 ) ? Prop->val+1 : Prop->val,
+		( Prop->len % 2 ) ? Prop->len-1 : Prop->len );
 
 
 	return string;
