@@ -35,6 +35,7 @@
 #include "AAFDefs/AAFTypeDefUIDs.h"
 
 #include "../common/debug.h"
+#include "../common/utils.h"
 
 
 
@@ -851,6 +852,25 @@ char * aaf_get_propertyValueText( aafObject *Obj, aafPID_t pid )
 	char *string  = malloc( ( Prop->len >> 1 ) + 1 );
 
 	utf16toa( string, (Prop->len >> 1) + 1, Prop->val, Prop->len );
+
+
+	return string;
+}
+
+
+
+wchar_t * aaf_get_propertyValueWstr( aafObject *Obj, aafPID_t pid )
+{
+	aafProperty *Prop = aaf_get_property( Obj, pid );
+
+	if ( Prop == NULL )
+	{
+		return NULL;
+	}
+
+	wchar_t *string  = malloc( ( Prop->len >> 1 ) * sizeof(wchar_t) );
+
+	w16tow32( string, Prop->val, Prop->len );
 
 
 	return string;

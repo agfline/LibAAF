@@ -803,6 +803,9 @@ char * aaf_get_propertyValueText( aafObject *Obj,
                                   aafPID_t   pid );
 
 
+wchar_t * aaf_get_propertyValueWstr( aafObject *Obj, aafPID_t pid );
+
+
 /**
  *	Retrieves a Property by its ID out of an Object, interprets it as an aafIndirect_t and
  *	returns the Indirect value.
