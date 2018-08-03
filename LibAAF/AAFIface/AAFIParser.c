@@ -2036,7 +2036,7 @@ static int parse_Mob( AAF_Iface *aafi, aafObject *Mob )
 		 *	Retrieve Composition's Name
 		 */
 
-		aafi->compositionName = aaf_get_propertyValueText( Mob, PID_Mob_Name );
+		aafi->compositionName = aaf_get_propertyValueWstr( Mob, PID_Mob_Name );
 
 
 

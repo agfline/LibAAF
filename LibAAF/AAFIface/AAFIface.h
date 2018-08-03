@@ -606,7 +606,7 @@ typedef struct AAF_Iface
 
 //	AAFIface_Video Video;
 
-	char       *compositionName;
+	wchar_t    *compositionName;
 
 
 	aafiUserComment  *Comments;

@@ -349,7 +349,7 @@ int main( int argc, char *argv[] )
 
 	if ( aaf_clips )
 	{
-		printf( "Composition Name     : %s\n", aafi->compositionName );
+		printf( "Composition Name     : %ls\n", aafi->compositionName );
 		printf( "======================\n" );
 
 		enum TC_FORMAT format = tc_fps2format( (float)(aafi->Audio->tc->fps ), aafi->Audio->tc->drop );
