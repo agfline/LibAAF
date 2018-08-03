@@ -373,7 +373,7 @@ int main( int argc, char *argv[] )
 
 			while ( Comment != NULL )
 			{
-				printf( "   * %s : %s\n", Comment->name, Comment->text );
+				printf( "   * %ls : %ls\n", Comment->name, Comment->text );
 
 				Comment = Comment->next;
 			}

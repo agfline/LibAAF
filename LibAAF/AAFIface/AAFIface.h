@@ -499,9 +499,9 @@ typedef struct aafiAudioTrack
 
 typedef struct aafiUserComment
 {
-	char *name;
+	wchar_t *name;
 
-	char *text;
+	wchar_t *text;
 
 	struct aafiUserComment *next;
 

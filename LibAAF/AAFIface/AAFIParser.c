@@ -2053,13 +2053,13 @@ static int parse_Mob( AAF_Iface *aafi, aafObject *Mob )
 		aaf_foreach_ObjectInSet( &UserComment, UserComments, NULL )
 		{
 
-			char *name   = aaf_get_propertyValueText( UserComment, PID_TaggedValue_Name );
+			wchar_t *name   = aaf_get_propertyValueWstr( UserComment, PID_TaggedValue_Name );
 
 			if ( name == NULL )
 				_warning( "Missing UserComment TaggedValue::Name.\n" );
 
 
-			char *text = aaf_get_propertyIndirectValueText( UserComment, PID_TaggedValue_Value );
+			wchar_t *text = aaf_get_propertyValueWstr( UserComment, PID_TaggedValue_Value );
 
 			if ( text == NULL )
 				_warning( "Missing UserComment TaggedValue::Value.\n" );
