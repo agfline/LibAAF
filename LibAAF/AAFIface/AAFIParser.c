@@ -141,32 +141,32 @@ static void trace_obj( AAF_Iface *aafi, aafObject *Obj, char *color )
 		if ( auidCmp( Obj->Class->ID, &AAFClassID_TimelineMobSlot ) && auidCmp( Obj->Parent->Class->ID, &AAFClassID_CompositionMob ) )
 		{
 			wchar_t *name = aaf_get_propertyValueWstr( Obj, PID_MobSlot_SlotName );
-			snprintf( buf, 1024, "%s (%ls) > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), name, tmp );
+			snprintf( buf, 1024, "%ls (%ls) > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), name, tmp );
 			free( name );
 		}
 		else if ( auidCmp( Obj->Class->ID, &AAFClassID_MasterMob ) || auidCmp( Obj->Class->ID, &AAFClassID_SourceMob ) )
 		{
 			wchar_t *name  = aaf_get_propertyValueWstr( Obj, PID_Mob_Name );
-			snprintf( buf, 1024, "%s (%ls) > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), name, tmp );
+			snprintf( buf, 1024, "%ls (%ls) > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), name, tmp );
 			free( name );
 		}
 		else if ( auidCmp( Obj->Class->ID, &AAFClassID_CompositionMob ) )
 		{
 			wchar_t *name = aaf_get_propertyValueWstr( Obj, PID_Mob_Name );
-			const char *usage = UsageCodeToText( aaf_get_propertyValue( Obj, PID_Mob_UsageCode ) );
-			snprintf( buf, 1024, "%s (%s : %ls) > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), usage, name, tmp );
+			const wchar_t *usage = UsageCodeToText( aaf_get_propertyValue( Obj, PID_Mob_UsageCode ) );
+			snprintf( buf, 1024, "%ls (%ls : %ls) > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), usage, name, tmp );
 			free( name );
 		}
 		else if ( auidCmp( Obj->Class->ID, &AAFClassID_OperationGroup ) )
 		{
 			aafUID_t *OperationIdentification = get_OperationGroup_OperationIdentification( aafi, Obj );
 
-			const char *name = OperationDefToText( aafi->aafd, OperationIdentification ) /*AUIDToText( OpIdent )*/;
-			snprintf( buf, 1024, "%s (%s) > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), name, tmp );
+			const wchar_t *name = OperationDefToText( aafi->aafd, OperationIdentification ) /*AUIDToText( OpIdent )*/;
+			snprintf( buf, 1024, "%ls (%ls) > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), name, tmp );
 		}
 		else
 		{
-			snprintf( buf, 1024, "%s > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), tmp );
+			snprintf( buf, 1024, "%ls > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), tmp );
 		}
 	}
 
@@ -203,7 +203,7 @@ static wchar_t * build_unique_filename( AAF_Iface *aafi, aafiAudioEssence *audio
 			/* if char is out of the Basic Latin range */
 			if ( unique[i] > 0xff )
 			{
-				printf("MobID : %s\n", MobIDToText( audioEssence->sourceMobID ) );
+				// printf("MobID : %ls\n", MobIDToText( audioEssence->sourceMobID ) );
 				aafUID_t *uuid = &(audioEssence->sourceMobID->material);
 				swprintf( unique, 1024, L"%08x-%04x-%04x-%02x%02x%02x%02x%02x%02x%02x%02x",
 					uuid->Data1,
@@ -530,10 +530,10 @@ static int parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 
 		trace_obj( aafi, EssenceDesc, ANSI_COLOR_RED );
 
-		_warning( "Unsupported (yet ?) ClassID : %s\n", ClassIDToText( aafi->aafd, EssenceDesc->Class->ID ) );
+		_warning( "Unsupported (yet ?) ClassID : %ls\n", ClassIDToText( aafi->aafd, EssenceDesc->Class->ID ) );
 
 		aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, EssenceDesc );
-		printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
+		printf("ContainerFormat : %ls\n", ContainerToText(ContainerFormat) );
 
 		aaf_dump_ObjectProperties( aafi->aafd, EssenceDesc );
 
@@ -1835,7 +1835,7 @@ static int parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue )
 	else
 	{
 		trace_obj( aafi, ConstantValue, ANSI_COLOR_RED );
-		printf("ParamDef %s (%s)\n\n", ParameterToText( aafi->aafd, ParamDef ), AUIDToText( ParamDef ) );
+		printf("ParamDef %ls (%s)\n\n", ParameterToText( aafi->aafd, ParamDef ), AUIDToText( ParamDef ) );
 		aaf_dump_ObjectProperties( aafi->aafd, ConstantValue );
 	}
 
@@ -2315,7 +2315,7 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot )
 			else
 			{
 				trace_obj( aafi, MobSlot, ANSI_COLOR_YELLOW );
-				printf( "%s\n", DataDefToText( aafi->aafd, DataDefinition ) );
+				printf( "%ls\n", DataDefToText( aafi->aafd, DataDefinition ) );
 			}
 
 		}
@@ -2333,7 +2333,7 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot )
 			else
 			{
 				trace_obj( aafi, MobSlot, ANSI_COLOR_YELLOW );
-				printf( "%s\n", DataDefToText( aafi->aafd, DataDefinition ) );
+				printf( "%ls\n", DataDefToText( aafi->aafd, DataDefinition ) );
 			}
 		}
 		else if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_SourceMob ) )
@@ -2358,14 +2358,14 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot )
 		else
 		{
 			trace_obj( aafi, MobSlot, ANSI_COLOR_YELLOW );
-			printf( "%s\n", DataDefToText( aafi->aafd, DataDefinition ) );
+			printf( "%ls\n", DataDefToText( aafi->aafd, DataDefinition ) );
 		}
 
 	}
 	else
 	{
 		trace_obj( aafi, MobSlot, ANSI_COLOR_YELLOW );
-		printf( "%s\n", DataDefToText( aafi->aafd, DataDefinition ) );
+		printf( "%ls\n", DataDefToText( aafi->aafd, DataDefinition ) );
 	}
 
 	return 0;
@@ -2425,7 +2425,7 @@ int aafi_retrieveData( AAF_Iface *aafi )
 			if ( audioEssence == NULL )
 			{
 				trace_obj( aafi, aafi->ctx.MobSlot, ANSI_COLOR_YELLOW );
-				printf( "%s\n", DataDefToText( aafi->aafd, DataDefinition ) );
+				printf( "%ls\n", DataDefToText( aafi->aafd, DataDefinition ) );
 			}
 
 		}

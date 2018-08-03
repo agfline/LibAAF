@@ -11,11 +11,11 @@
 void aaf_dump_Header( AAF_Data *aafd )
 {
 
-    printf( " ByteOrder            : %s (0x%04x)\n", ByteOrderToText( aafd->Header.ByteOrder ), aafd->Header.ByteOrder );
-    printf( " LastModified         : %s\n", TimestampToText( aafd->Header.LastModified ) );
-    printf( " AAF ObjSpec Version  : %s\n", VersionToText( aafd->Header.Version ) );
+    printf( " ByteOrder            : %ls (0x%04x)\n", ByteOrderToText( aafd->Header.ByteOrder ), aafd->Header.ByteOrder );
+    printf( " LastModified         : %ls\n", TimestampToText( aafd->Header.LastModified ) );
+    printf( " AAF ObjSpec Version  : %ls\n", VersionToText( aafd->Header.Version ) );
     printf( " ObjectModel Version  : %u\n", aafd->Header.ObjectModelVersion );
-    printf( " Operational Pattern  : %s\n", OPDefToText( aafd->Header.OperationalPattern ) );
+    printf( " Operational Pattern  : %ls\n", OPDefToText( aafd->Header.OperationalPattern ) );
 
     printf( "\n\n" );
 }
@@ -28,11 +28,11 @@ void aaf_dump_Identification( AAF_Data *aafd )
 
     printf( " CompanyName          : %s\n", ( aafd->Identification.CompanyName ) ? aafd->Identification.CompanyName : "n/a" );
     printf( " ProductName          : %s\n", ( aafd->Identification.ProductName ) ? aafd->Identification.ProductName : "n/a" );
-    printf( " ProductVersion       : %s\n", ProductVersionToText( aafd->Identification.ProductVersion ) );
+    printf( " ProductVersion       : %ls\n", ProductVersionToText( aafd->Identification.ProductVersion ) );
     printf( " ProductVersionString : %s\n", ( aafd->Identification.ProductVersionString ) ? aafd->Identification.ProductVersionString : "n/a" );
     printf( " ProductID            : %s\n", AUIDToText( aafd->Identification.ProductID ) );
-    printf( " Date                 : %s\n", TimestampToText( aafd->Identification.Date ) );
-    printf( " ToolkitVersion       : %s\n", ProductVersionToText( aafd->Identification.ToolkitVersion ) );
+    printf( " Date                 : %ls\n", TimestampToText( aafd->Identification.Date ) );
+    printf( " ToolkitVersion       : %ls\n", ProductVersionToText( aafd->Identification.ToolkitVersion ) );
     printf( " Platform             : %s\n", ( aafd->Identification.Platform ) ? aafd->Identification.Platform : "n/a" );
     printf( " GenerationAUID       : %s\n", AUIDToText( aafd->Identification.GenerationAUID ) );
 
@@ -52,7 +52,7 @@ void aaf_dump_ObjectProperties( AAF_Data *aafd, aafObject *Obj )
 
 	for ( Prop = Obj->Properties;  Prop != NULL; Prop = Prop->next )
 	{
-		printf( " :.: (0x%04x) %s\n", Prop->pid, PIDToText( aafd, Prop->pid ) );
+		printf( " :.: (0x%04x) %ls\n", Prop->pid, PIDToText( aafd, Prop->pid ) );
 
 		// WARNING : Wont print strong references (set/vector) corectly.
 		dump_hex( Prop->val, Prop->len );
@@ -107,8 +107,8 @@ void aaf_dump_nodeStreamProperties( AAF_Data *aafd, cfbNode *node )
 
 		printf(
 			" #%u Property_Entry_____________________________________________________\n"
-			" _pid        : 0x%04x (%s)\n"
-			" _storedForm : %s\n"
+			" _pid        : 0x%04x (%ls)\n"
+			" _storedForm : %ls\n"
 			" _length     : %u bytes\n",
 			i,
 			Prop->_pid, PIDToText( aafd, Prop->_pid ),
@@ -159,7 +159,7 @@ void aaf_dump_MetaDictionary( AAF_Data *aafd )
             }
             else if ( PDef->meta )
             {
-                printf( "%s::" ANSI_COLOR_YELLOW "%s (0x%04x)\n" ANSI_COLOR_RESET,
+                printf( "%ls::" ANSI_COLOR_YELLOW "%s (0x%04x)\n" ANSI_COLOR_RESET,
                     ClassIDToText( aafd, Class->ID ),
                     PDef->name,
                     PDef->pid );
@@ -192,7 +192,7 @@ void aaf_dump_Classes( AAF_Data *aafd )
         foreachClassInheritance( Class, ConcreteClass )
         {
 
-            printf( "%s%s%s",
+            printf( "%s%ls%s",
                 (Class->meta) ? ANSI_COLOR_YELLOW : "",
                 ClassIDToText( aafd, Class->ID ),
                 (Class->meta) ? ANSI_COLOR_RESET  : "" );
