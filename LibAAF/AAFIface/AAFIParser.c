@@ -734,7 +734,11 @@ static int parse_Locator( AAF_Iface *aafi, aafObject *Locator )
 
 		trace_obj( aafi, Locator, ANSI_COLOR_RED );
 
-		_warning( "Got an AAFClassID_TextLocator : \"%s\"\n", aaf_get_propertyValueText( Locator, PID_TextLocator_Name ) );
+		wchar_t *name = aaf_get_propertyValueWstr( Locator, PID_TextLocator_Name );
+
+		_warning( "Got an AAFClassID_TextLocator : \"%ls\"\n", name );
+
+		free( name );
 
 	}
 	else
@@ -809,11 +813,11 @@ static int retrieve_EssenceData( AAF_Iface *aafi )
 	 *	/Path/To/EssenceData/DataStream
 	 */
 
-	char *StreamName = aaf_get_propertyValueText( EssenceData, PID_EssenceData_Data );
+	wchar_t *StreamName = aaf_get_propertyValueWstr( EssenceData, PID_EssenceData_Data );
 
 	if ( StreamName == NULL )
 	{
-		_error( "Missing EssenceData EssenceData::Data.\n" );
+		_error( "Missing EssenceData::Data.\n" );
 		return -1;
 	}
 
@@ -823,7 +827,7 @@ static int retrieve_EssenceData( AAF_Iface *aafi )
 
 	char *path = aaf_get_ObjectPath( EssenceData );
 
-	snprintf( DataPath, CFB_PATH_NAME_SZ, "/%s/%s", path, StreamName );
+	snprintf( DataPath, CFB_PATH_NAME_SZ, "/%s/%ls", path, StreamName );
 
 	free( StreamName );
 
