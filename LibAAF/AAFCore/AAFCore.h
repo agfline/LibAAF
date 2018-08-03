@@ -799,8 +799,8 @@ void * aaf_get_propertyValue( aafObject *Obj,
  *	             NULL otherwise.
  */
 
-char * aaf_get_propertyValueText( aafObject *Obj,
-                                  aafPID_t   pid );
+// char * aaf_get_propertyValueText( aafObject *Obj,
+//                                   aafPID_t   pid );
 
 
 wchar_t * aaf_get_propertyValueWstr( aafObject *Obj, aafPID_t pid );
