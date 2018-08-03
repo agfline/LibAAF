@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <wchar.h>
 
 #include "LibCFB.h"
 #include "CFBTypes.h"
@@ -10,9 +11,9 @@
 
 
 
-const char * CLSIDToText( cfbCLSID_t *clsid )
+const wchar_t * CLSIDToText( cfbCLSID_t *clsid )
 {
-	static char str[96];
+	static wchar_t str[96];
 
 	if ( clsid == NULL )
 	{
@@ -24,7 +25,7 @@ const char * CLSIDToText( cfbCLSID_t *clsid )
 	else
 	{
 		// snprintf( str, sizeof(str), "0x%08x-0x%04x-0x%04x-0x%02x-0x%02x-0x%02x-0x%02x-0x%02x-0x%02x-0x%02x-0x%02x",
-		snprintf( str, sizeof(str), "{ 0x%08x 0x%04x 0x%04x { 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x } }",
+		swprintf( str, sizeof(str), L"{ 0x%08x 0x%04x 0x%04x { 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x } }",
 			clsid->Data1,
 			clsid->Data2,
 			clsid->Data3,
@@ -79,7 +80,7 @@ void cfb_dump_node( CFB_Data *cfbd, cfbNode *node, int print_stream )
 	{
 		printf( " _sidChild    : 0x%08x\n", node->_sidChild );
 
-		printf( " _clsid       : %s\n", CLSIDToText( &(node->_clsId) ) );
+		printf( " _clsid       : %ls\n", CLSIDToText( &(node->_clsId) ) );
 
 		printf( " _dwUserFlags : 0x%08x (%d)\n", node->_dwUserFlags, node->_dwUserFlags );
 	}
@@ -252,7 +253,7 @@ void cfb_dump_header( CFB_Data *cfbd )
 
 	printf( "_abSig              : 0x%08lx\n", cfbh->_abSig );
 
-	printf( "_clsId              : %s\n", CLSIDToText( &(cfbh->_clsid) ) );
+	printf( "_clsId              : %ls\n", CLSIDToText( &(cfbh->_clsid) ) );
 
 	printf( " version            : %u.%u ( 0x%04x 0x%04x )\n",
 		cfbh->_uMinorVersion, cfbh->_uDllVersion,

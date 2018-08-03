@@ -1835,7 +1835,7 @@ static int parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue )
 	else
 	{
 		trace_obj( aafi, ConstantValue, ANSI_COLOR_RED );
-		printf("ParamDef %ls (%s)\n\n", ParameterToText( aafi->aafd, ParamDef ), AUIDToText( ParamDef ) );
+		printf("ParamDef %ls (%ls)\n\n", ParameterToText( aafi->aafd, ParamDef ), AUIDToText( ParamDef ) );
 		aaf_dump_ObjectProperties( aafi->aafd, ConstantValue );
 	}
 

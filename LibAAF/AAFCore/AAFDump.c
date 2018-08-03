@@ -30,11 +30,11 @@ void aaf_dump_Identification( AAF_Data *aafd )
     printf( " ProductName          : %s\n", ( aafd->Identification.ProductName ) ? aafd->Identification.ProductName : "n/a" );
     printf( " ProductVersion       : %ls\n", ProductVersionToText( aafd->Identification.ProductVersion ) );
     printf( " ProductVersionString : %s\n", ( aafd->Identification.ProductVersionString ) ? aafd->Identification.ProductVersionString : "n/a" );
-    printf( " ProductID            : %s\n", AUIDToText( aafd->Identification.ProductID ) );
+    printf( " ProductID            : %ls\n", AUIDToText( aafd->Identification.ProductID ) );
     printf( " Date                 : %ls\n", TimestampToText( aafd->Identification.Date ) );
     printf( " ToolkitVersion       : %ls\n", ProductVersionToText( aafd->Identification.ToolkitVersion ) );
     printf( " Platform             : %s\n", ( aafd->Identification.Platform ) ? aafd->Identification.Platform : "n/a" );
-    printf( " GenerationAUID       : %s\n", AUIDToText( aafd->Identification.GenerationAUID ) );
+    printf( " GenerationAUID       : %ls\n", AUIDToText( aafd->Identification.GenerationAUID ) );
 
     printf( "\n\n" );
 }

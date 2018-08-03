@@ -8,7 +8,7 @@
 #include "CFBTypes.h"
 
 
-const char * CLSIDToText( cfbCLSID_t *clsid );
+const wchar_t * CLSIDToText( cfbCLSID_t *clsid );
 
 
 void cfb_dump_node( CFB_Data *cfbd, cfbNode *node, int print_stream );
