@@ -83,7 +83,5 @@
 
 size_t utf16toa( char *astr, uint16_t alen, uint16_t *wstr, uint16_t wlen );
 
-// void   printObjectProperties( AAF_Data *aafd, aafObject *Obj );
-
 
 #endif // ! __AAFUtils_h__
