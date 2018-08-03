@@ -456,7 +456,7 @@ typedef struct aafiAudioTrack
 	 *	Track name
 	 */
 
-	char                    *name;
+	wchar_t                 *name;
 
 	/**
 	 *	Holds the Gain to apply on that track, that is the track volume Fader.
@@ -696,7 +696,7 @@ aafiTransition * get_fadein( aafiTimelineItem *audioItem );
 aafiTransition * get_fadeout( aafiTimelineItem *audioItem );
 
 
-aafiAudioTrack * aafi_newAudioTrack( AAF_Iface *aafi, aafObject *MobSlot, uint32_t number );
+aafiAudioTrack * aafi_newAudioTrack( AAF_Iface *aafi );
 void   aafi_freeAudioTracks( aafiAudioTrack **tracks );
 
 

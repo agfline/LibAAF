@@ -390,7 +390,7 @@ int main( int argc, char *argv[] )
 		foreach_audioTrack( audioTrack, aafi )
 		{
 
-			printf( "Track (%u) - %s - edit_rate %i/%i (%02.2f)  -  \"%s\"\n",
+			printf( "Track (%u) - %s - edit_rate %i/%i (%02.2f)  -  \"%ls\"\n",
 					audioTrack->number,
 					(audioTrack->format == AAFI_TRACK_FORMAT_MONO)   ? "MONO"   :
 					(audioTrack->format == AAFI_TRACK_FORMAT_STEREO) ? "STEREO" :
@@ -398,7 +398,7 @@ int main( int argc, char *argv[] )
 					(audioTrack->format == AAFI_TRACK_FORMAT_7_1)    ? "7.1"    : "Unknown",
 					audioTrack->edit_rate->numerator, audioTrack->edit_rate->denominator,
 					rationalToFloat(audioTrack->edit_rate),
-					(audioTrack->name != NULL) ? audioTrack->name : ""
+					(audioTrack->name != NULL) ? audioTrack->name : L""
 			 );
 
 			foreach_audioItem( audioItem, audioTrack )

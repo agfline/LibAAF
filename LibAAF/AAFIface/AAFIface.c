@@ -136,7 +136,7 @@ void aafi_release( AAF_Iface **aafi )
 
 		free( (*aafi)->Audio );
 	}
-	
+
 
 	free( *aafi );
 }
@@ -405,7 +405,7 @@ void aafi_freeTransition( aafiTransition *Transition )
 
 
 
-aafiAudioTrack * aafi_newAudioTrack( AAF_Iface *aafi, aafObject *MobSlot, uint32_t number )
+aafiAudioTrack * aafi_newAudioTrack( AAF_Iface *aafi )
 {
 	aafiAudioTrack *track = calloc( sizeof(aafiAudioTrack), sizeof(unsigned char) );
 
@@ -419,40 +419,6 @@ aafiAudioTrack * aafi_newAudioTrack( AAF_Iface *aafi, aafObject *MobSlot, uint32
 	track->next = NULL;
 
 	track->format = AAFI_TRACK_FORMAT_MONO;
-
-
-	if ( MobSlot != NULL )
-	{
-		/*
-	 	 *	p.11 : In a CompositionMob or MasterMob, PhysicalTrackNumber is the output channel number that the
-		 *	MobSlot should be routed to when played.
-		 */
-
-		uint32_t *track_num = (uint32_t*)aaf_get_propertyValue( MobSlot, PID_MobSlot_PhysicalTrackNumber );
-
-		if ( track_num == NULL )
-		{
-			_warning( "Missing MobSlot::PhysicalTrackNumber.\n" );
-		}
-		else
-		{
-			track->number = *track_num;
-		}
-
-
-		track->name = aaf_get_propertyValueText( MobSlot, PID_MobSlot_SlotName );
-
-
-		track->edit_rate = aaf_get_propertyValue( MobSlot, PID_TimelineMobSlot_EditRate );
-
-		if ( track->edit_rate == NULL )
-		{
-			_error( "%s.\n", strerror( errno ) );
-			return NULL;
-		}
-	}
-	else
-		track->number = number;
 
 
 
