@@ -25,16 +25,28 @@
 
 const char * MobIDToText( aafMobID_t *mobid )
 {
-	/* TODO can we format the output a little bit ? */
-	static char str[2 * sizeof(aafMobID_t)];
+	static char str[127];
 
 	uint32_t i = 0;
     uint32_t offset = 0;
 
 	for ( i = 0; i < sizeof(aafMobID_t); i++ )
     {
-		offset += snprintf( str+offset, (2 * sizeof(aafMobID_t)), "%02x", ((unsigned char*)mobid)[i] );
+		if ( i == 12 )	offset += snprintf( str+offset, (2 * sizeof(aafMobID_t)), " - " );
+		if ( i == 13 )	offset += snprintf( str+offset, (2 * sizeof(aafMobID_t)), " - " );
+		if ( i == 14 )	offset += snprintf( str+offset, (2 * sizeof(aafMobID_t)), " - " );
+		if ( i == 15 )	offset += snprintf( str+offset, (2 * sizeof(aafMobID_t)), " - " );
+
+		offset += snprintf( str+offset, 127, "%02x", ((unsigned char*)mobid)[i] );
+
+		if ( i == 15 )
+		{
+			offset += snprintf( str+offset, 127, " - " );
+			break;
+		}
     }
+
+	offset += snprintf( str+offset, 127, "%s", AUIDToText((aafUID_t*)((unsigned char*)mobid+i) ) );
 
 	return str;
 }
