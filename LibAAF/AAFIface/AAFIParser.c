@@ -140,21 +140,21 @@ static void trace_obj( AAF_Iface *aafi, aafObject *Obj, char *color )
 
 		if ( auidCmp( Obj->Class->ID, &AAFClassID_TimelineMobSlot ) && auidCmp( Obj->Parent->Class->ID, &AAFClassID_CompositionMob ) )
 		{
-			char *name = aaf_get_propertyValueText( Obj, PID_MobSlot_SlotName );
-			snprintf( buf, 1024, "%s (%s) > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), name, tmp );
+			wchar_t *name = aaf_get_propertyValueWstr( Obj, PID_MobSlot_SlotName );
+			snprintf( buf, 1024, "%s (%ls) > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), name, tmp );
 			free( name );
 		}
 		else if ( auidCmp( Obj->Class->ID, &AAFClassID_MasterMob ) || auidCmp( Obj->Class->ID, &AAFClassID_SourceMob ) )
 		{
-			char *name  = aaf_get_propertyValueText( Obj, PID_Mob_Name );
-			snprintf( buf, 1024, "%s (%s) > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), name, tmp );
+			wchar_t *name  = aaf_get_propertyValueWstr( Obj, PID_Mob_Name );
+			snprintf( buf, 1024, "%s (%ls) > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), name, tmp );
 			free( name );
 		}
 		else if ( auidCmp( Obj->Class->ID, &AAFClassID_CompositionMob ) )
 		{
-			char *name = aaf_get_propertyValueText( Obj, PID_Mob_Name );
+			wchar_t *name = aaf_get_propertyValueWstr( Obj, PID_Mob_Name );
 			const char *usage = UsageCodeToText( aaf_get_propertyValue( Obj, PID_Mob_UsageCode ) );
-			snprintf( buf, 1024, "%s (%s : %s) > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), usage, name, tmp );
+			snprintf( buf, 1024, "%s (%s : %ls) > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), usage, name, tmp );
 			free( name );
 		}
 		else if ( auidCmp( Obj->Class->ID, &AAFClassID_OperationGroup ) )
