@@ -83,7 +83,7 @@ AAFCore/AAFDump.o: LibCFB/LibCFB.h common/utils.h
 AAFCore/AAFCore.o: AAFCore/AAFTypes.h LibCFB/LibCFB.h LibCFB/CFBTypes.h
 AAFCore/AAFCore.o: AAFCore/AAFCore.h AAFCore/AAFClass.h AAFCore/AAFUtils.h
 AAFCore/AAFCore.o: AAFCore/AAFToText.h LibCFB/CFBTypes.h LibCFB/CFBDump.h
-AAFCore/AAFCore.o: LibCFB/LibCFB.h common/utils.h
+AAFCore/AAFCore.o: LibCFB/LibCFB.h common/utils.h AAFCore/AAFDump.h
 AAFCore/AAFCore.o: AAFCore/AAFDefs/AAFClassDefUIDs.h AAFCore/AAFTypes.h
 AAFCore/AAFCore.o: AAFCore/AAFDefs/AAFPropertyIDs.h
 AAFCore/AAFCore.o: AAFCore/AAFDefs/AAFFileKinds.h

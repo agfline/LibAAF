@@ -26,14 +26,14 @@ void aaf_dump_Header( AAF_Data *aafd )
 void aaf_dump_Identification( AAF_Data *aafd )
 {
 
-    printf( " CompanyName          : %s\n", ( aafd->Identification.CompanyName ) ? aafd->Identification.CompanyName : "n/a" );
-    printf( " ProductName          : %s\n", ( aafd->Identification.ProductName ) ? aafd->Identification.ProductName : "n/a" );
+    printf( " CompanyName          : %ls\n", ( aafd->Identification.CompanyName ) ? aafd->Identification.CompanyName : L"n/a" );
+    printf( " ProductName          : %ls\n", ( aafd->Identification.ProductName ) ? aafd->Identification.ProductName : L"n/a" );
     printf( " ProductVersion       : %ls\n", ProductVersionToText( aafd->Identification.ProductVersion ) );
-    printf( " ProductVersionString : %s\n", ( aafd->Identification.ProductVersionString ) ? aafd->Identification.ProductVersionString : "n/a" );
+    printf( " ProductVersionString : %ls\n", ( aafd->Identification.ProductVersionString ) ? aafd->Identification.ProductVersionString : L"n/a" );
     printf( " ProductID            : %ls\n", AUIDToText( aafd->Identification.ProductID ) );
     printf( " Date                 : %ls\n", TimestampToText( aafd->Identification.Date ) );
     printf( " ToolkitVersion       : %ls\n", ProductVersionToText( aafd->Identification.ToolkitVersion ) );
-    printf( " Platform             : %s\n", ( aafd->Identification.Platform ) ? aafd->Identification.Platform : "n/a" );
+    printf( " Platform             : %ls\n", ( aafd->Identification.Platform ) ? aafd->Identification.Platform : L"n/a" );
     printf( " GenerationAUID       : %ls\n", AUIDToText( aafd->Identification.GenerationAUID ) );
 
     printf( "\n\n" );
@@ -61,20 +61,13 @@ void aaf_dump_ObjectProperties( AAF_Data *aafd, aafObject *Obj )
 
 
 
-
-void aaf_dump_nodeStreamProperties( AAF_Data *aafd, cfbNode *node )
+void aaf_dump_rawProperties( AAF_Data *aafd, aafPropertyIndexHeader_t *PropHeader )
 {
-    /*
-     *  List the raw properties directly from a CFB Node's stream.
-     */
+    aafPropertyIndexHeader_t *Header = PropHeader;
+    aafPropertyIndexEntry_t  *Prop   = NULL;
+    aafByte_t                *value  = NULL;
 
-	aafPropertyIndexHeader_t *Header = NULL;
-	aafPropertyIndexEntry_t  *Prop   = NULL;
-	aafByte_t                *value  = NULL;
-
-	cfb_getStream( aafd->cfbd, node, (unsigned char**)&Header, NULL );
-
-	uint32_t i = 0;
+    uint32_t i = 0;
 
 
 	printf(
@@ -120,7 +113,69 @@ void aaf_dump_nodeStreamProperties( AAF_Data *aafd, cfbNode *node )
 
 		printf( "\n\n" );
 	}
+}
 
+
+
+
+void aaf_dump_nodeStreamProperties( AAF_Data *aafd, cfbNode *node )
+{
+    /*
+     *  List the raw properties directly from a CFB Node's stream.
+     */
+
+	aafPropertyIndexHeader_t *Header = NULL;
+	// aafPropertyIndexEntry_t  *Prop   = NULL;
+	// aafByte_t                *value  = NULL;
+
+	cfb_getStream( aafd->cfbd, node, (unsigned char**)&Header, NULL );
+
+    aaf_dump_rawProperties( aafd, Header );
+
+/*
+	uint32_t i = 0;
+
+
+	printf(
+		" ## Property_Header____________________________________________________\n\n"
+		" _byteOrder     : 0x%02x\n"
+		" _formatVersion : 0x%02x\n"
+		" _entryCount    : %u\n\n"
+        " ======================================================================\n\n",
+		Header->_byteOrder,
+		Header->_formatVersion,
+		Header->_entryCount
+	);
+
+	printf( "\n\n" );
+    
+
+	// foreachPropertyEntry( Header, Prop, value, i )
+	for ( Prop = (aafPropertyIndexEntry_t*)(((char*)Header) + sizeof(aafPropertyIndexHeader_t)),    \
+	      value = ((unsigned char*)Prop) + (Header->_entryCount * sizeof(aafPropertyIndexEntry_t)), \
+	      i = 0;                                                                                    \
+	      i < Header->_entryCount;                                                                  \
+	      value += Prop->_length,                                                                   \
+	      Prop++,                                                                                   \
+	      i++ )
+	{
+
+		printf(
+			" #%u Property_Entry_____________________________________________________\n"
+			" _pid        : 0x%04x (%ls)\n"
+			" _storedForm : %ls\n"
+			" _length     : %u bytes\n",
+			i,
+			Prop->_pid, PIDToText( aafd, Prop->_pid ),
+			StoredFormToText( Prop->_storedForm ),
+			Prop->_length
+		);
+
+		dump_hex( value, Prop->_length );
+
+		printf( "\n\n" );
+	}
+*/
 
 	free( Header );
 }
@@ -150,7 +205,7 @@ void aaf_dump_MetaDictionary( AAF_Data *aafd )
         {
             if ( Class->meta )
             {
-                printf( ANSI_COLOR_YELLOW "%s::%s (0x%04x)\n" ANSI_COLOR_RESET,
+                printf( ANSI_COLOR_YELLOW "%ls::%ls (0x%04x)\n" ANSI_COLOR_RESET,
                     Class->name,
                     PDef->name,
                     PDef->pid );
@@ -159,7 +214,7 @@ void aaf_dump_MetaDictionary( AAF_Data *aafd )
             }
             else if ( PDef->meta )
             {
-                printf( "%ls::" ANSI_COLOR_YELLOW "%s (0x%04x)\n" ANSI_COLOR_RESET,
+                printf( "%ls::" ANSI_COLOR_YELLOW "%ls (0x%04x)\n" ANSI_COLOR_RESET,
                     ClassIDToText( aafd, Class->ID ),
                     PDef->name,
                     PDef->pid );

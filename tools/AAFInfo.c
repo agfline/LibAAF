@@ -207,7 +207,11 @@ int main( int argc, char *argv[] )
 
 	if ( get_node_str != NULL )
 	{
-		cfbNode *node = cfb_getNodeByPath( aafd->cfbd, get_node_str, 0 );
+		wchar_t wget_node_str[1024];
+
+		swprintf( wget_node_str, 1024, L"%s", get_node_str );
+
+		cfbNode *node = cfb_getNodeByPath( aafd->cfbd, wget_node_str, 0 );
 
 		if ( node == NULL )
 		{
@@ -296,7 +300,7 @@ int main( int argc, char *argv[] )
 
 		for ( Object = aafd->Objects; Object != NULL; Object = Object->nextObj )
 		{
-			printf( "\n\n\n" ANSI_COLOR_MAGENTA " Object" ANSI_COLOR_RESET " @ %s\n", aaf_get_ObjectPath( Object ) );
+			printf( "\n\n\n" ANSI_COLOR_MAGENTA " Object" ANSI_COLOR_RESET " @ %ls\n", aaf_get_ObjectPath( Object ) );
 
 			aaf_dump_ObjectProperties( aafd, Object );
 		}

@@ -24,6 +24,7 @@
 
 wchar_t * eascii_to_ascii( wchar_t *str );
 
+
 wchar_t * w16tow32( wchar_t *w32buf, uint16_t *w16buf, size_t w16len );
 
 void dump_hex( const unsigned char * stream, size_t stream_sz );

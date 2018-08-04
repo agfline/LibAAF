@@ -100,12 +100,13 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <math.h>	// ceil()
+#include <wchar.h>
 
 #include "LibCFB.h"
 #include "CFBTypes.h"
 #include "CFBDump.h"
 #include "../common/debug.h"
-
+#include "../common/utils.h"
 
 
 
@@ -1235,7 +1236,7 @@ static int cfb_retrieveNodes( CFB_Data *cfbd )
  *	                 NULL on failure.
  */
 
-cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const char *path, cfbSID_t id )
+cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const wchar_t *path, cfbSID_t id )
 {
 
 	/*
@@ -1244,14 +1245,14 @@ cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const char *path, cfbSID_t id )
 
 	if ( id == 0 )
 	{
-		if ( path[0] == '/' && path[1] == 0x00 )
+		if ( path[0] == '/' && path[1] == 0x0000 )
 			return cfbd->nodes[0];
 
 		/*
 		 *	work either with or without "/Root Entry"
 		 */
 
-		if ( strncmp( path, "/Root Entry", 11 ) != 0 )
+		if ( wcsncmp( path, L"/Root Entry", 11 ) != 0 )
 			id = cfbd->nodes[0]->_sidChild;
 	}
 
@@ -1263,7 +1264,7 @@ cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const char *path, cfbSID_t id )
 	 *	retrieves the first node's name from path
 	 */
 
-	for( l = 0; l < strlen(path); l++ )
+	for( l = 0; l < wcslen(path); l++ )
 		if ( l > 0 && path[l] == '/' )
 			break;
 
@@ -1287,15 +1288,20 @@ cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const char *path, cfbSID_t id )
 			return NULL;
 		}
 
+		// dump_hex( cfbd->nodes[id]->_ab, cfbd->nodes[id]->_cb );
 
-		char   *ab = cfb_utf16toa( cfbd->nodes[id]->_ab, cfbd->nodes[id]->_cb );
+		// char   *ab = cfb_utf16toa( cfbd->nodes[id]->_ab, cfbd->nodes[id]->_cb );
+
+		wchar_t *ab = malloc(cfbd->nodes[id]->_cb << 1);
+
+		w16tow32( ab, cfbd->nodes[id]->_ab, cfbd->nodes[id]->_cb );
 
 		int32_t rc = 0;
 
-		if ( strlen(ab) == l )
-			rc = strncmp( path, ab, l );
+		if ( wcslen(ab) == l )
+			rc = wcsncmp( path, ab, l );
 		else
-			rc = l - strlen(ab);
+			rc = l - wcslen(ab);
 
 		free( ab );
 
@@ -1311,7 +1317,7 @@ cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const char *path, cfbSID_t id )
 			 *	get full path length minus any terminating '/'
 			 */
 
-			uint32_t pathLen = strlen(path);
+			uint32_t pathLen = wcslen(path);
 
 			if ( path[pathLen-1] == '/' )
 				pathLen--;
@@ -1354,7 +1360,7 @@ cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const char *path, cfbSID_t id )
  *	                 NULL if not found.
  */
 
-cfbNode * cfb_getChildNode( CFB_Data *cfbd, const char *name, cfbNode *startNode )
+cfbNode * cfb_getChildNode( CFB_Data *cfbd, const wchar_t *name, cfbNode *startNode )
 {
 
 	int32_t   rc = 0;
@@ -1362,11 +1368,12 @@ cfbNode * cfb_getChildNode( CFB_Data *cfbd, const char *name, cfbNode *startNode
 	/** @TODO : cfb_getIDByNode should be quiker (macro ?) */
 	cfbSID_t  id = cfb_getIDByNode( cfbd, cfbd->nodes[startNode->_sidChild] );
 
-	uint32_t  nameLen   = strlen( name );
+	uint32_t  nameUTF16Len = ((wcslen( name )+1) << 1);
 
-	uint16_t *utf16name = cfb_atoutf16( name, nameLen );
-	uint16_t  utf16len  = ((nameLen + 1) << 1);  /* includes NULL Unicode */
+	// uint16_t *utf16name = cfb_atoutf16( name, nameLen );
+	// uint16_t  utf16len  = ((nameLen + 1) << 1);  /* includes NULL Unicode */
 
+	wchar_t nodename[CFB_NODE_NAME_SZ];
 
 	while ( 1 )
 	{
@@ -1377,10 +1384,13 @@ cfbNode * cfb_getChildNode( CFB_Data *cfbd, const char *name, cfbNode *startNode
 		}
 
 
-		if ( cfbd->nodes[id]->_cb == utf16len )
-			rc = memcmp( utf16name, cfbd->nodes[id]->_ab, cfbd->nodes[id]->_cb );
+		w16tow32( nodename, cfbd->nodes[id]->_ab, cfbd->nodes[id]->_cb );
+
+
+		if ( cfbd->nodes[id]->_cb == nameUTF16Len )
+			rc = memcmp( name, nodename, ((cfbd->nodes[id]->_cb >> 1) * sizeof(wchar_t)) );
 		else
-			rc = utf16len - cfbd->nodes[id]->_cb;
+			rc = nameUTF16Len - cfbd->nodes[id]->_cb;
 
 
 		/*
@@ -1415,10 +1425,11 @@ cfbNode * cfb_getChildNode( CFB_Data *cfbd, const char *name, cfbNode *startNode
 
 	}
 
-	free( utf16name );
 
 	if ( rc == 0 )
+	{
 		return cfbd->nodes[id];
+	}
 
 	return NULL;
 }

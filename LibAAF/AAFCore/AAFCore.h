@@ -133,7 +133,7 @@ typedef struct aafPropertyDefinition
 
 	aafBoolean_t  meta;
 
-	char *name; // only when Meta PropEntry
+	wchar_t      *name; // only when Meta PropEntry. TODO realy ?
 
 
 	/**
@@ -215,10 +215,10 @@ typedef struct aafclass
 	struct aafclass  *Parent;
 
 
-	aafBoolean_t meta;
+	aafBoolean_t      meta;
 
 
-	char *name; // this is sets at runtime
+	wchar_t          *name; // this is set at runtime
 
 
 	/**
@@ -328,7 +328,8 @@ typedef struct aafObject
 	 *	converted to ascii, thanks to the utf16toa() function.
 	 */
 
-	char          Name[CFB_NODE_NAME_SZ];
+	wchar_t       Name[CFB_NODE_NAME_SZ];
+	// wchar_t      *Name;
 
 
 	/**
@@ -458,14 +459,14 @@ typedef struct _aafData
 
 		aafObject            *obj;
 
-		char                 *CompanyName;
-		char                 *ProductName;
+		wchar_t              *CompanyName;
+		wchar_t              *ProductName;
 		aafProductVersion_t  *ProductVersion;
-		char                 *ProductVersionString;
+		wchar_t              *ProductVersionString;
 		aafUID_t             *ProductID;
 		aafTimeStamp_t       *Date;
 		aafProductVersion_t  *ToolkitVersion;
-		char                 *Platform;
+		wchar_t              *Platform;
 		aafUID_t             *GenerationAUID;
 
 	} Identification;
@@ -677,7 +678,7 @@ void aaf_release( AAF_Data **aafd );
  *	@return      Pointer to a null-terminated string holding the Object's path.
  */
 
-char * aaf_get_ObjectPath( aafObject *Obj );
+wchar_t * aaf_get_ObjectPath( aafObject *Obj );
 
 
 /**
@@ -768,8 +769,8 @@ aafProperty * aaf_get_property( aafObject *Obj,
  *	             0 otherwise.
  */
 
-aafPID_t aaf_get_PropertyIDByName( AAF_Data   *aafd,
-                                   const char *name );
+aafPID_t aaf_get_PropertyIDByName( AAF_Data      *aafd,
+                                   const wchar_t *name );
 
 
 /**
@@ -822,7 +823,8 @@ void * aaf_get_propertyIndirectValue( aafObject *Obj,
 
 
 
-char * aaf_get_propertyIndirectValueText( aafObject *Obj, aafPID_t pid );
+
+wchar_t * aaf_get_propertyIndirectValueWstr( aafObject *Obj, aafPID_t pid );
 
 
 /**

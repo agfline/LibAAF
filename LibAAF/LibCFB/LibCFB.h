@@ -44,6 +44,7 @@
 
 #include <stdint.h>
 #include <linux/limits.h>	// PATH_MAX
+#include <wchar.h>
 
 #include "CFBTypes.h"
 // #include "CFBDump.h"
@@ -849,9 +850,9 @@ int cfb__foreachSectorInStream( CFB_Data *cfbd, cfbNode *node, unsigned char **b
  *	@{
  */
 
-cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const char *name, cfbSID_t id );
+cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const wchar_t *name, cfbSID_t id );
 
-cfbNode * cfb_getChildNode( CFB_Data *cfbd, const char *name, cfbNode *startNode );
+cfbNode * cfb_getChildNode( CFB_Data *cfbd, const wchar_t *name, cfbNode *startNode );
 
 //cfbSID_t cfb_getIDByNode( CFB_Data *cfbd, cfbNode *node );
 

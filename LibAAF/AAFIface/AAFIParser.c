@@ -813,6 +813,18 @@ static int retrieve_EssenceData( AAF_Iface *aafi )
 	 *	/Path/To/EssenceData/DataStream
 	 */
 
+	// aafProperty *PropStreamName = aaf_get_property( EssenceData, PID_EssenceData_Data );
+    //
+	// if ( PropStreamName == NULL )
+	// {
+	// 	_error( "Missing EssenceData::Data.\n" );
+	// 	return -1;
+	// }
+    //
+	// wchar_t StreamName[CFB_NODE_NAME_SZ];
+    //
+	// w16tow32( StreamName, (uint16_t*)(((unsigned char*)PropStreamName->val)+1), PropStreamName->len-1 );
+
 	wchar_t *StreamName = aaf_get_propertyValueWstr( EssenceData, PID_EssenceData_Data );
 
 	if ( StreamName == NULL )
@@ -823,11 +835,11 @@ static int retrieve_EssenceData( AAF_Iface *aafi )
 
 
 
-	char DataPath[CFB_PATH_NAME_SZ];
+	wchar_t DataPath[CFB_PATH_NAME_SZ];
 
-	char *path = aaf_get_ObjectPath( EssenceData );
+	wchar_t *path = aaf_get_ObjectPath( EssenceData );
 
-	snprintf( DataPath, CFB_PATH_NAME_SZ, "/%s/%ls", path, StreamName );
+	swprintf( DataPath, CFB_PATH_NAME_SZ, L"%ls/%ls", path, StreamName );
 
 	free( StreamName );
 
@@ -837,7 +849,7 @@ static int retrieve_EssenceData( AAF_Iface *aafi )
 
 	if ( DataNode == NULL )
 	{
-		_error( "Could not retrieve Data stream node.\n" );
+		_error( "Could not retrieve Data stream node %ls.\n", DataPath );
 		return -1;
 	}
 
@@ -1834,6 +1846,8 @@ static int parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue )
 	}
 	else
 	{
+		/* TODO on pt-ja.aaf -> might be pan or else ??? */
+		
 		trace_obj( aafi, ConstantValue, ANSI_COLOR_RED );
 		printf("ParamDef %ls (%ls)\n\n", ParameterToText( aafi->aafd, ParamDef ), AUIDToText( ParamDef ) );
 		aaf_dump_ObjectProperties( aafi->aafd, ConstantValue );
@@ -2063,7 +2077,7 @@ static int parse_Mob( AAF_Iface *aafi, aafObject *Mob )
 				_warning( "Missing UserComment TaggedValue::Name.\n" );
 
 
-			wchar_t *text = aaf_get_propertyValueWstr( UserComment, PID_TaggedValue_Value );
+			wchar_t *text = aaf_get_propertyIndirectValueWstr( UserComment, PID_TaggedValue_Value );
 
 			if ( text == NULL )
 				_warning( "Missing UserComment TaggedValue::Value.\n" );

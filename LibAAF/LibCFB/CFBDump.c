@@ -123,13 +123,13 @@ void cfb_dump_node( CFB_Data *cfbd, cfbNode *node, int print_stream )
 
 
 
-void cfb_dump_nodePath( CFB_Data *cfbd, const char *path, int print_stream )
+void cfb_dump_nodePath( CFB_Data *cfbd, const wchar_t *path, int print_stream )
 {
     cfbNode *node = cfb_getNodeByPath( cfbd, path, 0 );
 
     if ( node == NULL )
     {
-        fprintf( stderr, "cfb_dump_nodePath() : Could not find node at \"%s\"\n", path );
+        fprintf( stderr, "cfb_dump_nodePath() : Could not find node at \"%ls\"\n", path );
         return;
     }
 
@@ -157,13 +157,13 @@ void cfb_dump_nodeStream( CFB_Data *cfbd, cfbNode *node )
 
 
 
-void cfb_dump_nodePathStream( CFB_Data *cfbd, const char *path )
+void cfb_dump_nodePathStream( CFB_Data *cfbd, const wchar_t *path )
 {
     cfbNode *node = cfb_getNodeByPath( cfbd, path, 0 );
 
     if ( node == NULL )
     {
-        fprintf( stderr, "cfb_dump_nodePathStream() : Could not find node at \"%s\"\n", path );
+        fprintf( stderr, "cfb_dump_nodePathStream() : Could not find node at \"%ls\"\n", path );
         return;
     }
 

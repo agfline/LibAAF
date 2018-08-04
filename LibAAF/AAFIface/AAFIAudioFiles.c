@@ -451,12 +451,12 @@ int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence,
     {
         /* Non-AAF standard, but makes sense */
 
-    	snprintf( bext.description, sizeof(bext .description), "%s %s %s",
+    	snprintf( bext.description, sizeof(bext .description), "%ls %ls %ls",
             aafi->aafd->Identification.CompanyName,
             aafi->aafd->Identification.ProductName,
             aafi->aafd->Identification.ProductVersionString );
-    	snprintf( bext.originator, sizeof(bext.originator), "%s", aafi->aafd->Identification.CompanyName );
-    	snprintf( bext.originator_reference, sizeof(bext.originator_reference), "%s", aafi->aafd->Identification.ProductName );
+    	snprintf( bext.originator, sizeof(bext.originator), "%ls", aafi->aafd->Identification.CompanyName );
+    	snprintf( bext.originator_reference, sizeof(bext.originator_reference), "%ls", aafi->aafd->Identification.ProductName );
 
 
         /* AAF Standard */
