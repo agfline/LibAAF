@@ -1292,9 +1292,13 @@ cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const wchar_t *path, cfbSID_t id )
 
 		// char   *ab = cfb_utf16toa( cfbd->nodes[id]->_ab, cfbd->nodes[id]->_cb );
 
-		wchar_t *ab = malloc(cfbd->nodes[id]->_cb << 1);
+		wchar_t *ab = malloc((cfbd->nodes[id]->_cb >> 1) * sizeof(wchar_t));
 
+#ifdef _WIN32
+		memcpy( ab, cfbd->nodes[id]->_ab, cfbd->nodes[id]->_cb );
+#else
 		w16tow32( ab, cfbd->nodes[id]->_ab, cfbd->nodes[id]->_cb );
+#endif
 
 		int32_t rc = 0;
 
@@ -1383,9 +1387,11 @@ cfbNode * cfb_getChildNode( CFB_Data *cfbd, const wchar_t *name, cfbNode *startN
 			return NULL;
 		}
 
-
+#ifdef _WIN32
+		memcpy( nodename, cfbd->nodes[id]->_ab, cfbd->nodes[id]->_cb );
+#else
 		w16tow32( nodename, cfbd->nodes[id]->_ab, cfbd->nodes[id]->_cb );
-
+#endif
 
 		if ( cfbd->nodes[id]->_cb == nameUTF16Len )
 			rc = memcmp( name, nodename, ((cfbd->nodes[id]->_cb >> 1) * sizeof(wchar_t)) );

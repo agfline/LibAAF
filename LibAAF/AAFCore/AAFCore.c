@@ -898,9 +898,15 @@ wchar_t * aaf_get_propertyValueWstr( aafObject *Obj, aafPID_t pid )
 	 *  TODO What is that leading byte doing here ???? -> 0x55 (U)
 	 */
 
+#ifdef _WIN32
+	memcpy( string,
+		( Prop->len % 2 ) ? Prop->val+1 : Prop->val,
+		( Prop->len % 2 ) ? Prop->len-1 : Prop->len );
+#else
 	w16tow32( string,
 		( Prop->len % 2 ) ? Prop->val+1 : Prop->val,
 		( Prop->len % 2 ) ? Prop->len-1 : Prop->len );
+#endif
 
 	// w16tow32( string, Prop->val, Prop->len );
 
@@ -950,7 +956,11 @@ wchar_t * aaf_get_propertyIndirectValueWstr( aafObject *Obj, aafPID_t pid )
 	// utf16toa( string, ((Prop->len - sizeof(aafIndirect_t)) >> 1) + 1, (uint16_t*)Indirect->Value, (Prop->len - sizeof(aafIndirect_t)) );
 	// utf16toa(char *astr, uint16_t alen, uint16_t *wstr, uint16_t wlen)
 
-	w16tow32( string, Indirect->Value, (Prop->len - sizeof(aafIndirect_t)) );
+#ifdef _WIN32
+	memcpy( string, Indirect->Value, (Prop->len - sizeof(aafIndirect_t)) );
+#else
+	w16tow32( string, (uint16_t*)Indirect->Value, (Prop->len - sizeof(aafIndirect_t)) );
+#endif
 
 	return string;
 }
@@ -1012,7 +1022,11 @@ static aafObject * newObject( AAF_Data *aafd, cfbNode *Node, aafClass *Class, aa
 
 	// utf16toa( Obj->Name, CFB_NODE_NAME_SZ, Node->_ab, Node->_cb );
 
+#ifdef _WIN32
+	memcpy( Obj->Name, Node->_ab, Node->_cb );
+#else
 	w16tow32( Obj->Name, Node->_ab, Node->_cb );
+#endif
 
 	Obj->Class      = Class;
 	Obj->Node       = Node;
@@ -1660,7 +1674,12 @@ static int retrieveStrongReference( AAF_Data *aafd, aafProperty *Prop, aafObject
 	wchar_t name[CFB_NODE_NAME_SZ];
 
 	// utf16toa( name, CFB_NODE_NAME_SZ, Prop->val, Prop->len );
+
+#ifdef _WIN32
+	memcpy( name, Prop->val, Prop->len );
+#else
 	w16tow32( name, Prop->val, Prop->len );
+#endif
 
 	free( Prop->val );
 	Prop->val = NULL;
@@ -1709,7 +1728,12 @@ static int retrieveStrongReferenceSet( AAF_Data *aafd, aafProperty *Prop, aafObj
 	wchar_t refName[CFB_NODE_NAME_SZ];
 
 	// utf16toa( refName, CFB_NODE_NAME_SZ, Prop->val, Prop->len );
+
+#ifdef _WIN32
+	memcpy( refName, Prop->val, Prop->len );
+#else
 	w16tow32( refName, Prop->val, Prop->len );
+#endif
 
 	free( Prop->val );
 	Prop->val = NULL;
@@ -1794,7 +1818,12 @@ static int retrieveStrongReferenceVector( AAF_Data *aafd, aafProperty *Prop, aaf
 	wchar_t refName[CFB_NODE_NAME_SZ];
 
 	// utf16toa( refName, CFB_NODE_NAME_SZ, Prop->val, Prop->len );
+
+#ifdef _WIN32
+	memcpy( refName, Prop->val, Prop->len );
+#else
 	w16tow32( refName, Prop->val, Prop->len );
+#endif
 
 	free( Prop->val );
 	Prop->val = NULL;
@@ -2103,7 +2132,12 @@ static aafStrongRefSetHeader_t * getStrongRefSetList( CFB_Data *cfbd, cfbNode *N
 		wchar_t refName[CFB_NODE_NAME_SZ];
 
 		// utf16toa( refName, CFB_NODE_NAME_SZ, Node->_ab, Node->_cb );
+
+#ifdef _WIN32
+		memcpy( refName, Node->_ab, Node->_cb );
+#else
 		w16tow32( refName, Node->_ab, Node->_cb );
+#endif
 
 		_error( "Could not retrieve StrongReferenceSet Index Stream @ \"%ls/%ls index\".\n", aaf_get_ObjectPath( Parent ), refName );
 
