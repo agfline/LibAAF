@@ -267,6 +267,42 @@ aafiTimelineItem * aafi_newTimelineItem( aafiAudioTrack *track, int itemType )
 
 
 
+
+void aafi_freeTimelineItem( aafiTimelineItem **item )
+{
+
+	if ( (*item)->type == AAFI_TRANS )
+	{
+		aafi_freeTransition( (aafiTransition*)&((*item)->data) );
+	}
+	else if ( (*item)->type == AAFI_CLIP )
+	{
+		aafiAudioClip *audioClip = (aafiAudioClip*)(*item)->data;
+
+		if ( audioClip->gain != NULL )
+		{
+			if ( audioClip->gain->time != NULL )
+			{
+				free( audioClip->gain->time );
+			}
+
+			if ( audioClip->gain->value != NULL )
+			{
+				free( audioClip->gain->value );
+			}
+
+			free( audioClip->gain );
+		}
+	}
+
+	free( *item );
+
+	*item = NULL;
+}
+
+
+
+
 void aafi_freeTimelineItems( aafiTimelineItem **items )
 {
 	aafiTimelineItem *item = NULL;
@@ -276,31 +312,7 @@ void aafi_freeTimelineItems( aafiTimelineItem **items )
 	{
 		nextItem = item->next;
 
-		if ( item->type == AAFI_TRANS )
-		{
-			aafi_freeTransition( (aafiTransition*)&(item->data) );
-		}
-		else if ( item->type == AAFI_CLIP )
-		{
-			aafiAudioClip *audioClip = (aafiAudioClip*)item->data;
-
-			if ( audioClip->gain != NULL )
-			{
-				if ( audioClip->gain->time != NULL )
-				{
-					free( audioClip->gain->time );
-				}
-
-				if ( audioClip->gain->value != NULL )
-				{
-					free( audioClip->gain->value );
-				}
-
-				free( audioClip->gain );
-			}
-		}
-
-		free( item );
+		aafi_freeTimelineItem( &item );
 	}
 
 	*items = NULL;
