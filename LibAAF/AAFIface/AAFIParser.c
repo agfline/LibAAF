@@ -1044,26 +1044,26 @@ static int parse_Segment( AAF_Iface *aafi, aafObject *Segment )
 		if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_CompositionMob ) )
 		{
 
-			if ( auidCmp( Segment->Parent->Class->ID, &AAFClassID_TimelineMobSlot ) )
-			{
-
-				// AAFClassID_TimelineMobSlot > AAFClassID_OperationGroup
-				trace_obj( aafi, Segment, ANSI_COLOR_RED );
-
-			}
-			else if ( auidCmp( Segment->Parent->Class->ID, &AAFClassID_Sequence ) ||
-		              auidCmp( Segment->Parent->Class->ID, &AAFClassID_OperationGroup ) )
-			{
+			// if ( auidCmp( Segment->Parent->Class->ID, &AAFClassID_TimelineMobSlot ) )
+			// {
+            //
+			// 	// AAFClassID_TimelineMobSlot > AAFClassID_OperationGroup
+			// 	trace_obj( aafi, Segment, ANSI_COLOR_RED );
+            //
+			// }
+			// else if ( auidCmp( Segment->Parent->Class->ID, &AAFClassID_Sequence ) ||
+		    //           auidCmp( Segment->Parent->Class->ID, &AAFClassID_OperationGroup ) )
+			// {
 
 				parse_OperationGroup( aafi, Segment );
 
-			}
-			else
-			{
-
-				trace_obj( aafi, Segment, ANSI_COLOR_RED );
-
-			}
+			// }
+			// else
+			// {
+            //
+			// 	trace_obj( aafi, Segment, ANSI_COLOR_RED );
+            //
+			// }
 
 		}
 		else if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_MasterMob ) )
@@ -1250,6 +1250,7 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 
 	aafUID_t *OperationIdentification = get_OperationGroup_OperationIdentification( aafi, OpGroup );
 
+	// aaf_dump_ObjectProperties( aafi->aafd, OpGroup );
 
 	if ( auidCmp( OpGroup->Parent->Class->ID, &AAFClassID_Transition ) )
 	{
@@ -1820,12 +1821,7 @@ static int parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue )
 
 		trace_obj( aafi, ConstantValue, ANSI_COLOR_MAGENTA );
 
-
-		if ( aafi->ctx.current_gain == NULL )
-		     aafi->ctx.current_gain = calloc( sizeof(aafiAudioGain), sizeof(unsigned char) );
-
-
-		aafiAudioGain *Gain = aafi->ctx.current_gain;
+		aafiAudioGain *Gain = calloc( sizeof(aafiAudioGain), sizeof(unsigned char) );;
 
 
 		aafRational_t *multiplier = aaf_get_propertyIndirectValue( ConstantValue, PID_ConstantValue_Value );
@@ -1845,6 +1841,27 @@ static int parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue )
 		Gain->flags   |= AAFI_AUDIO_GAIN_CONSTANT;
 
 		// aaf_dump_ObjectProperties( aafi->aafd, ConstantValue );
+
+		/* Track-based Gain */
+		if ( auidCmp( ConstantValue->Parent->Parent->Parent->Class->ID, &AAFClassID_TimelineMobSlot ) )
+		{
+			if ( aafi->ctx.current_track->gain != NULL )
+			{	/* NOTE This should not happen */
+				free( aafi->ctx.current_track->gain );
+			}
+
+			aafi->ctx.current_track->gain = Gain;
+		}
+		/* Clip-based Gain */
+		else
+		{
+			if ( aafi->ctx.current_gain != NULL )
+			{	/* NOTE This should not happen */
+				free( aafi->ctx.current_gain );
+			}
+
+			aafi->ctx.current_gain = Gain;
+		}
 
 	}
 	else
@@ -1905,6 +1922,8 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue )
 
 
 
+	// printf( "::: %ls\n", ClassIDToText( aafi->aafd, VaryingValue->Parent->Parent->Parent->Class->ID ) );
+
 	if ( auidCmp( VaryingValue->Parent->Parent->Class->ID, &AAFClassID_Transition ) )
 	{
 
@@ -1953,7 +1972,7 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue )
 		if ( aafi->ctx.current_gain == NULL )
 			 aafi->ctx.current_gain = calloc( sizeof(aafiAudioGain), sizeof(unsigned char) );
 
-		aafiAudioGain *Gain = aafi->ctx.current_gain;
+		aafiAudioGain *Gain = calloc( sizeof(aafiAudioGain), sizeof(unsigned char) );
 
 		Gain->flags |= AAFI_AUDIO_GAIN_VARIABLE;
 		Gain->flags |= interpolation;
@@ -1966,6 +1985,27 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue )
 		// {
 		// 	printf("time_%i : %i/%i   value_%i : %i/%i\n", i, Gain->time[i].numerator, Gain->time[i].denominator, i, Gain->value[i].numerator, Gain->value[i].denominator  );
 		// }
+
+		/* Track-based Gain */
+		if ( auidCmp( VaryingValue->Parent->Parent->Parent->Class->ID, &AAFClassID_TimelineMobSlot ) )
+		{
+			if ( aafi->ctx.current_track->gain != NULL )
+			{	/* NOTE This should not happen */
+				free( aafi->ctx.current_track->gain );
+			}
+
+			aafi->ctx.current_track->gain = Gain;
+		}
+		/* Clip-based Gain */
+		else
+		{
+			if ( aafi->ctx.current_gain != NULL )
+			{	/* NOTE This should not happen */
+				free( aafi->ctx.current_gain );
+			}
+
+			aafi->ctx.current_gain = Gain;
+		}
 	}
 
 	return 0;

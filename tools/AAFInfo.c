@@ -15,19 +15,21 @@
 
 
 
-char * gainToStr( char *str, aafiAudioClip *aClip )
+static char * gainToStr( aafiAudioGain *gain )
 {
+	static char str[16];
+
 	memset( str, 0x00, 16 );
 
-	if ( aClip->gain == NULL )
+	if ( gain == NULL )
 		snprintf( str, 16, " n/a    " );
 
-	else if ( aClip->gain->flags & AAFI_AUDIO_GAIN_CONSTANT )
+	else if ( gain->flags & AAFI_AUDIO_GAIN_CONSTANT )
 		snprintf( str, 16, "%+05.1lf dB",
-				 20 * log10( (( aClip->gain->value[0].denominator == 0 ) ? 0 : ((float)aClip->gain->value[0].numerator/aClip->gain->value[0].denominator)) ) );
+				 20 * log10( (( gain->value[0].denominator == 0 ) ? 0 : ((float)gain->value[0].numerator/gain->value[0].denominator)) ) );
 			  // 20 * log10( rationalToFloat( &(aClip->gain->value[0]) ) ) );
 
-	else if ( aClip->gain->flags & AAFI_AUDIO_GAIN_VARIABLE )
+	else if ( gain->flags & AAFI_AUDIO_GAIN_VARIABLE )
 		snprintf( str, 16, " automation " );
 
 	return str;
@@ -394,16 +396,45 @@ int main( int argc, char *argv[] )
 		foreach_audioTrack( audioTrack, aafi )
 		{
 
-			printf( "Track (%u) - %s - edit_rate %i/%i (%02.2f)  -  \"%ls\"\n",
+			printf( "Track (%u) - %s - Gain %s - edit_rate %i/%i (%02.2f)  -  \"%ls\"\n",
 					audioTrack->number,
 					(audioTrack->format == AAFI_TRACK_FORMAT_MONO)   ? "MONO"   :
 					(audioTrack->format == AAFI_TRACK_FORMAT_STEREO) ? "STEREO" :
 					(audioTrack->format == AAFI_TRACK_FORMAT_5_1)    ? "5.1"    :
 					(audioTrack->format == AAFI_TRACK_FORMAT_7_1)    ? "7.1"    : "Unknown",
+					gainToStr( audioTrack->gain ),
 					audioTrack->edit_rate->numerator, audioTrack->edit_rate->denominator,
 					rationalToFloat(audioTrack->edit_rate),
 					(audioTrack->name != NULL) ? audioTrack->name : L""
 			 );
+
+			 // if ( audioTrack->gain != NULL )
+			 // {
+				//  // int  i = 0;
+				//  for( i = 0; i < audioTrack->gain->pts_cnt; i++ )
+				//  {
+				// 	// printf( "   PT:  _t: %i/%i   _v: %i/%i\n",
+				// 	// 	audioTrack->gain->time[i].numerator,
+				// 	// 	audioTrack->gain->time[i].denominator,
+				// 	// 	audioTrack->gain->value[i].numerator,
+				// 	// 	audioTrack->gain->value[i].denominator
+				// 	// );
+             //
+				// 	// aafRational_t *time  = &(audioTrack->gain->time[i]);
+				// 	// aafRational_t *value = &(audioTrack->gain->value[i]);
+				// 	// printf( "   PT:  _t: %.06f   _v: %.06f\n",
+				// 	// 	rationalToFloat( time  ),
+				// 	// 	rationalToFloat( value )
+				// 	// );
+             //
+				// 	printf("   PT:  _t: %i/%i   Gain: %.01f dB\n",
+				// 		audioTrack->gain->time[i].numerator,
+				// 		audioTrack->gain->time[i].denominator,
+				// 		20 * log10( (( audioTrack->gain->value[0].denominator == 0 ) ? 0 : ((float)audioTrack->gain->value[0].numerator/audioTrack->gain->value[0].denominator)) ) );
+             //
+             //
+				//  }
+			 // }
 
 			foreach_audioItem( audioItem, audioTrack )
 			{
@@ -476,8 +507,6 @@ int main( int argc, char *argv[] )
 				aafiTransition *fadein  = get_fadein( audioItem );
 				aafiTransition *fadeout = get_fadeout( audioItem );
 
-				char str[16];
-
 				struct timecode tc_in;
 				struct timecode tc_out;
 				struct timecode tc_len;
@@ -498,7 +527,7 @@ int main( int argc, char *argv[] )
 						" Fadein: %s  Fadeout: %s  SourceFile: %ls   (%ls)\n",
 					i, ( i < 10 ) ? " " : "",
 					audioClip->track->number,
-					gainToStr( str, audioClip ),
+					gainToStr( audioClip->gain ),
 					tc_in.string,
 					tc_len.string,
 					tc_out.string,
