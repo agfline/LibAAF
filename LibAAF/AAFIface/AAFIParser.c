@@ -188,7 +188,7 @@ static wchar_t * build_unique_filename( AAF_Iface *aafi, aafiAudioEssence *audio
 
 	// printf("%i\n", file_name_len );
 
-	memcpy( unique, audioEssence->file_name, file_name_len * sizeof(wchar_t) );
+	memcpy( unique, audioEssence->file_name, (file_name_len + 1) * sizeof(wchar_t) );
 
 	// printf("%ls\n", unique );
 
