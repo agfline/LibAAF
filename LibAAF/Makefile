@@ -119,6 +119,23 @@ AAFIface/AAFIAudioFiles.o: AAFCore/AAFDefs/AAFParameterDefs.h
 AAFIface/AAFIAudioFiles.o: AAFCore/AAFDefs/AAFInterpolatorDefs.h
 AAFIface/AAFIAudioFiles.o: AAFCore/AAFDefs/AAFContainerDefs.h
 AAFIface/AAFIAudioFiles.o: LibCFB/CFBDump.h AAFCore/AAFDump.h common/debug.h
+AAFIface/ProTools.o: libAAF.h AAFCore/AAFClass.h AAFCore/AAFTypes.h
+AAFIface/ProTools.o: LibCFB/LibCFB.h LibCFB/CFBTypes.h AAFCore/AAFCore.h
+AAFIface/ProTools.o: AAFCore/AAFCore.h AAFCore/AAFUtils.h AAFCore/AAFToText.h
+AAFIface/ProTools.o: AAFCore/AAFClass.h LibCFB/CFBTypes.h LibCFB/CFBDump.h
+AAFIface/ProTools.o: LibCFB/LibCFB.h common/utils.h AAFCore/AAFToText.h
+AAFIface/ProTools.o: AAFIface/AAFIface.h AAFCore/AAFTypes.h
+AAFIface/ProTools.o: AAFCore/AAFClass.h AAFIface/AAFIParser.h
+AAFIface/ProTools.o: AAFIface/AAFIface.h AAFIface/AAFIAudioFiles.h
+AAFIface/ProTools.o: AAFCore/AAFDefs/AAFClassDefUIDs.h AAFCore/AAFTypes.h
+AAFIface/ProTools.o: AAFCore/AAFDefs/AAFTypeDefUIDs.h
+AAFIface/ProTools.o: AAFCore/AAFDefs/AAFPropertyIDs.h
+AAFIface/ProTools.o: AAFCore/AAFDefs/AAFDataDefs.h
+AAFIface/ProTools.o: AAFCore/AAFDefs/AAFOperationDefs.h
+AAFIface/ProTools.o: AAFCore/AAFDefs/AAFParameterDefs.h
+AAFIface/ProTools.o: AAFCore/AAFDefs/AAFInterpolatorDefs.h
+AAFIface/ProTools.o: AAFCore/AAFDefs/AAFContainerDefs.h LibCFB/CFBDump.h
+AAFIface/ProTools.o: AAFCore/AAFDump.h AAFIface/./ProTools.h
 AAFIface/AAFIface.o: libAAF.h AAFCore/AAFClass.h AAFCore/AAFTypes.h
 AAFIface/AAFIface.o: LibCFB/LibCFB.h LibCFB/CFBTypes.h AAFCore/AAFCore.h
 AAFIface/AAFIface.o: AAFCore/AAFCore.h AAFCore/AAFUtils.h AAFCore/AAFToText.h
@@ -153,4 +170,4 @@ AAFIface/AAFIParser.o: AAFCore/AAFDefs/AAFOperationDefs.h
 AAFIface/AAFIParser.o: AAFCore/AAFDefs/AAFParameterDefs.h
 AAFIface/AAFIParser.o: AAFCore/AAFDefs/AAFInterpolatorDefs.h
 AAFIface/AAFIParser.o: AAFCore/AAFDefs/AAFContainerDefs.h LibCFB/CFBDump.h
-AAFIface/AAFIParser.o: AAFCore/AAFDump.h common/debug.h
+AAFIface/AAFIParser.o: AAFCore/AAFDump.h AAFIface/./ProTools.h common/debug.h

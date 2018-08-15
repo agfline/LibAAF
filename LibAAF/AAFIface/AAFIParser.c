@@ -43,6 +43,9 @@
 #include <locale.h>
 
 #include "../libAAF.h"
+
+#include "./ProTools.h"
+
 #include "../common/debug.h"
 #include "../common/utils.h"
 
@@ -1847,7 +1850,7 @@ static int parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue )
 	else
 	{
 		/* TODO on pt-ja.aaf -> might be pan or else ??? */
-		
+
 		trace_obj( aafi, ConstantValue, ANSI_COLOR_RED );
 		printf("ParamDef %ls (%ls)\n\n", ParameterToText( aafi->aafd, ParamDef ), AUIDToText( ParamDef ) );
 		aaf_dump_ObjectProperties( aafi->aafd, ConstantValue );
@@ -2388,10 +2391,6 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot )
 
 
 
-
-
-
-
 int aafi_retrieveData( AAF_Iface *aafi )
 {
 
@@ -2447,7 +2446,7 @@ int aafi_retrieveData( AAF_Iface *aafi )
 
 
 
-	/* Post processing */
+	/* *** Post processing *** */
 
 
 	/* Parse summary descriptor (WAVE/AIFC) if any */
@@ -2460,6 +2459,14 @@ int aafi_retrieveData( AAF_Iface *aafi )
 		{
 			parse_audio_summary( aafi, audioEssence );
 		}
+	}
+
+
+	/* Remove sample accurate edit clips and rebuild true fades out of rendered fade clips */
+
+	if ( wcscmp( aafi->aafd->Identification.ProductName, L"ProTools" ) == 0 )
+	{
+		protools_post_processing( aafi, (PROTOOLS_PP_REMOVE_SAMPLE_ACCURATE_EDIT | PROTOOLS_PP_REPLACE_RENDERED_CLIP_FADES) );
 	}
 
 	return 0;
