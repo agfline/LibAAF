@@ -1162,6 +1162,8 @@ static int parse_Filler( AAF_Iface *aafi, aafObject *Filler )
 
 static int parse_Sequence( AAF_Iface *aafi, aafObject *Sequence )
 {
+	aafi->ctx.is_inside_sequence = 1;
+
 	/* Get Sequence's Components */
 	aafObject * Components = aaf_get_propertyValue( Sequence, PID_Sequence_Components );
 	aafObject * Component  = NULL;
@@ -1171,6 +1173,8 @@ static int parse_Sequence( AAF_Iface *aafi, aafObject *Sequence )
 	{
 		parse_Component( aafi, Component );
 	}
+
+	aafi->ctx.is_inside_sequence = 0;
 
 	return 0;
 }
@@ -1865,8 +1869,10 @@ static int parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue )
 
 		// aaf_dump_ObjectProperties( aafi->aafd, ConstantValue );
 
+		// printf( "\n%ls\n\n", ClassIDToText( aafi->aafd, ConstantValue->Parent->Parent->Parent->Class->ID ) );
+
 		/* Track-based Gain */
-		if ( auidCmp( ConstantValue->Parent->Parent->Parent->Class->ID, &AAFClassID_TimelineMobSlot ) )
+		if ( aafi->ctx.is_inside_sequence == 0 /*auidCmp( ConstantValue->Parent->Parent->Parent->Class->ID, &AAFClassID_TimelineMobSlot )*/ )
 		{
 			if ( aafi->ctx.current_track->gain != NULL )
 			{	/* NOTE This should not happen */
@@ -2047,7 +2053,7 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue )
 		// }
 
 		/* Track-based Gain */
-		if ( auidCmp( VaryingValue->Parent->Parent->Parent->Class->ID, &AAFClassID_TimelineMobSlot ) )
+		if ( aafi->ctx.is_inside_sequence == 0 /*auidCmp( VaryingValue->Parent->Parent->Parent->Class->ID, &AAFClassID_TimelineMobSlot )*/ )
 		{
 			if ( aafi->ctx.current_track->gain != NULL )
 			{	/* NOTE This should not happen */
@@ -2375,7 +2381,7 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot )
 					return -1;
 				}
 
-
+				aaf_dump_ObjectProperties( aafi->aafd, MobSlot );
 
 				/***********************************************************************************************************************/
 

@@ -561,6 +561,9 @@ typedef struct aafiContext
 	// aafUID_t  *DataDef;
 
 
+	uint8_t is_inside_sequence;	// takes 1 or 0. Usefull whent parsing MonoAudioGain or MonoAudioPan to know if it should be applied to clips or track.
+
+
 
 	/* Clip */
 
