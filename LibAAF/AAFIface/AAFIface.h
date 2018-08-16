@@ -705,6 +705,7 @@ void   aafi_freeAudioTracks( aafiAudioTrack **tracks );
 
 
 aafiTimelineItem * aafi_newTimelineItem( aafiAudioTrack *track, int itemType );
+void   aafi_freeAudioClip( aafiAudioClip *audioClip );
 void   aafi_freeTimelineItem( aafiTimelineItem **item );
 void   aafi_freeTimelineItems( aafiTimelineItem **items );
 
