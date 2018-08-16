@@ -491,6 +491,13 @@ void aafi_freeAudioTracks( aafiAudioTrack **tracks )
 			free( track->gain );
 		}
 
+		if ( track->pan != NULL )
+		{
+			free( track->pan->time );
+			free( track->pan->value );
+			free( track->pan );
+		}
+
 		if ( track->Items != NULL )
 		{
 			aafi_freeTimelineItems( &(track->Items) );

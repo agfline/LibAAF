@@ -1464,8 +1464,31 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 	{
 		/* TODO Should Only be Track-based (first Segment of TimelineMobSlot.) */
 
-		trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
-		_warning( "AAFOperationDef_MonoAudioPan not supported yet.\n" );
+		// trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
+		// _warning( "AAFOperationDef_MonoAudioPan not supported yet.\n" );
+
+		aafObject *Parameters = aaf_get_propertyValue( OpGroup, PID_OperationGroup_Parameters );
+		aafObject *Parameter  = NULL;
+
+		if ( Parameters == NULL )
+		{
+			_error( "Missing OperationGroup::Parameters.\n" );
+			return -1;
+		}
+
+		/*
+		 *	We have to loop because of custom Parameters.
+		 *	Seen in AVID Media Composer AAFs (test.aaf). TODO ParamDef PanVol_IsTrimGainEffect ?
+		 */
+
+		// printf("_entryCount : %u\n", Parameters->Header->_entryCount );
+
+		aaf_foreach_ObjectInSet( &Parameter, Parameters, NULL )
+		{
+
+			parse_Parameter( aafi, Parameter );
+
+		}
 
 	}
 	else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioMixdown ) )
@@ -1821,7 +1844,7 @@ static int parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue )
 
 		trace_obj( aafi, ConstantValue, ANSI_COLOR_MAGENTA );
 
-		aafiAudioGain *Gain = calloc( sizeof(aafiAudioGain), sizeof(unsigned char) );;
+		aafiAudioGain *Gain = calloc( sizeof(aafiAudioGain), sizeof(unsigned char) );
 
 
 		aafRational_t *multiplier = aaf_get_propertyIndirectValue( ConstantValue, PID_ConstantValue_Value );
@@ -1862,6 +1885,43 @@ static int parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue )
 
 			aafi->ctx.current_gain = Gain;
 		}
+
+	}
+	else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioPan ) &&
+         auidCmp( ParamDef, &AAFParameterDef_Pan ) )
+	{
+
+		trace_obj( aafi, ConstantValue, ANSI_COLOR_MAGENTA );
+
+		aafiAudioPan *Pan = calloc( sizeof(aafiAudioPan), sizeof(unsigned char) );
+
+
+		aafRational_t *multiplier = aaf_get_propertyIndirectValue( ConstantValue, PID_ConstantValue_Value );
+
+		if ( multiplier == NULL )
+		{
+			_error( "Could not retrieve Constant Value.\n" );
+			return -1;
+		}
+
+
+		Pan->value    = calloc( 1, sizeof(aafRational_t*) );
+		Pan->pts_cnt  = 1;
+
+		memcpy( &Pan->value[0], multiplier, sizeof(aafRational_t) );
+
+		Pan->flags   |= AAFI_AUDIO_GAIN_CONSTANT;
+
+		// aaf_dump_ObjectProperties( aafi->aafd, ConstantValue );
+
+		/* Track-based Gain */
+
+		if ( aafi->ctx.current_track->pan != NULL )
+		{	/* NOTE This should not happen */
+			free( aafi->ctx.current_track->pan );
+		}
+
+		aafi->ctx.current_track->pan = Pan;
 
 	}
 	else

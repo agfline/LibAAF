@@ -38,6 +38,31 @@ static char * gainToStr( aafiAudioGain *gain )
 
 
 
+static char * panToStr( aafiAudioPan *pan )
+{
+	static char str[16];
+
+	memset( str, 0x00, 16 );
+
+	if ( pan == NULL )
+		snprintf( str, 16, " n/a " );
+
+	else if ( pan->flags & AAFI_AUDIO_GAIN_CONSTANT )
+	{
+		float panval = rationalToFloat(pan->value);
+		snprintf( str, 16, "%0.1f %s", panval, (panval == 0.0) ? "(Left)" : (panval == 0.5) ? "(Center)" : (panval == 1.0) ? "(Right)" : "" );
+	}
+				 // 20 * log10( (( gain->value[0].denominator == 0 ) ? 0 : ((float)gain->value[0].numerator/gain->value[0].denominator)) ) );
+
+	else if ( pan->flags & AAFI_AUDIO_GAIN_VARIABLE )
+		snprintf( str, 16, " automation " );
+
+	return str;
+}
+
+
+
+
 void showHelp()
 {
 	printf(
@@ -396,13 +421,14 @@ int main( int argc, char *argv[] )
 		foreach_audioTrack( audioTrack, aafi )
 		{
 
-			printf( "Track (%u) - %s - Gain %s - edit_rate %i/%i (%02.2f)  -  \"%ls\"\n",
+			printf( "Track (%u) - %s - Gain %s - Pan %s - edit_rate %i/%i (%02.2f)  -  \"%ls\"\n",
 					audioTrack->number,
 					(audioTrack->format == AAFI_TRACK_FORMAT_MONO)   ? "MONO"   :
 					(audioTrack->format == AAFI_TRACK_FORMAT_STEREO) ? "STEREO" :
 					(audioTrack->format == AAFI_TRACK_FORMAT_5_1)    ? "5.1"    :
 					(audioTrack->format == AAFI_TRACK_FORMAT_7_1)    ? "7.1"    : "Unknown",
 					gainToStr( audioTrack->gain ),
+					panToStr( audioTrack->pan ),
 					audioTrack->edit_rate->numerator, audioTrack->edit_rate->denominator,
 					rationalToFloat(audioTrack->edit_rate),
 					(audioTrack->name != NULL) ? audioTrack->name : L""

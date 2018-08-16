@@ -261,6 +261,8 @@ typedef struct aafiAudioGain
 
 } aafiAudioGain;
 
+typedef struct aafiAudioGain aafiAudioPan;
+
 
 
 
@@ -463,6 +465,8 @@ typedef struct aafiAudioTrack
 	 */
 
 	aafiAudioGain           *gain;
+
+	aafiAudioPan            *pan;
 
 	/**
 	 *	Holds the timeline items of that track, that is aafiAudioClip and aafiTransition
