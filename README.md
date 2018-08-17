@@ -24,7 +24,7 @@ LibAAF was widely tested with :
 * Adobe Premiere Pro (CC 2018) 12.0 - 12.1.1
 * ProTools 10.3.10
 * Logic Pro 9.1.7
-* Fairlight Evo 2.5.1 - 4.1.75
+* Fairlight Evo/Dream 2.5.1 - 4.1.75
 
 
 |                                         |   |                                        |
