@@ -8,63 +8,63 @@
 
 static int is_rendered_fade( const wchar_t *clipName )
 {
-	uint32_t clipNameLen = wcslen( clipName ) + 1;
-	uint32_t clipNameByteLen = clipNameLen * sizeof(wchar_t);
+	// uint32_t clipNameLen = wcslen( clipName ) + 1;
+	// uint32_t clipNameByteLen = clipNameLen * sizeof(wchar_t);
 
-	switch ( clipNameLen )
-	{
-		case PROTOOLS_CLIP_NAME_FADE_EN_LEN:
-		// case PROTOOLS_CLIP_NAME_FADE_DE_LEN:
-		// case PROTOOLS_CLIP_NAME_FADE_JA_LEN:
+	// switch ( clipNameLen )
+	// {
+	// 	case PROTOOLS_CLIP_NAME_FADE_EN_LEN:
+	// 	// case PROTOOLS_CLIP_NAME_FADE_DE_LEN:
+	// 	// case PROTOOLS_CLIP_NAME_FADE_JA_LEN:
 
-			if ( memcmp( clipName, PROTOOLS_CLIP_NAME_FADE_EN, clipNameByteLen ) == 0 )
+			if ( memcmp( clipName, PROTOOLS_CLIP_NAME_FADE_EN, PROTOOLS_CLIP_NAME_FADE_EN_LEN ) == 0 )
 			{
 				return 1;
 			}
 
-			break;
+		// 	break;
+        //
+		// case PROTOOLS_CLIP_NAME_FADE_ES_LEN:
 
-		case PROTOOLS_CLIP_NAME_FADE_ES_LEN:
-
-			if ( memcmp( clipName, PROTOOLS_CLIP_NAME_FADE_ES, clipNameByteLen ) == 0 )
+			if ( memcmp( clipName, PROTOOLS_CLIP_NAME_FADE_ES, PROTOOLS_CLIP_NAME_FADE_ES_LEN ) == 0 )
 			{
 				return 1;
 			}
 
-			break;
+		// 	break;
+        //
+		// case PROTOOLS_CLIP_NAME_FADE_FR_LEN:
 
-		case PROTOOLS_CLIP_NAME_FADE_FR_LEN:
-
-			if ( memcmp( clipName, PROTOOLS_CLIP_NAME_FADE_FR, clipNameByteLen ) == 0 )
+			if ( memcmp( clipName, PROTOOLS_CLIP_NAME_FADE_FR, PROTOOLS_CLIP_NAME_FADE_FR_LEN ) == 0 )
 			{
 				return 1;
 			}
 
-			break;
+		// 	break;
+        //
+		// case PROTOOLS_CLIP_NAME_FADE_ZH_CN_LEN:
+		// // case PROTOOLS_CLIP_NAME_FADE_ZH_TW_LEN:
+		// // case PROTOOLS_CLIP_NAME_FADE_KO_LEN:
 
-		case PROTOOLS_CLIP_NAME_FADE_ZH_CN_LEN:
-		// case PROTOOLS_CLIP_NAME_FADE_ZH_TW_LEN:
-		// case PROTOOLS_CLIP_NAME_FADE_KO_LEN:
-
-			if ( memcmp( clipName, PROTOOLS_CLIP_NAME_FADE_ZH_CN, clipNameByteLen ) == 0 )
+			if ( memcmp( clipName, PROTOOLS_CLIP_NAME_FADE_ZH_CN, PROTOOLS_CLIP_NAME_FADE_ZH_CN_LEN ) == 0 )
 			{
 				return 1;
 			}
-			else if ( memcmp( clipName, PROTOOLS_CLIP_NAME_FADE_ZH_TW, clipNameByteLen ) == 0 )
+			else if ( memcmp( clipName, PROTOOLS_CLIP_NAME_FADE_ZH_TW, PROTOOLS_CLIP_NAME_FADE_ZH_TW_LEN ) == 0 )
 			{
 				return 1;
 			}
-			else if ( memcmp( clipName, PROTOOLS_CLIP_NAME_FADE_KO, clipNameByteLen ) == 0 )
+			else if ( memcmp( clipName, PROTOOLS_CLIP_NAME_FADE_KO, PROTOOLS_CLIP_NAME_FADE_KO_LEN ) == 0 )
 			{
 				return 1;
 			}
 
-			break;
-
-
-		default:
-			break;
-	}
+	// 		break;
+    //
+    //
+	// 	default:
+	// 		break;
+	// }
 
 	return 0;
 }
