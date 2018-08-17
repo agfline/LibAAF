@@ -41,7 +41,7 @@ LibAAF was widely tested with :
 | Multi-channel Essences                  | - | **TODO** (*AAFClassID_MultipleDescriptor*) |
 | Multi-channel Tracks (stereo, 5.1, 7.1) | x | *ProTools AAF with **Export Stereo, 5.1 and 7.1 tracks as multi-channel** enabled.* |
 | Fades in/out - XFades                   | x | *Full support*                         |
-| Legacy Fades in/out - XFades            | - | *useless ? - legacy since AAFv1.1, 2005* |
+| Legacy Fades in/out - XFades            | - | *useless ? obsolete since at least AAFv1.1 - 2005* |
 | Clip based Gain (fixed/varying)         | x | *Full support*                         |
 | Track based Gain (fixed/varying)        | x | *Full support*                         |
 | Track based PAN (fixed/varying)         | x | *Full support*                         |
