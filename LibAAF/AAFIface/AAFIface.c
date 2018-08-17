@@ -269,21 +269,20 @@ aafiTimelineItem * aafi_newTimelineItem( aafiAudioTrack *track, int itemType )
 
 void aafi_freeAudioClip( aafiAudioClip *audioClip )
 {
-	if ( audioClip->gain == NULL )
+
+	if ( audioClip->gain != NULL )
 	{
-		return;
+		if ( audioClip->gain->time != NULL )
+		{
+			free( audioClip->gain->time );
+		}
+
+		if ( audioClip->gain->value != NULL )
+		{
+			free( audioClip->gain->value );
+		}
 	}
 
-
-	if ( audioClip->gain->time != NULL )
-	{
-		free( audioClip->gain->time );
-	}
-
-	if ( audioClip->gain->value != NULL )
-	{
-		free( audioClip->gain->value );
-	}
 
 	free( audioClip->gain );
 }
@@ -438,6 +437,10 @@ aafiAudioTrack * aafi_newAudioTrack( AAF_Iface *aafi )
 
 
 	track->next = NULL;
+
+	track->pan = NULL;
+
+	track->gain = NULL;
 
 	track->format = AAFI_TRACK_FORMAT_MONO;
 

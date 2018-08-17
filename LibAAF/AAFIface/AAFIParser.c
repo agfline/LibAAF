@@ -1894,7 +1894,7 @@ static int parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue )
 
 	}
 	else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioPan ) &&
-         auidCmp( ParamDef, &AAFParameterDef_Pan ) )
+	          auidCmp( ParamDef, &AAFParameterDef_Pan ) )
 	{
 
 		trace_obj( aafi, ConstantValue, ANSI_COLOR_MAGENTA );
@@ -2072,6 +2072,47 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue )
 
 			aafi->ctx.current_gain = Gain;
 		}
+	}
+	else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioPan ) &&
+			  auidCmp( ParamDef, &AAFParameterDef_Pan ) )
+	{
+		aafObject *Points = aaf_get_propertyValue( VaryingValue, PID_VaryingValue_PointList );
+
+		if ( Points == NULL )
+		{
+
+			/*
+			 *	Some files like the ProTools and Logic ones break standard by having no PointList entry.
+			 */
+
+			trace_obj( aafi, VaryingValue, ANSI_COLOR_YELLOW );
+
+			_warning( "Missing VaryingValue::PointList.\n" );
+
+			return -1;
+		}
+
+		aafiAudioPan *Pan = calloc( sizeof(aafiAudioPan), sizeof(unsigned char) );
+
+		Pan->flags |= AAFI_AUDIO_GAIN_VARIABLE;
+		Pan->flags |= interpolation;
+
+		Pan->pts_cnt = retrieve_ControlPoints( aafi, Points, &Pan->time, &Pan->value );
+
+		// int i = 0;
+		//
+		// for ( i = 0; i < Gain->pts_cnt; i++ )
+		// {
+		// 	printf("time_%i : %i/%i   value_%i : %i/%i\n", i, Gain->time[i].numerator, Gain->time[i].denominator, i, Gain->value[i].numerator, Gain->value[i].denominator  );
+		// }
+
+		if ( aafi->ctx.current_track->pan != NULL )
+		{	/* NOTE This should not happen */
+			free( aafi->ctx.current_track->pan );
+		}
+
+		aafi->ctx.current_track->pan = Pan;
+
 	}
 
 	return 0;
