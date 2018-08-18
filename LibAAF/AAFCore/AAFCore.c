@@ -714,7 +714,7 @@ aafObject * aaf_get_ObjectByWeakRef( aafObject *list, aafWeakRef_t *ref )
 
 /* TODO check _identificationSize mismatch */
 
-	if ( list == NULL || list->Entry == NULL )
+	if ( list == NULL || list->Entry == NULL || ref == NULL )
 		return NULL;
 
 	// Target is a Reference Vector
@@ -722,6 +722,7 @@ aafObject * aaf_get_ObjectByWeakRef( aafObject *list, aafWeakRef_t *ref )
 	{
 //		printf( "Has local key\n" );
 		for (; list != NULL; list = list->next )
+		{
 			if ( list->Entry->_localKey == ref->_referencedPropertyIndex )
 			{
 //				printf( "Target->Entry->_localKey            : 0x%x\n", Target->Entry->_localKey );
@@ -729,18 +730,23 @@ aafObject * aaf_get_ObjectByWeakRef( aafObject *list, aafWeakRef_t *ref )
 //				printf( "FOUND : 0x%x\n", Target->Entry->_localKey );
 				return list;
 			}
+		}
 
 	}
 	else // Target is a Reference Set
 	{
-//		printf( "Has identif\n" );
-		for (; list != NULL; list = list->next ) {
+		for (; list != NULL; list = list->next )
+		{
+			/* TODO is the following check important ? */
+			// if ( list->Header->_identificationSize != ref->_identificationSize )
+			// 	continue;
+
 			if ( memcmp( list->Entry->_identification, ref->_identification, ref->_identificationSize ) == 0 )
 				return list;
 		}
 	}
 
-//		printf( "localKey : 0x%x\n", Target->Entry->_localKey );
+		// printf( "localKey : 0x%x\n", list->Entry->_localKey );
 	return NULL;
 }
 
