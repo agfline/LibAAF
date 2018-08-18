@@ -646,16 +646,16 @@ typedef struct AAF_Iface
 
 
 #define aeDuration_h( audioEssence ) \
-	((uint16_t)(audioEssence->length / audioEssence->samplerate / (audioEssence->samplesize / 8)) / 3600)
+	(( audioEssence->samplerate == 0 ) ? 0 : ((uint16_t)(audioEssence->length / audioEssence->samplerate / (audioEssence->samplesize / 8)) / 3600))
 
 #define aeDuration_m( audioEssence ) \
-	((uint16_t)(audioEssence->length / audioEssence->samplerate / (audioEssence->samplesize / 8)) % 3600 / 60)
+	(( audioEssence->samplerate == 0 ) ? 0 : ((uint16_t)(audioEssence->length / audioEssence->samplerate / (audioEssence->samplesize / 8)) % 3600 / 60))
 
 #define aeDuration_s( audioEssence ) \
-	((uint16_t)(audioEssence->length / audioEssence->samplerate / (audioEssence->samplesize / 8)) % 3600 % 60)
+	(( audioEssence->samplerate == 0 ) ? 0 : ((uint16_t)(audioEssence->length / audioEssence->samplerate / (audioEssence->samplesize / 8)) % 3600 % 60))
 
 #define aeDuration_ms( audioEssence ) \
-	((uint16_t)(audioEssence->length / (audioEssence->samplerate / 1000) / (audioEssence->samplesize / 8)) % 3600000 % 60000 % 1000)
+	(( audioEssence->samplerate == 0 ) ? 0 : ((uint16_t)(audioEssence->length / (audioEssence->samplerate / 1000) / (audioEssence->samplesize / 8)) % 3600000 % 60000 % 1000))
 
 
 
