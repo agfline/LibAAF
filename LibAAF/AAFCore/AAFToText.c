@@ -47,7 +47,7 @@ const wchar_t * MobIDToText( aafMobID_t *mobid )
 		}
     }
 
-	offset += swprintf( str+offset, 127, L"%s", AUIDToText((aafUID_t*)((unsigned char*)mobid+i) ) );
+	offset += swprintf( str+offset, 127, L"%ls", AUIDToText((aafUID_t*)((unsigned char*)mobid+i) ) );
 
 	return str;
 }
@@ -121,7 +121,7 @@ const wchar_t * ProductVersionToText( aafProductVersion_t *vers )
 	}
 	else
 	{
-		swprintf( str, sizeof(str), L"%u.%u.%u.%u %s (%i)",
+		swprintf( str, sizeof(str), L"%u.%u.%u.%u %ls (%i)",
 			vers->major,
 			vers->minor,
 		 	vers->tertiary,
@@ -1435,7 +1435,7 @@ const wchar_t * ParameterToText( AAF_Data *aafd, const aafUID_t *auid )
 			swprintf( TEXTParameterDef, 1024, L"%ls", name );
 			free( name );
 
-			// printf("Description : %s\n", aaf_get_propertyValueText( ParameterDefinition, PID_DefinitionObject_Description ) );
+			// printf("Description : %ls\n", aaf_get_propertyValueText( ParameterDefinition, PID_DefinitionObject_Description ) );
 
 			return TEXTParameterDef;
 		}
@@ -2260,7 +2260,7 @@ const wchar_t * PIDToText( AAF_Data *aafd, aafPID_t pid )
 		{
 			if ( PDef->pid == pid )
 			{
-				swprintf( PIDText, 1024, L"%s%s%s",
+				swprintf( PIDText, 1024, L"%s%ls%s",
 			 		(PDef->meta) ? ANSI_COLOR_YELLOW : "",
 				 	 PDef->name,
 				 	(PDef->meta) ? ANSI_COLOR_RESET : "" );
@@ -2504,7 +2504,7 @@ const wchar_t * ClassIDToText( AAF_Data *aafd, const aafUID_t *auid )
 
 		if ( auidCmp( Class->ID, auid ) )
 		{
-			swprintf( ClassIDText, 1024, L"%s%s%s",
+			swprintf( ClassIDText, 1024, L"%s%ls%s",
 		 		(Class->meta) ? ANSI_COLOR_YELLOW : "",
 			 	 Class->name,
 			 	(Class->meta) ? ANSI_COLOR_RESET : "" );
