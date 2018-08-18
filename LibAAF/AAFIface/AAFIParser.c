@@ -474,6 +474,10 @@ static aafiAudioEssence * getEssenceBySourceMobID( AAF_Iface *aafi, aafMobID_t *
 
 static int parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 {
+	// aaf_dump_ObjectProperties( aafi->aafd, EssenceDesc );
+
+	// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, EssenceDesc );
+	// printf("ContainerFormat : %ls\n", ContainerToText(ContainerFormat) );
 
 	if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_PCMDescriptor ) )
 	{
@@ -1949,11 +1953,11 @@ static int parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue )
 	}
 	else
 	{
-		/* TODO on pt-ja.aaf -> might be pan or else ??? */
+		/* TODO on pt-ja.aaf */
 
 		trace_obj( aafi, ConstantValue, ANSI_COLOR_RED );
 		printf("ParamDef %ls (%ls)\n\n", ParameterToText( aafi->aafd, ParamDef ), AUIDToText( ParamDef ) );
-		aaf_dump_ObjectProperties( aafi->aafd, ConstantValue );
+		// aaf_dump_ObjectProperties( aafi->aafd, ConstantValue );
 	}
 
 	return 0;
@@ -2439,7 +2443,7 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot )
 					return -1;
 				}
 
-				aaf_dump_ObjectProperties( aafi->aafd, MobSlot );
+				// aaf_dump_ObjectProperties( aafi->aafd, MobSlot );
 
 				/***********************************************************************************************************************/
 
