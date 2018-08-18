@@ -267,19 +267,28 @@ static aafUID_t * get_Component_DataDefinition( AAF_Iface *aafi, aafObject *Comp
 	aafWeakRef_t *weakRef = aaf_get_propertyValue( Component, PID_Component_DataDefinition );
 
 	if ( weakRef == NULL )
+	{
 		_warning( "Missing Component::DataDefinition.\n" );
+		return NULL;
+	}
 
 
 	aafObject *DataDefinition = aaf_get_ObjectByWeakRef( aafi->aafd->DataDefinition, weakRef );
 
 	if ( DataDefinition == NULL )
+	{
 		_warning( "Could not retrieve WeakRef from Dictionary::DataDefinition.\n" );
+		return NULL;
+	}
 
 
 	aafUID_t  *DataIdentification = aaf_get_propertyValue( DataDefinition, PID_DefinitionObject_Identification );
 
 	if ( DataIdentification == NULL )
+	{
 		_warning( "Missing DataDefinition's DefinitionObject::Identification.\n" );
+		return NULL;
+	}
 
 
 	return DataIdentification;
@@ -293,19 +302,27 @@ static aafUID_t * get_FileDescriptor_ContainerFormat( AAF_Iface *aafi, aafObject
 	aafWeakRef_t *ContainerDefWeakRef = aaf_get_propertyValue( FileDescriptor, PID_FileDescriptor_ContainerFormat );
 
 	if ( ContainerDefWeakRef == NULL )
+	{
 		_warning( "Missing FileDescriptor::ContainerFormat.\n" );
-
+		return NULL;
+	}
 
 	aafObject *ContainerDefinition = aaf_get_ObjectByWeakRef( aafi->aafd->ContainerDefinition, ContainerDefWeakRef );
 
 	if ( ContainerDefinition == NULL )
+	{
 		_warning( "Could not retrieve WeakRef from Dictionary::ContainerDefinitions.\n" );
+		return NULL;
+	}
 
 
 	aafUID_t  *ContainerIdentification = aaf_get_propertyValue( ContainerDefinition, PID_DefinitionObject_Identification );
 
 	if ( ContainerIdentification == NULL )
+	{
 		_warning( "Missing ContainerDefinition's DefinitionObject::Identification.\n" );
+		return NULL;
+	}
 
 
 	return ContainerIdentification;
