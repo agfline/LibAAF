@@ -17,20 +17,33 @@
 
 static char * gainToStr( aafiAudioGain *gain )
 {
-	static char str[16];
+	static char str[32];
 
-	memset( str, 0x00, 16 );
+	memset( str, 0x00, 32 );
 
 	if ( gain == NULL )
-		snprintf( str, 16, " n/a    " );
+	{
+		snprintf( str, 32, "      n/a   " );
+	}
+	else if ( gain->flags & AAFI_AUDIO_GAIN_CONSTANT ||
+			( gain->flags & AAFI_AUDIO_GAIN_VARIABLE && gain->pts_cnt == 2 && gain->value[0].numerator == gain->value[1].numerator ) )
+	{
+		/*
+		 *	NOTE some implementations use VaryingValue to store a single gain value.
+		 *	This is indicated by the "(A)".
+		 */
 
-	else if ( gain->flags & AAFI_AUDIO_GAIN_CONSTANT )
-		snprintf( str, 16, "%+05.1lf dB",
-				 20 * log10( (( gain->value[0].denominator == 0 ) ? 0 : ((float)gain->value[0].numerator/gain->value[0].denominator)) ) );
-			  // 20 * log10( rationalToFloat( &(aClip->gain->value[0]) ) ) );
+		aafRational_t *value = &(gain->value[0]);
 
+		snprintf( str, 32, "%s%+05.1lf dB",
+				( gain->flags & AAFI_AUDIO_GAIN_VARIABLE ) ? "(A) " : "    ",
+				  20 * log10( rationalToFloat( value ) ) );
+	}
 	else if ( gain->flags & AAFI_AUDIO_GAIN_VARIABLE )
-		snprintf( str, 16, " automation " );
+	{
+		snprintf( str, 32, " automation " );
+	}
+
 
 	return str;
 }
@@ -40,24 +53,73 @@ static char * gainToStr( aafiAudioGain *gain )
 
 static char * panToStr( aafiAudioPan *pan )
 {
-	static char str[16];
+	static char str[32];
 
-	memset( str, 0x00, 16 );
+	memset( str, 0x00, 32 );
 
 	if ( pan == NULL )
-		snprintf( str, 16, " n/a " );
-
-	else if ( pan->flags & AAFI_AUDIO_GAIN_CONSTANT )
 	{
-		float panval = rationalToFloat(pan->value);
-		snprintf( str, 16, "%0.1f %s", panval, (panval == 0.0) ? "(Left)" : (panval == 0.5) ? "(Center)" : (panval == 1.0) ? "(Right)" : "" );
+		snprintf( str, 32, "           n/a  " );
 	}
-				 // 20 * log10( (( gain->value[0].denominator == 0 ) ? 0 : ((float)gain->value[0].numerator/gain->value[0].denominator)) ) );
+	else if ( pan->flags & AAFI_AUDIO_GAIN_CONSTANT ||
+			( pan->flags & AAFI_AUDIO_GAIN_VARIABLE && pan->pts_cnt == 2 && pan->value[0].numerator == pan->value[1].numerator ) )
+	{
+		/*
+		 *	NOTE some implementations use VaryingValue to store a single gain value.
+		 *	This is indicated by the "(A)".
+		 */
 
+		float panval = rationalToFloat(pan->value);
+
+		snprintf( str, 32, "%s%0.1f %s",
+				( pan->flags & AAFI_AUDIO_GAIN_VARIABLE ) ? "(A) " : "    ",
+				  panval,
+				( panval == 0.0 ) ? "(Left)  " :
+				( panval == 0.5 ) ? "(Center)" :
+				( panval == 1.0 ) ? "(Right) " : "" );
+	}
 	else if ( pan->flags & AAFI_AUDIO_GAIN_VARIABLE )
-		snprintf( str, 16, " automation " );
+	{
+		snprintf( str, 32, " automation " );
+	}
+
 
 	return str;
+}
+
+
+/*
+ *	NOTE : since aafiAudioPan is an alias of aafiAudioGain, the
+ *	function can be called with both structures.
+ */
+
+static void aafi_dump_VaryingValues( aafiAudioGain *Gain )
+{
+
+	int i = 0;
+	// printf("%s\n", );
+	for( i = 0; i < Gain->pts_cnt; i++ )
+	{
+	   // printf( "   PT:  _t: %i/%i   _v: %i/%i\n",
+	   // 	audioTrack->gain->time[i].numerator,
+	   // 	audioTrack->gain->time[i].denominator,
+	   // 	audioTrack->gain->value[i].numerator,
+	   // 	audioTrack->gain->value[i].denominator
+	   // );
+
+	   aafRational_t *time  = &(Gain->time[i] );
+	   aafRational_t *value = &(Gain->value[i]);
+
+	   printf( "   VaryingValue:  _time: %f   _value: %f\n",
+		   rationalToFloat( time  ),
+		   rationalToFloat( value )
+	   );
+
+	   // printf("   PT:  _t: %i/%i   Gain: %.01f dB\n",
+	   // 	audioTrack->gain->time[i].numerator,
+	   // 	audioTrack->gain->time[i].denominator,
+	   // 	20 * log10( (( audioTrack->gain->value[0].denominator == 0 ) ? 0 : ((float)audioTrack->gain->value[0].numerator/audioTrack->gain->value[0].denominator)) ) );
+	}
 }
 
 
@@ -421,7 +483,8 @@ int main( int argc, char *argv[] )
 		foreach_audioTrack( audioTrack, aafi )
 		{
 
-			printf( "Track (%u) - %s - Gain %s - Pan %s - edit_rate %i/%i (%02.2f)  -  \"%ls\"\n",
+			printf( "Track %s(%u) - %s - Gain  %s - Pan %s - edit_rate %i/%i (%02.2f)  -  \"%ls\"\n",
+					(audioTrack->number < 10) ? " " : "",
 					audioTrack->number,
 					(audioTrack->format == AAFI_TRACK_FORMAT_MONO)   ? "MONO"   :
 					(audioTrack->format == AAFI_TRACK_FORMAT_STEREO) ? "STEREO" :
@@ -434,33 +497,17 @@ int main( int argc, char *argv[] )
 					(audioTrack->name != NULL) ? audioTrack->name : L""
 			 );
 
-			 // if ( audioTrack->gain != NULL )
-			 // {
-				//  // int  i = 0;
-				//  for( i = 0; i < audioTrack->gain->pts_cnt; i++ )
-				//  {
-				// 	// printf( "   PT:  _t: %i/%i   _v: %i/%i\n",
-				// 	// 	audioTrack->gain->time[i].numerator,
-				// 	// 	audioTrack->gain->time[i].denominator,
-				// 	// 	audioTrack->gain->value[i].numerator,
-				// 	// 	audioTrack->gain->value[i].denominator
-				// 	// );
-             //
-				// 	// aafRational_t *time  = &(audioTrack->gain->time[i]);
-				// 	// aafRational_t *value = &(audioTrack->gain->value[i]);
-				// 	// printf( "   PT:  _t: %.06f   _v: %.06f\n",
-				// 	// 	rationalToFloat( time  ),
-				// 	// 	rationalToFloat( value )
-				// 	// );
-             //
-				// 	printf("   PT:  _t: %i/%i   Gain: %.01f dB\n",
-				// 		audioTrack->gain->time[i].numerator,
-				// 		audioTrack->gain->time[i].denominator,
-				// 		20 * log10( (( audioTrack->gain->value[0].denominator == 0 ) ? 0 : ((float)audioTrack->gain->value[0].numerator/audioTrack->gain->value[0].denominator)) ) );
-             //
-             //
-				//  }
-			 // }
+			 if ( audioTrack->gain != NULL && audioTrack->gain->flags & AAFI_AUDIO_GAIN_VARIABLE )
+			 {
+				 printf( "TRACK GAIN AUTOMATION : \n" );
+				 aafi_dump_VaryingValues( audioTrack->gain );
+			 }
+
+			 if ( audioTrack->pan != NULL && audioTrack->pan->flags & AAFI_AUDIO_GAIN_VARIABLE )
+			 {
+				 printf( "TRACK PAN AUTOMATION : \n" );
+				 aafi_dump_VaryingValues( audioTrack->pan );
+			 }
 
 			foreach_audioItem( audioItem, audioTrack )
 			{
@@ -548,7 +595,7 @@ int main( int argc, char *argv[] )
 				tc_set_by_unitValue( &tc_out, (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start), (rational_t*)audioClip->track->edit_rate, format );
 				tc_set_by_unitValue( &tc_len,  audioClip->len,                                                        (rational_t*)audioClip->track->edit_rate, format );
 
-				printf( " Clip:%u%s  Track:%u  Gain:%s "
+				printf( " Clip:%u%s  Track:%u  Gain: %s "
 						" Start:%s  Len:%s  End:%s  "
 						" Fadein: %s  Fadeout: %s  SourceFile: %ls   (%ls)\n",
 					i, ( i < 10 ) ? " " : "",
