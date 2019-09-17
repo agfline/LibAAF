@@ -542,7 +542,7 @@ aafiAudioEssence * aafi_newAudioEssence( AAF_Iface *aafi )
 	audioEssence->next = aafi->Audio->Essences;
 
 	audioEssence->original_file = NULL;
-	audioEssence->exported_file = NULL;
+	audioEssence->exported_file_path = NULL;
 	audioEssence->file_name = NULL;
 	audioEssence->unique_file_name = NULL;
 
@@ -573,9 +573,9 @@ void aafi_freeAudioEssences( aafiAudioEssence **audioEssence )
 			free( (*audioEssence)->original_file );
 		}
 
-		if ( (*audioEssence)->exported_file != NULL )
+		if ( (*audioEssence)->exported_file_path != NULL )
 		{
-			free( (*audioEssence)->exported_file );
+			free( (*audioEssence)->exported_file_path );
 		}
 
 		if ( (*audioEssence)->file_name != NULL )

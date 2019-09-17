@@ -46,7 +46,7 @@ int main( int argc, char *argv[] )
 		if ( audioEssence->is_embedded )
 		{
 			aafi_extract_audio_essence( aafi, audioEssence, path, NULL, format );
-			printf( ":: %ls\n", audioEssence->exported_file );
+			printf( ":: %ls\n", audioEssence->exported_file_path );
 		}
 	}
 

@@ -505,9 +505,9 @@ int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence,
 
 
 
-    audioEssence->exported_file = malloc( (strlen(filePath) + 1) * sizeof(wchar_t) );
+    audioEssence->exported_file_path = malloc( (strlen(filePath) + 1) * sizeof(wchar_t) );
 
-    swprintf( audioEssence->exported_file, (strlen(filePath) + 1) * sizeof(wchar_t), L"%s", filePath );
+    swprintf( audioEssence->exported_file_path, (strlen(filePath) + 1) * sizeof(wchar_t), L"%s", filePath );
 
 
 
