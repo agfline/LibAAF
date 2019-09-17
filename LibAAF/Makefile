@@ -1,10 +1,11 @@
 
 CC = gcc
-CFLAGS = -W -Wall -g -O3
+CFLAGS = -W -Wall -g -O3 -fPIC
 AR = ar
 AFLAGS = rcs
 
 OBJDIR = ../build
+BINDIR = ../bin
 
 .PHONY: depend clean
 
@@ -23,7 +24,7 @@ OBJ = $(OBJ_A) $(OBJ_B) $(OBJ_C) $(OBJ_D)
 
 
 
-libAAF: depend $(OBJDIR)/libAAF.a
+libAAF: depend $(OBJDIR)/libAAF.a $(BINDIR)/libAAF.so
 
 depend:
 	makedepend -Y $(SRC) 2>/dev/null
@@ -33,6 +34,9 @@ depend:
 
 $(OBJDIR)/libAAF.a: $(OBJ)
 	$(AR) $(AFLAGS) $@ $^
+
+$(BINDIR)/libAAF.so: $(OBJ)
+	$(CC) -shared $^ -o $@
 
 
 
