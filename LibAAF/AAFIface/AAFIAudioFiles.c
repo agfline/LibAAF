@@ -2,8 +2,10 @@
 #include <string.h>
 #include <unistd.h> // readlink()
 #include <wchar.h>
-
+#include <unistd.h> // access()
 #include <sndfile.h>
+#include <linux/limits.h> // PATH_MAX
+#include <dirent.h>
 
 #include "../libAAF.h"
 #include "../common/utils.h"
@@ -161,87 +163,254 @@ static int32_t samplesize_to_PCM_sf_format( uint32_t samplesize )
 
 
 
-int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
+
+char * locate_external_essence_file( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 {
-    SF_VIRTUAL_IO  sfvirtual;
-    VIO_DATA       user_data;
-    SF_INFO        sfinfo;
-    SNDFILE       *file = NULL;
+    char *filePath = malloc( PATH_MAX );
+
+    snprintf( filePath, PATH_MAX, "%ls", audioEssence->original_file );
 
 
+    /* Try AAF essence's file path */
+
+    if ( access( filePath, F_OK ) != -1 )
+    {
+        return filePath;
+    }
+
+
+    /* Prepare research */
+
+    char *file    = strrchr( filePath, '/' ) + 1;
+    char *aafFile = strrchr( aafi->aafd->cfbd->file, '/' );
+
+    char path[PATH_MAX];
+
+    snprintf( path, (aafFile - aafi->aafd->cfbd->file)+2, "%s", aafi->aafd->cfbd->file );
+
+    // printf( "Path : %s\n", path );
+    // printf( "File : %s\n", file );
+
+
+    /* Search AAF's directory */
+
+    struct dirent *dir;
+    DIR *d = opendir( path );
+
+    if ( d )
+    {
+        while ( (dir = readdir(d)) != NULL )
+        {
+            if ( dir->d_type != DT_REG )
+            {
+                continue;
+            }
+
+            if ( strcmp( dir->d_name, file ) == 0 )
+            {
+                snprintf( filePath, PATH_MAX, "%s%s", path, file );
+                // printf( "::FOUND %s\n", filePath );
+
+                return filePath;
+            }
+        }
+
+        closedir(d);
+    }
+
+
+    /* Search one level inside all directories next to AAF file */
+
+    char subPath[NAME_MAX];
+    struct dirent *sdir;
+    DIR *sd = NULL;
+
+    d = opendir( path );
+
+    if ( d )
+    {
+        while ( (dir = readdir(d)) != NULL )
+        {
+            if (  dir->d_type    != DT_DIR ||
+                ( dir->d_name[0] == '.' && dir->d_name[1] == '\0') ||
+                ( dir->d_name[0] == '.' && dir->d_name[1] == '.' && dir->d_name[2] == '\0' ) )
+            {
+                continue;
+            }
+
+            snprintf( subPath, NAME_MAX, "%s%s/", path, dir->d_name );
+
+            sd = opendir( subPath );
+
+            if ( sd )
+            {
+                while ( (sdir = readdir(sd)) != NULL )
+                {
+                    if ( strcmp( sdir->d_name, file ) == 0 )
+                    {
+                        snprintf( filePath, PATH_MAX, "%s%s", subPath, file );
+                        // printf( "::FOUND %s\n", filePath );
+
+                        return filePath;
+                    }
+                }
+
+                closedir(sd);
+            }
+        }
+
+        closedir(d);
+    }
+
+
+    return NULL;
+}
+
+
+
+
+SNDFILE * open_external_file( const char *filePath, SF_INFO *sfinfo )
+{
+    if ( filePath == NULL )
+    {
+        _error( "Could not locate external essence file.\n" );
+        return NULL;
+    }
+
+    memset( sfinfo, 0x00, sizeof(SF_INFO) );
+
+    SNDFILE *file = sf_open( filePath, SFM_READ, sfinfo );
+
+    return file;
+}
+
+
+
+
+SNDFILE * open_internal_file( AAF_Iface *aafi, aafiAudioEssence *audioEssence, SF_INFO *sfinfo )
+{
+    uint32_t          id = 0;
+    size_t     sectorLen = 0;
+    aafByte_t *sectorBuf = NULL;
+
+    SF_VIRTUAL_IO sfvirtual;
     sfvirtual.get_filelen = vfget_filelen;
-	sfvirtual.seek = vfseek;
-	sfvirtual.read = vfread;
-	sfvirtual.write = vfwrite;
+    sfvirtual.seek = vfseek;
+    sfvirtual.read = vfread;
+    sfvirtual.write = vfwrite;
     sfvirtual.tell = vftell;
 
+    VIO_DATA user_data;
     user_data.length = 0;
     user_data.offset = 0;
 
-    memset( &sfinfo, 0x00, sizeof(SF_INFO) );
+    memset( &user_data, 0x00, sizeof(VIO_DATA) );
+
+    cfb_foreachSectorInStream( aafi->aafd->cfbd, audioEssence->node, &sectorBuf, &sectorLen, &id )
+    {
+        user_data.data   = sectorBuf;
+        user_data.length = sectorLen;
+
+        break;
+    }
+
+    memset( sfinfo, 0x00, sizeof(SF_INFO) );
+
+    SNDFILE *file = sf_open_virtual( &sfvirtual, SFM_READ, sfinfo, &user_data );
+
+    free( sectorBuf );
+
+    return file;
+}
 
 
 
-    /* We get the AIFC/WAVE file header from summary */
 
+SNDFILE * open_summary( aafiAudioEssence *audioEssence, SF_INFO *sfinfo )
+{
+    SF_VIRTUAL_IO sfvirtual;
+    sfvirtual.get_filelen = vfget_filelen;
+    sfvirtual.seek = vfseek;
+    sfvirtual.read = vfread;
+    sfvirtual.write = vfwrite;
+    sfvirtual.tell = vftell;
+
+    VIO_DATA user_data;
+    user_data.length = 0;
+    user_data.offset = 0;
     user_data.data   = audioEssence->summary->val;
     user_data.length = audioEssence->summary->len;
 
+    memset( sfinfo, 0x00, sizeof(SF_INFO) );
+
+    SNDFILE *file = sf_open_virtual( &sfvirtual, SFM_READ, sfinfo, &user_data );
+
+    return file;
+}
 
 
-    /* Open stream with libsndfile */
 
-    file = sf_open_virtual( &sfvirtual, SFM_READ, &sfinfo, &user_data );
 
-    if ( file == NULL )
+int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
+{
+    SNDFILE *file = NULL;
+
+    SF_INFO sfinfo;
+
+    char *externalFilePath = NULL;
+
+
+
+    if ( audioEssence->summary != NULL )
     {
-        if ( audioEssence->is_embedded )
+
+        file = open_summary( audioEssence, &sfinfo );
+
+        if ( file == NULL )
         {
             /*
              *  The summary should be a copy of the header without audio samples.
              *  It has been seen (on fairlight's AIFC-AAF) that the summary does
-             *  not contains the full header and stop right before the SSND chunk.
+             *  not contain the full header and stop right before the SSND chunk.
              *  In that case, libsndfile does not handle it.
-             *  In that case we fallback on the first stream sector to retrieve
-             *  full WAVE/AIFC header.
+             *
+             *  In such cases we fallback on the first stream sector to retrieve
+             *  full WAVE/AIFC header, or on external audio file if essence is
+             *  not embedded.
              */
 
-		    _warning( "libsndfile could not read descriptor summary : %s.\n", sf_strerror( NULL ) );
-            _warning( "Falling back on audio file stream node.." );
-
-            uint32_t   id   = 0;
-            size_t     sectorLen  = 0;
-            aafByte_t *sectorBuf  = NULL;
-
-            memset( &user_data, 0x00, sizeof(VIO_DATA) );
-
-            cfb_foreachSectorInStream( aafi->aafd->cfbd, audioEssence->node, &sectorBuf, &sectorLen, &id )
+            if ( audioEssence->is_embedded )
             {
-                user_data.data   = sectorBuf;
-                user_data.length = sectorLen;
+    		    _warning( "libsndfile could not read descriptor summary : %s. Falling back on internal audio file stream.\n", sf_strerror( NULL ) );
 
-                break;
+                file = open_internal_file( aafi, audioEssence, &sfinfo );
+
+                if ( file == NULL )
+                {
+                    _error( "Could not open embedded essence file.\n" );
+                    return -1;
+                }
             }
-
-            file = sf_open_virtual( &sfvirtual, SFM_READ, &sfinfo, &user_data );
-
-            free( sectorBuf );
-
-            if ( file == NULL )
+            else
             {
-                printf( "fail\n" );
-                return -1;
-            }
+                _warning( "libsndfile could not read descriptor summary : %s. Falling back on external audio file stream.\n", sf_strerror( NULL ) );
 
-            printf( "success\n" );
-        }
-        else
-        {
-            _error( "libsndfile could not read descriptor summary : %s.\n", sf_strerror( NULL ) );
-		    return -1 ;
+                // dump_hex( audioEssence->summary->val, audioEssence->summary->len );
+
+                externalFilePath = locate_external_essence_file( aafi, audioEssence );
+
+                // printf("externalFilePath : %s\n", externalFilePath );
+
+                file = open_external_file( externalFilePath, &sfinfo );
+
+                if ( file == NULL )
+                {
+                    _error( "Could not open external essence file.\n" );
+                    return -1;
+                }
+            }
         }
     }
-
 
 
     /* Extract usefull data */
@@ -253,10 +422,14 @@ int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 
 
 
+
+
     /*
      *  The length was retrieved by retrieve_EssenceData() and correspond
-     *  to the full stream length, including file header. Since we need to
+     *  to the full stream length, including file header. Here we need to
      *  get only audio data stream length to do proper duration calculation,
+     *
+     *  TODO this should be optionnal, since we might need it only when analysing files.
      */
 
     SF_CHUNK_INFO	    chunk_info;
@@ -277,7 +450,7 @@ int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
         chunk = "SSND";
     }
 
-    snprintf( chunk_info.id, sizeof(chunk_info.id), "SSND" );
+    snprintf( chunk_info.id, sizeof(chunk_info.id), chunk );
 
 
 
@@ -298,7 +471,26 @@ int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
             audioEssence->length = (audioEssence->length - (1<<cfb_getStreamSectorShift( aafi->aafd->cfbd, audioEssence->node ))) +
                                    (sfinfo.frames * (audioEssence->samplesize/8));
             sf_close( file );
+
             return 0;
+        }
+        else if ( externalFilePath == NULL ) /* we have not open file yet */
+        {
+            _warning( "Could not retrieve \"%s\" chunk from summary. Falling back on external essence parsing.\n", chunk );
+
+            /* Close previous stream */
+            sf_close( file );
+
+            externalFilePath = locate_external_essence_file( aafi, audioEssence );
+
+            file = open_external_file( externalFilePath, &sfinfo );
+
+            if ( file == NULL )
+            {
+                _error( "Could not open external essence file : %s\n", sf_strerror( NULL ) );
+                return -1;
+            }
+
         }
         else
         {
@@ -316,7 +508,7 @@ int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
     {
         if ( audioEssence->is_embedded )
         {
-            _warning( "Could not retrieve \"%s\" chunk (%s). Falling back on stream length calculation.", chunk, sf_error_number(err) );
+            _warning( "Could not retrieve \"%s\" chunk size : %s. Falling back on stream length calculation.", chunk, sf_error_number(err) );
 
             /*
              *  NOTE nothing guarentee there are no chunk after audio data, in which
@@ -331,7 +523,7 @@ int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
         }
         else
         {
-            _error( "Could not retrieve \"%s\" chunk : %s\n", chunk, sf_error_number (err) );
+            _error( "Could not retrieve \"%s\" chunk size : %s\n", chunk, sf_error_number (err) );
             sf_close( file );
             return -1;
         }
