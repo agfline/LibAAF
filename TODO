@@ -1,29 +1,74 @@
-NOTES:
-======
 
-ProTools does not export clip fades data, it render fades as audio clips.
-ProTools does export track volume automation as clip-based.
-ProTools does not export track's PAN ?
-ProTools exports stereo tracks as separated tracks for each channel.
+Logic Pro : looks like Logic Pro X now supports volume automation : https://support.apple.com/kb/PH13242?locale=fr_FR&viewlocale=en_US
 
- -> Fades are always named "Fade 1", "Fade 2", etc. cant we find and rebuild fades after those clips ?
- -> Stereo tracks file names are named "some_file_name.L", "some_file_name.R".
+ProTools first AAF Support through DigiTranslator 2.0 : PT 6.1 - 2003
+ProTools first AAF integrated support : PT 9.0 - 2011
 
 TODO :
 ======
+    X Better error handling : no exit, return value
+    * Better error handling : error codes, print functions etc..
 
-	* libwave
-	* libaifc
+    * Mob::AppCode : see AAF_EditProtocol 6.5
+    * CompositionMob's UsageCode
 
-TEST :
-======
+    * Support for Legacy Transitions (Does someone care..?)
+    * Event Markers
 
-	* AAF with stereo track and gain applied (SteroAudioGain ?) + xfade (stereoAudioDissolve ?)
-	* AAF with TwoParametersAudioDissolve
+***** Ignore Rendered Audio Effects
+      This setting will bypass all the audio effects that were created in the Avid editing
+      environment. This will give you the raw, unaffected audio to work with.
+      MasterMob Segment AAFClassID_EssenceGroup ??
 
-	* AAF with per-clip fx (eq, comp) -> how is it represented ?
-	* Mixdown ?
+***** Where the fuck is the ProTools Comment ??? looks like it does not exist !!
+      Ensure it exists.
 
 
-	* Small composition, one clip ( ~3*512kB ), no EditProtocol.
-	  -> multiple EssenceData nodes ?
+
+    * CONFIG : Replace 2 values VaryingValue with fixed value
+    * CONFIG : Fallback fade/x-fade curve types
+    * CONFIG : Force essence length retrieval
+    * CONFIG : PostProcessing on/off
+               -> Replace rendered fade clips by real fades or x-fades
+               -> Remove any "Sample Accurate Edits"
+               -> Convert whole envelope under -90dB to Mute
+
+    * What the hell is happening with ADP-NOOPTION essences ??
+      -> AIFC descriptor / external .mp4 essences.
+
+
+    * Add type to aafPropertyDef struct.
+      -> this way we can find out :
+            AAFClassID_Mob::MobAttributeList (0xfffd)
+            AAFClassID_Component::ComponentAttributeList (0xffff)
+
+TEMPLATE SESSION FOR AAF TEST (WIP)
+===============================
+
+    Session comments, if possible.
+    Track comments, if possible (?)
+    Clip comments, if possible (on first clip, first track.) (?)
+    Clip MUTE, somewhere ???
+    Custom clip names, if possible.
+    Start TC : 01:00:00:00
+
+    * AAF with TwoParametersAudioDissolve ?
+    * Mixdown ?
+
+
+    Track  1 - Mono   -      No PAN -      No Gain : Clip(s) with Fade in/out/x -      No Gain
+    Track  2 - Mono   -      No PAN -      No Gain : Clip(s) with Fade in/out/x -   Fixed Gain
+
+    Track  3 - Mono   -      No PAN -   Fixed Gain : Clip(s) with Fade in/out/x -      No Gain
+    Track  4 - Mono   -      No PAN - Varying Gain : Clip(s) with Fade in/out/x -      No Gain
+    Track  5 - Mono   -      No PAN - Varying Gain : Clip(s) with Fade in/out/x -   Fixed Gain
+
+    Track  6 - Mono   -   Fixed PAN -      No Gain : Clip(s) with Fade in/out/x -      No Gain
+    Track  7 - Mono   - Varying PAN -      No Gain : Clip(s) with Fade in/out/x -      No Gain
+    Track  8 - Mono   - Varying PAN - Varying Gain : Clip(s) with Fade in/out/x - Varying Gain
+
+    Track  9 - Stereo -   Fixed PAN -   Fixed Gain : Clip(s) with Fade in/out/x -   Fixed Gain // (SteroAudioGain ?) + xfade (stereoAudioDissolve ?)
+    Track 10 - Stereo - Varying PAN - Varying Gain : Clip(s) with Fade in/out/x - Varying Gain // (SteroAudioGain ?) + xfade (stereoAudioDissolve ?)
+
+    Track 11 - 5.1    -   Fixed PAN -   Fixed Gain : Clip(s) with Fade in/out/x -   Fixed Gain
+    Track 12 - 5.1    - Varying PAN - Varying Gain : Clip(s) with Fade in/out/x - Varying Gain
