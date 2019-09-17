@@ -1762,6 +1762,7 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 		parse_SourceMob( aafi, SourceMob );
 
 
+		/* TODO the following must be moved to parse_SourceMob() !!! */
 
 		aafObject *EssenceDesc = aaf_get_propertyValue( SourceMob, PID_SourceMob_EssenceDescription );
 
