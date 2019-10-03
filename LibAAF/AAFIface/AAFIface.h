@@ -310,6 +310,9 @@ typedef struct aafiAudioEssence
 	char           originationDate[10+1];		// SourceMob::CreationDate
 	char           originationTime[8+1];		// SourceMob::CreationTime
 
+
+	char           ardour_src_id[32];    // for ardour to store its source id.
+
 	// TODO peakEnveloppe
 	struct aafiAudioEssence *next;
 
