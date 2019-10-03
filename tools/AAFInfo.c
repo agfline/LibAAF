@@ -442,14 +442,14 @@ int main( int argc, char *argv[] )
 
 	if ( aaf_clips )
 	{
-        
-            printf( "EditRrate  : %li\n", aafi->Audio->tc->edit_rate );
+
+    printf( "EditRrate  : %i/%i\n", aafi->Audio->tc->edit_rate->numerator, aafi->Audio->tc->edit_rate->denominator );
     printf( "Start (EU) : %li\n", aafi->Audio->tc->start );
     printf( "End (EU)   : %li\n", aafi->Audio->tc->end );
 
     printf( "\n                  session start : %li\n", eu2sample( 48000, aafi->Audio->tc->edit_rate, aafi->Audio->tc->start ) );
     printf( "\n                  session end   : %li\n\n", eu2sample( 48000, aafi->Audio->tc->edit_rate, aafi->Audio->tc->end ) );
-    
+
 		printf( "Composition Name     : %ls\n", aafi->compositionName );
 		printf( "======================\n" );
 

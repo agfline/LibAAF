@@ -119,8 +119,8 @@ void dump_hex( const unsigned char * stream, size_t stream_sz )
 			lineLen = 16;
 
 
-		memset( &hex,   0x20, 48 );
-		memset( &ascii, 0x00, 32 );
+		memset( &hex,   0x20, sizeof(hex) );
+		memset( &ascii, 0x00, sizeof(ascii) );
 
         uint32_t linepos = 0;
 

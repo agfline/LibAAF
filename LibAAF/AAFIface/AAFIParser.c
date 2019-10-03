@@ -130,34 +130,35 @@ static int   parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot );
 
 static void trace_obj( AAF_Iface *aafi, aafObject *Obj, char *color )
 {
-	char buf[1024];
+	char buf[4096];
 	char tmp[1024];
+	int  offset = sizeof(buf) - 1;
+	aafObject *lastChild = Obj;
 
-	memset( buf, 0x00, 1024 );
-	memset( tmp, 0x00, 1024 );
+	// buf[offset] = 0x00;
+	// memset( buf, 0x00, sizeof(buf) );
+	// memset( tmp, 0x00, sizeof(tmp) );
 
 	for (; auidCmp( Obj->Class->ID, &AAFClassID_ContentStorage ) == 0 /*Obj != NULL*/; Obj = Obj->Parent )
 	{
-		// snprintf( tmp, 1024, "%s", ClassIDToText( aafi->aafd, Obj->Class->ID ) );
-		strncpy( tmp, buf, 1024 );
 
 		if ( auidCmp( Obj->Class->ID, &AAFClassID_TimelineMobSlot ) && auidCmp( Obj->Parent->Class->ID, &AAFClassID_CompositionMob ) )
 		{
 			wchar_t *name = aaf_get_propertyValueWstr( Obj, PID_MobSlot_SlotName );
-			snprintf( buf, 1024, "%ls (%ls) > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), name, tmp );
+			snprintf( tmp, sizeof(tmp), "%ls (%ls)", ClassIDToText( aafi->aafd, Obj->Class->ID ), name );
 			free( name );
 		}
 		else if ( auidCmp( Obj->Class->ID, &AAFClassID_MasterMob ) || auidCmp( Obj->Class->ID, &AAFClassID_SourceMob ) )
 		{
 			wchar_t *name  = aaf_get_propertyValueWstr( Obj, PID_Mob_Name );
-			snprintf( buf, 1024, "%ls (%ls) > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), name, tmp );
+			snprintf( tmp, sizeof(tmp), "%ls (%ls)", ClassIDToText( aafi->aafd, Obj->Class->ID ), name );
 			free( name );
 		}
 		else if ( auidCmp( Obj->Class->ID, &AAFClassID_CompositionMob ) )
 		{
 			wchar_t *name = aaf_get_propertyValueWstr( Obj, PID_Mob_Name );
 			const wchar_t *usage = UsageCodeToText( aaf_get_propertyValue( Obj, PID_Mob_UsageCode ) );
-			snprintf( buf, 1024, "%ls (%ls : %ls) > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), usage, name, tmp );
+			snprintf( tmp, sizeof(tmp), "%ls (%ls : %ls)", ClassIDToText( aafi->aafd, Obj->Class->ID ), usage, name );
 			free( name );
 		}
 		else if ( auidCmp( Obj->Class->ID, &AAFClassID_OperationGroup ) )
@@ -165,17 +166,26 @@ static void trace_obj( AAF_Iface *aafi, aafObject *Obj, char *color )
 			aafUID_t *OperationIdentification = get_OperationGroup_OperationIdentification( aafi, Obj );
 
 			const wchar_t *name = OperationDefToText( aafi->aafd, OperationIdentification ) /*AUIDToText( OpIdent )*/;
-			snprintf( buf, 1024, "%ls (%ls) > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), name, tmp );
+			snprintf( tmp, sizeof(tmp), "%ls (%ls)", ClassIDToText( aafi->aafd, Obj->Class->ID ), name );
 		}
 		else
 		{
-			snprintf( buf, 1024, "%ls > %s", ClassIDToText( aafi->aafd, Obj->Class->ID ), tmp );
+			snprintf( tmp, sizeof(tmp), "%ls", ClassIDToText( aafi->aafd, Obj->Class->ID ) );
 		}
+
+		if ( Obj != lastChild )
+		{
+			buf[--offset] = ' ';
+			buf[--offset] = '>';
+			buf[--offset] = ' ';
+		}
+
+		offset -= strlen(tmp);
+
+		memcpy( buf+offset, tmp, strlen(tmp) );
 	}
 
-	buf[strlen(buf)-2] = 0x00;
-
-	printf("%s%s%s\n", color, buf, ANSI_COLOR_RESET );
+	printf("%s%s%s\n", color, buf+offset, ANSI_COLOR_RESET );
 }
 
 
@@ -972,10 +982,10 @@ static int parse_Transition( AAF_Iface *aafi, aafObject *Transition )
 
 //     aafObject *prevObject = aafi->ctx.current_Segment->prev;
 //     aafObject *nextObject = aafi->ctx.current_Segment->next;
-// 
+//
 //     if ( prevObject && auidCmp( prevObject->Class->ID, &AAFClassID_Filler ) )
 //     {
-//         
+//
 //         aafi->ctx.current_pos -= *length;
 //     }
 
@@ -987,55 +997,55 @@ static int parse_Transition( AAF_Iface *aafi, aafObject *Transition )
 
 
 	aafi->ctx.current_transition = Trans;
-    
-    
+
+
     Trans->len   = *length;
     Trans->flags = AAFI_INTERPOL_LINEAR; // set default in case of missing AAFParameterDef_Level from OperationGroup
 
 	/* Set transition type and substract filler length if needed */
-    
-    int64_t *fillerLen = NULL;
+
+    // int64_t *fillerLen = NULL;
 
 	if ( Transition->prev != NULL && auidCmp( Transition->prev->Class->ID, &AAFClassID_Filler ) )
 	{
 		Trans->flags |= AAFI_TRANS_FADE_IN;
-        
+
 //         fillerLen = (int64_t*)aaf_get_propertyValue( Transition->prev, PID_Component_Length );
-//         
+//
 //         if ( fillerLen != NULL /*&& *fillerLen == *length*/ )
 //         {
 //             aafi->ctx.current_pos -= *fillerLen;
 //         }
-        
+
         aafi->ctx.current_pos -= *length;
 	}
 	else if ( Transition->next != NULL && auidCmp( Transition->next->Class->ID, &AAFClassID_Filler ) )
 	{
 		Trans->flags |= AAFI_TRANS_FADE_OUT;
-        
+
 //         fillerLen = (int64_t*)aaf_get_propertyValue( Transition->next, PID_Component_Length );
-//         
+//
 //         if ( fillerLen != NULL /*&& *fillerLen == *length*/ )
 //         {
 //             aafi->ctx.current_pos -= *fillerLen;
 //         }
-        
+
         aafi->ctx.current_pos -= *length;
 	}
 	else if ( Transition->next != NULL && auidCmp( Transition->next->Class->ID, &AAFClassID_Filler ) == 0 &&
 	          Transition->prev != NULL && auidCmp( Transition->prev->Class->ID, &AAFClassID_Filler ) == 0 )
 	{
 		Trans->flags |= AAFI_TRANS_XFADE;
-        
+
 //         fillerLen = (int64_t*)aaf_get_propertyValue( Transition->prev, PID_Component_Length );
-//         
+//
 //         if ( fillerLen != NULL /*&& *fillerLen == *length*/ )
 //         {
 //             aafi->ctx.current_pos -= *fillerLen;
 //         }
-//         
+//
 //         fillerLen = (int64_t*)aaf_get_propertyValue( Transition->next, PID_Component_Length );
-//         
+//
 //         if ( fillerLen != NULL /*&& *fillerLen == *length*/ )
 //         {
 //             aafi->ctx.current_pos -= *fillerLen;
@@ -1048,7 +1058,7 @@ static int parse_Transition( AAF_Iface *aafi, aafObject *Transition )
 		/* TODO */
 
 	}
-    
+
 
 	aafPosition_t *cut_point = aaf_get_propertyValue( Transition, PID_Transition_CutPoint );
 
@@ -1389,7 +1399,7 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 				 *	Since this is a Single Parameter, we should have only one Parameter Object
 				 *	within the vector. So there's no need to loop through the vector.
 				 *	But still, we can have custom objects..
-                 * 
+                 *
                  *  TODO Avid files look that way..
 				 */
 
@@ -1398,26 +1408,26 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 					_warning( "Multiple Parameters in MonoAudioDissolve Transition OperationGroup.\n" );
 // 					return -1;
 				}
-				
-				
+
+
 
 				printf( " Count of Params : %u\n", Param->Header->_entryCount );
-                
+
                 aafObject * p = NULL;
-	            
+
 				aaf_foreach_ObjectInSet( &p, Param, NULL )
 				{
 					aafUID_t *ParamDef = aaf_get_propertyValue( p, PID_Parameter_Definition );
-                    
+
                     // TODO print property
-                    
+
                     printf("    ParamDef %ls (%ls)\n", ParameterToText( aafi->aafd, ParamDef ), AUIDToText( ParamDef ) );
 
-	            
+
 					if ( auidCmp( ParamDef, &AAFParameterDef_Level ) )
 						break;
 				}
-	            
+
 				if ( p == NULL )
                 {
 					_error( " Could not retrieve AAFParameterDef_Level Object.\n" );
@@ -2129,11 +2139,11 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue )
 		Gain->flags |= interpolation;
 
 		Gain->pts_cnt = retrieve_ControlPoints( aafi, Points, &Gain->time, &Gain->value );
-        
-        
-        /* If gain has 2 ControlPoints with both the same value, it means 
+
+
+        /* If gain has 2 ControlPoints with both the same value, it means
          * we have a flat gain curve. So we can assume constant gain here. */
-        
+
         if ( Gain->pts_cnt == 2 &&
             ( Gain->value[0].numerator   == Gain->value[1].numerator   ) &&
             ( Gain->value[0].denominator == Gain->value[1].denominator ) )
@@ -2404,15 +2414,15 @@ static int parse_SourceMob( AAF_Iface *aafi, aafObject *SourceMob )
 			return -1;
 		}
 
-		snprintf( audioEssence->originationDate, sizeof(audioEssence->originationDate), "%04i:%02u:%02u",
-			CreationTime->date.year,
-			CreationTime->date.month,
-			CreationTime->date.day );
+		snprintf( audioEssence->originationDate, sizeof(audioEssence->originationDate), "%04u:%02u:%02u",
+			(CreationTime->date.year  <= 9999) ? CreationTime->date.year : 0,
+			(CreationTime->date.month <= 99) ? CreationTime->date.month : 0,
+			(CreationTime->date.day <= 99) ? CreationTime->date.day : 0 );
 
 		snprintf( audioEssence->originationTime, sizeof(audioEssence->originationTime), "%02u:%02u:%02u",
-			CreationTime->time.hour,
-			CreationTime->time.minute,
-			CreationTime->time.second );
+			(CreationTime->time.hour <= 99) ? CreationTime->time.hour : 0,
+			(CreationTime->time.minute <= 99) ? CreationTime->time.minute : 0,
+			(CreationTime->time.second <= 99) ? CreationTime->time.second : 0 );
 
 	}
 
@@ -2569,8 +2579,8 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot )
 				aafi->ctx.current_pos = 0;
 
 				parse_Segment( aafi, Segment );
-                
-                
+
+
                 /* update session_end if needed */
                 session_end = ( aafi->ctx.current_pos > session_end ) ? aafi->ctx.current_pos : session_end;
                 printf( "SESSIon_end : %li\n", session_end );

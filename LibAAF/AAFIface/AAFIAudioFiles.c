@@ -166,7 +166,7 @@ static int32_t samplesize_to_PCM_sf_format( uint32_t samplesize )
 
 char * locate_external_essence_file( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 {
-    char *filePath = malloc( PATH_MAX );
+    char *filePath = malloc( PATH_MAX*2 );
 
     snprintf( filePath, PATH_MAX, "%ls", audioEssence->original_file );
 
@@ -221,7 +221,7 @@ char * locate_external_essence_file( AAF_Iface *aafi, aafiAudioEssence *audioEss
 
     /* Search one level inside all directories next to AAF file */
 
-    char subPath[NAME_MAX];
+    char subPath[PATH_MAX*2];
     struct dirent *sdir;
     DIR *sd = NULL;
 
@@ -238,7 +238,7 @@ char * locate_external_essence_file( AAF_Iface *aafi, aafiAudioEssence *audioEss
                 continue;
             }
 
-            snprintf( subPath, NAME_MAX, "%s%s/", path, dir->d_name );
+            snprintf( subPath, sizeof(subPath), "%s%s/", path, dir->d_name );
 
             sd = opendir( subPath );
 
@@ -248,7 +248,7 @@ char * locate_external_essence_file( AAF_Iface *aafi, aafiAudioEssence *audioEss
                 {
                     if ( strcmp( sdir->d_name, file ) == 0 )
                     {
-                        snprintf( filePath, PATH_MAX, "%s%s", subPath, file );
+                        snprintf( filePath, PATH_MAX*2, "%s%s", subPath, file );
                         // printf( "::FOUND %s\n", filePath );
 
                         return filePath;

@@ -239,7 +239,7 @@ void cfb_release( CFB_Data **cfbd )
 
 int cfb_load_file( CFB_Data **cfbd, const char * file )
 {
-	strncpy( (*cfbd)->file, file, strlen(file) );
+	snprintf( (*cfbd)->file, sizeof(((CFB_Data){0}).file), "%s", file );
 
 
 	if ( cfb_openFile( *cfbd ) < 0 )

@@ -74,13 +74,13 @@ static void unitValueToFrames( struct timecode *tc )
 
 static void hmsfToString( struct timecode *tc )
 {
-	char string[16];
+	char string[12];
 
-	snprintf( string,  16, "%02i%c%02u%c%02u%c%02u",
-	          tc->hours,   TC_SEP,
-	          tc->minutes, TC_SEP,
-	          tc->seconds, (tc->format == TC_29_97_DF || tc->format == TC_59_94_DF) ? TC_SEP_DROP : TC_SEP,
-	          tc->frames   );
+	snprintf( string,  12, "%02u%c%02u%c%02u%c%02u",
+	          (tc->hours   <= 99) ? tc->hours   : 0, TC_SEP,
+	          (tc->minutes <= 99) ? tc->minutes : 0, TC_SEP,
+	          (tc->seconds <= 99) ? tc->seconds : 0, (tc->format == TC_29_97_DF || tc->format == TC_59_94_DF) ? TC_SEP_DROP : TC_SEP,
+	          (tc->frames  <= 99) ? tc->frames  : 0 );
 
 	if ( tc->frameNumber < 0 )
 	{
