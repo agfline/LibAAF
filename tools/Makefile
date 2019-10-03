@@ -15,7 +15,7 @@ BINDIR = ../bin
 
 
 
-all: clean $(BINDIR)/AAFInfo $(BINDIR)/AAFExtract $(BINDIR)/AAF2Ardour
+all: clean $(BINDIR)/AAFInfo $(BINDIR)/AAFExtract #$(BINDIR)/AAF2Ardour
 
 #depend:
 #	makedepend -Y $(SRC) 2>/dev/null
@@ -30,10 +30,10 @@ $(BINDIR)/AAFInfo: AAFInfo.c thirdparty/libTC.c
 $(BINDIR)/AAFExtract: AAFExtract.c
 	$(CC) -o $@ $^ -L$(OBJDIR) $(CFLAGS) -lsndfile -lAAF -lm
 
-$(BINDIR)/AAF2Ardour: $(OBJDIR)/Ardour.o AAF2Ardour.c
-	$(CC) -o $@ $^ -L$(OBJDIR) $(CFLAGS) -lsndfile -lAAF -lm
+#$(BINDIR)/AAF2Ardour: $(OBJDIR)/Ardour.o AAF2Ardour.c
+#	$(CC) -o $@ $^ -L$(OBJDIR) $(CFLAGS) -lsndfile -lAAF -lm
 
 
 ### Ardour
-$(OBJDIR)/Ardour.o: thirdparty/Ardour/Ardour.c
-	$(CC) -c -o $@ $< $(CFLAGS)
+#$(OBJDIR)/Ardour.o: thirdparty/Ardour/Ardour.c
+#	$(CC) -c -o $@ $< $(CFLAGS)
