@@ -396,10 +396,16 @@ typedef struct aafiTimelineItem
 typedef struct aafiTimecode
 {
 	/**
-	 *	Timecode start in EditUnit.
+	 *	Timecode start in EditUnit. (session start)
 	 */
 
 	aafPosition_t  start;
+
+	/**
+	 *	Timecode end in EditUnit. (session end)
+	 */
+
+	aafPosition_t  end;
 
 	/**
 	 *	Frame per second.

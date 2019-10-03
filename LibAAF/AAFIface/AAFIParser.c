@@ -2461,7 +2461,7 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot )
 	}
 
 
-
+    aafPosition_t session_end = 0;
 
 	if ( auidCmp( MobSlot->Class->ID, &AAFClassID_TimelineMobSlot ) )
 	{
@@ -2569,6 +2569,11 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot )
 				aafi->ctx.current_pos = 0;
 
 				parse_Segment( aafi, Segment );
+                
+                
+                /* update session_end if needed */
+                session_end = ( aafi->ctx.current_pos > session_end ) ? aafi->ctx.current_pos : session_end;
+                printf( "SESSIon_end : %li\n", session_end );
 
 			}
 			else if ( auidCmp( DataDefinition, &AAFDataDef_Timecode ) ||
@@ -2631,6 +2636,11 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot )
 		trace_obj( aafi, MobSlot, ANSI_COLOR_YELLOW );
 		printf( "%ls\n", DataDefToText( aafi->aafd, DataDefinition ) );
 	}
+
+    if ( session_end > 0 && aafi->Audio->tc )
+        aafi->Audio->tc->end = session_end;
+    else
+        _error("MISSING aafiTimecode !\n"); // TODO handle session's end more properly
 
 	return 0;
 }
