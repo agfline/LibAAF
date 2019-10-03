@@ -20,7 +20,7 @@ LibAAF only supports the reading of AAF files, it cannot write ones.
 
 LibAAF was widely tested with :
 
-* Avid Media Composer 8.4.5 - 8.8.3
+* Avid Media Composer 8.4.5 - 8.8.3 - 18.12.5
 * Adobe Premiere Pro (CC 2018) 12.0 - 12.1.1
 * ProTools 10.3.10
 * Logic Pro 9.1.7
