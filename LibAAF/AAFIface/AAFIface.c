@@ -195,6 +195,34 @@ aafiTransition * get_fadeout( aafiTimelineItem *audioItem )
 
 
 
+aafiTransition * get_xfade( aafiTimelineItem *audioItem )
+{
+
+// 	if ( audioItem->next != NULL &&
+// 		 audioItem->next->type & AAFI_TRANS )
+// 	{
+// 		aafiTransition *Trans = (aafiTransition*)(audioItem->next->data);
+// 
+// 		if ( Trans->flags & AAFI_TRANS_XFADE )
+// 			return (aafiTransition*)(audioItem->next->data);
+// 	}
+    
+    
+    if ( audioItem->prev != NULL &&
+		 audioItem->prev->type & AAFI_TRANS )
+	{
+		aafiTransition *Trans = (aafiTransition*)(audioItem->prev->data);
+
+		if ( Trans->flags & AAFI_TRANS_XFADE )
+			return (aafiTransition*)(audioItem->prev->data);
+	}
+
+	return NULL;
+}
+
+
+
+
 
 
 

@@ -708,6 +708,9 @@ aafiTransition * get_fadein( aafiTimelineItem *audioItem );
 
 aafiTransition * get_fadeout( aafiTimelineItem *audioItem );
 
+aafiTransition * get_xfade( aafiTimelineItem *audioItem );
+
+
 
 aafiAudioTrack * aafi_newAudioTrack( AAF_Iface *aafi );
 void   aafi_freeAudioTracks( aafiAudioTrack **tracks );
