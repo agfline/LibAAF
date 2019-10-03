@@ -106,11 +106,11 @@ int main( int argc, char *argv[] )
 			offset += snprintf( buf+offset, buf_sz-offset, "<Region name=\"%ls\" muted=\"0\" opaque=\"1\" locked=\"0\" video-locked=\"0\" automatic=\"1\" whole-file=\"1\" import=\"0\" external=\"0\" sync-marked=\"0\" left-of-split=\"0\" right-of-split=\"0\" hidden=\"0\" position-locked=\"0\" valid-transients=\"0\" start=\"%li\" length=\"%li\" position=\"%li\" beat=\"0\" sync-position=\"0\" ancestral-start=\"0\" ancestral-length=\"0\" stretch=\"1\" shift=\"1\" positional-lock-style=\"AudioTime\" layering-index=\"0\" envelope-active=\"0\" default-fade-in=\"0\" default-fade-out=\"0\" fade-in-active=\"1\" fade-out-active=\"1\" scale-amplitude=\"1\" id=\"%u\" type=\"audio\" first-edit=\"nothing\" source-0=\"%u\" master-source-0=\"%u\" channels=\"%u\"/>\n",
 	 					audioClip->Essence->unique_file_name,
 /*						ac->essenceStartOffset * (48000/25),*/
-						eu2sample( audioClip, audioClip->essence_offset ),
+						eu2sample_fromclip( audioClip, audioClip->essence_offset ),
 /*						ac->length * (48000/25),*/
-						eu2sample( audioClip, audioClip->len ),
+						eu2sample_fromclip( audioClip, audioClip->len ),
 /*						ac->timelinePos * (48000/25),*/
-						eu2sample( audioClip, (audioClip->pos + audioClip->track->Audio->tc->start) ),
+						eu2sample_fromclip( audioClip, (audioClip->pos + audioClip->track->Audio->tc->start) ),
 						(uint16_t)((uint64_t)(&audioClip->Essence->sourceMobID) & 0xffff ) + 1,
 						(uint16_t)((uint64_t)(&audioClip->Essence->sourceMobID) & 0xffff ),
 						(uint16_t)((uint64_t)(&audioClip->Essence->sourceMobID) & 0xffff ),
@@ -153,11 +153,11 @@ int main( int argc, char *argv[] )
 			offset += snprintf( buf+offset, buf_sz-offset, "      <Region name=\"%s\" muted=\"0\" opaque=\"1\" locked=\"0\" video-locked=\"0\" automatic=\"1\" whole-file=\"0\" import=\"0\" external=\"0\" sync-marked=\"0\" left-of-split=\"0\" right-of-split=\"0\" hidden=\"0\" position-locked=\"0\" valid-transients=\"0\" start=\"%li\" length=\"%li\" position=\"%li\" beat=\"0\" sync-position=\"0\" ancestral-start=\"0\" ancestral-length=\"0\" stretch=\"1\" shift=\"1\" positional-lock-style=\"AudioTime\" layering-index=\"0\" envelope-active=\"0\" default-fade-in=\"0\" default-fade-out=\"0\" fade-in-active=\"1\" fade-out-active=\"1\" scale-amplitude=\"1\" id=\"%u\" type=\"audio\" first-edit=\"nothing\" source-0=\"%u\" master-source-0=\"%u\" channels=\"1\"></Region>\n",
 		 					name,
 /*							ac->essenceStartOffset * (48000/25),*/
-							eu2sample( audioClip, audioClip->essence_offset ),
+							eu2sample_fromclip( audioClip, audioClip->essence_offset ),
 /*							ac->length * (48000/25),*/
-							eu2sample( audioClip, audioClip->len ),
+							eu2sample_fromclip( audioClip, audioClip->len ),
 /*							ac->timelinePos * (48000/25),*/
-							eu2sample( audioClip, (audioClip->pos + audioClip->track->Audio->tc->start) ),
+							eu2sample_fromclip( audioClip, (audioClip->pos + audioClip->track->Audio->tc->start) ),
 							id++/*(uint16_t)(((uint64_t)(&audioClip->Essence->sourceMobID)-audioClip->subClipNum) & 0xffff)*/,
 							(uint16_t)((uint64_t)(&audioClip->Essence->sourceMobID) & 0xffff),
 							(uint16_t)((uint64_t)(&audioClip->Essence->sourceMobID) & 0xffff ) );
