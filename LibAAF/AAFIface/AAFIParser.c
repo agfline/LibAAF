@@ -968,7 +968,16 @@ static int parse_Transition( AAF_Iface *aafi, aafObject *Transition )
 		return -1;
 	}
 
-	aafi->ctx.current_pos += *length;
+// 	aafi->ctx.current_pos += *length;
+
+//     aafObject *prevObject = aafi->ctx.current_Segment->prev;
+//     aafObject *nextObject = aafi->ctx.current_Segment->next;
+// 
+//     if ( prevObject && auidCmp( prevObject->Class->ID, &AAFClassID_Filler ) )
+//     {
+//         
+//         aafi->ctx.current_pos -= *length;
+//     }
 
 
 	aafiTimelineItem *Item  = aafi_newTimelineItem( aafi->ctx.current_track, AAFI_TRANS );
@@ -978,22 +987,60 @@ static int parse_Transition( AAF_Iface *aafi, aafObject *Transition )
 
 
 	aafi->ctx.current_transition = Trans;
+    
+    
+    Trans->len   = *length;
+    Trans->flags = AAFI_INTERPOL_LINEAR; // set default in case of missing AAFParameterDef_Level from OperationGroup
 
-
-	/* Set transition type */
+	/* Set transition type and substract filler length if needed */
+    
+    int64_t *fillerLen = NULL;
 
 	if ( Transition->prev != NULL && auidCmp( Transition->prev->Class->ID, &AAFClassID_Filler ) )
 	{
 		Trans->flags |= AAFI_TRANS_FADE_IN;
+        
+//         fillerLen = (int64_t*)aaf_get_propertyValue( Transition->prev, PID_Component_Length );
+//         
+//         if ( fillerLen != NULL /*&& *fillerLen == *length*/ )
+//         {
+//             aafi->ctx.current_pos -= *fillerLen;
+//         }
+        
+        aafi->ctx.current_pos -= *length;
 	}
 	else if ( Transition->next != NULL && auidCmp( Transition->next->Class->ID, &AAFClassID_Filler ) )
 	{
 		Trans->flags |= AAFI_TRANS_FADE_OUT;
+        
+//         fillerLen = (int64_t*)aaf_get_propertyValue( Transition->next, PID_Component_Length );
+//         
+//         if ( fillerLen != NULL /*&& *fillerLen == *length*/ )
+//         {
+//             aafi->ctx.current_pos -= *fillerLen;
+//         }
+        
+        aafi->ctx.current_pos -= *length;
 	}
 	else if ( Transition->next != NULL && auidCmp( Transition->next->Class->ID, &AAFClassID_Filler ) == 0 &&
 	          Transition->prev != NULL && auidCmp( Transition->prev->Class->ID, &AAFClassID_Filler ) == 0 )
 	{
 		Trans->flags |= AAFI_TRANS_XFADE;
+        
+//         fillerLen = (int64_t*)aaf_get_propertyValue( Transition->prev, PID_Component_Length );
+//         
+//         if ( fillerLen != NULL /*&& *fillerLen == *length*/ )
+//         {
+//             aafi->ctx.current_pos -= *fillerLen;
+//         }
+//         
+//         fillerLen = (int64_t*)aaf_get_propertyValue( Transition->next, PID_Component_Length );
+//         
+//         if ( fillerLen != NULL /*&& *fillerLen == *length*/ )
+//         {
+//             aafi->ctx.current_pos -= *fillerLen;
+//         }
+        aafi->ctx.current_pos -= *length;
 	}
 	else
 	{
@@ -1001,13 +1048,15 @@ static int parse_Transition( AAF_Iface *aafi, aafObject *Transition )
 		/* TODO */
 
 	}
+    
 
 	aafPosition_t *cut_point = aaf_get_propertyValue( Transition, PID_Transition_CutPoint );
 
 	if ( cut_point == NULL )
 	{
 		_error( "Missing Transition::CutPoint.\n" );
-		return -1;
+        Trans->cut_pt = Trans->len/2; // set default cutpoint to middle of transition
+// 		return -1;
 	}
 
 	Trans->cut_pt = *cut_point;
@@ -1340,26 +1389,40 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 				 *	Since this is a Single Parameter, we should have only one Parameter Object
 				 *	within the vector. So there's no need to loop through the vector.
 				 *	But still, we can have custom objects..
+                 * 
+                 *  TODO Avid files look that way..
 				 */
 
 				if ( Param->Header->_entryCount > 1 )
 				{
-					_error( "Multiple Parameters in MonoAudioDissolve Transition OperationGroup.\n" );
-					return -1;
+					_warning( "Multiple Parameters in MonoAudioDissolve Transition OperationGroup.\n" );
+// 					return -1;
 				}
+				
+				
 
-				// printf( " Count of Params : %u\n", Params->Header->_entryCount );
-	            //
-				// aaf_foreach_ObjectInSet( &Param, Params, NULL )
-				// {
-				// 	aafUID_t *ParamDef = aaf_get_propertyValue( Param, PID_Parameter_Definition );
-	            //
-				// 	if ( auidCmp( ParamDef, &AAFParameterDef_Level ) )
-				// 		break;
-				// }
-	            //
-				// if ( Param == NULL )
-				// 	_error( "Could not retrieve Parameter Object.\n" );
+				printf( " Count of Params : %u\n", Param->Header->_entryCount );
+                
+                aafObject * p = NULL;
+	            
+				aaf_foreach_ObjectInSet( &p, Param, NULL )
+				{
+					aafUID_t *ParamDef = aaf_get_propertyValue( p, PID_Parameter_Definition );
+                    
+                    // TODO print property
+                    
+                    printf("    ParamDef %ls (%ls)\n", ParameterToText( aafi->aafd, ParamDef ), AUIDToText( ParamDef ) );
+
+	            
+					if ( auidCmp( ParamDef, &AAFParameterDef_Level ) )
+						break;
+				}
+	            
+				if ( p == NULL )
+                {
+					_error( " Could not retrieve AAFParameterDef_Level Object.\n" );
+                    return -1;
+                }
 
 
 				parse_Parameter( aafi, Param );
