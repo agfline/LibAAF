@@ -1,6 +1,10 @@
 #ifndef __libAAF_h__
 #define __libAAF_h__
 
+#ifdef __cplusplus
+extern "C" {
+#endif 
+
 #include "AAFCore/AAFClass.h"
 #include "AAFCore/AAFCore.h"
 #include "AAFCore/AAFUtils.h"
@@ -22,5 +26,10 @@
 
 #include "LibCFB/CFBDump.h"
 #include "AAFCore/AAFDump.h"
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // ! __libAAF_h__
