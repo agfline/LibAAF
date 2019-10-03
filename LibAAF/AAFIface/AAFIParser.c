@@ -2125,10 +2125,25 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue )
 
 		aafiAudioGain *Gain = calloc( sizeof(aafiAudioGain), sizeof(unsigned char) );
 
-		Gain->flags |= AAFI_AUDIO_GAIN_VARIABLE;
+// 		Gain->flags |= AAFI_AUDIO_GAIN_VARIABLE;
 		Gain->flags |= interpolation;
 
 		Gain->pts_cnt = retrieve_ControlPoints( aafi, Points, &Gain->time, &Gain->value );
+        
+        
+        /* If gain has 2 ControlPoints with both the same value, it means 
+         * we have a flat gain curve. So we can assume constant gain here. */
+        
+        if ( Gain->pts_cnt == 2 &&
+            ( Gain->value[0].numerator   == Gain->value[1].numerator   ) &&
+            ( Gain->value[0].denominator == Gain->value[1].denominator ) )
+        {
+            Gain->flags |= AAFI_AUDIO_GAIN_CONSTANT;
+        }
+        else
+        {
+            Gain->flags |= AAFI_AUDIO_GAIN_VARIABLE;
+        }
 
 		// int i = 0;
         //
