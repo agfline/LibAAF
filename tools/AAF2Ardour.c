@@ -49,7 +49,7 @@ int main( int argc, char *argv[] )
 
 	aafiAudioEssence *audioEssence = NULL;
 
-	foreachAudioEssence( audioEssence, aafi->Audio->Essences )
+	foreachEssence( audioEssence, aafi->Audio->Essences )
 	{
 		aafi_extract_audio_essence( aafi, audioEssence, target, NULL, (SF_FORMAT_WAV | SF_FORMAT_PCM_16) );
 	}
@@ -77,7 +77,7 @@ int main( int argc, char *argv[] )
 	aafiAudioClip    *audioClip  = NULL;
 	// aafiAudioEssence *audioEssence = NULL;
 
-	foreachAudioEssence( audioEssence, aafi->Audio->Essences )
+	foreachEssence( audioEssence, aafi->Audio->Essences )
 	{
 		offset += snprintf( buf+offset, buf_sz-offset, "    <Source name=\"%ls.wav\" type=\"audio\" flags=\"\" id=\"%u\" captured-for=\"PAD 1\" channel=\"0\" origin=\"\" gain=\"1\"/>\n",
 						audioEssence->unique_file_name,
@@ -95,10 +95,10 @@ int main( int argc, char *argv[] )
 	foreach_audioTrack( audioTrack, aafi )
 	{
 
-		foreach_audioItem( audioItem, audioTrack )
+		foreach_Item( audioItem, audioTrack )
 		{
 
-			if ( audioItem->type != AAFI_CLIP )
+			if ( audioItem->type != AAFI_AUDIO_CLIP )
 				continue;
 
 			audioClip = (aafiAudioClip*)&audioItem->data;
@@ -134,10 +134,10 @@ int main( int argc, char *argv[] )
 
 		offset += snprintf( buf+offset, buf_sz-offset, "    <Playlist id=\"18772\" name=\"Audio %i.1\" type=\"audio\" orig-track-id=\"18730\" shared-with-ids=\"\" frozen=\"0\" combine-ops=\"0\">\n", audioTrack->number /*i*/ );
 
-			foreach_audioItem( audioItem, audioTrack )
+			foreach_Item( audioItem, audioTrack )
 			{
 
-				if ( audioItem->type != AAFI_CLIP )
+				if ( audioItem->type != AAFI_AUDIO_CLIP )
 					continue;
 
 				audioClip = (aafiAudioClip*)&audioItem->data;

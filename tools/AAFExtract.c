@@ -41,7 +41,7 @@ int main( int argc, char *argv[] )
 
 	aafiAudioEssence *audioEssence = NULL;
 
-	foreachAudioEssence( audioEssence, aafi->Audio->Essences )
+	foreachEssence( audioEssence, aafi->Audio->Essences )
 	{
 		if ( audioEssence->is_embedded )
 		{

@@ -195,7 +195,7 @@ int aafi_remove_trackitem( AAF_Iface *aafi, aafiTimelineItem *Item )
 
 static int replace_clipfade_with_fade( AAF_Iface *aafi, aafiTimelineItem *Item )
 {
-	if ( Item->type != AAFI_CLIP )
+	if ( Item->type != AAFI_AUDIO_CLIP )
 	{
 		return -1;
 	}
@@ -230,7 +230,7 @@ static int replace_clipfade_with_fade( AAF_Iface *aafi, aafiTimelineItem *Item )
 
 	if ( Item->prev != NULL )
 	{
-		if ( Item->prev->type == AAFI_CLIP )
+		if ( Item->prev->type == AAFI_AUDIO_CLIP )
 		{
 			prevClip = (aafiAudioClip*)Item->prev->data;
 
@@ -246,7 +246,7 @@ static int replace_clipfade_with_fade( AAF_Iface *aafi, aafiTimelineItem *Item )
 
 	if ( Item->next != NULL )
 	{
-		if ( Item->next->type == AAFI_CLIP )
+		if ( Item->next->type == AAFI_AUDIO_CLIP )
 		{
 			nextClip = (aafiAudioClip*)Item->next->data;
 
@@ -378,7 +378,7 @@ int protools_post_processing( AAF_Iface *aafi, uint32_t flags )
 
 		while ( audioItem != NULL )
 		{
-			if ( audioItem->type != AAFI_CLIP )
+			if ( audioItem->type != AAFI_AUDIO_CLIP )
 			{
 				audioItem = audioItem->next;
 				continue;
