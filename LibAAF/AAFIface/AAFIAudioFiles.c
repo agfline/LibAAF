@@ -164,11 +164,12 @@ static int32_t samplesize_to_PCM_sf_format( uint32_t samplesize )
 
 
 
-char * locate_external_essence_file( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
+char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_file /*aafiAudioEssence *audioEssence*/ )
 {
+  /* TODO handle realpath return value and free(absFilePath) in case of error */
     char *filePath = malloc( PATH_MAX*2 );
 
-    snprintf( filePath, PATH_MAX, "%ls", audioEssence->original_file );
+    snprintf( filePath, PATH_MAX, "%ls", original_file /*audioEssence->original_file*/ );
 
 
     /* Try AAF essence's file path */
@@ -179,8 +180,9 @@ char * locate_external_essence_file( AAF_Iface *aafi, aafiAudioEssence *audioEss
     }
 
 
-    /* Prepare research */
+    // char *absFilePath = malloc( PATH_MAX*2 );
 
+    /* Prepare research */
     char *file    = strrchr( filePath, '/' ) + 1;
     char *aafFile = strrchr( aafi->aafd->cfbd->file, '/' );
 
@@ -211,6 +213,7 @@ char * locate_external_essence_file( AAF_Iface *aafi, aafiAudioEssence *audioEss
                 snprintf( filePath, PATH_MAX, "%s%s", path, file );
                 // printf( "::FOUND %s\n", filePath );
 
+                // return realpath(filePath, absFilePath);
                 return filePath;
             }
         }
@@ -251,6 +254,7 @@ char * locate_external_essence_file( AAF_Iface *aafi, aafiAudioEssence *audioEss
                         snprintf( filePath, PATH_MAX*2, "%s%s", subPath, file );
                         // printf( "::FOUND %s\n", filePath );
 
+                        // return realpath(filePath, absFilePath);
                         return filePath;
                     }
                 }
@@ -397,7 +401,7 @@ int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 
                 // dump_hex( audioEssence->summary->val, audioEssence->summary->len );
 
-                externalFilePath = locate_external_essence_file( aafi, audioEssence );
+                externalFilePath = locate_external_essence_file( aafi, audioEssence->original_file );
 
                 // printf("externalFilePath : %s\n", externalFilePath );
 
@@ -481,7 +485,7 @@ int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
             /* Close previous stream */
             sf_close( file );
 
-            externalFilePath = locate_external_essence_file( aafi, audioEssence );
+            externalFilePath = locate_external_essence_file( aafi, audioEssence->original_file );
 
             file = open_external_file( externalFilePath, &sfinfo );
 
