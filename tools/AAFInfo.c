@@ -502,35 +502,38 @@ int main( int argc, char *argv[] )
 					(videoTrack->name != NULL) ? videoTrack->name : L""
 			 );
 
-			 videoItem = videoTrack->Items;
-			 videoClip = (aafiVideoClip*)&(videoItem->data);
+			 if ( videoTrack->Items )
+			 {
+				 videoItem = videoTrack->Items;
+				 videoClip = (aafiVideoClip*)&(videoItem->data);
 
-			 struct timecode tc_in;
-			 struct timecode tc_out;
-			 struct timecode tc_len;
+				 struct timecode tc_in;
+				 struct timecode tc_out;
+				 struct timecode tc_len;
 
-			 memset(&tc_in, 0x00, sizeof(struct timecode));
-			 memset(&tc_out, 0x00, sizeof(struct timecode));
-			 memset(&tc_len, 0x00, sizeof(struct timecode));
+				 memset(&tc_in,  0x00, sizeof(struct timecode));
+				 memset(&tc_out, 0x00, sizeof(struct timecode));
+				 memset(&tc_len, 0x00, sizeof(struct timecode));
 
-			 tc_set_by_unitValue( &tc_in,  (videoClip->pos + videoClip->track->Video->tc->start),                  (rational_t*)videoClip->track->edit_rate, format );
-			 tc_set_by_unitValue( &tc_out, (videoClip->pos + videoClip->len + videoClip->track->Video->tc->start), (rational_t*)videoClip->track->edit_rate, format );
-			 tc_set_by_unitValue( &tc_len,  videoClip->len,                                                        (rational_t*)videoClip->track->edit_rate, format );
+				 tc_set_by_unitValue( &tc_in,  (videoClip->pos + videoClip->track->Video->tc->start),                  (rational_t*)videoClip->track->edit_rate, format );
+				 tc_set_by_unitValue( &tc_out, (videoClip->pos + videoClip->len + videoClip->track->Video->tc->start), (rational_t*)videoClip->track->edit_rate, format );
+				 tc_set_by_unitValue( &tc_len,  videoClip->len,                                                        (rational_t*)videoClip->track->edit_rate, format );
 
-			 printf( " VideoClip "
-					 " Start:%s  Len:%s  End:%s  "
-					 " SourceFile: %ls   (%ls)\n",
-				 // i, ( i < 10 ) ? " " : "",
-				 // videoClip->track->number, ( videoClip->track->number < 10 ) ? " " : "",
-				 tc_in.string,
-				 tc_len.string,
-				 tc_out.string,
-				 // (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start),
-				 (videoClip->Essence) ? videoClip->Essence->original_file : L"",
-				 (videoClip->Essence) ? videoClip->Essence->file_name : L""
-			 );
+				 printf( " VideoClip "
+						 " Start:%s  Len:%s  End:%s  "
+						 " SourceFile: %ls   (%ls)\n",
+					 // i, ( i < 10 ) ? " " : "",
+					 // videoClip->track->number, ( videoClip->track->number < 10 ) ? " " : "",
+					 tc_in.string,
+					 tc_len.string,
+					 tc_out.string,
+					 // (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start),
+					 (videoClip->Essence) ? videoClip->Essence->original_file : L"",
+					 (videoClip->Essence) ? videoClip->Essence->file_name : L""
+				 );
 
-			 printf( "\n\n\n" );
+				 printf( "\n\n\n" );
+			 }
 		 }
 
 
