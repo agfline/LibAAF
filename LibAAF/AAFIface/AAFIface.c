@@ -199,7 +199,7 @@ aafiTransition * get_fadein( aafiTimelineItem *audioItem )
 {
 
 	if ( audioItem->prev != NULL &&
-		 audioItem->prev->type & AAFI_TRANS )
+			 audioItem->prev->type == AAFI_TRANS )
 	{
 		aafiTransition *Trans = (aafiTransition*)(audioItem->prev->data);
 
@@ -217,7 +217,7 @@ aafiTransition * get_fadeout( aafiTimelineItem *audioItem )
 {
 
 	if ( audioItem->next != NULL &&
-		 audioItem->next->type & AAFI_TRANS )
+			 audioItem->next->type == AAFI_TRANS )
 	{
 		aafiTransition *Trans = (aafiTransition*)(audioItem->next->data);
 
@@ -244,8 +244,8 @@ aafiTransition * get_xfade( aafiTimelineItem *audioItem )
 // 	}
 
 
-    if ( audioItem->prev != NULL &&
-		 audioItem->prev->type & AAFI_TRANS )
+  if ( audioItem->prev != NULL &&
+			 audioItem->prev->type == AAFI_TRANS )
 	{
 		aafiTransition *Trans = (aafiTransition*)(audioItem->prev->data);
 
@@ -279,11 +279,12 @@ aafiTimelineItem * aafi_newTimelineItem( void *track, int itemType )
 		}
 
 
-		item->type |= AAFI_AUDIO_CLIP;
+		item->type = AAFI_AUDIO_CLIP;
 
 		aafiAudioClip *audioClip = (aafiAudioClip*)&item->data;
 
 		audioClip->track = (aafiAudioTrack*)track;
+		audioClip->Item = item;
 	}
 	else if ( itemType == AAFI_VIDEO_CLIP )
 	{
@@ -296,7 +297,7 @@ aafiTimelineItem * aafi_newTimelineItem( void *track, int itemType )
 		}
 
 
-		item->type |= AAFI_VIDEO_CLIP;
+		item->type = AAFI_VIDEO_CLIP;
 
 		aafiVideoClip *videoClip = (aafiVideoClip*)&item->data;
 
@@ -312,11 +313,11 @@ aafiTimelineItem * aafi_newTimelineItem( void *track, int itemType )
 			return NULL;
 		}
 
-		item->type |= AAFI_TRANS;
+		item->type = AAFI_TRANS;
 	}
 
 
-	if ( itemType == AAFI_AUDIO_CLIP )
+	if ( itemType == AAFI_AUDIO_CLIP || itemType == AAFI_TRANS )
 	{
 		if ( track != NULL )
 		{

@@ -382,6 +382,7 @@ typedef struct aafiAudioClip
 
 	aafPosition_t          essence_offset; // start position in the source file
 
+	struct aafiTimelineItem      *Item; // Corresponding timeline item, currently used in ardour to retrieve fades/x-fades
 
 	aafMobID_t            *masterMobID; // MobID of the associated MasterMob (PID_SourceReference_SourceID)
 
