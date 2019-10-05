@@ -1186,10 +1186,11 @@ static int parse_Component( AAF_Iface *aafi, aafObject *Component )
 static int parse_Transition( AAF_Iface *aafi, aafObject *Transition )
 {
 
-	if ( aafi->ctx.current_tree_type != AAFI_TREE_TYPE_VIDEO )
+	if ( aafi->ctx.current_tree_type != AAFI_TREE_TYPE_AUDIO )
 	{
 		return -1;
 	}
+
 
 	int64_t *length = aaf_get_propertyValue( Transition, PID_Component_Length );
 
