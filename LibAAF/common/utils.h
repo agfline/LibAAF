@@ -24,6 +24,7 @@
 
 wchar_t * eascii_to_ascii( wchar_t *str );
 
+char *remove_file_ext (char* myStr, char extSep, char pathSep);
 
 wchar_t * w16tow32( wchar_t *w32buf, uint16_t *w16buf, size_t w16len );
 
