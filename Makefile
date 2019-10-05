@@ -35,7 +35,7 @@ clean:
 install:
 	cp $(BINDIR)/AAFInfo /usr/local/bin/
 	cp $(BINDIR)/AAFExtract /usr/local/bin/
-	cp $(BINDIR)/AAF2Ardour /usr/local/bin/
+	# cp $(BINDIR)/AAF2Ardour /usr/local/bin/
 	cp $(BINDIR)/libAAF.so /usr/local/lib/
 	mkdir -p /usr/local/include/libAAF/
 	cp -r LibAAF/libAAF.h /usr/local/include/libAAF/
