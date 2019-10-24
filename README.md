@@ -52,7 +52,6 @@ Three programs are available with LibAAF :
 
 * **AAFInfo** : Parses any AAF file and provides a way to dig into them.
 * **AAFExtract** : Extracts audio essences contained in an AAF file.
-* **AAF2Ardour** : A very - *VERY* - dirty proof of concept which creates an Ardour session from an AAF file.
 
 To build those, just run `make`
 
