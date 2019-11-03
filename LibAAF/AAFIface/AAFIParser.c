@@ -1990,6 +1990,11 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 
 			audioClip->Essence = getAudioEssenceBySourceMobID( aafi, audioClip->masterMobID );
 
+			if ( audioClip->Essence )
+			{
+				audioClip->Essence->clip_count++;
+			}
+
 
 			if ( aafi->ctx.current_track_is_multichannel == 0 )
 			{
@@ -2128,7 +2133,7 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 
 
 
-			/* NOTE since multiple clips can point to the same MasterMob, we have to loop. */
+			/* link current Essence with any clip that was already parsed and that relies on that essence */
 
 			aafiAudioTrack   * audioTrack = NULL;
 			aafiTimelineItem * audioItem  = NULL;
@@ -2147,6 +2152,7 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 					if ( mobIDCmp( audioClip->masterMobID, audioEssence->masterMobID ) )
 					{
 						audioClip->Essence = audioEssence;
+						audioEssence->clip_count++;
 					}
 				}
 			}

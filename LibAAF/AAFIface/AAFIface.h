@@ -281,6 +281,8 @@ typedef struct aafiAudioEssence
 	wchar_t       *file_name;			// MasterMob::Name -> file name
 	wchar_t		    *unique_file_name;	// unique name generated from file_name. Sometimes, multiple files share the same names so this unique name should be used on export.
 
+	uint16_t       clip_count; // number of clips with this essence
+
 	uint64_t       length; 		// Length of Essence Data
 
 	cfbNode       *node;			// The node holding the audio stream if embedded
