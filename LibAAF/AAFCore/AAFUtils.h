@@ -42,7 +42,7 @@
  */
 
 #define auidCmp( auid1, auid2 ) \
-	( memcmp( auid1, auid2, sizeof(aafUID_t) ) == 0 )
+	( auid1 != NULL && auid2 != NULL && memcmp( auid1, auid2, sizeof(aafUID_t) ) == 0 )
 
 
 
@@ -51,7 +51,7 @@
  */
 
 #define mobIDCmp( mobID1, mobID2 ) \
-	( memcmp( mobID1, mobID2, sizeof(aafMobID_t) ) == 0 )
+	( mobID1 != NULL && mobID2 != NULL && memcmp( mobID1, mobID2, sizeof(aafMobID_t) ) == 0 )
 
 
 
@@ -69,6 +69,9 @@
  */
 
 #define rationalToFloat( r ) \
+	(( r.denominator == 0 ) ? 0 : ((float)r.numerator/r.denominator))
+
+#define rationalToFloat_p( r ) \
 	(( r->denominator == 0 ) ? 0 : ((float)r->numerator/r->denominator))
 
 
@@ -77,8 +80,10 @@
  */
 
 #define rationalToint64( r ) \
-	(( r->denominator == 0 ) ? 0 : (int64_t)(r->numerator/r->denominator))
+	(( r.denominator == 0 ) ? 0 : (int64_t)(r.numerator/r.denominator))
 
+#define rationalToint64_p( r ) \
+	(( r->denominator == 0 ) ? 0 : (int64_t)(r->numerator/r->denominator))
 
 
 size_t utf16toa( char *astr, uint16_t alen, uint16_t *wstr, uint16_t wlen );

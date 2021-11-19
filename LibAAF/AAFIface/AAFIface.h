@@ -288,7 +288,9 @@ typedef struct aafiAudioEssence
 	cfbNode       *node;			// The node holding the audio stream if embedded
 
 	aafMobID_t    *sourceMobID;	// Holds the SourceMob Mob::ID references this EssenceData
-	aafMobID_t    *masterMobID;	// Holds the MasterMob Mob::ID (used by CompoMob's Sequence SourceClips)
+	uint32_t       sourceMobSlotID;      // SlotID of the MobSlot inside MasterMob (CompoMob's Sequence SourceClip::SourceMobSlotID)
+	aafMobID_t    *masterMobID;	// Holds the MasterMob Mob::ID (used by CompoMob's Sequence SourceClip::SourceID)
+	uint32_t       masterMobSlotID;      // SlotID of the MobSlot inside MasterMob (CompoMob's Sequence SourceClip::SourceMobSlotID)
 
 	aafObject     *SourceMob;
 
@@ -332,8 +334,12 @@ typedef struct aafiVideoEssence
 
 	cfbNode       *node;			// The node holding the audio stream if embedded
 
+	aafRational_t *framerate;
+
 	aafMobID_t    *sourceMobID;	// Holds the SourceMob Mob::ID references this EssenceData
-	aafMobID_t    *masterMobID;	// Holds the MasterMob Mob::ID (used by CompoMob's Sequence SourceClips)
+	uint32_t       sourceMobSlotID;      // SlotID of the MobSlot inside MasterMob (CompoMob's Sequence SourceClip::SourceMobSlotID)
+	aafMobID_t    *masterMobID;	// Holds the MasterMob Mob::ID (used by CompoMob's Sequence SourceClip::SourceID)
+	uint32_t       masterMobSlotID;      // SlotID of the MobSlot inside MasterMob (CompoMob's Sequence SourceClip::SourceMobSlotID)
 
 	aafObject     *SourceMob;
 
@@ -552,6 +558,10 @@ typedef struct aafiAudioTrack
 	 *	Pointer to the next aafiAudioTrack structure in the aafiAudio.Tracks list.
 	 */
 
+
+
+	aafPosition_t            current_pos;
+
 	struct aafiAudioTrack   *next;
 
 } aafiAudioTrack;
@@ -597,6 +607,8 @@ typedef struct aafiVideoTrack
 	 *	Pointer to the next aafiVideoTrack structure in the aafiVideo.Tracks list.
 	 */
 
+	aafPosition_t            current_pos;
+
 	struct aafiVideoTrack   *next;
 
 } aafiVideoTrack;
@@ -631,6 +643,9 @@ typedef struct aafiAudio
 
 	aafiTimecode     *tc;
 
+	int64_t           samplerate;
+	int16_t           samplesize;
+
 	/**
 	 *	Holds the Essence list.
 	 */
@@ -642,6 +657,7 @@ typedef struct aafiAudio
 	 */
 
 	aafiAudioTrack   *Tracks;
+	uint32_t          track_count;
 
 } aafiAudio;
 
@@ -672,26 +688,36 @@ typedef struct aafiVideo
 
 
 
-typedef enum aafiCurrentTreeType_e
-{
-	AAFI_TREE_TYPE_AUDIO = 0,
-	AAFI_TREE_TYPE_VIDEO = 1
+// typedef enum aafiCurrentTreeType_e
+// {
+// 	AAFI_TREE_TYPE_AUDIO = 0,
+// 	AAFI_TREE_TYPE_VIDEO = 1
+//
+// } aafiCurrentTreeType_e;
 
-} aafiCurrentTreeType_e;
+// typedef enum aafiVerbosity_e {
+// 	VERB_QUIET = 0,
+// 	VERB_ERROR,
+// 	VERB_WARNING,
+// 	VERB_DEBUG
+// } aafiVerbosity_e;
+
+typedef struct trace_dump {
+	int   fn; // line number of current __td
+	int  pfn; // line number of previous __td
+	int   lv; // current level
+	int  *ll; // level loop : each entry correspond to a level and tell if there is more to print
+	int  eob; // end of branch
+	int   hc; // have children
+	int  sub;
+} td;
+
 
 typedef struct aafiContext
 {
-	/* Current Mob */
-
-	aafObject *Mob;
-
-	/* Current Mob::Slots */
-
-	aafObject *MobSlot;
-
 
 	/* Set in parse_MobSlot(), specifies if we're inside an audio or video context */
-	aafiCurrentTreeType_e current_tree_type;
+	// aafiCurrentTreeType_e current_tree_type;
 
 	/*
 	 *	Current MobSlot Segment's DataDefinition
@@ -701,15 +727,13 @@ typedef struct aafiContext
 	// aafUID_t  *DataDef;
 
 
-	uint8_t is_inside_sequence;	// takes 1 or 0. Usefull whent parsing MonoAudioGain or MonoAudioPan to know if it should be applied to clips or track.
-
-
 
 	/* Clip */
 
 	/* Must be casted to aafiAudioTrack or aafiVideoTrack, according to aafiContext::current_tree_type */
-	// aafiAudioTrack * current_track;
-	void * current_track;
+	aafiAudioTrack * current_track;
+	// void * current_track;
+	// int    current_track_number; // used only when missing MobSlot::PhysicalTrackNumber
 
 	aafBoolean_t     current_track_is_multichannel;
 
@@ -717,8 +741,9 @@ typedef struct aafiContext
 
 	aafPosition_t    current_multichannel_track_clip_length;
 
-	aafPosition_t    current_pos;
-
+	// aafPosition_t    current_pos;
+	aafiAudioClip   *current_clip;
+	aafiVideoClip   *current_video_clip;
 
 
 	/* Transition */
@@ -729,14 +754,32 @@ typedef struct aafiContext
 
 	/* Gain */
 
-	aafiAudioGain    *current_gain;
+	aafiAudioGain    *current_clip_gain;
+	int               clips_using_gain; // if none then free( current_clip_gain );
 
 
 
 	/* Essence */
 
 	// aafiAudioEssence *current_audioEssence;
-	void *current_essence;
+	// void *current_essence;
+	aafiAudioEssence *current_essence;
+	aafiVideoEssence *current_video_essence;
+
+
+	int is_inside_derivation_chain;
+
+
+	int current_dump_level;
+
+	struct options {
+		verbosityLevel_e verb;
+		int              trace;
+	} options;
+
+
+	// int *trace_leveloop; // keeps track of __td.ll member for freeing
+
 
 } aafiContext;
 
@@ -813,7 +856,7 @@ typedef struct AAF_Iface
 
 
 #define eu2sample( samplerate, edit_rate, val ) \
-	(int64_t)(val * (samplerate * (1 / rationalToFloat(edit_rate))))
+	(int64_t)(val * (samplerate * (1 / rationalToFloat_p(edit_rate))))
 
 #define eu2sample_fromclip( audioClip, val ) \
     eu2sample( audioClip->Essence->samplerate, audioClip->track->edit_rate, val )
@@ -870,12 +913,14 @@ aafiVideoTrack * aafi_newVideoTrack( AAF_Iface *aafi );
 void aafi_freeVideoTracks( aafiVideoTrack **tracks );
 
 
-aafiTimelineItem * aafi_newTimelineItem( void *track, int itemType );
+aafiTimelineItem * aafi_newTimelineItem( AAF_Iface *aafi, void *track, int itemType );
+void aafi_freeAudioGain( aafiAudioGain *gain );
+void aafi_freeAudioPan( aafiAudioPan *pan );
 void   aafi_freeAudioClip( aafiAudioClip *audioClip );
 void   aafi_freeTimelineItem( aafiTimelineItem **item );
 void   aafi_freeTimelineItems( aafiTimelineItem **items );
 
-aafiUserComment * aafi_newUserComment( aafiUserComment **CommentList );
+aafiUserComment * aafi_newUserComment( AAF_Iface *aafi, aafiUserComment **CommentList );
 void aafi_freeUserComments( aafiUserComment **CommentList );
 
 

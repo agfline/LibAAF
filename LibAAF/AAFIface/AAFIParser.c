@@ -38,6 +38,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <stdarg.h>
 
 #include <wchar.h>
 #include <locale.h>
@@ -60,16 +61,61 @@
 
 
 
+
+
+#define OK      0
+#define ERROR   1
+#define WARNING 2
+#define INFO    3
+#define NOT_SUPPORTED 4
+
+
+#define INIT_DUMP( aafi ) \
+	int current_dump_level = aafi->ctx.current_dump_level;
+
+// #define DUMP_OBJ( aafi, Obj, state )
+// 	_dump_obj( aafi, Obj, state, current_dump_level );
+
+
+
+
 #define RESET_CONTEXT( ctx )                        \
-	ctx.MobSlot = NULL;                             \
+	/*ctx.MobSlot = NULL;*/                             \
 	ctx.current_track = NULL;                       \
 	ctx.current_track_is_multichannel = 0;          \
 	ctx.current_multichannel_track_channel = 0;     \
 	ctx.current_multichannel_track_clip_length = 0; \
-	ctx.current_pos = 0;                            \
+	/*ctx.current_pos = 0;*/                            \
 	ctx.current_transition = NULL;                  \
-	ctx.current_gain = NULL;                        \
+	ctx.current_clip_gain = NULL;                        \
 	ctx.current_essence = NULL;                \
+	ctx.current_clip = NULL;                        \
+
+
+
+
+// typedef struct trace_dump {
+// 	int   fn; // line number of current __td
+// 	int  pfn; // line number of previous __td
+// 	int   lv; // current level
+// 	int  *ll; // level loop : each entry correspond to a level and tell if there is more to print
+// 	int  eob; // end of branch
+// 	int   hc; // have children
+// 	int  sub;
+// } td;
+
+#define __td_set( __td, __ptd, offset ) \
+	__td.fn  = __LINE__;    \
+	__td.pfn = __ptd->fn;    \
+	__td.lv  = __ptd->lv+offset; \
+	__td.ll  = __ptd->ll;   \
+	__td.ll[__td.lv] = (offset > 0) ? 0 : __td.ll[__td.lv];   \
+	__td.eob = 0; \
+	__td.hc  = 0; \
+	__td.sub = 0; \
+
+
+
 
 
 
@@ -79,6 +125,8 @@ static void trace_obj( AAF_Iface *aafi, aafObject *Obj, char *color );
 static wchar_t   * build_unique_audiofilename( AAF_Iface *aafi, aafiAudioEssence *audioEssence );
 static wchar_t   * build_unique_videofilename( AAF_Iface *aafi, aafiVideoEssence *videoEssence );
 
+/* TODO move to AAFCore.c */
+static aafObject * get_Object_Ancestor( AAF_Iface *aafi, aafObject *Obj, const aafUID_t *ClassID );
 
 static aafUID_t  * get_Component_DataDefinition( AAF_Iface *aafi, aafObject *Component );
 static aafUID_t  * get_FileDescriptor_ContainerFormat( AAF_Iface *aafi, aafObject *FileDescriptor );
@@ -87,44 +135,265 @@ static aafUID_t  * get_Parameter_InterpolationIdentification( AAF_Iface *aafi, a
 
 static aafObject * get_EssenceData_By_MobID( AAF_Iface *aafi, aafMobID_t *MobID );
 
-static aafiAudioEssence * getAudioEssenceBySourceMobID( AAF_Iface *aafi, aafMobID_t *sourceMobID );
-static aafiVideoEssence * getVideoEssenceBySourceMobID( AAF_Iface *aafi, aafMobID_t *sourceMobID );
+// static aafiAudioEssence * getAudioEssenceBySourceMobID( AAF_Iface *aafi, aafMobID_t *sourceMobID );
+// static aafiVideoEssence * getVideoEssenceBySourceMobID( AAF_Iface *aafi, aafMobID_t *sourceMobID );
 
-static int   parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescriptor );
-static int   parse_CDCIDescriptor( AAF_Iface *aafi, aafObject *CDCIDescriptor );
+static int   parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescriptor, td *__ptd );
+static int   parse_CDCIDescriptor( AAF_Iface *aafi, aafObject *CDCIDescriptor, td *__ptd );
 
-static int   parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc );
-static int   parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor );
-static int   parse_WAVEDescriptor( AAF_Iface *aafi, aafObject *WAVEDescriptor );
-static int   parse_AIFCDescriptor( AAF_Iface *aafi, aafObject *AIFCDescriptor );
+static int   parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc, td *__ptd );
+static int   parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor, td *__ptd );
+static int   parse_WAVEDescriptor( AAF_Iface *aafi, aafObject *WAVEDescriptor, td *__ptd );
+static int   parse_AIFCDescriptor( AAF_Iface *aafi, aafObject *AIFCDescriptor, td *__ptd );
 
-static int   parse_Locator( AAF_Iface *aafi, aafObject *Locator );
-static int   parse_NetworkLocator( AAF_Iface *aafi, aafObject *NetworkLocator );
+static int   parse_Locator( AAF_Iface *aafi, aafObject *Locator, td *__ptd );
+static int   parse_NetworkLocator( AAF_Iface *aafi, aafObject *NetworkLocator, td *__ptd );
 
-static int   retrieve_EssenceData( AAF_Iface *aafi );
-
-
-static int   parse_Component( AAF_Iface *aafi, aafObject *Component );
-static int   parse_Transition( AAF_Iface *aafi, aafObject *Transition );
-static int   parse_Segment( AAF_Iface *aafi, aafObject *Segment );
-static int   parse_Filler( AAF_Iface *aafi, aafObject *Filler );
-static int   parse_Sequence( AAF_Iface *aafi, aafObject *Sequence );
-static int   parse_Timecode( AAF_Iface *aafi, aafObject *Timecode );
-static int   parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup );
-static void *parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip );
+static int   parse_EssenceData( AAF_Iface *aafi, aafObject *EssenceData, td *__ptd );
 
 
-static int   parse_Parameter( AAF_Iface *aafi, aafObject *Parameter );
-static int   parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue );
-static int   parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue );
+static int   parse_Component( AAF_Iface *aafi, aafObject *Component, td *__ptd );
+static int   parse_Transition( AAF_Iface *aafi, aafObject *Transition, td *__ptd );
+static int   parse_NestedScope( AAF_Iface *aafi, aafObject *NestedScope, td *__ptd );
+static int   parse_Segment( AAF_Iface *aafi, aafObject *Segment, td *__ptd );
+static int   parse_Filler( AAF_Iface *aafi, aafObject *Filler, td *__ptd );
+static int   parse_Sequence( AAF_Iface *aafi, aafObject *Sequence, td *__ptd );
+static int   parse_Timecode( AAF_Iface *aafi, aafObject *Timecode, td *__ptd );
+static int   parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup, td *__ptd );
+static int   parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd );
+static int   parse_Selector( AAF_Iface *aafi, aafObject *Selector, td *__ptd );
+
+
+static int   parse_Parameter( AAF_Iface *aafi, aafObject *Parameter, td *__ptd );
+static int   parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue, td *__ptd );
+static int   parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue, td *__ptd );
 static int   retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRational_t *times[], aafRational_t *values[] );
 
 
 static int   parse_Mob( AAF_Iface *aafi, aafObject *Mob );
-static int   parse_SourceMob( AAF_Iface *aafi, aafObject *SourceMob );
+static int   parse_CompositionMob( AAF_Iface *aafi, aafObject *CompoMob, td *__ptd );
+// static int   parse_MasterMob( AAF_Iface *aafi, aafObject *MasterMob, td *__ptd );
+static int   parse_SourceMob( AAF_Iface *aafi, aafObject *SourceMob, td *__ptd );
 
-static int   parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot );
+static int   parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd );
 
+
+
+
+
+static void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int state, int line, char *fmt, ... )
+{
+	if ( aafi->ctx.options.trace == 0 )
+		return;
+
+	/* Print caller line number */
+
+	if ( Obj )
+	{
+		switch ( state ) {
+			case ERROR:		printf("\033[38;5;124m");		break;
+			case WARNING:	printf("\x1B[33m");					break;
+			case NOT_SUPPORTED: printf("\033[38;5;130m"); break;
+			default:      printf("\x1b[38;5;242m");		break;
+		}
+		printf("%05i\x1b[0m \x1b[38;5;242m%s \x1b[0m", line, "\u2502" );
+	}
+	else
+	{
+		printf("\x1b[0m      \x1b[38;5;242m%s \x1b[0m", "\u2502" );
+	}
+
+
+	/* Print padding and vertical lines */
+
+	if ( __td->lv > 0 )
+	{
+		for ( int i = 0; i < __td->lv; i++ )
+		{
+			/* current level iteration has more than one entry remaining in loop */
+			if ( __td->ll[i] > 1 )
+			{
+				/* next level iteration is current trace */
+				if ( i+1 == __td->lv )
+				{
+					if ( Obj )
+						printf("\u251c\u2500\u2500\u25fb "); // ├──◻
+					else
+						printf("\u2502    "); // │
+				}
+				else
+					printf("\u2502    "); // │
+			}
+			else if ( i+1 == __td->lv && Obj )
+				printf("\u2514\u2500\u2500\u25fb "); // └──◻
+			else
+				printf("     ");
+		}
+	}
+
+
+	if ( Obj )
+	{
+
+		switch ( state ) {
+			case ERROR:	        printf("\033[38;5;124m");		break;
+			case WARNING:	      printf("\x1B[33m");					break;
+			case NOT_SUPPORTED: printf("\033[38;5;130m");   break;
+			case INFO:
+			case OK:
+				if ( __td->sub )
+					printf("\033[38;5;242m");
+				else
+					printf("\033[38;5;81m");
+
+				break;
+		}
+
+
+		printf( "%ls ", ClassIDToText(aafi->aafd, Obj->Class->ID) );
+
+		printf("\x1b[0m");
+
+
+		if ( auidCmp( Obj->Class->ID, &AAFClassID_TimelineMobSlot ) && auidCmp( Obj->Parent->Class->ID, &AAFClassID_CompositionMob ) )
+		{
+			aafObject *Segment        = aaf_get_propertyValue( Obj, PID_MobSlot_Segment );
+			aafUID_t  *DataDefinition = get_Component_DataDefinition( aafi, Segment );
+			wchar_t   *name           = aaf_get_propertyValueWstr( Obj, PID_MobSlot_SlotName );
+			int32_t   *slotID         = aaf_get_propertyValue( Obj, PID_MobSlot_SlotID );
+
+			printf("[\x1b[1m%i\x1b[0m] (DataDef : \x1b[38;5;242m%ls\x1b[0m) %s%ls ",
+				(slotID) ? *slotID : -1,
+				DataDefToText( aafi->aafd, DataDefinition ),
+				(name[0] != 0x00) ? ": " : "", (name) ? name : L""
+			 );
+
+			 free( name );
+		}
+		else if ( auidCmp( Obj->Class->ID, &AAFClassID_CompositionMob ) ||
+		          auidCmp( Obj->Class->ID, &AAFClassID_MasterMob ) ||
+		          auidCmp( Obj->Class->ID, &AAFClassID_SourceMob ) )
+		{
+			aafUID_t *usageCode = aaf_get_propertyValue( Obj, PID_Mob_UsageCode );
+			wchar_t  *name      = aaf_get_propertyValueWstr( Obj, PID_Mob_Name );
+
+			printf( "(UsageCode: \x1b[38;5;242m%ls\x1b[0m) %s%ls",
+				UsageCodeToText( usageCode ),
+			  (name && name[0] != 0x00) ? ": " : "", (name) ? name : L""
+			);
+
+			free( name );
+		}
+		else if ( auidCmp( Obj->Class->ID, &AAFClassID_OperationGroup ) )
+		{
+			aafUID_t *OperationIdentification = get_OperationGroup_OperationIdentification( aafi, Obj );
+
+			printf( "(OpIdent: \x1b[38;5;242m%ls\x1b[0m) ",
+				OperationDefToText( aafi->aafd, OperationIdentification )
+			);
+		}
+		// else if ( auidCmp( Obj->Class->ID, &AAFClassID_TapeDescriptor ) ||
+		// 					auidCmp( Obj->Class->ID, &AAFClassID_FilmDescriptor ) ||
+		// 	        auidCmp( Obj->Class->ID, &AAFClassID_CDCIDescriptor ) ||
+		//           auidCmp( Obj->Class->ID, &AAFClassID_RGBADescriptor ) ||
+		// 					auidCmp( Obj->Class->ID, &AAFClassID_TIFFDescriptor ) ||
+		// 					auidCmp( Obj->Class->ID, &AAFClassID_SoundDescriptor ) ||
+		//           auidCmp( Obj->Class->ID, &AAFClassID_PCMDescriptor ) ||
+		// 					auidCmp( Obj->Class->ID, &AAFClassID_AES3PCMDescriptor ) ||
+		// 					auidCmp( Obj->Class->ID, &AAFClassID_WAVEDescriptor ) ||
+		// 					auidCmp( Obj->Class->ID, &AAFClassID_AIFCDescriptor ) )
+		// {
+		// 	aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, Obj );
+		// 	printf( "(ContainerIdent : \x1b[38;5;242m%ls\x1b[0m)", ContainerToText(ContainerFormat) );
+		// }
+
+
+		if ( state == ERROR )
+		{
+			printf(": \033[38;5;124m");
+		}
+		else if ( state == INFO )
+		{
+			printf(": \033[38;5;130m");
+		}
+
+		va_list args;
+
+		va_start(args, fmt);
+		vprintf(fmt, args);
+		va_end(args);
+
+		if ( state == ERROR || state == INFO )
+		{
+			printf(".");
+		}
+
+		printf("\x1b[0m");
+	}
+
+
+	printf("\n");
+
+	/* if end of branch, print one line padding */
+	if ( Obj && ( __td->eob || state == ERROR ) )
+		_DUMP_OBJ( aafi, NULL, __td, 0, -1, "" );
+}
+
+
+
+static void _DUMP_OBJ_NO_SUPPORT( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int line )
+{
+
+	// aafUID_t *DataDefinition = NULL;
+
+	if ( auidCmp( Obj->Class->ID, &AAFClassID_TimelineMobSlot ) && auidCmp( Obj->Parent->Class->ID, &AAFClassID_CompositionMob ) )
+	{
+		/* this part is handled by _DUMP_OBJ() already. */
+		_DUMP_OBJ( aafi, Obj, __td, NOT_SUPPORTED, line, "" );
+		return;
+	// 	aafObject *Segment = aaf_get_propertyValue( Obj, PID_MobSlot_Segment );
+	//
+	// 	if ( Segment != NULL ) /* req */
+	// 	{
+	// 		DataDefinition = get_Component_DataDefinition( aafi, Segment );
+	// 	}
+	// }
+	// else
+	// {
+	// 	DataDefinition = get_Component_DataDefinition( aafi, Obj );
+	}
+
+	// DataDefinition = get_Component_DataDefinition( aafi, Obj );
+
+
+	_DUMP_OBJ( aafi, Obj, __td, NOT_SUPPORTED, line, "" );
+
+	// _DUMP_OBJ( aafi, Obj, __td, WARNING, line, "%s%ls%s",
+	// 	// ClassIDToText( aafi->aafd, Obj->Class->ID ),
+	//  	((DataDefinition) ? "(Segment DataDefinition: \x1b[38;5;242m" : ""),
+	// 	((DataDefinition) ? DataDefToText( aafi->aafd, DataDefinition ) : L""),
+	//  	((DataDefinition) ? ") \x1b[0m" : "") );
+
+}
+
+
+#define DUMP_OBJ( aafi, Obj, __td ) \
+	_DUMP_OBJ( aafi, Obj, __td, OK, __LINE__, "" );
+
+#define DUMP_OBJ_ERROR( aafi, Obj, __td, ... ) \
+	(__td)->eob = 1; \
+	_DUMP_OBJ( aafi, Obj, __td, ERROR, __LINE__, __VA_ARGS__ );
+
+#define DUMP_OBJ_WARNING( aafi, Obj, __td, ... ) \
+	_DUMP_OBJ( aafi, Obj, __td, WARNING, __LINE__, __VA_ARGS__ );
+
+#define DUMP_OBJ_INFO( aafi, Obj, __td, ... ) \
+	_DUMP_OBJ( aafi, Obj, __td, OK, __LINE__, __VA_ARGS__ );
+
+#define DUMP_OBJ_NO_SUPPORT( aafi, Obj, __td ) \
+	(__td)->eob = 1; \
+	_DUMP_OBJ_NO_SUPPORT( aafi, Obj, __td, __LINE__ ); \
+	// aaf_dump_ObjectProperties( aafi->aafd, Obj );
 
 
 
@@ -134,6 +403,7 @@ static int   parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot );
 
 static void trace_obj( AAF_Iface *aafi, aafObject *Obj, char *color )
 {
+	return;
 	char buf[4096];
 	char tmp[1024];
 	int  offset = sizeof(buf) - 1;
@@ -336,6 +606,31 @@ static wchar_t * build_unique_videofilename( AAF_Iface *aafi, aafiVideoEssence *
 
 
 
+static aafObject * get_Object_Ancestor( AAF_Iface *aafi, aafObject *Obj, const aafUID_t *ClassID )
+{
+	(void)aafi;
+
+	/*
+	 * NOTE : AAFClassID_ContentStorage is the container of Mob and EssenceData,
+	 * not of Identification, Dictionary and MetaDictionary. If needed, the func
+	 * should work for them too thanks to Obj != NULL.
+	 */
+
+	for (; Obj != NULL && auidCmp( Obj->Class->ID, &AAFClassID_ContentStorage ) == 0; Obj = Obj->Parent )
+		if ( auidCmp( Obj->Class->ID, ClassID ) )
+			return Obj;
+		/* Also work with abstract class */
+		else if ( auidCmp( ClassID, &AAFClassID_Mob ) && ( auidCmp( Obj->Class->ID, &AAFClassID_CompositionMob ) || auidCmp( Obj->Class->ID, &AAFClassID_MasterMob ) || auidCmp( Obj->Class->ID, &AAFClassID_SourceMob ) ) )
+			return Obj;
+		else if ( auidCmp( ClassID, &AAFClassID_MobSlot ) && ( auidCmp( Obj->Class->ID, &AAFClassID_TimelineMobSlot ) || auidCmp( Obj->Class->ID, &AAFClassID_StaticMobSlot ) || auidCmp( Obj->Class->ID, &AAFClassID_EventMobSlot ) ) )
+			return Obj;
+
+	return NULL;
+}
+
+
+
+
 
 
 
@@ -352,7 +647,7 @@ static aafUID_t * get_Component_DataDefinition( AAF_Iface *aafi, aafObject *Comp
 
 	if ( weakRef == NULL )
 	{
-		_warning( "Missing Component::DataDefinition.\n" );
+		_warning( aafi->ctx.options.verb, "Missing Component::DataDefinition.\n" );
 		return NULL;
 	}
 
@@ -361,7 +656,7 @@ static aafUID_t * get_Component_DataDefinition( AAF_Iface *aafi, aafObject *Comp
 
 	if ( DataDefinition == NULL )
 	{
-		_warning( "Could not retrieve WeakRef from Dictionary::DataDefinition.\n" );
+		_warning( aafi->ctx.options.verb, "Could not retrieve WeakRef from Dictionary::DataDefinition.\n" );
 		return NULL;
 	}
 
@@ -370,7 +665,7 @@ static aafUID_t * get_Component_DataDefinition( AAF_Iface *aafi, aafObject *Comp
 
 	if ( DataIdentification == NULL )
 	{
-		_warning( "Missing DataDefinition's DefinitionObject::Identification.\n" );
+		_warning( aafi->ctx.options.verb, "Missing DataDefinition's DefinitionObject::Identification.\n" );
 		return NULL;
 	}
 
@@ -387,7 +682,7 @@ static aafUID_t * get_FileDescriptor_ContainerFormat( AAF_Iface *aafi, aafObject
 
 	if ( ContainerDefWeakRef == NULL )
 	{
-		_warning( "Missing FileDescriptor::ContainerFormat.\n" );
+		_warning( aafi->ctx.options.verb, "Missing FileDescriptor::ContainerFormat.\n" );
 		return NULL;
 	}
 
@@ -395,7 +690,7 @@ static aafUID_t * get_FileDescriptor_ContainerFormat( AAF_Iface *aafi, aafObject
 
 	if ( ContainerDefinition == NULL )
 	{
-		_warning( "Could not retrieve WeakRef from Dictionary::ContainerDefinitions.\n" );
+		_warning( aafi->ctx.options.verb, "Could not retrieve WeakRef from Dictionary::ContainerDefinitions.\n" );
 		return NULL;
 	}
 
@@ -404,7 +699,7 @@ static aafUID_t * get_FileDescriptor_ContainerFormat( AAF_Iface *aafi, aafObject
 
 	if ( ContainerIdentification == NULL )
 	{
-		_warning( "Missing ContainerDefinition's DefinitionObject::Identification.\n" );
+		_warning( aafi->ctx.options.verb, "Missing ContainerDefinition's DefinitionObject::Identification.\n" );
 		return NULL;
 	}
 
@@ -421,7 +716,7 @@ static aafUID_t * get_OperationGroup_OperationIdentification( AAF_Iface *aafi, a
 
 	if ( OperationDefWeakRef == NULL )
 	{
-		_error( "Missing OperationGroup::Operation.\n" );
+		_error( aafi->ctx.options.verb, "Missing OperationGroup::Operation.\n" );
 		return NULL;
 	}
 
@@ -430,7 +725,7 @@ static aafUID_t * get_OperationGroup_OperationIdentification( AAF_Iface *aafi, a
 
 	if ( OperationDefinition == NULL )
 	{
-		_error( "Could not retrieve OperationDefinition from dictionary.\n" );
+		_error( aafi->ctx.options.verb, "Could not retrieve OperationDefinition from dictionary.\n" );
 		return NULL;
 	}
 
@@ -439,7 +734,7 @@ static aafUID_t * get_OperationGroup_OperationIdentification( AAF_Iface *aafi, a
 
 	if ( OperationIdentification == NULL )
 	{
-		_error( "Missing DefinitionObject::Identification.\n" );
+		_error( aafi->ctx.options.verb, "Missing DefinitionObject::Identification.\n" );
 		return NULL;
 	}
 
@@ -456,7 +751,7 @@ static aafUID_t * get_Parameter_InterpolationIdentification( AAF_Iface *aafi, aa
 
 	if ( InterpolationDefWeakRef == NULL )
 	{
-		_error( "Missing Parameter::Interpolation.\n" );
+		_error( aafi->ctx.options.verb, "Missing Parameter::Interpolation.\n" );
 		return NULL;
 	}
 
@@ -465,7 +760,7 @@ static aafUID_t * get_Parameter_InterpolationIdentification( AAF_Iface *aafi, aa
 
 	if ( InterpolationDefinition == NULL )
 	{
-		_error( "Could not find InterpolationDefinition.\n" );
+		_error( aafi->ctx.options.verb, "Could not find InterpolationDefinition.\n" );
 		return NULL;
 	}
 
@@ -474,7 +769,7 @@ static aafUID_t * get_Parameter_InterpolationIdentification( AAF_Iface *aafi, aa
 
 	if ( InterpolationIdentification == NULL )
 	{
-		_error( "Missing Parameter DefinitionObject::Identification.\n" );
+		_error( aafi->ctx.options.verb, "Missing Parameter DefinitionObject::Identification.\n" );
 		return NULL;
 	}
 
@@ -507,42 +802,42 @@ static aafObject * get_EssenceData_By_MobID( AAF_Iface *aafi, aafMobID_t *MobID 
 
 
 
-/* TODO is this SourceMobID or SourceID (masterMobID) ??? */
-static aafiAudioEssence * getAudioEssenceBySourceMobID( AAF_Iface *aafi, aafMobID_t *sourceMobID )
-{
-	aafiAudioEssence * audioEssence = NULL;
+// /* TODO is this SourceMobID or SourceID (masterMobID) ??? */
+// static aafiAudioEssence * getAudioEssenceBySourceMobID( AAF_Iface *aafi, aafMobID_t *sourceMobID )
+// {
+// 	aafiAudioEssence * audioEssence = NULL;
+//
+//
+// 	for ( audioEssence = aafi->Audio->Essences; audioEssence != NULL; audioEssence = audioEssence->next )
+// 	{
+// 		if ( mobIDCmp( audioEssence->masterMobID, sourceMobID ) )
+// 			break;
+// 	}
+//
+//
+// 	return audioEssence;
+// }
 
-
-	for ( audioEssence = aafi->Audio->Essences; audioEssence != NULL; audioEssence = audioEssence->next )
-	{
-		if ( mobIDCmp( audioEssence->masterMobID, sourceMobID ) )
-			break;
-	}
-
-
-	return audioEssence;
-}
-
-/* TODO is this SourceMobID or SourceID (masterMobID) ??? */
-static aafiVideoEssence * getVideoEssenceBySourceMobID( AAF_Iface *aafi, aafMobID_t *sourceMobID )
-{
-	aafiVideoEssence * videoEssence = NULL;
-
-	// printf("%p\n", aafi->Video->tc );
-	printf("%p\n", aafi->Video->Essences );
-	printf("%ls\n", MobIDToText( sourceMobID ) );
-
-
-	for ( videoEssence = aafi->Video->Essences; videoEssence != NULL; videoEssence = videoEssence->next )
-	{
-		printf("coucou\n" );
-		if ( mobIDCmp( videoEssence->masterMobID, sourceMobID ) )
-			break;
-	}
-
-
-	return videoEssence;
-}
+// /* TODO is this SourceMobID or SourceID (masterMobID) ??? */
+// static aafiVideoEssence * getVideoEssenceBySourceMobID( AAF_Iface *aafi, aafMobID_t *sourceMobID )
+// {
+// 	aafiVideoEssence * videoEssence = NULL;
+//
+// 	// printf("%p\n", aafi->Video->tc );
+// 	printf("%p\n", aafi->Video->Essences );
+// 	printf("%ls\n", MobIDToText( sourceMobID ) );
+//
+//
+// 	for ( videoEssence = aafi->Video->Essences; videoEssence != NULL; videoEssence = videoEssence->next )
+// 	{
+// 		printf("coucou\n" );
+// 		if ( mobIDCmp( videoEssence->masterMobID, sourceMobID ) )
+// 			break;
+// 	}
+//
+//
+// 	return videoEssence;
+// }
 
 
 
@@ -561,15 +856,20 @@ static aafiVideoEssence * getVideoEssenceBySourceMobID( AAF_Iface *aafi, aafMobI
                       E s s e n c e D e s c r i p t o r
  ******************************************************************************
 
-                EssenceDescriptor (abs)
-				        |
+    EssenceDescriptor (abs)
+            |
 						|--> FileDescriptor (abs)
 						|          |
 						|          |--> WAVEDescriptor
 						|          |--> AIFCDescriptor
-						|          `--> SoundDescriptor
+						|          |--> SoundDescriptor
+						|          |          |
+						|          |          `--> PCMDescriptor
+						|          |
+						|          `--> DigitalImageDescriptor (abs)
 						|                     |
-						|                     `--> PCMDescriptor
+						|                     `--> CDCIDescriptor
+						|
 						|
 						|--> PhysicalDescriptor
 						`--> TapeDescriptor
@@ -577,122 +877,69 @@ static aafiVideoEssence * getVideoEssenceBySourceMobID( AAF_Iface *aafi, aafMobI
 ******************************************************************************
 ******************************************************************************/
 
-static int parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
+static int parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc, td *__ptd )
 {
-	// aaf_dump_ObjectProperties( aafi->aafd, EssenceDesc );
 
-	// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, EssenceDesc );
-	// printf("ContainerFormat : %ls\n", ContainerToText(ContainerFormat) );
+	struct trace_dump __td;
+	__td_set(__td, __ptd, 0);
 
-	if ( aafi->ctx.current_tree_type == AAFI_TREE_TYPE_AUDIO )
+
+	if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_PCMDescriptor ) )
 	{
-		if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_PCMDescriptor ) )
-		{
-
-			parse_PCMDescriptor( aafi, EssenceDesc );
-
-		}
-		else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_WAVEDescriptor ) )
-		{
-
-			parse_WAVEDescriptor( aafi, EssenceDesc );
-
-		}
-		else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_AIFCDescriptor ) )
-		{
-
-			parse_AIFCDescriptor( aafi, EssenceDesc );
-
-		}
-		else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_SoundDescriptor ) )
-		{
-
-			trace_obj( aafi, EssenceDesc, ANSI_COLOR_RED );
-
-			_warning( "No support for AAFClassID_SoundDescriptor." );
-
-			// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, EssenceDesc );
-			// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
-
-			// aaf_dump_ObjectProperties( aafi->aafd, EssenceDesc );
-
-		}
-		else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_AES3PCMDescriptor ) )
-		{
-
-			/*
-			 *	Not described in specs.
-			 */
-
-			trace_obj( aafi, EssenceDesc, ANSI_COLOR_RED );
-
-			_warning( "No support for AAFClassID_AES3PCMDescriptor." );
-
-			// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, EssenceDesc );
-			// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
-
-			aaf_dump_ObjectProperties( aafi->aafd, EssenceDesc );
-
-		}
-		else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_MultipleDescriptor ) )
-		{
-
-			/*
-			 *	A MultipleDescriptor contains a vector of FileDescriptor objects and is
-			 *	used when the file source consists of multiple tracks of essence (e.g MXF).
-			 *	Each essence track is described by a MobSlots object in the SourceMob and a
-			 *	FileDescriptor object. The FileDescriptor is linked to the MobSlot by
-			 *	setting the FileDescriptor::LinkedSlotID property equal to the
-			 *	MobSlot::SlotID property.
-			 */
-
-			trace_obj( aafi, EssenceDesc, ANSI_COLOR_RED );
-
-			_warning( "MultipleDescriptor not supported yet.\n\n" );
-
-			// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, EssenceDesc );
-			// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
-
-			aaf_dump_ObjectProperties( aafi->aafd, EssenceDesc );
-
-		}
-		else
-		{
-
-			trace_obj( aafi, EssenceDesc, ANSI_COLOR_RED );
-
-			_warning( "Unsupported (yet ?) ClassID : %ls\n", ClassIDToText( aafi->aafd, EssenceDesc->Class->ID ) );
-
-			aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, EssenceDesc );
-			printf("ContainerFormat : %ls\n", ContainerToText(ContainerFormat) );
-
-			aaf_dump_ObjectProperties( aafi->aafd, EssenceDesc );
-
-		}
+		parse_PCMDescriptor( aafi, EssenceDesc, &__td );
 	}
-	else if ( aafi->ctx.current_tree_type == AAFI_TREE_TYPE_VIDEO )
+	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_WAVEDescriptor ) )
 	{
-		aaf_dump_ObjectProperties( aafi->aafd, EssenceDesc );
+		parse_WAVEDescriptor( aafi, EssenceDesc, &__td );
+	}
+	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_AIFCDescriptor ) )
+	{
+		parse_AIFCDescriptor( aafi, EssenceDesc, &__td );
+	}
+	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_SoundDescriptor ) )
+	{
+		/* Compressed Audio. Not encountered yet */
 
-		if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_CDCIDescriptor ) )
-		{
-			parse_CDCIDescriptor( aafi, EssenceDesc );
-		}
+		__td.lv++;
+		DUMP_OBJ_NO_SUPPORT( aafi, EssenceDesc, &__td );
+		__td.lv--;
+	}
+	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_AES3PCMDescriptor ) )
+	{
+		/* Not described in specs, not encountered yet. */
+
+		__td.lv++;
+ 		DUMP_OBJ_NO_SUPPORT( aafi, EssenceDesc, &__td );
+		__td.lv--;
+	}
+	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_MultipleDescriptor ) )
+	{
+		/*
+		 *	A MultipleDescriptor contains a vector of FileDescriptor objects and is
+		 *	used when the file source consists of multiple tracks of essence (e.g MXF).
+		 *	Each essence track is described by a MobSlots object in the SourceMob and a
+		 *	FileDescriptor object. The FileDescriptor is linked to the MobSlot by
+		 *	setting the FileDescriptor::LinkedSlotID property equal to the
+		 *	MobSlot::SlotID property.
+		 *
+		 *	-> test.aaf
+		 */
+
+		__td.lv++;
+ 		DUMP_OBJ_NO_SUPPORT( aafi, EssenceDesc, &__td );
+		__td.lv--;
+
+	}
+	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_CDCIDescriptor ) )
+	{
+		parse_CDCIDescriptor( aafi, EssenceDesc, &__td );
 	}
 	else
 	{
-
-		trace_obj( aafi, EssenceDesc, ANSI_COLOR_RED );
-
-		_warning( "Unsupported (yet ?) ClassID : %ls\n", ClassIDToText( aafi->aafd, EssenceDesc->Class->ID ) );
-
-		aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, EssenceDesc );
-		printf("ContainerFormat : %ls\n", ContainerToText(ContainerFormat) );
-
-		aaf_dump_ObjectProperties( aafi->aafd, EssenceDesc );
-
+		__td.lv++;
+		DUMP_OBJ_NO_SUPPORT( aafi, EssenceDesc, &__td );
+		__td.lv--;
 	}
-
 
 
 	/*
@@ -712,12 +959,17 @@ static int parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 	 *	the / character as the path separator.
 	 */
 
-	aafObject *Locators = aaf_get_propertyValue( EssenceDesc, PID_EssenceDescriptor_Locator );
 	aafObject *Locator  = NULL;
+	aafObject *Locators = aaf_get_propertyValue( EssenceDesc, PID_EssenceDescriptor_Locator ); /* opt */
+
+	__td.lv++;
+	int i = 0;
 
 	aaf_foreach_ObjectInSet( &Locator, Locators, NULL )
 	{
-		parse_Locator( aafi, Locator );
+		/* TODO retrieve all locators, then when searching file, try all parsed locators. */
+		__td.ll[__td.lv] = (Locators->Header->_entryCount > 1) ? (Locators->Header->_entryCount - i++) : 0;
+		parse_Locator( aafi, Locator, &__td );
 	}
 
 
@@ -727,30 +979,45 @@ static int parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc )
 
 
 
-static int parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescriptor )
+static int parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescriptor, td *__ptd )
 {
+	struct trace_dump __td;
+	__td_set(__td, __ptd, 0);
+
+
 	/* TODO parse and save content to videoEssence */
 
-	trace_obj( aafi, DIDescriptor, ANSI_COLOR_MAGENTA );
 
-	// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, PCMDescriptor );
-	// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
+	aafiVideoEssence *videoEssence = aafi->ctx.current_video_essence;//(aafiVideoEssence*)aafi->ctx.current_essence;
 
-	// aafiVideoEssence *videoEssence = (aafiVideoEssence*)aafi->ctx.current_essence;
+	if ( videoEssence == NULL )
+	{
+		DUMP_OBJ_ERROR( aafi, DIDescriptor, &__td, "aafi->ctx.current_video_essence not set" );
+		return -1;
+	}
 
-	// videoEssence->type = AAFI_TYPE_PCM;
+
+	aafRational_t *framerate = (aafRational_t*)aaf_get_propertyValue( DIDescriptor, PID_FileDescriptor_SampleRate );
+
+	if ( framerate == NULL )
+	{
+		DUMP_OBJ_ERROR( aafi, DIDescriptor, &__td, "Missing PID_FileDescriptor_SampleRate" );
+		return -1;
+	}
+
+	videoEssence->framerate = framerate;
+
 
 
 	uint32_t *storedHeight = (uint32_t*)aaf_get_propertyValue( DIDescriptor, PID_DigitalImageDescriptor_StoredHeight );
 
 	if ( storedHeight == NULL )
 	{
-		_error( "Missing DigitalImageDescriptor::StoredHeight.\n" );
+		DUMP_OBJ_ERROR( aafi, DIDescriptor, &__td, "Missing PID_DigitalImageDescriptor_StoredHeight" );
 		return -1;
 	}
 
-	printf("storedHeight : %u\n", *storedHeight );
-
+	// printf("storedHeight : %u\n", *storedHeight );
 
 
 
@@ -758,13 +1025,11 @@ static int parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescripto
 
 	if ( storedWidth == NULL )
 	{
-		_error( "Missing DigitalImageDescriptor::StoredWidth.\n" );
+		DUMP_OBJ_ERROR( aafi, DIDescriptor, &__td, "Missing PID_DigitalImageDescriptor_StoredWidth" );
 		return -1;
 	}
 
-	printf("storedWidth : %u\n", *storedWidth );
-
-
+	// printf("storedWidth : %u\n", *storedWidth );
 
 
 
@@ -772,12 +1037,11 @@ static int parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescripto
 
 	if ( displayHeight == NULL )
 	{
-		_error( "Missing DigitalImageDescriptor::DisplayHeight.\n" );
+		DUMP_OBJ_ERROR( aafi, DIDescriptor, &__td, "Missing PID_DigitalImageDescriptor_DisplayHeight" );
 		return -1;
 	}
 
-	printf("displayHeight : %u\n", *displayHeight );
-	// videoEssence->channels = *channels;
+	// printf("displayHeight : %u\n", *displayHeight );
 
 
 
@@ -785,13 +1049,11 @@ static int parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescripto
 
 	if ( displayWidth == NULL )
 	{
-		_error( "Missing DigitalImageDescriptor::DisplayWidth.\n" );
+		DUMP_OBJ_ERROR( aafi, DIDescriptor, &__td, "Missing PID_DigitalImageDescriptor_DisplayWidth" );
 		return -1;
 	}
 
-	printf("displayWidth : %u\n", *displayWidth );
-
-
+	// printf("displayWidth : %u\n", *displayWidth );
 
 
 
@@ -799,11 +1061,11 @@ static int parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescripto
 
 	if ( imageAspectRatio == NULL )
 	{
-		_error( "Missing DigitalImageDescriptor::ImageAspectRatio.\n" );
+		DUMP_OBJ_ERROR( aafi, DIDescriptor, &__td, "Missing PID_DigitalImageDescriptor_ImageAspectRatio" );
 		return -1;
 	}
 
-	printf("imageAspectRatio : %i/%i\n", imageAspectRatio->numerator, imageAspectRatio->denominator );
+	// printf("imageAspectRatio : %i/%i\n", imageAspectRatio->numerator, imageAspectRatio->denominator );
 
 
 
@@ -813,33 +1075,61 @@ static int parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescripto
 
 
 
-static int parse_CDCIDescriptor( AAF_Iface *aafi, aafObject *CDCIDescriptor )
+static int parse_CDCIDescriptor( AAF_Iface *aafi, aafObject *CDCIDescriptor, td *__ptd )
 {
+
+	struct trace_dump __td;
+	__td_set(__td, __ptd, 1);
+
+	if ( !aaf_get_propertyValue( CDCIDescriptor, PID_EssenceDescriptor_Locator ) )
+		__td.eob = 1;
+
+
 	/* TODO parse CDCI class */
 
-	return parse_DigitalImageDescriptor( aafi, CDCIDescriptor );
+
+
+	int rc = parse_DigitalImageDescriptor( aafi, CDCIDescriptor, __ptd );
+
+	if ( !rc )
+		DUMP_OBJ( aafi, CDCIDescriptor, &__td );
+
+
+	return rc;
 }
 
 
 
 
-static int parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor )
+static int parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor, td *__ptd )
 {
-	trace_obj( aafi, PCMDescriptor, ANSI_COLOR_MAGENTA );
 
-	// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, PCMDescriptor );
-	// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
+	struct trace_dump __td;
+	__td_set(__td, __ptd, 1);
+
+	if ( !aaf_get_propertyValue( PCMDescriptor, PID_EssenceDescriptor_Locator ) )
+		__td.eob = 1;
+
+
 
 	aafiAudioEssence *audioEssence = (aafiAudioEssence*)aafi->ctx.current_essence;
+
+	if ( audioEssence == NULL )
+	{
+		DUMP_OBJ_ERROR( aafi, PCMDescriptor, &__td, "aafi->ctx.current_essence not set" );
+		return -1;
+	}
+
 
 	audioEssence->type = AAFI_TYPE_PCM;
 
 
+
 	uint32_t *channels = (uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_SoundDescriptor_Channels );
 
-	if ( channels == NULL )
+	if ( channels == NULL ) /* req */
 	{
-		_error( "Missing PCMDescriptor SoundDescriptor::Channels.\n" );
+		DUMP_OBJ_ERROR( aafi, PCMDescriptor, &__td, "Missing PID_SoundDescriptor_Channels" );
 		return -1;
 	}
 
@@ -849,29 +1139,43 @@ static int parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor )
 
 	uint32_t *samplerate = (uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_FileDescriptor_SampleRate );
 
-	if ( samplerate == NULL )
+	if ( samplerate == NULL ) /* req */
 	{
-		_error( "Missing PCMDescriptor FileDescriptor::SampleRate.\n" );
+		DUMP_OBJ_ERROR( aafi, PCMDescriptor, &__td, "Missing PID_FileDescriptor_SampleRate" );
 		return -1;
 	}
 
 	audioEssence->samplerate = *samplerate;
 
+	if ( aafi->Audio->samplerate >= 0 )
+	{
+		/* Set global AAF SampleRate, if it equals preceding. Otherwise set to -1 */
+		aafi->Audio->samplerate = ( aafi->Audio->samplerate == 0 || aafi->Audio->samplerate == *samplerate ) ? *samplerate : (unsigned)-1;
+	}
+
 
 
 	uint32_t *samplesize = (uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_SoundDescriptor_QuantizationBits );
 
-	if ( samplesize == NULL )
+	if ( samplesize == NULL ) /* req */
 	{
-		_error( "Missing PCMDescriptor SoundDescriptor::QuantizationBits.\n" );
+		DUMP_OBJ_ERROR( aafi, PCMDescriptor, &__td, "Missing PID_SoundDescriptor_QuantizationBits" );
 		return -1;
 	}
 
 	audioEssence->samplesize = *samplesize;
 
+	if ( aafi->Audio->samplesize >= 0 )
+	{
+		/* Set global AAF SampleSize, if it equals preceding. Otherwise set to -1 */
+		aafi->Audio->samplesize = ( aafi->Audio->samplesize == 0 || (uint16_t)aafi->Audio->samplesize == *samplesize ) ? *samplesize : (unsigned)-1;
+	}
 
 
 	/* TODO parse the rest of the class */
+
+	DUMP_OBJ( aafi, PCMDescriptor, &__td );
+
 
 	return 0;
 }
@@ -879,23 +1183,35 @@ static int parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor )
 
 
 
-static int parse_WAVEDescriptor( AAF_Iface *aafi, aafObject *WAVEDescriptor )
+static int parse_WAVEDescriptor( AAF_Iface *aafi, aafObject *WAVEDescriptor, td *__ptd )
 {
-	trace_obj( aafi, WAVEDescriptor, ANSI_COLOR_MAGENTA );
 
-	// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, WAVEDescriptor );
-	// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
+	struct trace_dump __td;
+	__td_set(__td, __ptd, 1);
+
+	if ( !aaf_get_propertyValue( WAVEDescriptor, PID_EssenceDescriptor_Locator ) )
+		__td.eob = 1;
+
+
 
 	aafiAudioEssence *audioEssence = (aafiAudioEssence*)aafi->ctx.current_essence;
 
+	if ( audioEssence == NULL )
+	{
+		DUMP_OBJ_ERROR( aafi, WAVEDescriptor, &__td, "aafi->ctx.current_essence not set" );
+		return -1;
+	}
+
+
 	audioEssence->type = AAFI_TYPE_WAVE;
+
 
 
 	aafProperty *summary = aaf_get_property( WAVEDescriptor, PID_WAVEDescriptor_Summary );
 
 	if ( summary == NULL )
 	{
-		_error( "Missing WAVEDescriptor::Summary.\n" );
+		DUMP_OBJ_ERROR( aafi, WAVEDescriptor, &__td, "Missing PID_WAVEDescriptor_Summary" );
 		return -1;
 	}
 
@@ -905,7 +1221,12 @@ static int parse_WAVEDescriptor( AAF_Iface *aafi, aafObject *WAVEDescriptor )
 	 *	NOTE : Summary is parsed later in "post-processing" aafi_retrieveData(),
 	 *	to be sure clips and essences are linked, so we are able to fallback on
 	 *	essence stream in case summary does not contain the full header part.
+	 *
+	 *  TODO parse it here
 	 */
+
+	DUMP_OBJ( aafi, WAVEDescriptor, &__td );
+
 
 	return 0;
 }
@@ -913,33 +1234,49 @@ static int parse_WAVEDescriptor( AAF_Iface *aafi, aafObject *WAVEDescriptor )
 
 
 
-static int parse_AIFCDescriptor( AAF_Iface *aafi, aafObject *AIFCDescriptor )
+static int parse_AIFCDescriptor( AAF_Iface *aafi, aafObject *AIFCDescriptor, td *__ptd )
 {
-	trace_obj( aafi, AIFCDescriptor, ANSI_COLOR_MAGENTA );
 
-	// aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, AIFCDescriptor );
-	// printf("ContainerFormat : %s\n", ContainerToText(ContainerFormat) );
+	struct trace_dump __td;
+	__td_set(__td, __ptd, 1);
+
+	if ( !aaf_get_propertyValue( AIFCDescriptor, PID_EssenceDescriptor_Locator ) )
+		__td.eob = 1;
+
+
 
 	aafiAudioEssence *audioEssence = (aafiAudioEssence*)aafi->ctx.current_essence;
 
+	if ( audioEssence == NULL )
+	{
+		DUMP_OBJ_ERROR( aafi, AIFCDescriptor, &__td, "aafi->ctx.current_essence not set" );
+		return -1;
+	}
+
+
 	audioEssence->type = AAFI_TYPE_AIFC;
+
 
 
 	aafProperty *summary = aaf_get_property( AIFCDescriptor, PID_AIFCDescriptor_Summary );
 
 	if ( summary == NULL )
 	{
-		_error( "Missing AIFCDescriptor::Summary.\n" );
+		DUMP_OBJ_ERROR( aafi, AIFCDescriptor, &__td, "Missing PID_AIFCDescriptor_Summary" );
 		return -1;
 	}
 
 	audioEssence->summary = summary;
+
 
 	/*
 	 *	NOTE : Summary is parsed later in "post-processing" aafi_retrieveData(),
 	 *	to be sure clips and essences are linked, so we are able to fallback on
 	 *	essence stream in case summary does not contain the full header part.
 	 */
+
+	DUMP_OBJ( aafi, AIFCDescriptor, &__td );
+
 
 	return 0;
 }
@@ -956,22 +1293,23 @@ static int parse_AIFCDescriptor( AAF_Iface *aafi, aafObject *AIFCDescriptor )
 		            |
 		    ,---------------.
 		    |               |
-      NetworkLocator   TextLocator
+  NetworkLocator   TextLocator
 
 */
 
-static int parse_Locator( AAF_Iface *aafi, aafObject *Locator )
+static int parse_Locator( AAF_Iface *aafi, aafObject *Locator, td *__ptd )
 {
+
+	struct trace_dump __td;
+	__td_set(__td, __ptd, 0);
+
 
 	if ( auidCmp( Locator->Class->ID, &AAFClassID_NetworkLocator ) )
 	{
-
-		parse_NetworkLocator( aafi, Locator );
-
+		parse_NetworkLocator( aafi, Locator, &__td );
 	}
 	else if ( auidCmp( Locator->Class->ID, &AAFClassID_TextLocator ) )
 	{
-
 		/*
 		 *	A TextLocator object provides information to the user to help locate the file
 		 *	containing the essence or to locate the physical media. The TextLocator is not
@@ -981,20 +1319,19 @@ static int parse_Locator( AAF_Iface *aafi, aafObject *Locator )
 		 *       never encountered anyway..
 		 */
 
-		trace_obj( aafi, Locator, ANSI_COLOR_RED );
+		__td.eob = 1;
+		__td.lv++;
+		DUMP_OBJ_NO_SUPPORT( aafi, Locator, &__td );
 
-		wchar_t *name = aaf_get_propertyValueWstr( Locator, PID_TextLocator_Name );
-
-		_warning( "Got an AAFClassID_TextLocator : \"%ls\"\n", name );
-
-		free( name );
-
+		// wchar_t *name = aaf_get_propertyValueWstr( Locator, PID_TextLocator_Name );
+		// _warning( aafi->ctx.options.verb, "Got an AAFClassID_TextLocator : \"%ls\"\n", name );
+		// free( name );
 	}
 	else
 	{
-
-		trace_obj( aafi, Locator, ANSI_COLOR_RED );
-
+		__td.eob = 1;
+		__td.lv++;
+		DUMP_OBJ_NO_SUPPORT( aafi, Locator, &__td );
 	}
 
 
@@ -1004,27 +1341,47 @@ static int parse_Locator( AAF_Iface *aafi, aafObject *Locator )
 
 
 
-static int parse_NetworkLocator( AAF_Iface *aafi, aafObject *NetworkLocator )
+static int parse_NetworkLocator( AAF_Iface *aafi, aafObject *NetworkLocator, td *__ptd )
 {
+
+	struct trace_dump __td;
+	__td_set(__td, __ptd, 1);
+	__td.eob = 1;
+
+
 	/*
 	 *	This holds an URI pointing to the essence file, when it is not embedded.
 	 *	However, sometimes it holds an URI to the AAF file itself when essence is
 	 *	embedded so it is not a valid way to test if essence is embedded or not.
 	 */
 
-	trace_obj( aafi, NetworkLocator, ANSI_COLOR_MAGENTA );
+	wchar_t *original_file = aaf_get_propertyValueWstr( NetworkLocator, PID_NetworkLocator_URLString );
+
+	if ( original_file == NULL ) /* req */
+	{
+		DUMP_OBJ_ERROR( aafi, NetworkLocator, &__td, "Missing PID_NetworkLocator_URLString" );
+		return -1;
+	}
+
+	wurl_decode( original_file, original_file );
 
 
-	aafiAudioEssence *audioEssence = (aafiAudioEssence*)aafi->ctx.current_essence;
+	/* TODO find a better way to check if we're parsing audio */
 
+	if ( aafi->ctx.current_essence ) {
+		aafi->ctx.current_essence->original_file = original_file;
+	}
+	else if ( aafi->ctx.current_video_essence ) {
+		aafi->ctx.current_video_essence->original_file = original_file;
+	}
+	else
+	{
+		DUMP_OBJ_ERROR( aafi, NetworkLocator, &__td, "aafi->ctx.current_essence AND aafi->ctx.current_video_essence not set" );
+		return -1;
+	}
 
-	// audioEssence->original_file = aaf_get_propertyValueText( NetworkLocator, PID_NetworkLocator_URLString );
-	audioEssence->original_file = aaf_get_propertyValueWstr( NetworkLocator, PID_NetworkLocator_URLString );
+	DUMP_OBJ_INFO( aafi, NetworkLocator, &__td, ": %ls", original_file );
 
-	if ( audioEssence->original_file == NULL )
-		_warning( "Missing NetworkLocator NetworkLocator::URLString.\n" );
-
-	wurl_decode( audioEssence->original_file, audioEssence->original_file );
 
 	return 0;
 }
@@ -1036,25 +1393,22 @@ static int parse_NetworkLocator( AAF_Iface *aafi, aafObject *NetworkLocator )
 
 
 
-static int retrieve_EssenceData( AAF_Iface *aafi )
+static int parse_EssenceData( AAF_Iface *aafi, aafObject *EssenceData, td *__ptd )
 {
+
+	struct trace_dump __td;
+	__td_set(__td, __ptd, 1);
+	__td.eob = 1;
+
+
 
 	aafiAudioEssence *audioEssence = (aafiAudioEssence*)aafi->ctx.current_essence;
 
-
-	aafObject *EssenceData = get_EssenceData_By_MobID( aafi, audioEssence->sourceMobID );
-
-	if ( EssenceData == NULL )
+	if ( audioEssence == NULL )
 	{
-		/*
-		 *	It means essence is not embedded.
-		 */
-
+		DUMP_OBJ_ERROR( aafi, EssenceData, &__td, "aafi->ctx.current_essence not set" );
 		return -1;
 	}
-
-	trace_obj( aafi, EssenceData, ANSI_COLOR_MAGENTA );
-
 
 	/*
 	 *	The EssenceData::Data property has the stored form SF_DATA_STREAM, so
@@ -1062,23 +1416,11 @@ static int retrieve_EssenceData( AAF_Iface *aafi )
 	 *	/Path/To/EssenceData/DataStream
 	 */
 
-	// aafProperty *PropStreamName = aaf_get_property( EssenceData, PID_EssenceData_Data );
-    //
-	// if ( PropStreamName == NULL )
-	// {
-	// 	_error( "Missing EssenceData::Data.\n" );
-	// 	return -1;
-	// }
-    //
-	// wchar_t StreamName[CFB_NODE_NAME_SZ];
-    //
-	// w16tow32( StreamName, (uint16_t*)(((unsigned char*)PropStreamName->val)+1), PropStreamName->len-1 );
-
 	wchar_t *StreamName = aaf_get_propertyValueWstr( EssenceData, PID_EssenceData_Data );
 
 	if ( StreamName == NULL )
 	{
-		_error( "Missing EssenceData::Data.\n" );
+		DUMP_OBJ_ERROR( aafi, EssenceData, &__td, "Missing PID_EssenceData_Data" );
 		return -1;
 	}
 
@@ -1099,13 +1441,13 @@ static int retrieve_EssenceData( AAF_Iface *aafi )
 
 	if ( DataNode == NULL )
 	{
-		_error( "Could not retrieve Data stream node %ls.\n", DataPath );
+		DUMP_OBJ_ERROR( aafi, EssenceData, &__td, "Could not retrieve Data stream node %ls", DataPath );
 		return -1;
 	}
 
 	audioEssence->node = DataNode;
 
-	audioEssence->is_embedded = 1;
+	audioEssence->is_embedded = 1; /* TODO to be set elsewhere ? */
 
 
 
@@ -1113,8 +1455,12 @@ static int retrieve_EssenceData( AAF_Iface *aafi )
 
 	if ( dataLen == 0 )
 	{
-		_warning( "Got 0 Bytes Data stream length.\n" );
+		DUMP_OBJ_WARNING( aafi, EssenceData, &__td, "Got 0 Bytes Data stream length" );
 		return -1;
+	}
+	else
+	{
+		DUMP_OBJ( aafi, EssenceData, &__td );
 	}
 
 	/* NOTE Might be tweaked by parse_audio_summary() */
@@ -1153,11 +1499,16 @@ static int retrieve_EssenceData( AAF_Iface *aafi )
 ******************************************************************************
 ******************************************************************************/
 
-static int parse_Component( AAF_Iface *aafi, aafObject *Component )
+static int parse_Component( AAF_Iface *aafi, aafObject *Component, td *__ptd )
 {
+
+	struct trace_dump __td;
+	__td_set(__td, __ptd, 0);
+
+
+
 	if ( auidCmp( Component->Class->ID, &AAFClassID_Transition ) )
 	{
-
 		/*
 		 *	A Transition between a Filler and a SourceClip sets a Fade In.
 		 *	A Transition between a SourceClip and a Filler sets a Fade Out.
@@ -1167,15 +1518,13 @@ static int parse_Component( AAF_Iface *aafi, aafObject *Component )
 		 *	the Sequence, the OperationGroup::InputSegments is then left unused.
 		 */
 
-		parse_Transition( aafi, Component );
-
+		parse_Transition( aafi, Component, &__td );
 	}
 	else
 	{
-
-		parse_Segment( aafi, Component );
-
+		parse_Segment( aafi, Component, &__td );
 	}
+
 
 	return 0;
 }
@@ -1183,127 +1532,150 @@ static int parse_Component( AAF_Iface *aafi, aafObject *Component )
 
 
 
-static int parse_Transition( AAF_Iface *aafi, aafObject *Transition )
+static int parse_Transition( AAF_Iface *aafi, aafObject *Transition, td *__ptd )
 {
 
-	if ( aafi->ctx.current_tree_type != AAFI_TREE_TYPE_AUDIO )
+	struct trace_dump __td;
+	__td_set(__td, __ptd, 1);
+
+
+
+	aafUID_t *DataDefinition = get_Component_DataDefinition( aafi, Transition );
+
+	if ( DataDefinition == NULL ) /* req */
 	{
+		DUMP_OBJ_ERROR( aafi, Transition, &__td, "Could not retrieve DataDefinition" );
 		return -1;
 	}
+
+	if ( !auidCmp( DataDefinition, &AAFDataDef_Sound ) &&
+			 !auidCmp( DataDefinition, &AAFDataDef_LegacySound ) )
+	{
+		DUMP_OBJ_ERROR( aafi, Transition, &__td, "Current implementation only supports Transition inside Audio Tracks" );
+		return -1;
+	}
+
 
 
 	int64_t *length = aaf_get_propertyValue( Transition, PID_Component_Length );
 
 	if ( length == NULL )
 	{
-		_error( "Missing Filler Component::Length.\n" );
+		DUMP_OBJ_ERROR( aafi, Transition, &__td, "Missing PID_Component_Length" );
 		return -1;
 	}
 
-// 	aafi->ctx.current_pos += *length;
 
-//     aafObject *prevObject = aafi->ctx.current_Segment->prev;
-//     aafObject *nextObject = aafi->ctx.current_Segment->next;
-//
-//     if ( prevObject && auidCmp( prevObject->Class->ID, &AAFClassID_Filler ) )
-//     {
-//
-//         aafi->ctx.current_pos -= *length;
-//     }
+	int flags = 0;
+
+	if ( Transition->prev != NULL && auidCmp( Transition->prev->Class->ID, &AAFClassID_Filler ) )
+	{
+		flags |= AAFI_TRANS_FADE_IN;
+	}
+	else if ( Transition->next != NULL && auidCmp( Transition->next->Class->ID, &AAFClassID_Filler ) )
+	{
+		flags |= AAFI_TRANS_FADE_OUT;
+	}
+	else if ( Transition->next != NULL && auidCmp( Transition->next->Class->ID, &AAFClassID_Filler ) == 0 &&
+						Transition->prev != NULL && auidCmp( Transition->prev->Class->ID, &AAFClassID_Filler ) == 0 )
+	{
+		flags |= AAFI_TRANS_XFADE;
+	}
+	else
+	{
+		DUMP_OBJ_ERROR( aafi, Transition, &__td, "Could not guess if type is FadeIn, FadeOut or xFade" );
+		return -1;
+	}
 
 
-	aafiTimelineItem *Item  = aafi_newTimelineItem( aafi->ctx.current_track, AAFI_TRANS );
 
+
+	aafiTimelineItem *Item  = aafi_newTimelineItem( aafi, aafi->ctx.current_track, AAFI_TRANS );
 
 	aafiTransition   *Trans = (aafiTransition*)&Item->data;
 
 
-	aafi->ctx.current_transition = Trans;
+
+  Trans->len = *length;
+	Trans->flags = flags;
 
 
-    Trans->len   = *length;
-    Trans->flags = AAFI_INTERPOL_LINEAR; // set default in case of missing AAFParameterDef_Level from OperationGroup
-
-	/* Set transition type and substract filler length if needed */
-
-    // int64_t *fillerLen = NULL;
-
-	if ( Transition->prev != NULL && auidCmp( Transition->prev->Class->ID, &AAFClassID_Filler ) )
-	{
-		Trans->flags |= AAFI_TRANS_FADE_IN;
-
-//         fillerLen = (int64_t*)aaf_get_propertyValue( Transition->prev, PID_Component_Length );
-//
-//         if ( fillerLen != NULL /*&& *fillerLen == *length*/ )
-//         {
-//             aafi->ctx.current_pos -= *fillerLen;
-//         }
-
-        aafi->ctx.current_pos -= *length;
-	}
-	else if ( Transition->next != NULL && auidCmp( Transition->next->Class->ID, &AAFClassID_Filler ) )
-	{
-		Trans->flags |= AAFI_TRANS_FADE_OUT;
-
-//         fillerLen = (int64_t*)aaf_get_propertyValue( Transition->next, PID_Component_Length );
-//
-//         if ( fillerLen != NULL /*&& *fillerLen == *length*/ )
-//         {
-//             aafi->ctx.current_pos -= *fillerLen;
-//         }
-
-        aafi->ctx.current_pos -= *length;
-	}
-	else if ( Transition->next != NULL && auidCmp( Transition->next->Class->ID, &AAFClassID_Filler ) == 0 &&
-	          Transition->prev != NULL && auidCmp( Transition->prev->Class->ID, &AAFClassID_Filler ) == 0 )
-	{
-		Trans->flags |= AAFI_TRANS_XFADE;
-
-//         fillerLen = (int64_t*)aaf_get_propertyValue( Transition->prev, PID_Component_Length );
-//
-//         if ( fillerLen != NULL /*&& *fillerLen == *length*/ )
-//         {
-//             aafi->ctx.current_pos -= *fillerLen;
-//         }
-//
-//         fillerLen = (int64_t*)aaf_get_propertyValue( Transition->next, PID_Component_Length );
-//
-//         if ( fillerLen != NULL /*&& *fillerLen == *length*/ )
-//         {
-//             aafi->ctx.current_pos -= *fillerLen;
-//         }
-        aafi->ctx.current_pos -= *length;
-	}
-	else
-	{
-
-		/* TODO */
-
-	}
-
+	int missing_cutpt = 0;
 
 	aafPosition_t *cut_point = aaf_get_propertyValue( Transition, PID_Transition_CutPoint );
 
-	if ( cut_point == NULL )
+	if ( cut_point == NULL ) /* req */
 	{
-		_error( "Missing Transition::CutPoint.\n" );
-        Trans->cut_pt = Trans->len/2; // set default cutpoint to middle of transition
-// 		return -1;
+		// DUMP_OBJ_WARNING( aafi, Transition, &__td, "Missing PID_Transition_CutPoint : Setting to Trans->len/2" );
+		missing_cutpt = 1;
+    Trans->cut_pt = Trans->len/2; // set default cutpoint to the middle of transition
 	}
-
-	Trans->cut_pt = *cut_point;
+	else
+	{
+		Trans->cut_pt = *cut_point;
+	}
 
 
 	aafObject * OpGroup = aaf_get_propertyValue( Transition, PID_Transition_OperationGroup );
 
-	if ( OpGroup == NULL )
+	if ( OpGroup != NULL ) /* req */
 	{
-		_error( "Missing Transition::OperationGroup.\n" );
-		return -1;
+		if ( missing_cutpt ) {
+			DUMP_OBJ_WARNING( aafi, Transition, &__td, "Missing PID_Transition_CutPoint : Setting to Trans->len/2" );
+		} else {
+			DUMP_OBJ( aafi, Transition, &__td );
+		}
+
+		/*
+		 * Don't handle parse_OperationGroup() return code, since it should
+		 * always fallback to default in case of failure.
+		 */
+
+		aafi->ctx.current_transition = Trans;
+		parse_OperationGroup( aafi, OpGroup, &__td );
+		aafi->ctx.current_transition = NULL;
+	}
+	else
+	{
+		/* Setting fade to default */
+
+		__td.eob = 1;
+
+		if ( missing_cutpt ) {
+			DUMP_OBJ_WARNING( aafi, Transition, &__td, "Missing PID_Transition_CutPoint AND PID_Transition_OperationGroup : Setting to Trans->len/2; Linear" );
+		} else {
+			DUMP_OBJ_WARNING( aafi, Transition, &__td, "Missing PID_Transition_OperationGroup : Setting to Linear interpolation" );
+		}
+
+		Trans->flags |= (AAFI_INTERPOL_LINEAR | AAFI_TRANS_SINGLE_CURVE);
+
+		Trans->time_a  = calloc( 2, sizeof(aafRational_t) );
+		Trans->value_a = calloc( 2, sizeof(aafRational_t) );
+
+		Trans->time_a[0].numerator   = 0;
+		Trans->time_a[0].denominator = 0;
+		Trans->time_a[1].numerator   = 1;
+		Trans->time_a[1].denominator = 1;
+
+		if ( Trans->flags & AAFI_TRANS_FADE_IN ||
+				 Trans->flags & AAFI_TRANS_XFADE )
+		{
+			Trans->value_a[0].numerator   = 0;
+			Trans->value_a[0].denominator = 0;
+			Trans->value_a[1].numerator   = 1;
+			Trans->value_a[1].denominator = 1;
+		}
+		else if ( Trans->flags & AAFI_TRANS_FADE_OUT )
+		{
+			Trans->value_a[0].numerator   = 1;
+			Trans->value_a[0].denominator = 1;
+			Trans->value_a[1].numerator   = 0;
+			Trans->value_a[1].denominator = 0;
+		}
 	}
 
 
-	parse_OperationGroup( aafi, OpGroup );
+	aafi->ctx.current_track->current_pos -= *length;
 
 
 	return 0;
@@ -1311,91 +1683,84 @@ static int parse_Transition( AAF_Iface *aafi, aafObject *Transition )
 
 
 
-
-static int parse_Segment( AAF_Iface *aafi, aafObject *Segment )
+static int parse_NestedScope( AAF_Iface *aafi, aafObject *NestedScope, td *__ptd )
 {
 
-	/* TODO This function is a bit messy.. */
+	struct trace_dump __td;
+	__td_set(__td, __ptd, 1);
+
+
+
+	aafObject *Slot  = NULL;
+	aafObject *Slots = aaf_get_propertyValue( NestedScope, PID_NestedScope_Slots );
+
+	if ( Slots == NULL )
+	{
+		DUMP_OBJ_ERROR( aafi, NestedScope, &__td, "Missing PID_NestedScope_Slots" );
+		return -1;
+	}
+
+
+	DUMP_OBJ( aafi, NestedScope, &__td );
+
+
+	int i = 0;
+
+	aaf_foreach_ObjectInSet( &Slot, Slots, NULL )
+	{
+		__td.ll[__td.lv] = (Slots->Header->_entryCount > 1) ? (Slots->Header->_entryCount - i++) : 0;//(MobSlot->next) ? 1 : 0;
+		parse_Segment( aafi, Slot, &__td );
+	}
+
+	/* TODO should we take parse_Segment() return code into account ? */
+
+	return 0;
+}
+
+
+
+static int parse_Segment( AAF_Iface *aafi, aafObject *Segment, td *__ptd )
+{
+
+	struct trace_dump __td;
+	__td_set(__td, __ptd, 0);
+
 
 
 	if ( auidCmp( Segment->Class->ID, &AAFClassID_Sequence ) )
 	{
-
-		parse_Sequence( aafi, Segment );
-
+		return parse_Sequence( aafi, Segment, &__td );
 	}
 	else if ( auidCmp( Segment->Class->ID, &AAFClassID_SourceClip ) )
 	{
-
-		parse_SourceClip( aafi, Segment );
-
+		return parse_SourceClip( aafi, Segment, &__td );
+	}
+	else if ( auidCmp( Segment->Class->ID, &AAFClassID_OperationGroup ) )
+	{
+		return parse_OperationGroup( aafi, Segment, &__td );
+	}
+	else if ( auidCmp( Segment->Class->ID, &AAFClassID_Filler ) )
+	{
+		return parse_Filler( aafi, Segment, &__td );
+	}
+	else if ( auidCmp( Segment->Class->ID, &AAFClassID_Selector ) )
+	{
+		return parse_Selector( aafi, Segment, &__td );
+	}
+	else if ( auidCmp( Segment->Class->ID, &AAFClassID_NestedScope ) )
+	{
+		return parse_NestedScope( aafi, Segment, &__td );
 	}
 	else if ( auidCmp( Segment->Class->ID, &AAFClassID_Timecode ) )
 	{
-
 		/*
 		 *	TODO can contain sequence ? other Timecode SMPTE ..
 		 */
 
-		parse_Timecode( aafi, Segment );
-
-	}
-	else if ( auidCmp( Segment->Class->ID, &AAFClassID_OperationGroup ) )
-	{
-
-		if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_CompositionMob ) )
-		{
-
-			// if ( auidCmp( Segment->Parent->Class->ID, &AAFClassID_TimelineMobSlot ) )
-			// {
-            //
-			// 	// AAFClassID_TimelineMobSlot > AAFClassID_OperationGroup
-			// 	trace_obj( aafi, Segment, ANSI_COLOR_RED );
-            //
-			// }
-			// else if ( auidCmp( Segment->Parent->Class->ID, &AAFClassID_Sequence ) ||
-		    //           auidCmp( Segment->Parent->Class->ID, &AAFClassID_OperationGroup ) )
-			// {
-
-				parse_OperationGroup( aafi, Segment );
-
-			// }
-			// else
-			// {
-            //
-			// 	trace_obj( aafi, Segment, ANSI_COLOR_RED );
-            //
-			// }
-
-		}
-		else if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_MasterMob ) )
-		{
-
-			/*
-			 *	TODO: This was seen in the spec, but never encountered in real world.
-			 */
-
-			trace_obj( aafi, Segment, ANSI_COLOR_RED );
-			_error( "MobSlot::Segment > OperationGroup Not implemented yet.\n" );
-			return -1;
-
-		}
-		else
-		{
-
-			trace_obj( aafi, Segment, ANSI_COLOR_RED );
-
-		}
-	}
-	else if ( auidCmp( Segment->Class->ID, &AAFClassID_Filler ) )
-	{
-
-		parse_Filler( aafi, Segment );
-
+		return parse_Timecode( aafi, Segment, &__td );
 	}
 	else if ( auidCmp( Segment->Class->ID, &AAFClassID_EssenceGroup ) )
 	{
-
 		/*
 		 *	Should provide support for multiple essences representing the same
 		 *	source material with different resolution, compression, codec, etc.
@@ -1403,17 +1768,16 @@ static int parse_Segment( AAF_Iface *aafi, aafObject *Segment )
 		 *	TODO To be tested with Avid and rendered effects.
 		 */
 
-		trace_obj( aafi, Segment, ANSI_COLOR_RED );
-		_error( "MobSlot::Segment > EssenceGroup Not implemented yet.\n" );
+		__td.lv++;
+		DUMP_OBJ_NO_SUPPORT( aafi, Segment, &__td );
 		return -1;
-
 	}
 	else
 	{
-
-		trace_obj( aafi, Segment, ANSI_COLOR_RED );
-
+		__td.lv++;
+		DUMP_OBJ_NO_SUPPORT( aafi, Segment, &__td );
 	}
+
 
 	return 0;
 }
@@ -1421,15 +1785,31 @@ static int parse_Segment( AAF_Iface *aafi, aafObject *Segment )
 
 
 
-static int parse_Filler( AAF_Iface *aafi, aafObject *Filler )
+static int parse_Filler( AAF_Iface *aafi, aafObject *Filler, td *__ptd )
 {
-	trace_obj( aafi, Filler, ANSI_COLOR_MAGENTA );
+
+	struct trace_dump __td;
+	__td_set(__td, __ptd, 1);
+
+	__td.eob = 1;
+
+
+
+	aafUID_t *DataDefinition = get_Component_DataDefinition( aafi, Filler );
+
+	if ( DataDefinition == NULL ) /* req */
+	{
+		DUMP_OBJ_ERROR( aafi, Filler, &__td, "Could not retrieve DataDefinition" );
+		return -1;
+	}
+
+
 
 
 	if ( auidCmp( Filler->Parent->Class->ID, &AAFClassID_TimelineMobSlot ) )
 	{
 		/*
-		 *	Just an empty track.
+		 *	Just an empty track, do nothing.
 		 */
 	}
 	else if ( auidCmp( Filler->Parent->Class->ID, &AAFClassID_Sequence ) )
@@ -1441,64 +1821,84 @@ static int parse_Filler( AAF_Iface *aafi, aafObject *Filler )
 
 		int64_t *length = (int64_t*)aaf_get_propertyValue( Filler, PID_Component_Length );
 
-		if ( length == NULL )
+		if ( length == NULL ) /* probably req for Filler */
 		{
-			_error( "Missing Filler Component::Length.\n" );
+			DUMP_OBJ_ERROR( aafi, Filler, &__td, "Missing PID_Component_Length" );
 			return -1;
 		}
 
-		aafi->ctx.current_pos += *length;
+
+		if ( auidCmp( DataDefinition, &AAFDataDef_Sound ) ||
+				 auidCmp( DataDefinition, &AAFDataDef_LegacySound ) )
+		{
+			aafi->ctx.current_track->current_pos += *length;
+		}
+		else if ( auidCmp( DataDefinition, &AAFDataDef_Picture ) ||
+		          auidCmp( DataDefinition, &AAFDataDef_LegacyPicture ) )
+		{
+			aafi->Video->Tracks->current_pos += *length;
+		}
+
 	}
 	else
 	{
-
-		trace_obj( aafi, Filler, ANSI_COLOR_RED );
-
-	}
-
-	return 0;
-}
-
-
-
-
-static int parse_Sequence( AAF_Iface *aafi, aafObject *Sequence )
-{
-	aafi->ctx.is_inside_sequence = 1;
-
-	/* Get Sequence's Components */
-	aafObject * Components = aaf_get_propertyValue( Sequence, PID_Sequence_Components );
-	aafObject * Component  = NULL;
-
-	/* Loop through Sequence's Components */
-	aaf_foreach_ObjectInSet( &Component, Components, NULL )
-	{
-		parse_Component( aafi, Component );
-	}
-
-	aafi->ctx.is_inside_sequence = 0;
-
-	return 0;
-}
-
-
-
-
-static int parse_Timecode( AAF_Iface *aafi, aafObject *Timecode )
-{
-	trace_obj( aafi, Timecode, ANSI_COLOR_MAGENTA );
-
-
-
-	/* TODO allocate in specific function */
-
-	aafiTimecode *tc = calloc( sizeof(aafiTimecode), sizeof(unsigned char) );
-
-	if ( tc == NULL )
-	{
-		_error( "%s.\n", strerror( errno ) );
+		DUMP_OBJ_NO_SUPPORT( aafi, Filler, &__td );
 		return -1;
 	}
+
+
+	DUMP_OBJ( aafi, Filler, &__td );
+
+
+	return 0;
+}
+
+
+
+
+static int parse_Sequence( AAF_Iface *aafi, aafObject *Sequence, td *__ptd )
+{
+
+	struct trace_dump __td;
+	__td_set(__td, __ptd, 1);
+
+
+
+	aafObject * Component  = NULL;
+	aafObject * Components = aaf_get_propertyValue( Sequence, PID_Sequence_Components );
+
+	if ( Components == NULL ) /* req */
+	{
+		DUMP_OBJ_ERROR( aafi, Sequence, &__td, "Missing PID_Sequence_Components" );
+		return -1;
+	}
+
+
+	DUMP_OBJ( aafi, Sequence, &__td );
+
+
+	int i = 0;
+
+	aaf_foreach_ObjectInSet( &Component, Components, NULL )
+	{
+		__td.ll[__td.lv] = (Components->Header->_entryCount > 1) ? (Components->Header->_entryCount - i++) : 0;//(MobSlot->next) ? 1 : 0;
+		parse_Component( aafi, Component, &__td );
+	}
+
+
+	return 0;
+}
+
+
+
+
+static int parse_Timecode( AAF_Iface *aafi, aafObject *Timecode, td *__ptd )
+{
+
+	struct trace_dump __td;
+	__td_set(__td, __ptd, 1);
+
+	__td.eob = 1;
 
 
 
@@ -1506,7 +1906,7 @@ static int parse_Timecode( AAF_Iface *aafi, aafObject *Timecode )
 
 	if ( tc_start == NULL )
 	{
-		_error( "Missing Timecode::Start.\n" );
+		DUMP_OBJ_ERROR( aafi, Timecode, &__td, "Missing PID_Timecode_Start" );
 		return -1;
 	}
 
@@ -1515,7 +1915,7 @@ static int parse_Timecode( AAF_Iface *aafi, aafObject *Timecode )
 
 	if ( tc_fps == NULL )
 	{
-		_error( "Missing Timecode::FPS.\n" );
+		DUMP_OBJ_ERROR( aafi, Timecode, &__td, "Missing PID_Timecode_FPS" );
 		return -1;
 	}
 
@@ -1524,19 +1924,39 @@ static int parse_Timecode( AAF_Iface *aafi, aafObject *Timecode )
 
 	if ( tc_drop == NULL )
 	{
-		_error( "Missing Timecode::Drop.\n" );
+		DUMP_OBJ_ERROR( aafi, Timecode, &__td, "Missing PID_Timecode_Drop" );
 		return -1;
 	}
 
 
-	aafRational_t *tc_edit_rate = (aafRational_t*)aaf_get_propertyValue( aafi->ctx.MobSlot, PID_TimelineMobSlot_EditRate );
+	/* TODO this should be retrieved directly from TimelineMobSlot */
+
+	aafObject *ParentMobSlot = get_Object_Ancestor( aafi, Timecode, &AAFClassID_MobSlot );
+
+	if ( ParentMobSlot == NULL )
+	{
+		DUMP_OBJ_ERROR( aafi, Timecode, &__td, "Could not retrieve parent MobSlot" );
+		return -1;
+	}
+
+	aafRational_t *tc_edit_rate = (aafRational_t*)aaf_get_propertyValue( /*aafi->ctx.*/ParentMobSlot, PID_TimelineMobSlot_EditRate );
 
 	if ( tc_edit_rate == NULL )
 	{
-		_error( "Missing Timecode TimelineMobSlot::EditRate.\n" );
+		DUMP_OBJ_ERROR( aafi, Timecode, &__td, "Missing parent MobSlot PID_TimelineMobSlot_EditRate" );
 		return -1;
 	}
 
+
+	/* TODO allocate in specific function */
+
+	aafiTimecode *tc = calloc( sizeof(aafiTimecode), sizeof(unsigned char) );
+
+	if ( tc == NULL )
+	{
+		DUMP_OBJ_ERROR( aafi, Timecode, &__td, "calloc() : %s", strerror( errno ) );
+		return -1;
+	}
 
 	tc->start = *tc_start;
 	tc->fps   = *tc_fps;
@@ -1546,18 +1966,84 @@ static int parse_Timecode( AAF_Iface *aafi, aafObject *Timecode )
 	aafi->Audio->tc = tc;
 	aafi->Video->tc = tc; // TODO do it properly !
 
+
+	DUMP_OBJ( aafi, Timecode, &__td );
+
+
 	return 0;
 }
 
 
 
 
-static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
+static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup, td *__ptd )
 {
+
+	struct trace_dump __td;
+	__td_set(__td, __ptd, 1);
+
+
+	if ( !aaf_get_property( OpGroup, PID_OperationGroup_InputSegments ) &&
+	     !aaf_get_property( OpGroup, PID_OperationGroup_Parameters ) )
+	{
+		__td.eob = 1;
+	}
+
+
+	aafObject *ParentMob = get_Object_Ancestor( aafi, OpGroup, &AAFClassID_Mob );
+
+	if ( ParentMob == NULL )
+	{
+		DUMP_OBJ_ERROR( aafi, OpGroup, &__td, "Could not retrieve parent Mob" );
+		return -1;
+	}
+
+	if ( ! auidCmp( ParentMob->Class->ID, &AAFClassID_CompositionMob ) )
+	{
+		DUMP_OBJ_ERROR( aafi, OpGroup, &__td, "OperationGroup parser is currently implemented for AAFClassID_CompositionMob children only" );
+		return -1;
+	}
+
 
 	aafUID_t *OperationIdentification = get_OperationGroup_OperationIdentification( aafi, OpGroup );
 
-	// aaf_dump_ObjectProperties( aafi->aafd, OpGroup );
+
+
+	/* *** PRINT OPERATIONDEFINITIONS *** */
+
+	// aafObject * Parameters = aaf_get_propertyValue( OpGroup, PID_OperationGroup_Parameters );
+	//
+	// if ( Parameters )
+	// {
+	// 	aafObject * Param = NULL;
+	//
+	// 	aaf_foreach_ObjectInSet( &Param, Parameters, NULL )
+	// 	{
+	// 	 aafUID_t *ParamDef = aaf_get_propertyValue( Param, PID_Parameter_Definition );
+	// 	 printf("     OpDef %ls     (%ls) | %ls\n", OperationDefToText(aafi->aafd, OperationIdentification), AUIDToText( ParamDef ), ParameterToText( aafi->aafd, ParamDef ) );
+	// 	}
+	// }
+
+
+
+
+
+	// if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_MasterMob ) )
+	// {
+	//
+	// 	/*
+	// 	 *	TODO: This was seen in the spec, but never encountered in real world.
+	// 	 */
+	//
+	// 	trace_obj( aafi, Segment, ANSI_COLOR_RED );
+	// 	_error( aafi->ctx.options.verb, "MobSlot::Segment > OperationGroup Not implemented yet.\n" );
+	// 	return -1;
+	//
+	// }
+
+
+
+	int rc = 0;
 
 	if ( auidCmp( OpGroup->Parent->Class->ID, &AAFClassID_Transition ) )
 	{
@@ -1574,19 +2060,80 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 			 *	clip (if any) and to the incoming fade on second clip (if any).
 			 */
 
+			// __td.eob = 1;
+
+
+
 			Trans->flags |= AAFI_TRANS_SINGLE_CURVE;
 
 
-			aafObject * Param  = aaf_get_propertyValue( OpGroup, PID_OperationGroup_Parameters );
-			// aafObject * Param  = NULL;
+			int set_default = 0;
 
-			if ( Param == NULL )
+
+			aafObject * Param = NULL;
+			aafObject * Parameters = aaf_get_propertyValue( OpGroup, PID_OperationGroup_Parameters ); /* opt */
+
+			if ( Parameters )
 			{
-				trace_obj( aafi, OpGroup, ANSI_COLOR_MAGENTA );
+				/* Retrieve AAFParameterDef_Level parameter */
 
-				/* TODO is there realy some transition here ??? (fairlight AAF) */
+				aaf_foreach_ObjectInSet( &Param, Parameters, NULL )
+				{
+					aafUID_t *ParamDef = aaf_get_propertyValue( Param, PID_Parameter_Definition );
 
-				_warning( "Missing OperationGroup::Parameters on transition : falling back on default AAFInterpolationDef_Linear.\n" );
+					if ( auidCmp( ParamDef, &AAFParameterDef_Level ) )
+						break;
+				}
+			}
+			else
+			{
+				// DUMP_OBJ_WARNING( aafi, OpGroup, &__td, "Missing PID_OperationGroup_Parameters: Falling back to Linear" );
+				set_default = 1;
+			}
+
+			if ( Param )
+			{
+				DUMP_OBJ( aafi, OpGroup, &__td );
+
+				if ( aaf_get_propertyValue( OpGroup, PID_OperationGroup_InputSegments ) ) {
+					__td.ll[__td.lv] = 2;
+				}
+
+				if ( parse_Parameter( aafi, Param, &__td ) < 0 )
+				{
+					set_default = 1;
+				}
+
+				__td.ll[__td.lv] = 0;
+			}
+			else
+			{
+				/*
+				 * Do not notify exception since this case is standard compliant :
+				 *
+				 * ParameterDef_Level (optional; default is a VaryingValue object with
+				 * two control points: Value 0 at time 0, and value 1 at time 1)
+				 */
+
+				__td.eob = 1;
+				DUMP_OBJ( aafi, OpGroup, &__td );
+
+				// DUMP_OBJ_WARNING( aafi, OpGroup, &__td, "Missing Parameter AAFParameterDef_Level: Setting to Linear" );
+
+				set_default = 1;
+			}
+
+
+
+			if ( set_default )
+			{
+				/*
+				 *	ParameterDef_Level (optional; default is a VaryingValue object
+				 *	with two control points: Value 0 at time 0, and value 1 at time 1)
+				 *
+				 *	This is also a fallback in case of parse_Parameter() failure.
+				 */
+
 
 				Trans->flags |= AAFI_INTERPOL_LINEAR;
 
@@ -1613,80 +2160,27 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 					Trans->value_a[1].numerator   = 0;
 					Trans->value_a[1].denominator = 0;
 				}
-
 			}
-			else
-			{
 
-				/*
-				 *	Since this is a Single Parameter, we should have only one Parameter Object
-				 *	within the vector. So there's no need to loop through the vector.
-				 *	But still, we can have custom objects..
-                 *
-                 *  TODO Avid files look that way..
-				 */
-
-				if ( Param->Header->_entryCount > 1 )
-				{
-					_warning( "Multiple Parameters in MonoAudioDissolve Transition OperationGroup.\n" );
-// 					return -1;
-				}
-
-
-
-				printf( " Count of Params : %u\n", Param->Header->_entryCount );
-
-                aafObject * p = NULL;
-
-				aaf_foreach_ObjectInSet( &p, Param, NULL )
-				{
-					aafUID_t *ParamDef = aaf_get_propertyValue( p, PID_Parameter_Definition );
-
-                    // TODO print property
-
-                    printf("    ParamDef %ls (%ls)\n", ParameterToText( aafi->aafd, ParamDef ), AUIDToText( ParamDef ) );
-
-
-					if ( auidCmp( ParamDef, &AAFParameterDef_Level ) )
-						break;
-				}
-
-				if ( p == NULL )
-                {
-					_error( " Could not retrieve AAFParameterDef_Level Object.\n" );
-                    return -1;
-                }
-
-
-				parse_Parameter( aafi, Param );
-
-			}
 		}
 		else if ( auidCmp( OperationIdentification, &AAFOperationDef_TwoParameterMonoAudioDissolve ) )
 		{
+			DUMP_OBJ_NO_SUPPORT( aafi, OpGroup, &__td );
 			/* Two distinct parameters are used for the outgoing and incoming fades. */
-
-			trace_obj( aafi, OpGroup , ANSI_COLOR_RED);
-			_warning( "AAFOperationDef_TwoParameterMonoAudioDissolve not supported yet.\n" );
-
-			// Trans->flags |= AAFI_TRANS_TWO_CURVE;
 		}
 		else if ( auidCmp( OperationIdentification, &AAFOperationDef_StereoAudioDissolve ) )
 		{
+			DUMP_OBJ_NO_SUPPORT( aafi, OpGroup, &__td );
 			/* 	TODO Unknown usage and implementation */
-
-			trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
-			_warning( "AAFOperationDef_StereoAudioDissolve not supported yet.\n" );
 		}
 		else
 		{
-			trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
+			DUMP_OBJ_NO_SUPPORT( aafi, OpGroup, &__td );
 		}
 
 	}
 	else if ( auidCmp( OperationIdentification, &AAFOperationDef_AudioChannelCombiner ) )
 	{
-		trace_obj( aafi, OpGroup, ANSI_COLOR_MAGENTA );
 
 		/**************************************************************************************/
 
@@ -1694,12 +2188,21 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 		aafi->ctx.current_multichannel_track_channel = 0;
 
 
-		aafObject *InputSegments = aaf_get_propertyValue( OpGroup, PID_OperationGroup_InputSegments );
+		DUMP_OBJ( aafi, OpGroup, &__td );
+
+
 		aafObject *InputSegment  = NULL;
+		aafObject *InputSegments = aaf_get_propertyValue( OpGroup, PID_OperationGroup_InputSegments );
+
+
+		int i = 0;
+		__td.ll[__td.lv] = InputSegments->Header->_entryCount;
 
 		aaf_foreach_ObjectInSet( &InputSegment, InputSegments, NULL )
 		{
-			parse_Segment( aafi, InputSegment );
+			__td.ll[__td.lv] = __td.ll[__td.lv] - i++;//(MobSlot->next) ? 1 : 0;
+
+			parse_Segment( aafi, InputSegment, &__td );
 			aafi->ctx.current_multichannel_track_channel++;
 		}
 
@@ -1723,8 +2226,8 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 		}
 		else
 		{
-			/* TODO What to do then ? */
-			_warning( "Unknown track format (%u).\n", aafi->ctx.current_multichannel_track_channel );
+			DUMP_OBJ_ERROR( aafi, OpGroup, &__td, "Unknown track format (%u)", aafi->ctx.current_multichannel_track_channel );
+			return -1;
 		}
 
 
@@ -1732,7 +2235,7 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 		 *	Update the current position.
 		 */
 
-		aafi->ctx.current_pos += aafi->ctx.current_multichannel_track_clip_length;
+		aafi->ctx.current_track->current_pos += aafi->ctx.current_multichannel_track_clip_length;
 
 
 		/*
@@ -1742,6 +2245,7 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 		aafi->ctx.current_multichannel_track_channel = 0;
 		aafi->ctx.current_track_is_multichannel = 0;
 
+
 		/**************************************************************************************/
 
 		// return;
@@ -1749,85 +2253,115 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 	else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioGain ) )
 	{
 
-		aafObject *Parameters = aaf_get_propertyValue( OpGroup, PID_OperationGroup_Parameters );
-		aafObject *Parameter  = NULL;
+		aafObject * Param = NULL;
+		aafObject * Parameters = aaf_get_propertyValue( OpGroup, PID_OperationGroup_Parameters );
 
 		if ( Parameters == NULL )
 		{
-			_error( "Could not retrieve Amplitude Parameter.\n" );
-			return -1;
+			DUMP_OBJ_ERROR( aafi, OpGroup, &__td, "Missing PID_OperationGroup_Parameters" );
+			rc = -1; goto end; // we still have to parse segments
 		}
 
-		/*
-		 *	We have to loop because of custom Parameters.
-		 *	Seen in AVID Media Composer AAFs (test.aaf). TODO ParamDef PanVol_IsTrimGainEffect ?
-		 */
 
-		// printf("_entryCount : %u\n", Parameters->Header->_entryCount );
+		/* Retrieve AAFParameterDef_Amplitude parameter */
 
-		aaf_foreach_ObjectInSet( &Parameter, Parameters, NULL )
+		aaf_foreach_ObjectInSet( &Param, Parameters, NULL )
 		{
+			aafUID_t *ParamDef = aaf_get_propertyValue( Param, PID_Parameter_Definition );
 
-			parse_Parameter( aafi, Parameter );
-
+			if ( auidCmp( ParamDef, &AAFParameterDef_Amplitude ) )
+				break;
 		}
+
+
+		if ( Param == NULL )
+		{
+			DUMP_OBJ_ERROR( aafi, OpGroup, &__td, "Missing Parameter ParameterDef_Amplitude" );
+			rc = -1; goto end; // we still have to parse segments
+		}
+
+		DUMP_OBJ( aafi, OpGroup, &__td );
+
+		__td.ll[__td.lv] = 2;
+
+		rc = parse_Parameter( aafi, Param, &__td );
+
+		// if ( rc == 0 ) {
+		// 	DUMP_OBJ( aafi, OpGroup, &__td );
+		// }
+		// else {
+		// 	DUMP_OBJ_ERROR( aafi, OpGroup, &__td, "Failed parsing parameter" );
+		// }
 
 	}
 	else if ( auidCmp( OperationIdentification, &AAFOperationDef_StereoAudioGain ) )
 	{
-
+		DUMP_OBJ_NO_SUPPORT( aafi, OpGroup, &__td );
 		/* TODO Unknown usage and implementation */
-
-		trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
-		_warning( "AAFOperationDef_StereoAudioGain not supported yet.\n" );
-
 	}
 	else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioPan ) )
 	{
 		/* TODO Should Only be Track-based (first Segment of TimelineMobSlot.) */
 
-		// trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
-		// _warning( "AAFOperationDef_MonoAudioPan not supported yet.\n" );
-
-		aafObject *Parameters = aaf_get_propertyValue( OpGroup, PID_OperationGroup_Parameters );
-		aafObject *Parameter  = NULL;
-
-		if ( Parameters == NULL )
-		{
-			_error( "Missing OperationGroup::Parameters.\n" );
-			return -1;
-		}
-
 		/*
 		 *	We have to loop because of custom Parameters.
 		 *	Seen in AVID Media Composer AAFs (test.aaf). TODO ParamDef PanVol_IsTrimGainEffect ?
 		 */
 
-		// printf("_entryCount : %u\n", Parameters->Header->_entryCount );
+		 aafObject * Param = NULL;
+		 aafObject * Parameters = aaf_get_propertyValue( OpGroup, PID_OperationGroup_Parameters );
 
-		aaf_foreach_ObjectInSet( &Parameter, Parameters, NULL )
-		{
+		 if ( Parameters == NULL )
+		 {
+			DUMP_OBJ_ERROR( aafi, OpGroup, &__td, "Missing PID_OperationGroup_Parameters" );
+			rc = -1; goto end; // we still have to parse segments
+		 }
 
-			parse_Parameter( aafi, Parameter );
 
-		}
+		 /* Retrieve AAFParameterDef_Pan parameter */
 
+		 aaf_foreach_ObjectInSet( &Param, Parameters, NULL )
+		 {
+		 	aafUID_t *ParamDef = aaf_get_propertyValue( Param, PID_Parameter_Definition );
+
+		 	if ( auidCmp( ParamDef, &AAFParameterDef_Pan ) )
+		 		break;
+		 }
+
+
+		 if ( Param == NULL )
+		 {
+			DUMP_OBJ_ERROR( aafi, OpGroup, &__td, "Missing Parameter ParameterDef_Amplitude" );
+			rc = -1; goto end; // we still have to parse segments
+		 }
+
+
+		 DUMP_OBJ( aafi, OpGroup, &__td );
+
+		 __td.ll[__td.lv] = 2;
+
+		 rc = parse_Parameter( aafi, Param, &__td );
+
+		 // if ( rc == 0 ) {
+			//  DUMP_OBJ( aafi, OpGroup, &__td );
+		 // }
+		 // else {
+			//  DUMP_OBJ_ERROR( aafi, OpGroup, &__td, "Failed parsing parameter" );
+		 // }
 	}
 	else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioMixdown ) )
 	{
-
+		DUMP_OBJ_NO_SUPPORT( aafi, OpGroup, &__td );
 		/* TODO Unknown usage and implementation */
-
-		trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
-		_warning( "AAFOperationDef_MonoAudioMixdown not supported yet.\n" );
-
 	}
 	else
 	{
-		trace_obj( aafi, OpGroup, ANSI_COLOR_RED );
+		DUMP_OBJ_NO_SUPPORT( aafi, OpGroup, &__td );
 	}
 
 
+
+end:
 
 	/*
 	 *	Parses Segments in the OperationGroup::InputSegments, only if
@@ -1836,45 +2370,180 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup )
 	 */
 
 	if ( auidCmp( OpGroup->Parent->Class->ID, &AAFClassID_Transition ) == 0 &&
-		 auidCmp( OperationIdentification, &AAFOperationDef_AudioChannelCombiner ) == 0 )
+	     auidCmp( OperationIdentification, &AAFOperationDef_AudioChannelCombiner ) == 0 )
 	{
-
-		aafObject *InputSegments = aaf_get_propertyValue( OpGroup, PID_OperationGroup_InputSegments );
 		aafObject *InputSegment  = NULL;
+		aafObject *InputSegments = aaf_get_propertyValue( OpGroup, PID_OperationGroup_InputSegments );
+
+		int i = 0;
+		__td.ll[__td.lv] = (InputSegments) ? InputSegments->Header->_entryCount : 0;
 
 		aaf_foreach_ObjectInSet( &InputSegment, InputSegments, NULL )
 		{
-
-			parse_Segment( aafi, InputSegment );
-
+			__td.ll[__td.lv] = __td.ll[__td.lv] - i++;
+			parse_Segment( aafi, InputSegment, &__td );
 		}
-
-		aafi->ctx.current_gain = NULL;
 	}
 
-	return 0;
+
+	/* End of current OperationGroup context. */
+
+	aafObject *Obj = OpGroup;
+	for (; Obj != NULL && auidCmp( Obj->Class->ID, &AAFClassID_ContentStorage ) == 0; Obj = Obj->Parent )
+		if ( !auidCmp( Obj->Class->ID, &AAFClassID_OperationGroup ) )
+			break;
+
+	if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioGain ) )
+	{
+		if ( !auidCmp( Obj->Class->ID, &AAFClassID_TimelineMobSlot ) )
+		{
+			if ( aafi->ctx.clips_using_gain == 0 )
+			{
+				aafi_freeAudioGain( aafi->ctx.current_clip_gain );
+			}
+
+			/* Clip-based Gain */
+			aafi->ctx.current_clip_gain = NULL;
+			aafi->ctx.clips_using_gain = 0;
+		}
+
+		// free( aafi->ctx.current_track->gain );
+		// aafi->ctx.current_track->gain = NULL;
+	}
+
+	return rc;
 }
 
 
 
-/* TODO better error returning */
 
-static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
+static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 {
-	trace_obj( aafi, SourceClip, ANSI_COLOR_MAGENTA );
+
+	struct trace_dump __td;
+	__td_set(__td, __ptd, 1);
+
+	__td.hc = 1; // link to MasterMob, SourceMob
+
+
+
+	aafUID_t *DataDefinition = get_Component_DataDefinition( aafi, SourceClip );
+
+	if ( DataDefinition == NULL ) /* req */
+	{
+		DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Could not retrieve DataDefinition" );
+		return -1;
+	}
+
+
+	aafObject *ParentMob = get_Object_Ancestor( aafi, SourceClip, &AAFClassID_Mob );
+
+	if ( ParentMob == NULL )
+	{
+		DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Could not retrieve parent Mob" );
+		return -1;
+	}
+
+	aafMobID_t *parentMobID = (aafMobID_t*)aaf_get_propertyValue( ParentMob, PID_Mob_MobID );
+
+	if ( parentMobID == NULL ) /* req */
+	{
+		DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Missing parent Mob PID_Mob_MobID" );
+		return -1;
+	}
+
+
+
+	aafMobID_t *sourceID = (aafMobID_t*)aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceID );
+
+	if ( sourceID == NULL ) /* opt */
+	{
+		/* NOTE: PID_SourceReference_SourceID is optionnal, there might be none. */
+		// DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Missing PID_SourceReference_SourceID" );
+		// return -1;
+	}
+
+	uint32_t *SourceMobSlotID = (uint32_t*)aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceMobSlotID );
+
+	if ( SourceMobSlotID == NULL ) /* req */
+	{
+		DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Missing PID_SourceReference_SourceMobSlotID" );
+		return -1;
+	}
+
+	/*
+	 *	TODO: handle SourceReference::MonoSourceSlotIDs and associated conditional rules.
+	 *	(Multi-channels)
+	 */
+
+
+	aafObject *refMob = NULL;
+	aafObject *refMobSlot = NULL;
+
+	if ( sourceID == NULL )
+	{
+		/*
+		 *	p.49 : To create a SourceReference that refers to a MobSlot within
+		 *	the same Mob as the SourceReference, omit the SourceID property.
+		 *
+		 *	[SourceID] Identifies the Mob being referenced. If the property has a
+		 *	value 0, it means that the Mob owning the SourceReference describes
+		 *	the original source.
+		 *
+		 *	TODO: in that case, is MobSlots NULL ?
+		 */
+
+		// sourceID = parentMobID;
+		// refMob = ParentMob;
+	}
+	else
+	{
+		refMob = aaf_get_MobByID( aafi->aafd->Mobs, sourceID );
+
+		if ( refMob == NULL )
+		{
+			DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Could not retrieve target Mob by ID : %ls", MobIDToText(sourceID) );
+			return -1;
+		}
+
+		aafObject *refMobSlots = aaf_get_propertyValue( refMob, PID_Mob_Slots );
+
+		if ( refMobSlots == NULL )
+		{
+			DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Missing target Mob PID_Mob_Slots" );
+			return -1;
+		}
+
+		refMobSlot = aaf_get_MobSlotBySlotID( refMobSlots, *SourceMobSlotID );
+
+		if ( refMobSlot == NULL )
+		{
+			/* TODO check if there is a workaround :
+			 *  AAFInfo --aaf-clips '/home/agfline/Developpement/libaaf_testfiles/ADP/ADP_STTRACK_CLIPGAIN_TRACKGAIN_XFADE_NOOPTONEXPORT.aaf'
+			 */
+			DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Could not retrieve target MobSlot ID : %u", *SourceMobSlotID );
+			return -1;
+		}
+	}
+
+
+
 
 
 	/*** Clip ***/
 
-	if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_CompositionMob ) )
+	if ( auidCmp( ParentMob->Class->ID, &AAFClassID_CompositionMob ) )
 	{
+
+		// DUMP_OBJ( aafi, SourceClip, &__td );
+
 
 		int64_t *length = (int64_t*)aaf_get_propertyValue( SourceClip, PID_Component_Length );
 
 		if ( length == NULL )
 		{
-			_error( "Missing SourceClip Component::Length.\n" );
-			return NULL;
+			DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Missing PID_Component_Length" );
+			return -1;
 		}
 
 
@@ -1882,12 +2551,147 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 
 		if ( startTime == NULL )
 		{
-			_error( "Missing SourceClip::StartTime.\n" );
-			return NULL;
+			DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Missing PID_SourceClip_StartTime" );
+			return -1;
 		}
 
 
-		if ( aafi->ctx.current_tree_type == AAFI_TREE_TYPE_AUDIO )
+
+
+		struct aafiContext ctxBackup;
+
+
+		aafUID_t *CurrentUsageCode = (aafUID_t*)aaf_get_propertyValue( ParentMob, PID_Mob_UsageCode );
+
+		if ( CurrentUsageCode == NULL )
+		{
+			/* NOTE: PID_Mob_UsageCode is optionnal, there might be none. */
+			// DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Missing PID_Mob_UsageCode" );
+			// return -1;
+		}
+
+		if ( auidCmp( aafi->aafd->Header.OperationalPattern, &AAFOPDef_EditProtocol ) )
+		{
+
+			// if ( (CurrentUsageCode && auidCmp( CurrentUsageCode, &AAFUsage_SubClip )) || CurrentUsageCode == NULL )
+			// {
+			// 	trace_obj( aafi, SourceClip, ANSI_COLOR_YELLOW );
+			// }
+			// else
+			// {
+			// 	trace_obj( aafi, SourceClip, ANSI_COLOR_MAGENTA );
+			// }
+
+
+
+			/*
+			 *	If SourceClip points to a CompositionMob instead of a MasterMob, we
+			 *	are at the begining (or inside) a derivation chain.
+			 */
+
+			if ( auidCmp( refMob->Class->ID, &AAFClassID_CompositionMob ) )
+			{
+
+				// printf("\n\n\nREF TO SUBCLIP\n\n\n" );
+				//
+				// printf( "SourceClip::SourceID        : %ls\n", MobIDToText( sourceID ) );
+				// printf( "CurrentMob::MobID           : %ls\n", MobIDToText( parentMobID ) );
+				// printf( "SourceClip::SourceMobSlotID : %i\n", *SourceMobSlotID );
+				// printf( "UsageCode                   : %ls\n", UsageCodeToText( UsageCode ) );
+
+				if ( refMobSlot == NULL )
+				{
+					/* TODO isn't it already checked above ? */
+					DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Missing target MobSlot" );
+					return -1;
+				}
+
+				DUMP_OBJ( aafi, SourceClip, &__td );
+
+
+
+				/* Only to print trace */
+				__td.lv++;
+				DUMP_OBJ( aafi, refMob, &__td );
+				// __td.lv++;
+
+
+				memcpy( &ctxBackup, &(aafi->ctx), sizeof(struct aafiContext) );
+
+				RESET_CONTEXT( aafi->ctx );
+
+				aafi->ctx.current_track = ctxBackup.current_track;
+				aafi->ctx.is_inside_derivation_chain = 1;
+
+				parse_MobSlot( aafi, refMobSlot, &__td );
+
+				void *new_clip = aafi->ctx.current_clip;
+
+				memcpy( &(aafi->ctx), &ctxBackup, sizeof(struct aafiContext) );
+
+
+				if ( auidCmp( DataDefinition, &AAFDataDef_Sound ) ||
+						 auidCmp( DataDefinition, &AAFDataDef_LegacySound ) )
+				{
+
+					aafi->ctx.current_clip = (aafiAudioClip*)new_clip;
+
+					if ( new_clip && ( CurrentUsageCode && auidCmp( CurrentUsageCode, &AAFUsage_TopLevel ) ) )
+					{
+						/*
+						 *	All derivation chain calls ended.
+						 *
+						 *	We came back at level zero of parse_SourceClip() nested calls, so
+						 *	the clip and its source was added, we only have to set its length,
+						 *	offset and gain with correct values.
+						 */
+
+						((aafiAudioClip*)new_clip)->len = *length;
+						((aafiAudioClip*)new_clip)->essence_offset = *startTime;
+						((aafiAudioClip*)new_clip)->gain = aafi->ctx.current_clip_gain;
+						aafi->ctx.clips_using_gain++;
+
+						aafi->ctx.current_track->current_pos += ((aafiAudioClip*)new_clip)->len;
+					}
+				}
+				else if ( auidCmp( DataDefinition, &AAFDataDef_Picture ) ||
+				          auidCmp( DataDefinition, &AAFDataDef_LegacyPicture ) )
+				{
+					if ( new_clip && ( CurrentUsageCode && auidCmp( CurrentUsageCode, &AAFUsage_TopLevel ) ) )
+					{
+						/*
+						 *	All derivation chain calls ended.
+						 *
+						 *	We came back at level zero of parse_SourceClip() nested calls, so
+						 *	the clip and its source was added, we only have to set its length,
+						 *	offset and gain with correct values.
+						 */
+
+						((aafiVideoClip*)new_clip)->len = *length;
+						((aafiVideoClip*)new_clip)->essence_offset = *startTime;
+
+						aafi->Video->Tracks->current_pos += ((aafiVideoClip*)new_clip)->len;
+					}
+				}
+
+				return 0;
+
+			}
+			else if ( auidCmp( refMob->Class->ID, &AAFClassID_MasterMob ) )
+			{
+				/*
+				 * We are inside the derivation chain and we reached the SourceClip
+				 * pointing to MasterMob (the audio essence).
+				 *
+				 * Thus, we can add the clip and parse the audio essence normaly.
+				 */
+			}
+		}
+
+
+
+		if ( auidCmp( DataDefinition, &AAFDataDef_Sound ) ||
+				 auidCmp( DataDefinition, &AAFDataDef_LegacySound ) )
 		{
 
 			// if ( *length == 1 )
@@ -1898,13 +2702,13 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 			// 	 *
 			// 	 *	TODO BUT this could also be some rendered fade.. we should find a way to distinguish between the two.
 			// 	 */
-	        //
+			//
 			// 	// aaf_dump_ObjectProperties( aafi->aafd, SourceClip );
-	        //
-			// 	_warning( "Got a 1 EU length clip, probably some NLE compatibility padding : Skipping.\n" );
-	        //
-	        //
-	        //
+			//
+			// 	_warning( aafi->ctx.options.verb, "Got a 1 EU length clip, probably some NLE compatibility padding : Skipping.\n" );
+			//
+			//
+			//
 		 	// 	if ( aafi->ctx.current_track_is_multichannel == 0 )
 		 	// 	{
 		 	// 		aafi->ctx.current_pos += *length;
@@ -1913,24 +2717,30 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 		 	// 	{
 		 	// 		aafi->ctx.current_multichannel_track_clip_length = *length;
 		 	// 	}
-	        //
-			// 	return NULL;
+			//
+			// 	return -1;
 			// }
 
 
 
-			aafiTimelineItem *item  = aafi_newTimelineItem( aafi->ctx.current_track, AAFI_AUDIO_CLIP );
+
+
+			/* Add the new clip */
+
+			aafiTimelineItem *item = aafi_newTimelineItem( aafi, aafi->ctx.current_track, AAFI_AUDIO_CLIP );
 
 			aafiAudioClip    *audioClip = (aafiAudioClip*)&item->data;
 
-
-			audioClip->gain = aafi->ctx.current_gain;
-
-			audioClip->pos  = aafi->ctx.current_pos;
-
+			aafi->ctx.clips_using_gain++;
+			audioClip->gain = aafi->ctx.current_clip_gain;
+			audioClip->pos  = aafi->ctx.current_track->current_pos;
 			audioClip->len  = *length;
 
 			audioClip->essence_offset = *startTime;
+
+
+			aafi->ctx.current_clip = audioClip;
+
 
 
 			/*
@@ -1941,82 +2751,92 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 			 *	should always point to the corresponding "MasterMob", that is a different Mob.
 			 */
 
-			audioClip->masterMobID = (aafMobID_t*)aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceID );
+			audioClip->masterMobID = sourceID;
 
-			if ( audioClip->masterMobID == NULL )
-			{
-				// aafObject *Mob = NULL;
-				//
-				// for ( Mob = SourceClip; Mob != NULL; Mob = Mob->Parent )
-				// { // TODO isn't it the same as aafi->ctx.Mob ?
-				// 	if ( auidCmp( Mob->Class->ID, &AAFClassID_CompositionMob ) )
-				// 		break;
-				// }
-
-				audioClip->masterMobID = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_MobID );
-
-				_warning( "Missing SourceReference::SourceID, retrieving from parent Mob.\n" );
-			}
-
-
-
-
-			// aafObject *mob = aaf_get_MobByID( aafi->aafd->Mobs, audioClip->masterMobID );
-			// // aafSlotID_t *SlotID = aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceMobSlotID );
-			// // aafObject *MobSlots = aaf_get_propertyValue( mob, PID_Mob_Slots );
-	        // //
-			// printf("\n:::: Clip ::::\n");
-			// // aaf_dump_ObjectProperties( aafi->aafd, MobSlot );
-			// aaf_dump_ObjectProperties(SourceClip);
-			// printf("SourceMobSlotID : %u\n", *(uint32_t*)aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceMobSlotID ) );
-			// aafObject *Slots =  aaf_get_propertyValue( mob, PID_Mob_Slots );
-	        //
-			// aafSlotID_t *SlotID = aaf_get_propertyValue( Slots, PID_MobSlot_SlotID );
-	        //
-			// aafObject *MobSlot2 = aaf_get_MobSlotBySlotID( mob, *SlotID );
-			// aafSlotID_t *SlotID2 =  aaf_get_propertyValue( MobSlot2, PID_MobSlot_SlotID );
-			// if ( SlotID2 )
+			// if ( audioClip->masterMobID == NULL )
 			// {
-			// 	printf("      MobSlotID2 : %u\n", (*SlotID2) );
+			// 	audioClip->masterMobID = aaf_get_propertyValue( ParentMob, PID_Mob_MobID );
+			// 	_warning( aafi->ctx.options.verb, "Missing SourceReference::SourceID, retrieving from parent Mob.\n" );
 			// }
-			// printf("      MobSlotID : %u\n", (*SlotID) );
-	        //
-			// printf("\n\n");
 
 
-
-
-			/* link the clip with the essence, if the essence was already parsed. */
-
-			audioClip->Essence = getAudioEssenceBySourceMobID( aafi, audioClip->masterMobID );
-
-			if ( audioClip->Essence )
-			{
-				audioClip->Essence->clip_count++;
-			}
 
 
 			if ( aafi->ctx.current_track_is_multichannel == 0 )
 			{
-				aafi->ctx.current_pos += audioClip->len;
+				if ( !auidCmp( aafi->aafd->Header.OperationalPattern, &AAFOPDef_EditProtocol ) ||
+				     ( CurrentUsageCode && auidCmp( CurrentUsageCode, &AAFUsage_TopLevel ) ) )
+				{
+					/*
+					 *	NOTE for AAFOPDef_EditProtocol only :
+					 *
+					 *	If SourceClip belongs to a TopLevel Mob, we can update position.
+					 *	Otherwise, it means we are inside a derivation chain ( ie: TopLevel:CompositionMob -> SourceClip -> SubLevel:CompositionMob -> SourceClip )
+					 *	and the clip length is not the good one. In that case, position is updated above.
+					 */
+
+					aafi->ctx.current_track->current_pos += audioClip->len;
+				}
 			}
 			else
 			{
 				aafi->ctx.current_multichannel_track_clip_length = audioClip->len;
 			}
 
-			return audioClip;
+
+
+
+			if ( auidCmp( refMob->Class->ID, &AAFClassID_MasterMob ) )
+			{
+
+				if ( refMobSlot == NULL )
+				{
+					/* TODO isn't it already checked above ? */
+					DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Missing target MobSlot" );
+					return -1;
+				}
+
+				DUMP_OBJ( aafi, SourceClip, &__td );
+
+
+				/* Only to print trace */
+				__td.lv++;
+				DUMP_OBJ( aafi, refMob, &__td );
+
+
+				memcpy( &ctxBackup, &(aafi->ctx), sizeof(struct aafiContext) );
+
+				RESET_CONTEXT( aafi->ctx );
+
+				aafi->ctx.current_track = ctxBackup.current_track;
+				aafi->ctx.current_clip = audioClip;
+
+				parse_MobSlot( aafi, refMobSlot, &__td );
+
+				memcpy( &(aafi->ctx), &ctxBackup, sizeof(struct aafiContext) );
+
+			}
+
 		}
-		else if ( aafi->ctx.current_tree_type == AAFI_TREE_TYPE_VIDEO )
+		else if ( auidCmp( DataDefinition, &AAFDataDef_Picture ) ||
+		          auidCmp( DataDefinition, &AAFDataDef_LegacyPicture ) )
 		{
 
-			aafiTimelineItem *item  = aafi_newTimelineItem( aafi->ctx.current_track, AAFI_VIDEO_CLIP );
+			if ( aafi->Video->Tracks->Items )
+			{
+				DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Current implementation supports only one video clip" );
+				return -1;
+			}
+
+			/* Add the new clip */
+
+			aafiTimelineItem *item = aafi_newTimelineItem( aafi, aafi->Video->Tracks, AAFI_VIDEO_CLIP );
 
 			aafiVideoClip    *videoClip = (aafiVideoClip*)&item->data;
 
+			videoClip->pos  = aafi->Video->Tracks->current_pos;
+			videoClip->len  = *length;
 
-			videoClip->pos = aafi->ctx.current_pos;
-			videoClip->len = *length;
 			videoClip->essence_offset = *startTime;
 
 
@@ -2028,74 +2848,168 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 			 *	should always point to the corresponding "MasterMob", that is a different Mob.
 			 */
 
-			videoClip->masterMobID = (aafMobID_t*)aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceID );
+			videoClip->masterMobID = sourceID;
 
-			if ( videoClip->masterMobID == NULL )
+			// if ( videoClip->masterMobID == NULL )
+			// {
+			// 	videoClip->masterMobID = aaf_get_propertyValue( ParentMob, PID_Mob_MobID );
+			// 	_warning( aafi->ctx.options.verb, "Missing SourceReference::SourceID, retrieving from parent Mob.\n" );
+			// }
+
+
+
+
+
+			if ( !auidCmp( aafi->aafd->Header.OperationalPattern, &AAFOPDef_EditProtocol ) ||
+			     ( CurrentUsageCode && auidCmp( CurrentUsageCode, &AAFUsage_TopLevel ) ) )
 			{
-				// aafObject *Mob = NULL;
-				//
-				// for ( Mob = SourceClip; Mob != NULL; Mob = Mob->Parent )
-				// { // TODO isn't it the same as aafi->ctx.Mob ?
-				// 	if ( auidCmp( Mob->Class->ID, &AAFClassID_CompositionMob ) )
-				// 		break;
-				// }
+				/*
+				 *	NOTE for AAFOPDef_EditProtocol only :
+				 *
+				 *	If SourceClip belongs to a TopLevel Mob, we can update position.
+				 *	Otherwise, it means we are inside a derivation chain ( ie: TopLevelCompositionMob -> SourceClip -> SubLevel:CompositionMob -> SourceClip )
+				 *	and the clip length is not the good one. In that case, position is updated above.
+				 */
 
-				videoClip->masterMobID = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_MobID );
-
-				_warning( "Missing SourceReference::SourceID, retrieving from parent Mob.\n" );
+				aafi->Video->Tracks->current_pos += videoClip->len;
 			}
 
 
-			/* link the clip with the essence, if the essence was already parsed. */
-			videoClip->Essence = getVideoEssenceBySourceMobID( aafi, videoClip->masterMobID );
+			aafi->ctx.current_video_clip = videoClip;
 
-			return videoClip;
+
+			if ( auidCmp( refMob->Class->ID, &AAFClassID_MasterMob ) )
+			{
+
+				if ( refMobSlot == NULL )
+				{
+					/* TODO isn't it already checked above ? */
+					DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Missing target MobSlot" );
+					return -1;
+				}
+
+
+				DUMP_OBJ( aafi, SourceClip, &__td );
+
+
+				/* Only to print trace */
+				__td.lv++;
+				DUMP_OBJ( aafi, refMob, &__td );
+
+
+				// memcpy( &ctxBackup, &(aafi->ctx), sizeof(struct aafiContext) );
+				//
+				// RESET_CONTEXT( aafi->ctx );
+
+				parse_MobSlot( aafi, refMobSlot, &__td );
+
+				// memcpy( &(aafi->ctx), &ctxBackup, sizeof(struct aafiContext) );
+
+			}
+
 		}
 	}
 
 	/*** Essence ***/
 
-	else if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_MasterMob ) )
+	else if ( auidCmp( ParentMob->Class->ID, &AAFClassID_MasterMob ) )
 	{
-		if ( aafi->ctx.current_tree_type == AAFI_TREE_TYPE_AUDIO )
+
+		// /* Only to print trace */
+		// __td.lv--;
+		// parse_MasterMob( aafi, ParentMob, &__td );
+		// __td.lv += 2;
+
+
+		aafMobID_t *masterMobID = aaf_get_propertyValue( ParentMob, PID_Mob_MobID );
+
+		if ( masterMobID == NULL )
 		{
-			aafiAudioEssence *audioEssence = aafi_newAudioEssence( aafi );
+			DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Could not retrieve parent Mob PID_Mob_MobID" );
+			return -1;
+		}
+
+		aafObject *ParentMobSlot = get_Object_Ancestor( aafi, SourceClip, &AAFClassID_MobSlot );
+
+		if ( ParentMobSlot == NULL )
+		{
+			DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Could not retrieve parent MobSlot" );
+			return -1;
+		}
+
+		uint32_t *masterMobSlotID = aaf_get_propertyValue( ParentMobSlot, PID_MobSlot_SlotID );
+
+
+
+		if ( auidCmp( DataDefinition, &AAFDataDef_Sound ) ||
+				 auidCmp( DataDefinition, &AAFDataDef_LegacySound ) )
+		{
+
+			/* Check if this Essence has already been retrieved */
+
+			// int slotID = MobSlot->Entry->_localKey;
+
+
+			// aafObject *Obj = aaf_get_MobByID( aafi->aafd, SourceID );
+			// printf("\n\n\n\n");
+			// printf("SourceMobID : %ls\n", MobIDToText(SourceID) );
+			// printf("MasterMobID : %ls\n", MobIDToText(mobID) );
+			// printf("\n\n\n\n");
+
+			if ( !aafi->ctx.current_clip )
+			{
+				DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "aafi->ctx.current_clip not set" );
+				return -1;
+			}
+
+
+
+			aafiAudioEssence *audioEssence = NULL;
+
+			foreachEssence( audioEssence, aafi->Audio->Essences )
+			{
+				if ( mobIDCmp( audioEssence->sourceMobID, sourceID ) && audioEssence->sourceMobSlotID == (unsigned)*SourceMobSlotID )
+				{
+					/* Essence already retrieved */
+					aafi->ctx.current_clip->Essence = audioEssence;
+					__td.eob = 1;
+					DUMP_OBJ_INFO( aafi, SourceClip, &__td, "Essence already parsed: Linking with %ls", audioEssence->file_name );
+					return 0;
+				}
+			}
+
+
+			/* new Essence, carry on. */
+
+
+			audioEssence = aafi_newAudioEssence( aafi );
 
 			aafi->ctx.current_essence = audioEssence;
 
+			audioEssence->masterMobSlotID = *masterMobSlotID;
+			audioEssence->masterMobID = masterMobID;
 
-			audioEssence->file_name = aaf_get_propertyValueWstr( aafi->ctx.Mob, PID_Mob_Name );
 
+			audioEssence->file_name = aaf_get_propertyValueWstr( ParentMob, PID_Mob_Name );
 
-			audioEssence->masterMobID = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_MobID );
-
-			if ( audioEssence->masterMobID == NULL )
-			{
-				_error( "Could not retrieve Mob::MobID.\n" );
-				return NULL;
-			}
 
 			/*
 			 *	p.49 : To create a SourceReference that refers to a MobSlot within
 			 *	the same Mob as the SourceReference, omit the SourceID property.
 			 */
 
-			audioEssence->sourceMobID = aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceID );
+			audioEssence->sourceMobSlotID = *SourceMobSlotID;
+			audioEssence->sourceMobID = sourceID;
 
-			if ( audioEssence->sourceMobID == NULL )
-			{
-				aafObject *Mob = NULL;
+			// if ( audioEssence->sourceMobID == NULL )
+			// {
+			// 	audioEssence->sourceMobID = aaf_get_propertyValue( ParentMob, PID_Mob_MobID );
+			// 	_warning( aafi->ctx.options.verb, "Could not retrieve SourceReference::SourceID, retrieving from parent Mob.\n" );
+			// }
 
-				for ( Mob = SourceClip; Mob != NULL; Mob = Mob->Parent )
-				{
-					if ( auidCmp( Mob->Class->ID, &AAFClassID_MasterMob ) )
-						break;
-				}
 
-				audioEssence->sourceMobID = aaf_get_propertyValue( Mob, PID_Mob_MobID );
+			DUMP_OBJ( aafi, SourceClip, &__td );
 
-				_warning( "Could not retrieve SourceReference::SourceID, retrieving from parent Mob.\n" );
-			}
 
 
 
@@ -2103,103 +3017,121 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 
 			if ( SourceMob == NULL )
 			{
-				_error( "Could not retrieve SourceMob.\n" );
-				return NULL;
+				DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Could not retrieve SourceMob by ID : %ls", MobIDToText(audioEssence->sourceMobID) );
+				return -1;
 			}
 
 			audioEssence->SourceMob = SourceMob;
 
 
 
-			parse_SourceMob( aafi, SourceMob );
+			aafObject *EssenceData = get_EssenceData_By_MobID( aafi, audioEssence->sourceMobID );
+
+			if ( EssenceData )
+				__td.ll[__td.lv] = 2;
 
 
-			/* TODO the following must be moved to parse_SourceMob() !!! */
+			parse_SourceMob( aafi, SourceMob, &__td );
 
-			aafObject *EssenceDesc = aaf_get_propertyValue( SourceMob, PID_SourceMob_EssenceDescription );
+			__td.ll[__td.lv] = 0;
 
-			if ( EssenceDesc == NULL )
+
+
+			if ( EssenceData == NULL )
 			{
-				_error( "Could not retrieve EssenceDesc.\n" );
-				return NULL;
+				/*
+				 *	It means essence is not embedded.
+				 */
+
+				// return -1;
 			}
-
-
-			parse_EssenceDescriptor( aafi, EssenceDesc );
+			else
+			{
+				parse_EssenceData( aafi, EssenceData, &__td );
+			}
 
 
 
 			audioEssence->unique_file_name = build_unique_audiofilename( aafi, audioEssence );
 
 
+			aafi->ctx.current_clip->Essence = audioEssence;
 
-			/* link current Essence with any clip that was already parsed and that relies on that essence */
 
-			aafiAudioTrack   * audioTrack = NULL;
-			aafiTimelineItem * audioItem  = NULL;
+			// trace_obj( aafi, SourceClip, ANSI_COLOR_MAGENTA );
 
-			foreach_audioTrack( audioTrack, aafi )
+
+		}
+		else if ( auidCmp( DataDefinition, &AAFDataDef_Picture ) ||
+		          auidCmp( DataDefinition, &AAFDataDef_LegacyPicture ) )
+		{
+			/* Check if this Essence has already been retrieved */
+
+			// int slotID = MobSlot->Entry->_localKey;
+
+
+			// aafObject *Obj = aaf_get_MobByID( aafi->aafd, sourceID );
+			// printf("\n\n\n\n");
+			// printf("SourceMobID : %ls\n", MobIDToText(sourceID) );
+			// printf("MasterMobID : %ls\n", MobIDToText(mobID) );
+			// printf("\n\n\n\n");
+
+
+			if ( !aafi->ctx.current_video_clip )
 			{
-				foreach_Item( audioItem, audioTrack )
+				DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "aafi->ctx.current_video_clip not set" );
+				return -1;
+			}
+
+
+			aafiVideoEssence *videoEssence = NULL;
+
+			foreachEssence( videoEssence, aafi->Video->Essences )
+			{
+				if ( mobIDCmp( videoEssence->sourceMobID, sourceID ) && videoEssence->sourceMobSlotID == (unsigned)*SourceMobSlotID )
 				{
-					if ( audioItem->type != AAFI_AUDIO_CLIP )
-					{
-						continue;
-					}
-
-					aafiAudioClip *audioClip = (aafiAudioClip*)&audioItem->data;
-
-					if ( mobIDCmp( audioClip->masterMobID, audioEssence->masterMobID ) )
-					{
-						audioClip->Essence = audioEssence;
-						audioEssence->clip_count++;
-					}
+					/* Essence already retrieved */
+					aafi->ctx.current_video_clip->Essence = videoEssence;
+					return 0;
 				}
 			}
 
-			return NULL;
-		}
-		else if ( aafi->ctx.current_tree_type == AAFI_TREE_TYPE_VIDEO )
-		{
-			printf( "\n\n\n\nMaster MOB SOURCE CLIP\n\n\n\n" );
 
-			aafiVideoEssence *videoEssence = aafi_newVideoEssence( aafi );
-
-			aafi->ctx.current_essence = (aafiVideoEssence*)videoEssence;
+			/* new Essence, carry on. */
 
 
-			videoEssence->file_name = aaf_get_propertyValueWstr( aafi->ctx.Mob, PID_Mob_Name );
+			videoEssence = aafi_newVideoEssence( aafi );
+
+			aafi->ctx.current_video_clip->Essence = videoEssence;
 
 
-			videoEssence->masterMobID = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_MobID );
+			videoEssence->masterMobSlotID = *masterMobSlotID;
+			videoEssence->masterMobID = masterMobID;
 
-			if ( videoEssence->masterMobID == NULL )
-			{
-				_error( "Could not retrieve Mob::MobID.\n" );
-				return NULL;
-			}
+
+			videoEssence->file_name = aaf_get_propertyValueWstr( ParentMob, PID_Mob_Name );
+
 
 			/*
 			 *	p.49 : To create a SourceReference that refers to a MobSlot within
 			 *	the same Mob as the SourceReference, omit the SourceID property.
 			 */
 
-			videoEssence->sourceMobID = aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceID );
+			videoEssence->sourceMobSlotID = *SourceMobSlotID;
+			videoEssence->sourceMobID = sourceID;
 
-			if ( videoEssence->sourceMobID == NULL )
-			{
-				aafObject *Mob = NULL;
+			// if ( audioEssence->sourceMobID == NULL )
+			// {
+			// 	audioEssence->sourceMobID = aaf_get_propertyValue( ParentMob, PID_Mob_MobID );
+			// 	_warning( aafi->ctx.options.verb, "Could not retrieve SourceReference::SourceID, retrieving from parent Mob.\n" );
+			// }
 
-				for ( Mob = SourceClip; Mob != NULL; Mob = Mob->Parent )
-				{
-					if ( auidCmp( Mob->Class->ID, &AAFClassID_MasterMob ) )
-						break;
-				}
 
-				videoEssence->sourceMobID = aaf_get_propertyValue( Mob, PID_Mob_MobID );
 
-				_warning( "Could not retrieve SourceReference::SourceID, retrieving from parent Mob.\n" );
-			}
+			aafi->ctx.current_video_essence = videoEssence;
+
+
+			DUMP_OBJ( aafi, SourceClip, &__td );
 
 
 
@@ -2207,30 +3139,31 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 
 			if ( SourceMob == NULL )
 			{
-				_error( "Could not retrieve SourceMob.\n" );
-				return NULL;
+				DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Could not retrieve SourceMob by ID : %ls", MobIDToText(videoEssence->sourceMobID) );
+				return -1;
 			}
 
 			videoEssence->SourceMob = SourceMob;
 
+			parse_SourceMob( aafi, SourceMob, &__td );
 
 
-			// parse_SourceMob( aafi, SourceMob );
 
 
-			/* TODO the following must be moved to parse_SourceMob() !!! */
+			aafObject *EssenceData = get_EssenceData_By_MobID( aafi, videoEssence->sourceMobID );
 
-			aafObject *EssenceDesc = aaf_get_propertyValue( SourceMob, PID_SourceMob_EssenceDescription );
-
-			if ( EssenceDesc == NULL )
+			if ( EssenceData == NULL )
 			{
-				_error( "Could not retrieve EssenceDesc.\n" );
-				return NULL;
+				/*
+				 *	It means essence is not embedded.
+				 */
+
+				// return -1;
 			}
-
-
-			// TODO
-			parse_EssenceDescriptor( aafi, EssenceDesc );
+			else
+			{
+				parse_EssenceData( aafi, EssenceData, &__td );
+			}
 
 
 
@@ -2238,39 +3171,170 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 
 
 
-			/* NOTE since multiple clips can point to the same MasterMob, we have to loop. */
 
-			aafiVideoTrack   * videoTrack = NULL;
-			aafiTimelineItem * videoItem  = NULL;
+			// trace_obj( aafi, SourceClip, ANSI_COLOR_MAGENTA );
 
-			foreach_videoTrack( videoTrack, aafi )
-			{
-				foreach_Item( videoItem, videoTrack )
-				{
-					if ( videoItem->type != AAFI_VIDEO_CLIP )
-					{
-						continue;
-					}
 
-					aafiVideoClip *videoClip = (aafiVideoClip*)&videoItem->data;
 
-					if ( mobIDCmp( videoClip->masterMobID, videoEssence->masterMobID ) )
-					{
-						printf("FOUND VIDEO ESSENCE CLIP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n" );
-						videoClip->Essence = videoEssence;
-					}
-				}
-			}
 
-			return NULL;
+
+
+			// printf( "\n\n\n\nMaster MOB SOURCE CLIP\n\n\n\n" );
+			//
+			// aafiVideoEssence *videoEssence = aafi_newVideoEssence( aafi );
+			//
+			// aafi->ctx.current_essence = (aafiVideoEssence*)videoEssence;
+			//
+			//
+			// videoEssence->file_name = aaf_get_propertyValueWstr( /*aafi->ctx.*/ParentMob, PID_Mob_Name );
+			//
+			//
+			// videoEssence->masterMobID = aaf_get_propertyValue( /*aafi->ctx.*/ParentMob, PID_Mob_MobID );
+			//
+			// if ( videoEssence->masterMobID == NULL )
+			// {
+			// 	trace_obj( aafi, SourceClip, ANSI_COLOR_RED );
+			// 	_error( aafi->ctx.options.verb, "Could not retrieve Mob::MobID.\n" );
+			// 	return -1;
+			// }
+			//
+			// /*
+			//  *	p.49 : To create a SourceReference that refers to a MobSlot within
+			//  *	the same Mob as the SourceReference, omit the SourceID property.
+			//  */
+			//
+			// videoEssence->sourceMobID = SourceID; //aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceID );
+			//
+			// if ( videoEssence->sourceMobID == NULL )
+			// {
+			// 	// aafObject *Mob = NULL;
+			// 	//
+			// 	// for ( Mob = SourceClip; Mob != NULL; Mob = Mob->Parent )
+			// 	// {
+			// 	// 	if ( auidCmp( Mob->Class->ID, &AAFClassID_MasterMob ) )
+			// 	// 		break;
+			// 	// }
+			//
+			// 	videoEssence->sourceMobID = aaf_get_propertyValue( ParentMob, PID_Mob_MobID );
+			//
+			// 	_warning( aafi->ctx.options.verb, "Could not retrieve SourceReference::SourceID, retrieving from parent Mob.\n" );
+			// }
+			//
+			//
+			//
+			// aafObject *SourceMob = aaf_get_MobByID( aafi->aafd->Mobs, videoEssence->sourceMobID );
+			//
+			// if ( SourceMob == NULL )
+			// {
+			// 	trace_obj( aafi, SourceClip, ANSI_COLOR_RED );
+			// 	_error( aafi->ctx.options.verb, "Could not retrieve SourceMob.\n" );
+			// 	return -1;
+			// }
+			//
+			// videoEssence->SourceMob = SourceMob;
+			//
+			//
+			//
+			// // parse_SourceMob( aafi, SourceMob );
+			//
+			//
+			// /* TODO the following must be moved to parse_SourceMob() !!! */
+			//
+			// aafObject *EssenceDesc = aaf_get_propertyValue( SourceMob, PID_SourceMob_EssenceDescription );
+			//
+			// if ( EssenceDesc == NULL )
+			// {
+			// 	trace_obj( aafi, SourceClip, ANSI_COLOR_RED );
+			// 	_error( aafi->ctx.options.verb, "Could not retrieve EssenceDesc.\n" );
+			// 	return -1;
+			// }
+			//
+			//
+			// // TODO
+			// parse_EssenceDescriptor( aafi, EssenceDesc );
+			//
+			//
+			//
+			// videoEssence->unique_file_name = build_unique_videofilename( aafi, videoEssence );
+			//
+			//
+			//
+			// /* NOTE since multiple clips can point to the same MasterMob, we have to loop. */
+			//
+			// aafiVideoTrack   * videoTrack = NULL;
+			// aafiTimelineItem * videoItem  = NULL;
+			//
+			// foreach_videoTrack( videoTrack, aafi )
+			// {
+			// 	foreach_Item( videoItem, videoTrack )
+			// 	{
+			// 		if ( videoItem->type != AAFI_VIDEO_CLIP )
+			// 		{
+			// 			continue;
+			// 		}
+			//
+			// 		aafiVideoClip *videoClip = (aafiVideoClip*)&videoItem->data;
+			//
+			// 		if ( mobIDCmp( videoClip->masterMobID, videoEssence->masterMobID ) )
+			// 		{
+			// 			printf("FOUND VIDEO ESSENCE CLIP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n" );
+			// 			videoClip->Essence = videoEssence;
+			// 		}
+			// 	}
+			// }
+			//
+			// trace_obj( aafi, SourceClip, ANSI_COLOR_MAGENTA );
+			//
 		}
 	}
 	else
 	{
-		trace_obj( aafi, SourceClip, ANSI_COLOR_RED );
+		DUMP_OBJ_NO_SUPPORT( aafi, SourceClip, &__td );
+		return -1;
 	}
 
-	return NULL;
+	return 0;
+}
+
+
+
+static int parse_Selector( AAF_Iface *aafi, aafObject *Selector, td *__ptd )
+{
+	/*
+	 *	The Selector class is a sub-class of the Segment class.
+	 *
+	 *	The Selector class provides the value of a single Segment (PID_Selector_Selected)
+	 *	while preserving references to unused alternatives (PID_Selector_Alternates)
+	 */
+
+
+ 	struct trace_dump __td;
+ 	__td_set(__td, __ptd, 1);
+
+
+	aafObject *Selected = aaf_get_propertyValue( Selector, PID_Selector_Selected );
+
+	if ( Selected == NULL ) /* req */
+	{
+		DUMP_OBJ_ERROR( aafi, Selector, &__td, "Missing PID_Selector_Selected" );
+		return -1;
+	}
+
+
+	DUMP_OBJ( aafi, Selector, &__td );
+
+
+	return parse_Segment( aafi, Selected, &__td );
+
+
+	// aafObject *Alternate  = NULL;
+	// aafObject *Alternates = aaf_get_propertyValue( Segment, PID_Selector_Alternates ); /* opt */
+	//
+	// aaf_foreach_ObjectInSet( &Alternate, Alternates, NULL )
+	// {
+	// 	parse_Segment( aafi, Alternate );
+	// }
+
 }
 
 
@@ -2285,137 +3349,163 @@ static void * parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip )
 		            |
 		    ,--------------.
 		    |              |
-      ConstantValue   VaryingValue
+  ConstantValue   VaryingValue
 
 
 	A Parameter object shall be owned by an OperationGroup object.
 */
 
-static int parse_Parameter( AAF_Iface *aafi, aafObject *Parameter )
+static int parse_Parameter( AAF_Iface *aafi, aafObject *Parameter, td *__ptd )
 {
+	struct trace_dump __td;
+	__td_set(__td, __ptd, 0);
+
 
 	if ( auidCmp( Parameter->Class->ID, &AAFClassID_ConstantValue ) )
 	{
 
-		parse_ConstantValue( aafi, Parameter );
+		return parse_ConstantValue( aafi, Parameter, &__td );
 
 	}
 	else if ( auidCmp( Parameter->Class->ID, &AAFClassID_VaryingValue ) )
 	{
 
-		parse_VaryingValue( aafi, Parameter );
+		return parse_VaryingValue( aafi, Parameter, &__td );
 
 	}
 
-	return 0;
+	return -1;
 }
 
 
 
 
-static int parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue )
+static int parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue, td *__ptd )
 {
+	struct trace_dump __td;
+	__td_set(__td, __ptd, 1);
+
+	__td.sub = 1;
+
+	if ( !aaf_get_propertyValue( ConstantValue->Parent, PID_OperationGroup_InputSegments ) ) {
+		__td.eob = 1;
+	}
+
+
 	aafUID_t *ParamDef = aaf_get_propertyValue( ConstantValue, PID_Parameter_Definition );
+
+	if ( ParamDef == NULL )	/* req */
+	{
+		DUMP_OBJ_ERROR( aafi, ConstantValue, &__td, "Missing PID_Parameter_Definition" );
+		return -1;
+	}
 
 	aafUID_t *OperationIdentification = get_OperationGroup_OperationIdentification( aafi, ConstantValue->Parent );
 
+	if ( OperationIdentification == NULL )
+	{
+		DUMP_OBJ_ERROR( aafi, ConstantValue, &__td, "Could not retrieve OperationIdentification" );
+		return -1;
+	}
+
+
 
 	if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioGain ) &&
-         auidCmp( ParamDef, &AAFParameterDef_Amplitude ) )
+       auidCmp( ParamDef, &AAFParameterDef_Amplitude ) )
 	{
-
-		trace_obj( aafi, ConstantValue, ANSI_COLOR_MAGENTA );
-
-		aafiAudioGain *Gain = calloc( sizeof(aafiAudioGain), sizeof(unsigned char) );
-
 
 		aafRational_t *multiplier = aaf_get_propertyIndirectValue( ConstantValue, PID_ConstantValue_Value );
 
 		if ( multiplier == NULL )
 		{
-			_error( "Could not retrieve Constant Value.\n" );
+			DUMP_OBJ_ERROR( aafi, ConstantValue, &__td, "Missing PID_ConstantValue_Value" );
 			return -1;
 		}
 
 
-		Gain->value    = calloc( 1, sizeof(aafRational_t*) );
-		Gain->pts_cnt  = 1;
+
+		aafiAudioGain *Gain = calloc( sizeof(aafiAudioGain), sizeof(unsigned char) );
+
+
+		Gain->pts_cnt = 1;
+		Gain->value   = calloc( 1, sizeof(aafRational_t*) );
+		Gain->flags  |= AAFI_AUDIO_GAIN_CONSTANT;
 
 		memcpy( &Gain->value[0], multiplier, sizeof(aafRational_t) );
 
-		Gain->flags   |= AAFI_AUDIO_GAIN_CONSTANT;
 
-		// aaf_dump_ObjectProperties( aafi->aafd, ConstantValue );
 
-		// printf( "\n%ls\n\n", ClassIDToText( aafi->aafd, ConstantValue->Parent->Parent->Parent->Class->ID ) );
+		/*
+		 *	Loop through ancestors to find out who is the parent of OperationGroup.
+		 *	If it belongs to TimelineMobSlot, that means the Parameter is attached
+		 *	to a Track. If it belongs to a Component, the Parameter is attached to
+		 *	a clip.
+		 *
+		 *	NOTE: We can't just check the Parent since we can have nested OperationGroups
+		 *	providing different effects like Pan, Gain, CustomFx.. Therefore looping
+		 *	is required.
+		 */
 
-		/* Track-based Gain */
-		aafiAudioTrack *current_track = (aafiAudioTrack*)aafi->ctx.current_track;
-		if ( aafi->ctx.is_inside_sequence == 0 /*auidCmp( ConstantValue->Parent->Parent->Parent->Class->ID, &AAFClassID_TimelineMobSlot )*/ )
+		aafObject *Obj = ConstantValue->Parent; // Start with the last OperationGroup
+		for (; Obj != NULL && auidCmp( Obj->Class->ID, &AAFClassID_ContentStorage ) == 0; Obj = Obj->Parent )
+			if ( !auidCmp( Obj->Class->ID, &AAFClassID_OperationGroup ) )
+				break;
+
+
+		if ( auidCmp( Obj->Class->ID, &AAFClassID_TimelineMobSlot ) )
 		{
-			if ( current_track->gain != NULL )
-			{	/* NOTE This should not happen */
-				free( current_track->gain );
-			}
-
-			current_track->gain = Gain;
+			/* Track-based Gain */
+			aafi->ctx.current_track->gain = Gain;
 		}
-		/* Clip-based Gain */
 		else
 		{
-			if ( aafi->ctx.current_gain != NULL )
-			{	/* NOTE This should not happen */
-				free( aafi->ctx.current_gain );
-			}
-
-			aafi->ctx.current_gain = Gain;
+			/* Clip-based Gain */
+			aafi->ctx.current_clip_gain = Gain;
+			aafi->ctx.clips_using_gain = 0;
 		}
+
+
+		DUMP_OBJ( aafi, ConstantValue, &__td );
 
 	}
 	else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioPan ) &&
 	          auidCmp( ParamDef, &AAFParameterDef_Pan ) )
 	{
 
-		trace_obj( aafi, ConstantValue, ANSI_COLOR_MAGENTA );
+		/*
+		 *	Pan automation shall be track-based. If an application has a different
+		 *	native representation (e.g., clip-based pan), it shall convert to and
+		 *	from its native representation when exporting and importing the composition.
+		 */
+
+		aafRational_t *multiplier = aaf_get_propertyIndirectValue( ConstantValue, PID_ConstantValue_Value );
+
+ 		if ( multiplier == NULL )
+ 		{
+ 			DUMP_OBJ_ERROR( aafi, ConstantValue, &__td, "Missing PID_ConstantValue_Value" );
+ 			return -1;
+ 		}
+
 
 		aafiAudioPan *Pan = calloc( sizeof(aafiAudioPan), sizeof(unsigned char) );
 
 
-		aafRational_t *multiplier = aaf_get_propertyIndirectValue( ConstantValue, PID_ConstantValue_Value );
-
-		if ( multiplier == NULL )
-		{
-			_error( "Could not retrieve Constant Value.\n" );
-			return -1;
-		}
-
-
-		Pan->value    = calloc( 1, sizeof(aafRational_t*) );
-		Pan->pts_cnt  = 1;
+		Pan->pts_cnt = 1;
+		Pan->value   = calloc( 1, sizeof(aafRational_t*) );
+		Pan->flags  |= AAFI_AUDIO_GAIN_CONSTANT;
 
 		memcpy( &Pan->value[0], multiplier, sizeof(aafRational_t) );
 
-		Pan->flags   |= AAFI_AUDIO_GAIN_CONSTANT;
 
-		// aaf_dump_ObjectProperties( aafi->aafd, ConstantValue );
+		/* Pan is Track-based only. */
+		aafi->ctx.current_track->pan = Pan;
 
-		/* Track-based Gain */
-		aafiAudioTrack *current_track = (aafiAudioTrack*)aafi->ctx.current_track;
-		if ( current_track->pan != NULL )
-		{	/* NOTE This should not happen */
-			free( current_track->pan );
-		}
-
-		current_track->pan = Pan;
+		DUMP_OBJ( aafi, ConstantValue, &__td );
 
 	}
 	else
 	{
-		/* TODO on pt-ja.aaf */
-
-		trace_obj( aafi, ConstantValue, ANSI_COLOR_RED );
-		printf("ParamDef %ls (%ls)\n\n", ParameterToText( aafi->aafd, ParamDef ), AUIDToText( ParamDef ) );
-		// aaf_dump_ObjectProperties( aafi->aafd, ConstantValue );
+		DUMP_OBJ_NO_SUPPORT( aafi, ConstantValue, &__td );
 	}
 
 	return 0;
@@ -2424,18 +3514,44 @@ static int parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue )
 
 
 
-static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue )
+static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue, td *__ptd )
 {
+	struct trace_dump __td;
+ 	__td_set(__td, __ptd, 1);
+
+	__td.sub = 1;
+
+	if ( !aaf_get_propertyValue( VaryingValue->Parent, PID_OperationGroup_InputSegments ) ) {
+		__td.eob = 1;
+	}
+
+
 	aafUID_t *ParamDef = aaf_get_propertyValue( VaryingValue, PID_Parameter_Definition );
+
+	if ( ParamDef == NULL )	/* req */
+	{
+		DUMP_OBJ_ERROR( aafi, VaryingValue, &__td, "Missing PID_Parameter_Definition" );
+		return -1;
+	}
 
 	aafUID_t *OperationIdentification = get_OperationGroup_OperationIdentification( aafi, VaryingValue->Parent );
 
+	if ( OperationIdentification == NULL )
+	{
+		DUMP_OBJ_ERROR( aafi, VaryingValue, &__td, "Could not retrieve OperationIdentification" );
+		return -1;
+	}
 
-	aafUID_t *InterpolationIdentification = get_Parameter_InterpolationIdentification( aafi, VaryingValue );
 
 	aafiInterpolation_e interpolation = 0;
+	aafUID_t *InterpolationIdentification = get_Parameter_InterpolationIdentification( aafi, VaryingValue );
 
-	if ( auidCmp( InterpolationIdentification, &AAFInterpolationDef_None ) )
+	if ( InterpolationIdentification == NULL )
+	{
+		DUMP_OBJ_WARNING( aafi, VaryingValue, &__td, "Could not retrieve InterpolationIdentification: Setting to Linear" );
+		interpolation = AAFI_INTERPOL_LINEAR;
+	}
+	else if ( auidCmp( InterpolationIdentification, &AAFInterpolationDef_None ) )
 	{
 		interpolation = AAFI_INTERPOL_NONE;
 	}
@@ -2461,131 +3577,130 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue )
 	}
 	else
 	{
-		/* TODO should fallback to some predefined default */
-		_warning( "Unknwon Interpolation.\n" );
+		DUMP_OBJ_WARNING( aafi, VaryingValue, &__td, "Unknown value for InterpolationIdentification: Falling back to Linear" );
+		interpolation = AAFI_INTERPOL_LINEAR;
 	}
 
 
 
-	// printf( "::: %ls\n", ClassIDToText( aafi->aafd, VaryingValue->Parent->Parent->Parent->Class->ID ) );
+	aafObject *Points = aaf_get_propertyValue( VaryingValue, PID_VaryingValue_PointList );
 
-	if ( auidCmp( VaryingValue->Parent->Parent->Class->ID, &AAFClassID_Transition ) )
+	if ( Points == NULL )
+	{
+		/*
+		 *	Some files like the ProTools and LogicPro break standard by having no
+		 *	PointList entry for AAFOperationDef_MonoAudioGain.
+		 */
+
+		DUMP_OBJ_ERROR( aafi, VaryingValue, &__td, "Missing PID_VaryingValue_PointList" );
+		return -1;
+	}
+
+
+
+	// if ( auidCmp( VaryingValue->Parent->Parent->Class->ID, &AAFClassID_Transition ) )
+	if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioDissolve ) &&
+       auidCmp( ParamDef, &AAFParameterDef_Level ) )
 	{
 
 		aafiTransition *Trans = aafi->ctx.current_transition;
 
-		Trans->flags |= interpolation;
-
-
-		aafObject *Points = aaf_get_propertyValue( VaryingValue, PID_VaryingValue_PointList );
-
-		if ( Points == NULL )
-		{
-			_error( "Missing VaryingValue::PointList.\n" );
-			return -1;
-		}
-
+		Trans->flags    |= interpolation;
 		Trans->pts_cnt_a = retrieve_ControlPoints( aafi, Points, &(Trans->time_a), &(Trans->value_a) );
 
-		// int i = 0;
-        //
-		// for ( i = 0; i < Trans->pts_cnt_a; i++ )
-		// {
-		// 	printf("time_%i : %i/%i   value_%i : %i/%i\n", i, Trans->time_a[i].numerator, Trans->time_a[i].denominator, i, Trans->value_a[i].numerator, Trans->value_a[i].denominator  );
-		// }
-	}
-	else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioGain ) &&
-              auidCmp( ParamDef, &AAFParameterDef_Amplitude ) )
-	{
-
-		aafObject *Points = aaf_get_propertyValue( VaryingValue, PID_VaryingValue_PointList );
-
-		if ( Points == NULL )
+		if ( Trans->pts_cnt_a < 0 )
 		{
-
-			/*
-			 *	Some files like the ProTools and Logic ones break standard by having no PointList entry.
-			 */
-
-			trace_obj( aafi, VaryingValue, ANSI_COLOR_YELLOW );
-
-			_warning( "Missing VaryingValue::PointList.\n" );
-
+			/* In that case, parse_OperationGroup() will set transition to default. */
+			DUMP_OBJ_ERROR( aafi, VaryingValue, &__td, "Could not retrieve ControlPoints" );
 			return -1;
 		}
 
-		if ( aafi->ctx.current_gain == NULL )
-			 aafi->ctx.current_gain = calloc( sizeof(aafiAudioGain), sizeof(unsigned char) );
+		// for ( int i = 0; i < Trans->pts_cnt_a; i++ ) {
+		// 	printf("time_%i : %i/%i   value_%i : %i/%i\n", i, Trans->time_a[i].numerator, Trans->time_a[i].denominator, i, Trans->value_a[i].numerator, Trans->value_a[i].denominator  );
+		// }
+
+		DUMP_OBJ( aafi, VaryingValue, &__td );
+
+	}
+	else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioGain ) &&
+            auidCmp( ParamDef, &AAFParameterDef_Amplitude ) )
+	{
 
 		aafiAudioGain *Gain = calloc( sizeof(aafiAudioGain), sizeof(unsigned char) );
 
-// 		Gain->flags |= AAFI_AUDIO_GAIN_VARIABLE;
-		Gain->flags |= interpolation;
-
+		Gain->flags  |= interpolation;
 		Gain->pts_cnt = retrieve_ControlPoints( aafi, Points, &Gain->time, &Gain->value );
 
-
-        /* If gain has 2 ControlPoints with both the same value, it means
-         * we have a flat gain curve. So we can assume constant gain here. */
-
-        if ( Gain->pts_cnt == 2 &&
-            ( Gain->value[0].numerator   == Gain->value[1].numerator   ) &&
-            ( Gain->value[0].denominator == Gain->value[1].denominator ) )
-        {
-            Gain->flags |= AAFI_AUDIO_GAIN_CONSTANT;
-        }
-        else
-        {
-            Gain->flags |= AAFI_AUDIO_GAIN_VARIABLE;
-        }
-
-		// int i = 0;
-        //
-		// for ( i = 0; i < Gain->pts_cnt; i++ )
-		// {
-		// 	printf("time_%i : %i/%i   value_%i : %i/%i\n", i, Gain->time[i].numerator, Gain->time[i].denominator, i, Gain->value[i].numerator, Gain->value[i].denominator  );
-		// }
-
-		/* Track-based Gain */
-		aafiAudioTrack *current_track = (aafiAudioTrack*)aafi->ctx.current_track;
-		if ( aafi->ctx.is_inside_sequence == 0 /*auidCmp( VaryingValue->Parent->Parent->Parent->Class->ID, &AAFClassID_TimelineMobSlot )*/ )
+		if ( Gain->pts_cnt < 0 )
 		{
-			if ( current_track->gain != NULL )
-			{	/* NOTE This should not happen */
-				free( current_track->gain );
-			}
-
-			current_track->gain = Gain;
-		}
-		/* Clip-based Gain */
-		else
-		{
-			if ( aafi->ctx.current_gain != NULL )
-			{	/* NOTE This should not happen */
-				free( aafi->ctx.current_gain );
-			}
-
-			aafi->ctx.current_gain = Gain;
-		}
-	}
-	else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioPan ) &&
-			  auidCmp( ParamDef, &AAFParameterDef_Pan ) )
-	{
-		aafObject *Points = aaf_get_propertyValue( VaryingValue, PID_VaryingValue_PointList );
-
-		if ( Points == NULL )
-		{
-
-			/*
-			 *	Some files like the ProTools and Logic ones break standard by having no PointList entry.
-			 */
-
-			trace_obj( aafi, VaryingValue, ANSI_COLOR_YELLOW );
-
-			_warning( "Missing VaryingValue::PointList.\n" );
-
+			DUMP_OBJ_ERROR( aafi, VaryingValue, &__td, "Could not retrieve ControlPoints" );
+			free( Gain );
 			return -1;
 		}
+
+		// for ( int i = 0; i < Gain->pts_cnt; i++ ) {
+		// 	printf("time_%i : %i/%i   value_%i : %i/%i\n", i, Gain->time[i].numerator, Gain->time[i].denominator, i, Gain->value[i].numerator, Gain->value[i].denominator );
+		// }
+
+
+    /* If gain has 2 ControlPoints with both the same value, it means
+     * we have a flat gain curve. So we can assume constant gain here. */
+
+    if ( Gain->pts_cnt == 2 &&
+        ( Gain->value[0].numerator   == Gain->value[1].numerator   ) &&
+        ( Gain->value[0].denominator == Gain->value[1].denominator ) )
+    {
+        Gain->flags |= AAFI_AUDIO_GAIN_CONSTANT;
+    }
+    else
+    {
+        Gain->flags |= AAFI_AUDIO_GAIN_VARIABLE;
+    }
+
+
+
+		/*
+		 *	Loop through ancestors to find out who is the parent of OperationGroup.
+		 *	If it belongs to TimelineMobSlot, that means the Parameter is attached
+		 *	to a Track. If it belongs to a Component, the Parameter is attached to
+		 *	a clip.
+		 *
+		 *	NOTE: We can't just check the Parent since we can have nested OperationGroups
+		 *	providing different effects like Pan, Gain, CustomFx.. Therefore looping
+		 *	is required.
+		 */
+
+		aafObject *Obj = VaryingValue->Parent; // Start with the last OperationGroup
+		for (; Obj != NULL && auidCmp( Obj->Class->ID, &AAFClassID_ContentStorage ) == 0; Obj = Obj->Parent )
+			if ( !auidCmp( Obj->Class->ID, &AAFClassID_OperationGroup ) )
+				break;
+
+
+		if ( auidCmp( Obj->Class->ID, &AAFClassID_TimelineMobSlot ) )
+		{
+			/* Track-based Gain */
+			aafi->ctx.current_track->gain = Gain;
+		}
+		else
+		{
+			/* Clip-based Gain */
+			aafi->ctx.current_clip_gain = Gain;
+			aafi->ctx.clips_using_gain = 0;
+		}
+
+
+		DUMP_OBJ( aafi, VaryingValue, &__td );
+
+	}
+	else if ( auidCmp( OperationIdentification, &AAFOperationDef_MonoAudioPan ) &&
+	          auidCmp( ParamDef, &AAFParameterDef_Pan ) )
+	{
+
+		/*
+		 *	Pan automation shall be track-based. If an application has a different
+		 *	native representation (e.g., clip-based pan), it shall convert to and
+		 *	from its native representation when exporting and importing the composition.
+		 */
 
 		aafiAudioPan *Pan = calloc( sizeof(aafiAudioPan), sizeof(unsigned char) );
 
@@ -2594,21 +3709,25 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue )
 
 		Pan->pts_cnt = retrieve_ControlPoints( aafi, Points, &Pan->time, &Pan->value );
 
-		// int i = 0;
-		//
-		// for ( i = 0; i < Gain->pts_cnt; i++ )
-		// {
+		if ( Pan->pts_cnt < 0 )
+		{
+			DUMP_OBJ_ERROR( aafi, VaryingValue, &__td, "Could not retrieve ControlPoints" );
+			free( Pan );
+			return -1;
+		}
+
+		// for ( int i = 0; i < Gain->pts_cnt; i++ ) {
 		// 	printf("time_%i : %i/%i   value_%i : %i/%i\n", i, Gain->time[i].numerator, Gain->time[i].denominator, i, Gain->value[i].numerator, Gain->value[i].denominator  );
 		// }
 
-		aafiAudioTrack *current_track = (aafiAudioTrack*)aafi->ctx.current_track;
-		if ( current_track->pan != NULL )
-		{	/* NOTE This should not happen */
-			free( current_track->pan );
-		}
+		aafi->ctx.current_track->pan = Pan;
 
-		current_track->pan = Pan;
+		DUMP_OBJ( aafi, VaryingValue, &__td );
 
+	}
+	else
+	{
+		DUMP_OBJ( aafi, VaryingValue, &__td );
 	}
 
 	return 0;
@@ -2616,13 +3735,8 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue )
 
 
 
-
 static int retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRational_t *times[], aafRational_t *values[] )
 {
-	trace_obj( aafi, Points, ANSI_COLOR_MAGENTA );
-
-	// calm down GCC
-	if ( aafi->ctx.Mob ){}
 
 	*times  = calloc( Points->Header->_entryCount, sizeof(aafRational_t) );
 	*values = calloc( Points->Header->_entryCount, sizeof(aafRational_t) );
@@ -2639,7 +3753,12 @@ static int retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRation
 
 		if ( time == NULL )
 		{
-			_error( "Missing ControlPoint::Time.\n" );
+			trace_obj( aafi, Points, ANSI_COLOR_RED );
+			_error( aafi->ctx.options.verb, "Missing ControlPoint::Time.\n" );
+
+			free( times );  *times  = NULL;
+			free( values ); *values = NULL;
+
 			return -1;
 		}
 
@@ -2648,7 +3767,12 @@ static int retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRation
 
 		if ( value == NULL )
 		{
-			_error( "Missing ControlPoint::Value.\n" );
+			trace_obj( aafi, Points, ANSI_COLOR_RED );
+			_error( aafi->ctx.options.verb, "Missing ControlPoint::Value.\n" );
+
+			free( times );  *times  = NULL;
+			free( values ); *values = NULL;
+
 			return -1;
 		}
 
@@ -2662,11 +3786,13 @@ static int retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRation
 
 	if ( Points->Header->_entryCount != i )
 	{
-		_warning( "Points _entryCount does not match iteration.\n" );
-
+		trace_obj( aafi, Points, ANSI_COLOR_YELLOW );
+		_warning( aafi->ctx.options.verb, "Points _entryCount (%i) does not match iteration (%i).\n", Points->Header->_entryCount, i );
 		return i;
 	}
 
+
+	// trace_obj( aafi, Points, ANSI_COLOR_MAGENTA );
 
 	return Points->Header->_entryCount;
 }
@@ -2693,86 +3819,117 @@ static int retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRation
 
 static int parse_Mob( AAF_Iface *aafi, aafObject *Mob )
 {
+	// int dl = DUMP_INIT(aafi);
+	// __td(NULL);
+	static td __td;
+	__td.fn = __LINE__;
+	__td.pfn = 0;
+	__td.lv = 0;
+	__td.ll = calloc( 1024, sizeof(int) ); /* TODO free */
+	__td.ll[0] = 0;
+	// aafi->ctx.trace_leveloop = __td.ll; // keep track of __td.ll for free
+
+
+
+	aafObject *MobSlots = aaf_get_propertyValue( Mob, PID_Mob_Slots );
+
+	if ( MobSlots == NULL ) /* req */
+	{
+		DUMP_OBJ_ERROR( aafi, Mob, &__td, "Missing PID_Mob_Slots" );
+		free(__td.ll);
+		return -1;
+	}
+
 
 	if ( auidCmp( Mob->Class->ID, &AAFClassID_CompositionMob ) )
 	{
-		// aafMobID_t *rendering = aaf_get_propertyValue( Mob, PID_CompositionMob_Rendering );
-		//
-		// if ( rendering == NULL )
-		// {
-		// 	_error( "Could not retrieve Mob::Rendering.\n" );
-		// 	// return -1;
-		// }
-		// else
-		// {
-		// 	printf( "Rendering : %ls\n", MobIDToText(rendering) );
-		// }
-
-		/*
-		 *	Retrieve Composition's Name
-		 */
-
-		aafi->compositionName = aaf_get_propertyValueWstr( Mob, PID_Mob_Name );
-
-
-
-		/*
-		 *	Retrieve Composition's UserComments
-		 */
-
-		trace_obj( aafi, Mob, ANSI_COLOR_MAGENTA );
-
-		aafObject *UserComments = aaf_get_propertyValue( Mob, PID_Mob_UserComments );
-		aafObject *UserComment  = NULL;
-
-
-		aaf_foreach_ObjectInSet( &UserComment, UserComments, NULL )
-		{
-
-			wchar_t *name   = aaf_get_propertyValueWstr( UserComment, PID_TaggedValue_Name );
-
-			if ( name == NULL )
-				_warning( "Missing UserComment TaggedValue::Name.\n" );
-
-
-			wchar_t *text = aaf_get_propertyIndirectValueWstr( UserComment, PID_TaggedValue_Value );
-
-			if ( text == NULL )
-				_warning( "Missing UserComment TaggedValue::Value.\n" );
-
-
-			aafiUserComment *Comment = aafi_newUserComment( &aafi->Comments );
-
-			Comment->name = name;
-			Comment->text = text;
-
-		}
-
+		parse_CompositionMob( aafi, Mob, &__td );
 	}
 	else if ( auidCmp( Mob->Class->ID, &AAFClassID_MasterMob ) )
 	{
-
-		trace_obj( aafi, Mob, ANSI_COLOR_MAGENTA );
-
+		DUMP_OBJ( aafi, Mob, &__td );
 	}
 	else if ( auidCmp( Mob->Class->ID, &AAFClassID_SourceMob ) )
 	{
-
-		trace_obj( aafi, Mob, ANSI_COLOR_MAGENTA );
-
+		DUMP_OBJ( aafi, Mob, &__td );
 	}
+
 
 
 	/*
 	 *	Loops through MobSlots
 	 */
 
-	aafObject *MobSlots = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_Slots );
+	aafObject *MobSlot = NULL;
+	// aafObject *MobSlots = aaf_get_propertyValue( Mob, PID_Mob_Slots );
+	//
+	// if ( MobSlots != NULL ) /* req */
+	// {
+	// 	DUMP_OBJ_ERROR( aafi, Mob, &__td, "Missing PID_Mob_Slots" );
+	// 	return -1;
+	// }
 
-	aaf_foreach_ObjectInSet( &(aafi->ctx.MobSlot), MobSlots, NULL )
+
+	int i = 0;
+
+	aaf_foreach_ObjectInSet( &MobSlot, MobSlots, NULL )
 	{
+		__td.ll[__td.lv] = MobSlots->Header->_entryCount - i++;
+		parse_MobSlot( aafi, MobSlot, &__td );
+	}
 
-		parse_MobSlot( aafi, aafi->ctx.MobSlot );
+
+	free(__td.ll);
+	return 0;
+}
+
+
+
+static int parse_CompositionMob( AAF_Iface *aafi, aafObject *CompoMob, td *__ptd )
+{
+
+	struct trace_dump __td;
+	__td_set( __td, __ptd, 0);
+
+
+	DUMP_OBJ( aafi, CompoMob, &__td );
+
+
+
+	aafi->compositionName = aaf_get_propertyValueWstr( CompoMob, PID_Mob_Name ); /* opt */
+
+
+
+
+	aafObject *UserComment  = NULL;
+	aafObject *UserComments = aaf_get_propertyValue( CompoMob, PID_Mob_UserComments ); /* opt */
+
+	aaf_foreach_ObjectInSet( &UserComment, UserComments, NULL )
+	{
+		/* TODO implement retrieve_TaggedValue() */
+
+		wchar_t *name = aaf_get_propertyValueWstr( UserComment, PID_TaggedValue_Name );
+
+		if ( name == NULL ) /* req */
+		{
+			DUMP_OBJ_ERROR( aafi, UserComment, &__td, "Missing PID_TaggedValue_Name" );
+			continue;
+		}
+
+
+		wchar_t *text = aaf_get_propertyIndirectValueWstr( UserComment, PID_TaggedValue_Value );
+
+		if ( text == NULL ) /* req */
+		{
+			DUMP_OBJ_ERROR( aafi, UserComment, &__td, "Missing PID_TaggedValue_Name" );
+			continue;
+		}
+
+
+		aafiUserComment *Comment = aafi_newUserComment( aafi, &aafi->Comments );
+
+		Comment->name = name;
+		Comment->text = text;
 
 	}
 
@@ -2782,12 +3939,55 @@ static int parse_Mob( AAF_Iface *aafi, aafObject *Mob )
 
 
 
+// static int parse_MasterMob( AAF_Iface *aafi, aafObject *MasterMob, td *__ptd )
+// {
+// 	struct trace_dump __td;
+// 	__td_set(__td, __ptd, 1);
+//
+// 	__td.hc = 1;
+//
+// 	DUMP_OBJ( aafi, MasterMob, &__td );
+//
+// 	return 0;
+// }
 
-static int parse_SourceMob( AAF_Iface *aafi, aafObject *SourceMob )
+
+static int parse_SourceMob( AAF_Iface *aafi, aafObject *SourceMob, td *__ptd )
 {
+	struct trace_dump __td;
+	__td_set(__td, __ptd, 1);
 
-	if ( aafi->ctx.current_essence != NULL )
+	__td.hc = 1;
+
+	// int dl = DUMP_INIT(aafi);
+
+	// DUMP_OBJ( aafi, SourceMob, dl );
+
+
+	// aafUID_t *DataDefinition = get_Component_DataDefinition( aafi, SourceMob );
+	//
+	// if ( DataDefinition == NULL ) /* req */
+	// {
+	// 	_error( aafi->ctx.options.verb, "Could not retrieve MobSlot::Segment DataDefinition.\n" );
+	// 	return -1;
+	// }
+	//
+	//
+	//
+	// if ( auidCmp( DataDefinition, &AAFDataDef_Sound ) ||
+	// 		 auidCmp( DataDefinition, &AAFDataDef_LegacySound ) )
+
+	/* TODO find a better way to check if we're parsing audio */
+
+	if ( aafi->ctx.current_essence )
 	{
+
+		if ( aafi->ctx.current_essence == NULL )
+		{
+			DUMP_OBJ_ERROR( aafi, SourceMob, &__td, "ctx->current_essence no set" );
+			return -1;
+		}
+
 		aafiAudioEssence *audioEssence = (aafiAudioEssence*)aafi->ctx.current_essence;
 
 
@@ -2796,7 +3996,7 @@ static int parse_SourceMob( AAF_Iface *aafi, aafObject *SourceMob )
 
 		if ( MobID == NULL )
 		{
-			_error( "Could not retrieve SourceMob Mob::MobID.\n" );
+			DUMP_OBJ_ERROR( aafi, SourceMob, &__td, "Missing PID_Mob_MobID" );
 			return -1;
 		}
 
@@ -2808,7 +4008,7 @@ static int parse_SourceMob( AAF_Iface *aafi, aafObject *SourceMob )
 
 		if ( CreationTime == NULL )
 		{
-			_error( "Could not retrieve SourceMob Mob::CreationTime.\n" );
+			DUMP_OBJ_ERROR( aafi, SourceMob, &__td, "Missing PID_Mob_CreationTime" );
 			return -1;
 		}
 
@@ -2825,6 +4025,20 @@ static int parse_SourceMob( AAF_Iface *aafi, aafObject *SourceMob )
 	}
 
 
+
+	aafObject *EssenceDesc = aaf_get_propertyValue( SourceMob, PID_SourceMob_EssenceDescription );
+
+	if ( EssenceDesc == NULL )
+	{
+		DUMP_OBJ_ERROR( aafi, SourceMob, &__td, "Could not retrieve EssenceDescription" );
+		return -1;
+	}
+
+	DUMP_OBJ( aafi, SourceMob, &__td );
+
+
+	parse_EssenceDescriptor( aafi, EssenceDesc, &__td );
+
 	return 0;
 }
 
@@ -2832,7 +4046,19 @@ static int parse_SourceMob( AAF_Iface *aafi, aafObject *SourceMob )
 
 
 
+static aafiAudioTrack * get_audio_track_by_tracknumber( AAF_Iface *aafi, int tracknumber )
+{
+	aafiAudioTrack *audioTrack = NULL;
+	int count = 0;
 
+	foreach_audioTrack( audioTrack, aafi )
+	{
+		if ( ++count == tracknumber )
+			return audioTrack;
+	}
+
+	return NULL;
+}
 
 
 /******************************************************************************
@@ -2848,38 +4074,36 @@ static int parse_SourceMob( AAF_Iface *aafi, aafObject *SourceMob )
 ******************************************************************************
 ******************************************************************************/
 
-static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot )
+static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 {
+
+	// printf("MS : %p\n", __ptd->ll );
+
+	struct trace_dump __td;
+	__td_set(__td, __ptd, 1);
+
+	__td.hc = 1;
+
+
 
 	aafObject *Segment = aaf_get_propertyValue( MobSlot, PID_MobSlot_Segment );
 
-	if ( Segment == NULL )
+	if ( Segment == NULL ) /* req */
 	{
-		_error( "Missing MobSlot::Segment.\n" );
+		DUMP_OBJ_ERROR( aafi, MobSlot, &__td, "Missing PID_MobSlot_Segment" );
 		return -1;
 	}
 
 
 	aafUID_t *DataDefinition = get_Component_DataDefinition( aafi, Segment );
 
-	if ( DataDefinition == NULL )
+	if ( DataDefinition == NULL ) /* req */
 	{
-		_error( "Could not retrieve MobSlot::Segment DataDefinition.\n" );
+		DUMP_OBJ_ERROR( aafi, MobSlot, &__td, "Could not retrieve DataDefinition" );
 		return -1;
 	}
 
 
-
-	if ( auidCmp( DataDefinition, &AAFDataDef_Sound ) ||
-			 auidCmp( DataDefinition, &AAFDataDef_LegacySound ) )
-	{
-		aafi->ctx.current_tree_type = AAFI_TREE_TYPE_AUDIO;
-	}
-	else if ( auidCmp( DataDefinition, &AAFDataDef_Picture ) ||
-			      auidCmp( DataDefinition, &AAFDataDef_LegacyPicture ) )
-	{
-		aafi->ctx.current_tree_type = AAFI_TREE_TYPE_VIDEO;
-	}
 
 
   aafPosition_t session_end = 0;
@@ -2897,8 +4121,18 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot )
 		 *	CompositionMob can have TimelineMobSlots, StaticMobSlots, EventMobSlots
 		 */
 
-		if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_CompositionMob ) )
+		 aafRational_t *edit_rate = (aafRational_t*)aaf_get_propertyValue( MobSlot, PID_TimelineMobSlot_EditRate );
+
+		 if ( edit_rate == NULL ) /* req */
+		 {
+			 DUMP_OBJ_ERROR( aafi, MobSlot, &__td, "Missing PID_TimelineMobSlot_EditRate" );
+			 return -1;
+		 }
+
+
+		if ( auidCmp( /*aafi->ctx.*/MobSlot->Parent->Class->ID, &AAFClassID_CompositionMob ) )
 		{
+
 			/*
 			 *	There should be only one Composition, since a CompositionMob represents the overall
 			 *	composition (i.e project). Observations on files confirm that.
@@ -2906,41 +4140,50 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot )
 			 *	However, the AAF Edit Protocol says that there could be multiple CompositionMobs
 			 *	(Mob::UsageCode TopLevel), containing other CompositionMobs (Mob::UsageCode LowerLevel).
 			 *	This was not encountered yet, even on Avid exports with AAF_EditProtocol enabled.
+			 *
+			 *	TODO: update note
+			 *	TODO: implement multiple TopLevel compositions support
 			 */
 
 			if ( auidCmp( DataDefinition, &AAFDataDef_Sound ) ||
 			     auidCmp( DataDefinition, &AAFDataDef_LegacySound ) )
 			{
 
-				aafiAudioTrack *track = aafi_newAudioTrack( aafi );
-
-
 				/*
-				 *	p.11 : In a CompositionMob or MasterMob, PhysicalTrackNumber is the output channel number that the
-				 *	MobSlot should be routed to when played.
+				 *	p.11 : In a CompositionMob or MasterMob, PhysicalTrackNumber is the
+				 *	output channel number that the MobSlot should be routed to when played.
 				 */
 
-				uint32_t *track_num = (uint32_t*)aaf_get_propertyValue( MobSlot, PID_MobSlot_PhysicalTrackNumber );
-
-				if ( track_num == NULL )
+				if ( !aafi->ctx.is_inside_derivation_chain )
 				{
-					_warning( "Missing MobSlot::PhysicalTrackNumber.\n" );
-				}
-				else
-				{
-					track->number = *track_num;
-				}
+					uint32_t tracknumber = 0;
+					uint32_t *track_num  = (uint32_t*)aaf_get_propertyValue( MobSlot, PID_MobSlot_PhysicalTrackNumber );
+
+					if ( track_num == NULL ) {/* opt */
+						tracknumber = aafi->Audio->track_count + 1;
+					} else {
+						tracknumber = *track_num;
+					}
 
 
-				track->name = aaf_get_propertyValueWstr( MobSlot, PID_MobSlot_SlotName );
+					aafiAudioTrack *track = get_audio_track_by_tracknumber( aafi, tracknumber );
+
+					if ( !track )
+					{
+						track = aafi_newAudioTrack( aafi );
+					}
+
+					track->number = tracknumber;
+
+					aafi->Audio->track_count += 1;
+
+					aafi->ctx.current_track = track;
 
 
-				track->edit_rate = aaf_get_propertyValue( MobSlot, PID_TimelineMobSlot_EditRate );
 
-				if ( track->edit_rate == NULL )
-				{
-					_error( "Missing MobSlot::PID_TimelineMobSlot_EditRate.\n" );
-					return -1;
+					track->name = aaf_get_propertyValueWstr( MobSlot, PID_MobSlot_SlotName );
+
+					track->edit_rate = edit_rate;
 				}
 
 				// aaf_dump_ObjectProperties( aafi->aafd, MobSlot );
@@ -2985,30 +4228,55 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot )
 
 				/***********************************************************************************************************************/
 
+				DUMP_OBJ( aafi, MobSlot, &__td );
+
 
 				/* Reset timeline position */
-				aafi->ctx.current_pos = 0;
+				// aafi->ctx.current_pos = 0;
 
-				parse_Segment( aafi, Segment );
+				parse_Segment( aafi, Segment, &__td );
 
 
-                /* update session_end if needed */
-                session_end = ( aafi->ctx.current_pos > session_end ) ? aafi->ctx.current_pos : session_end;
-                // printf( "SESSIon_end : %li\n", session_end );
+        /* update session_end if needed */
+				// session_end = ( aafi->ctx.current_pos > session_end ) ? aafi->ctx.current_pos : session_end;
+				session_end = ( aafi->ctx.current_track->current_pos > session_end ) ? aafi->ctx.current_track->current_pos : session_end;
+
+        // printf( "SESSIon_end : %li\n", session_end );
 
 			}
 			else if ( auidCmp( DataDefinition, &AAFDataDef_Timecode ) ||
 					      auidCmp( DataDefinition, &AAFDataDef_LegacyTimecode ) )
 			{
-				parse_Segment( aafi, Segment );
+				DUMP_OBJ( aafi, MobSlot, &__td );
+
+				parse_Segment( aafi, Segment, &__td );
 			}
 			else if ( auidCmp( DataDefinition, &AAFDataDef_Picture ) ||
 			          auidCmp( DataDefinition, &AAFDataDef_LegacyPicture ) )
 			{
-				printf("\n\nCOUCOU\n\n" );
-				// aafi->ctx.current_tree_type = AAFI_TREE_TYPE_VIDEO;
-				// parse_Segment( aafi, Segment );
-				aafiVideoTrack *track = aafi_newVideoTrack( aafi );
+
+				// printf("%ls\n", ClassIDToText(aafi->aafd, Segment->Class->ID) );
+				// printf("\n\nCOUCOU VIDEO\n\n" );
+
+
+				/**** ADP NESTED SCOPE ****/
+
+				// aafObject *NSSegment = NULL;
+				// aafObject *NSSegments = aaf_get_propertyValue( Segment, PID_NestedScope_Slots );
+				//
+				// aaf_foreach_ObjectInSet( &NSSegment, NSSegments, NULL )
+				// {
+				// 	aaf_dump_ObjectProperties( aafi->aafd, NSSegment );
+				// 	printf("\n\n\n\n" );
+				// }
+
+
+
+				if ( aafi->Video->Tracks )
+				{
+					DUMP_OBJ_ERROR( aafi, MobSlot, &__td, "Current implementation supports only one video track" );
+					return -1;
+				}
 
 
 				/*
@@ -3016,114 +4284,68 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot )
 				 *	MobSlot should be routed to when played.
 				 */
 
+				uint32_t tracknumber = 0;
 				uint32_t *track_num = (uint32_t*)aaf_get_propertyValue( MobSlot, PID_MobSlot_PhysicalTrackNumber );
 
-				if ( track_num == NULL )
-				{
-					_warning( "Missing MobSlot::PhysicalTrackNumber.\n" );
-				}
-				else
-				{
-					track->number = *track_num;
+				if ( track_num == NULL ) { /* opt */
+					tracknumber = 1;       /* Current implementation supports only one video track. */
+				} else {
+					tracknumber = *track_num;
 				}
 
+
+				aafiVideoTrack *track = aafi_newVideoTrack( aafi );
+
+
+				track->number = tracknumber;
 
 				track->name = aaf_get_propertyValueWstr( MobSlot, PID_MobSlot_SlotName );
 
-
-				track->edit_rate = aaf_get_propertyValue( MobSlot, PID_TimelineMobSlot_EditRate );
-
-				if ( track->edit_rate == NULL )
-				{
-					_error( "Missing MobSlot::PID_TimelineMobSlot_EditRate.\n" );
-					return -1;
-				}
-
-				// aaf_dump_ObjectProperties( aafi->aafd, MobSlot );
-
-				/***********************************************************************************************************************/
-
-				/*
-				 *	The following seems to be ProTools proprietary.
-				 *	If a track is multi-channel, it specifies its format : 2 (stereo), 6 (5.1) or 8 (7.1).
-				 *
-				 *	In the current implementation we don't need this. We guess the format at the OperationGroup level with the
-				 *	AAFOperationDef_AudioChannelCombiner OperationDefinition, which also looks to be ProTools specific.
-				 */
-
-				// aafPID_t PIDTimelineMobAttributeList = aaf_get_PropertyIDByName( aafi->aafd, "TimelineMobAttributeList" );
-				// // aafPID_t PIDTimelineMobAttributeList = aaf_get_PropertyIDByName( aafi->aafd, "MobAttributeList" );
-				//
-				// if ( PIDTimelineMobAttributeList != 0 )
-				// {
-				// 	aafObject *TaggedValues = aaf_get_propertyValue( aafi->ctx.MobSlot, PIDTimelineMobAttributeList );
-				// 	aafObject *TaggedValue  = NULL;
-				//
-				// 	aaf_foreach_ObjectInSet( &TaggedValue, TaggedValues, NULL )
-				// 	{
-				// 		char *name = aaf_get_propertyValueText( TaggedValue, PID_TaggedValue_Name );
-				//
-				// 		printf("TaggedValue %s\n", name );
-				//
-				// 		if ( strncmp( "_TRACK_FORMAT", name, 13 ) == 0 )
-				// 		{
-				// 			uint32_t *format = (uint32_t*)aaf_get_propertyIndirectValue( TaggedValue, PID_TaggedValue_Value );
-				//
-				// 			if ( format != NULL )
-				// 				aafi->ctx.current_track->format = *format;
-				//
-				// 			printf("Format : %u\n", aafi->ctx.current_track->format );
-				// 		}
-				//
-				// 		free( name );
-				// 	}
-				// }
-
-				/***********************************************************************************************************************/
+				track->edit_rate = edit_rate;
 
 
-				/* Reset timeline position */
-				aafi->ctx.current_pos = 0;
-
-				parse_Segment( aafi, Segment );
+				DUMP_OBJ( aafi, MobSlot, &__td );
 
 
-                /* update session_end if needed */
-                session_end = ( aafi->ctx.current_pos > session_end ) ? aafi->ctx.current_pos : session_end;
-                // printf( "SESSIon_end : %li\n", session_end );
+				parse_Segment( aafi, Segment, &__td );
+
+
+        /* update session_end if needed */
+				// session_end = ( aafi->ctx.current_track->current_pos > session_end ) ? aafi->ctx.current_track->current_pos : session_end;
 			}
 			else
 			{
-				trace_obj( aafi, MobSlot, ANSI_COLOR_YELLOW );
-				printf( "%ls\n", DataDefToText( aafi->aafd, DataDefinition ) );
+				DUMP_OBJ_NO_SUPPORT( aafi, MobSlot, &__td );
 			}
 
 		}
-		else if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_MasterMob ) )
+		else if ( auidCmp( MobSlot->Parent->Class->ID, &AAFClassID_MasterMob ) )
 		{
 			/* Retrieve Essences */
 
-			if ( auidCmp( DataDefinition, &AAFDataDef_Sound ) ||
-				   auidCmp( DataDefinition, &AAFDataDef_LegacySound ) )
-			{
-				parse_Segment( aafi, Segment );
+			// if ( auidCmp( DataDefinition, &AAFDataDef_Sound ) ||
+			// 	   auidCmp( DataDefinition, &AAFDataDef_LegacySound ) )
+			// {
+				DUMP_OBJ( aafi, MobSlot, &__td );
 
-				retrieve_EssenceData( aafi );
-			}
-			else if ( auidCmp( DataDefinition, &AAFDataDef_Picture ) ||
-							  auidCmp( DataDefinition, &AAFDataDef_LegacyPicture ) )
-			{
-				parse_Segment( aafi, Segment );
 
-				retrieve_EssenceData( aafi );
-			}
-			else
-			{
-				trace_obj( aafi, MobSlot, ANSI_COLOR_YELLOW );
-				printf( "%ls\n", DataDefToText( aafi->aafd, DataDefinition ) );
-			}
+				parse_Segment( aafi, Segment, &__td );
+
+			// }
+			// else if ( auidCmp( DataDefinition, &AAFDataDef_Picture ) ||
+			// 				  auidCmp( DataDefinition, &AAFDataDef_LegacyPicture ) )
+			// {
+			// 	parse_Segment( aafi, Segment );
+			//
+			// 	retrieve_EssenceData( aafi );
+			// }
+			// else
+			// {
+			// 	trace_obj( aafi, MobSlot, ANSI_COLOR_YELLOW );
+			// 	printf( "%ls\n", DataDefToText( aafi->aafd, DataDefinition ) );
+			// }
 		}
-		else if ( auidCmp( aafi->ctx.Mob->Class->ID, &AAFClassID_SourceMob ) )
+		else if ( auidCmp( MobSlot->Parent->Class->ID, &AAFClassID_SourceMob ) )
 		{
 
 			if ( aafi->ctx.current_essence != NULL )
@@ -3132,33 +4354,43 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot )
 
 				aafPosition_t *Origin = aaf_get_propertyValue( MobSlot, PID_TimelineMobSlot_Origin );
 
-				if ( DataDefinition == NULL )
+				if ( Origin == NULL ) /* req */
 				{
-					_error( "Could not retrieve MobSlot TimelineMobSlot::Origin.\n" );
+					DUMP_OBJ_ERROR( aafi, MobSlot, &__td, "Missing PID_TimelineMobSlot_Origin" );
 					return -1;
 				}
 
 				audioEssence->timeReference = *Origin;
-			}
 
+				DUMP_OBJ( aafi, MobSlot, &__td );
+			}
+			else
+			{
+				DUMP_OBJ_ERROR( aafi, MobSlot, &__td, "aafi->ctx.current_essence no set" );
+			}
 		}
 		else
 		{
-			trace_obj( aafi, MobSlot, ANSI_COLOR_YELLOW );
-			printf( "%ls\n", DataDefToText( aafi->aafd, DataDefinition ) );
+			/* Not in CompositionMob, MasterMob, or SourceMob. Can not happen. */
+			DUMP_OBJ_NO_SUPPORT( aafi, MobSlot, &__td );
 		}
 
 	}
 	else
 	{
-		trace_obj( aafi, MobSlot, ANSI_COLOR_YELLOW );
-		printf( "%ls\n", DataDefToText( aafi->aafd, DataDefinition ) );
+		/* Not AAFClassID_TimelineMobSlot */
+		DUMP_OBJ_NO_SUPPORT( aafi, MobSlot, &__td );
 	}
 
-    if ( session_end > 0 && aafi->Audio->tc )
-        aafi->Audio->tc->end = session_end;
-    // else
-    //     _error("MISSING aafiTimecode !\n"); // TODO handle session's end more properly
+	/* TODO implement global (audio and video) session start and end */
+	// if ( aafi->ctx.current_tree_type == AAFI_TREE_TYPE_AUDIO )
+	  if ( session_end > 0 && aafi->Audio->tc )
+	      aafi->Audio->tc->end = session_end;
+	// if ( aafi->ctx.current_tree_type == AAFI_TREE_TYPE_VIDEO )
+	//   if ( session_end > 0 && aafi->Video->tc )
+	//       aafi->Video->tc->end = session_end;
+	// else
+  //     _error("MISSING aafiTimecode !\n"); // TODO handle session's end more properly
 
 	return 0;
 }
@@ -3168,62 +4400,197 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot )
 
 int aafi_retrieveData( AAF_Iface *aafi )
 {
+	aafObject *Mob = NULL;
 
-	aaf_foreach_ObjectInSet( &(aafi->ctx.Mob), aafi->aafd->Mobs, NULL )
+
+	aaf_foreach_ObjectInSet( &Mob, aafi->aafd->Mobs, &AAFClassID_CompositionMob )
 	{
+
+		aafUID_t *UsageCode = (aafUID_t*)aaf_get_propertyValue( Mob, PID_Mob_UsageCode );
+
+		if ( auidCmp( aafi->aafd->Header.OperationalPattern, &AAFOPDef_EditProtocol ) && !auidCmp( UsageCode, &AAFUsage_TopLevel ) )
+		{
+			/*
+			 *	If we run against AAFOPDef_EditProtocol, we process only TopLevels CompositionMobs.
+			 *	If there is more than one, we have multiple Compositions in a single AAF.
+			 */
+
+
+			// trace_obj( aafi, Mob, ANSI_COLOR_RED );
+
+
+
+			// // aaf_dump_ObjectProperties( aafi->aafd, aafi->ctx.Mob );
+			//
+			// aafObject *MobSlots = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_Slots );
+			// aafObject *MobSlot = NULL;
+			// uint32_t SlotID = 0;
+			//
+			// aaf_foreach_ObjectInSet( &MobSlot, MobSlots, NULL )
+			// {
+			// 	aaf_dump_ObjectProperties( aafi->aafd, MobSlot );
+			// 	printf("\n\n\n\n\n" );
+			// }
+
+			continue;
+		}
 
 		RESET_CONTEXT( aafi->ctx );
 
-		parse_Mob( aafi, aafi->ctx.Mob );
+		aafi->ctx.current_dump_level = 0;
+
+		parse_Mob( aafi, Mob );
 
 	}
+
+
+
+	// aafiAudioTrack   *audioTrack = NULL;
+	// aafiTimelineItem *audioItem  = NULL;
+	// // aafiAudioClip    *audioClip  = NULL;
+	//
+	// // uint32_t i = 0;
+	//
+	// foreach_audioTrack( audioTrack, aafi )
+	// {
+	// 	foreach_Item( audioItem, audioTrack )
+	// 	{
+	//
+	// 		if ( audioItem->type == AAFI_TRANS )
+	// 		{
+	// 			continue;
+	// 		}
+	//
+	// 		aafiAudioClip *audioClip = (aafiAudioClip*)&audioItem->data;
+	//
+	// 		if ( audioClip->masterMobID && !audioClip->Essence )
+	// 		{
+	// 			printf("\n\n\n\n\n\n    E m p t y   C l i p\n\n\n\n" );
+	//
+	// 			aafObject *Mob = NULL;
+	//
+	// 			aaf_foreach_ObjectInSet( &Mob, aafi->aafd->Mobs, NULL )
+	// 			{
+	// 				/* loops through Mobs */
+	// 				aafUID_t *UsageCode = (aafUID_t*)aaf_get_propertyValue( Mob, PID_Mob_UsageCode );
+	//
+	// 				aafMobID_t *MobID = (aafMobID_t*)aaf_get_propertyValue( Mob, PID_Mob_MobID );
+	//
+	// 				if ( !mobIDCmp( MobID, audioClip->masterMobID ) )
+	// 				{
+	// 					continue;
+	// 				}
+	//
+	// 				// aaf_dump_ObjectProperties( aafi->aafd, Mob );
+	// 				printf("Clip SourceID      : %ls\n\n", MobIDToText(MobID) );
+	//
+	// 				printf("PointedMob ClassID : %ls\n", ClassIDToText(aafi->aafd, Mob->Class->ID) );
+	// 				printf("PointedMob UsageCd : %ls\n", UsageCodeToText(UsageCode) );
+	// 				printf("PointedMob Name    : %ls\n\n", aaf_get_propertyValueWstr(Mob, PID_Mob_Name) );
+	//
+	//
+	//
+	// 				aafObject *MobSlots = aaf_get_propertyValue( Mob, PID_Mob_Slots );
+	// 				aafObject *MobSlot = NULL;
+	// 				int SlotID = 1;
+	// 				aaf_foreach_ObjectInSet( &MobSlot, MobSlots, NULL )
+	// 				{
+	// 					printf("  SlotID %u\n", SlotID );
+	//
+	// 					aafObject *Segment = aaf_get_propertyValue( MobSlot, PID_MobSlot_Segment );
+	//
+	// 					if ( Segment == NULL )
+	// 					{
+	// 						_error( aafi->ctx.options.verb, "Missing MobSlot::Segment.\n" );
+	// 						return -1;
+	// 					}
+	//
+	//
+	// 					aafUID_t *DataDefinition = get_Component_DataDefinition( aafi, Segment );
+	//
+	// 					if ( DataDefinition == NULL )
+	// 					{
+	// 						_error( aafi->ctx.options.verb, "Could not retrieve MobSlot::Segment DataDefinition.\n" );
+	// 						return -1;
+	// 					}
+	//
+	// 					// CURRENTPOINTER
+	//
+	// 					printf("    Segment : %ls\n", ClassIDToText( aafi->aafd, Segment->Class->ID ) );
+	// 					printf("    DataDefinition : %ls\n", DataDefToText(aafi->aafd, DataDefinition) );
+	//
+	// 					printf("\n");
+	//
+	//
+	//
+	//
+	//
+	// 					if ( auidCmp( Segment->Class->ID, &AAFClassID_SourceClip ) )
+	// 					{
+	// 						aafMobID_t *SourceID = aaf_get_propertyValue( Segment, PID_SourceReference_SourceID );
+	//
+	// 						printf("     SourceID : %ls\n", MobIDToText(sourceID) );
+	// 					}
+	//
+	// 					SlotID++;
+	// 				}
+	// 				printf("\n");
+	//
+	//
+	// 			}
+	// 		}
+	// 	}
+	// }
+
+
+
 
 
 	/*
 	 */
-	aaf_foreach_ObjectInSet( &(aafi->ctx.Mob), aafi->aafd->Mobs, &AAFClassID_SourceMob )
-	{
-
-		aafObject *MobSlots = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_Slots );
-
-		aaf_foreach_ObjectInSet( &(aafi->ctx.MobSlot), MobSlots, NULL )
-		{
-
-			/*
-			 *	Check if the SourceMob was parsed.
-			 *	If it was not, we can print the trace.
-			 *
-			 *	NOTE We do it after the main loop, so we make sure all MasterMobs was parsed.
-			 */
-
-			aafObject *Segment = aaf_get_propertyValue( aafi->ctx.MobSlot, PID_MobSlot_Segment );
-
- 			aafUID_t  *DataDefinition = get_Component_DataDefinition( aafi, Segment );
-
-			aafMobID_t *MobID = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_MobID );
-
-			aafiAudioEssence *audioEssence = NULL;
-
-			foreachEssence( audioEssence, aafi->Audio->Essences )
-			{
-				if ( mobIDCmp( MobID, audioEssence->sourceMobID ) )
-					break;
-			}
-
-			if ( audioEssence == NULL )
-			{
-				trace_obj( aafi, aafi->ctx.MobSlot, ANSI_COLOR_YELLOW );
-				printf( "%ls\n", DataDefToText( aafi->aafd, DataDefinition ) );
-			}
-
-		}
-	}
+	// aaf_foreach_ObjectInSet( &(aafi->ctx.Mob), aafi->aafd->Mobs, &AAFClassID_SourceMob )
+	// {
+	//
+	// 	aafObject *MobSlots = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_Slots );
+	//
+	// 	aaf_foreach_ObjectInSet( &(aafi->ctx.MobSlot), MobSlots, NULL )
+	// 	{
+	//
+	// 		/*
+	// 		 *	Check if the SourceMob was parsed.
+	// 		 *	If it was not, we can print the trace.
+	// 		 *
+	// 		 *	NOTE We do it after the main loop, so we make sure all MasterMobs was parsed.
+	// 		 */
+	//
+	// 		aafObject *Segment = aaf_get_propertyValue( aafi->ctx.MobSlot, PID_MobSlot_Segment );
+	//
+ 	// 		aafUID_t  *DataDefinition = get_Component_DataDefinition( aafi, Segment );
+	//
+	// 		aafMobID_t *MobID = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_MobID );
+	//
+	// 		aafiAudioEssence *audioEssence = NULL;
+	//
+	// 		foreachEssence( audioEssence, aafi->Audio->Essences )
+	// 		{
+	// 			if ( mobIDCmp( MobID, audioEssence->sourceMobID ) )
+	// 				break;
+	// 		}
+	//
+	// 		if ( audioEssence == NULL )
+	// 		{
+	// 			trace_obj( aafi, aafi->ctx.MobSlot, ANSI_COLOR_YELLOW );
+	// 			printf( "%ls\n", DataDefToText( aafi->aafd, DataDefinition ) );
+	// 		}
+	//
+	// 	}
+	// }
 
 
 
 	/* *** Post processing *** */
 
-
+	/* TODO move to parse_***() */
 	/* Parse summary descriptor (WAVE/AIFC) if any */
 
 	aafiAudioEssence *audioEssence = NULL;

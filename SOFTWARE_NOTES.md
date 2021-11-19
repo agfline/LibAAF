@@ -10,6 +10,7 @@ ADP exports fades and cross fades.
 #### Volume/Gain
 
 ADP exports both clip-based gain and track-based gain as either fixed or varying value.
+ADP does not export clip-based volume (curve).
 
 #### PAN
 
@@ -28,6 +29,8 @@ ADP exports clips with effects rendered if **Render audio clip effects** is enab
 #### Misc
 
 ADP supports nested sequences, however it doesn't export them as multiple CompositionMobs as it should, according to the AAF EditProtocol... so that's fine ! Instead, nested sequences are rendered as single clips.
+
+ADP does not set the Composition TC start (aafi->Audio->tc->start)
 
 ## ProTools
 

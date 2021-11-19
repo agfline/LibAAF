@@ -3,7 +3,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
 
 #include "AAFCore/AAFClass.h"
 #include "AAFCore/AAFCore.h"
@@ -23,6 +23,8 @@ extern "C" {
 #include "AAFCore/AAFDefs/AAFParameterDefs.h"
 #include "AAFCore/AAFDefs/AAFInterpolatorDefs.h"
 #include "AAFCore/AAFDefs/AAFContainerDefs.h"
+#include "AAFCore/AAFDefs/AAFOPDefs.h"
+#include "AAFCore/AAFDefs/AAFExtEnum.h"
 
 #include "LibCFB/CFBDump.h"
 #include "AAFCore/AAFDump.h"

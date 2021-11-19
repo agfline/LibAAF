@@ -47,6 +47,7 @@
 #include <wchar.h>
 
 #include "CFBTypes.h"
+#include "../common/debug.h"
 // #include "CFBDump.h"
 
 
@@ -683,6 +684,9 @@ typedef struct CFB_Data
 
 	cfbNode      **nodes;
 
+
+
+	verbosityLevel_e verb;
 
 } CFB_Data;
 

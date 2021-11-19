@@ -347,4 +347,10 @@ static const aafUID_t AAFParameterDefSMPTEReplicationV = AAFParameterDef_SMPTERe
 static const aafUID_t AAFParameterDefSMPTECheckerboard = AAFParameterDef_SMPTECheckerboard;
 static const aafUID_t AAFParameterDefPhaseOffset = AAFParameterDef_PhaseOffset;
 */
+
+/* Seen in Avid and PT files */
+// static const aafUID_t PanVol_IsTrimGainEffect =
+// {0x922d458d, 0x8f22, 0x11d4, {0xa0, 0x3c, 0x00, 0x04, 0xac, 0x96, 0x9f, 0x50}};
+
+
 #endif // ! __ParameterDefinition_h__

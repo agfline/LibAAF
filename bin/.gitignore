@@ -1,13 +1,2 @@
 /*
 !.gitignore
-!/Ardour
-/Ardour/*
-!/Ardour/session
-/Ardour/session/*
-!/Ardour/session/interchange
-/Ardour/session/interchange/*
-!/Ardour/session/interchange/AAF
-/Ardour/session/interchange/AAF/*
-!/Ardour/session/interchange/AAF/audiofiles
-/Ardour/session/interchange/AAF/audiofiles/*
-!/Ardour/session/interchange/AAF/audiofiles/.gitignore

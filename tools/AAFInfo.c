@@ -31,13 +31,14 @@ static char * gainToStr( aafiAudioGain *gain )
 		/*
 		 *	NOTE some implementations use VaryingValue to store a single gain value.
 		 *	This is indicated by the "(A)".
+		 *	TODO implementation have changed !
 		 */
 
-		aafRational_t *value = &(gain->value[0]);
+		// aafRational_t *value = &(gain->value[0]);
 
 		snprintf( str, 32, "%s%+05.1lf dB",
 				( gain->flags & AAFI_AUDIO_GAIN_VARIABLE ) ? "(A) " : "    ",
-				  20 * log10( rationalToFloat( value ) ) );
+				  20 * log10( rationalToFloat( gain->value[0] ) ) );
 	}
 	else if ( gain->flags & AAFI_AUDIO_GAIN_VARIABLE )
 	{
@@ -69,7 +70,7 @@ static char * panToStr( aafiAudioPan *pan )
 		 *	This is indicated by the "(A)".
 		 */
 
-		float panval = rationalToFloat(pan->value);
+		float panval = rationalToFloat_p(pan->value);
 
 		snprintf( str, 32, "%s%0.1f %s",
 				( pan->flags & AAFI_AUDIO_GAIN_VARIABLE ) ? "(A) " : "    ",
@@ -107,12 +108,12 @@ static void aafi_dump_VaryingValues( aafiAudioGain *Gain )
 	   // 	audioTrack->gain->value[i].denominator
 	   // );
 
-	   aafRational_t *time  = &(Gain->time[i] );
-	   aafRational_t *value = &(Gain->value[i]);
+	   // aafRational_t *time  = &(Gain->time[i] );
+	   // aafRational_t *value = &(Gain->value[i]);
 
 	   printf( "   VaryingValue:  _time: %f   _value: %f\n",
-		   rationalToFloat( time  ),
-		   rationalToFloat( value )
+		   rationalToFloat( Gain->time[i]  ),
+		   rationalToFloat( Gain->value[i] )
 	   );
 
 	   // printf("   PT:  _t: %i/%i   Gain: %.01f dB\n",
@@ -275,18 +276,26 @@ int main( int argc, char *argv[] )
 
 	AAF_Data *aafd = aaf_alloc();
 
-	if ( aaf_load_file( aafd, argv[argc-1] ) )
-		return 1;
+	// if ( aaf_load_file( aafd, argv[argc-1] ) )
+	// 	return 1;
 
 
-	AAF_Iface *aafi = NULL;
+	AAF_Iface *aafi = aafi_alloc( aafd );
+	aafi->ctx.options.verb = VERB_DEBUG;
+	aafi->ctx.options.trace = 1;
 
-	if ( aaf_essences || aaf_clips )
+	if ( aafi_load_file( aafi, argv[argc-1] ) )
 	{
-		aafi = aafi_alloc( aafd );
-
-		aafi_retrieveData( aafi );
+		aafi_release( &aafi );
+		return 1;
 	}
+
+	// if ( aaf_essences || aaf_clips )
+	// {
+	// 	aafi = aafi_alloc( aafd );
+	//
+	// 	aafi_retrieveData( aafi );
+	// }
 
 	printf( "\n\n" );
 
@@ -483,8 +492,12 @@ int main( int argc, char *argv[] )
 		}
 
 
-
-
+		locate_external_essence_file( aafi, L"file://10.87.230.71/mixage/DR2/Avid MediaFiles/MXF/1/3572607_RUGBY_F2_S65CFA3D0V.mxf" );
+		locate_external_essence_file( aafi, L"file:////C:/Users/mix_limo/Desktop/TEST2977052  -  OFF PODIUM ETAPE 2.aaf" );
+		locate_external_essence_file( aafi, L"file://?/E:/Adrien/ADPAAF/Sequence A Rendu.mxf" );
+		locate_external_essence_file( aafi, L"file://localhost/D:/horlaprod/Music/Logic/fonk_2/Audio Files_1/fonk_2_3#04.wav" );
+		locate_external_essence_file( aafi, L"file://localhost/Users/horlaprod/Music/Logic/fonk_2/Audio Files_1/fonk_2_3#04.wav" );
+		locate_external_essence_file( aafi, L"file:///_system/Users/horlaprod/pt2MCCzmhsFRHQgdgsTMQX.mxf" );
 
 
 
@@ -498,7 +511,7 @@ int main( int argc, char *argv[] )
 					(videoTrack->number < 10) ? " " : "",
 					videoTrack->number,
 					videoTrack->edit_rate->numerator, videoTrack->edit_rate->denominator,
-					rationalToFloat(videoTrack->edit_rate),
+					rationalToFloat_p(videoTrack->edit_rate),
 					(videoTrack->name != NULL) ? videoTrack->name : L""
 			 );
 
@@ -506,6 +519,8 @@ int main( int argc, char *argv[] )
 			 {
 				 videoItem = videoTrack->Items;
 				 videoClip = (aafiVideoClip*)&(videoItem->data);
+
+				 // locate_external_essence_file( aafi, videoClip->Essence->original_file );
 
 				 struct timecode tc_in;
 				 struct timecode tc_out;
@@ -558,7 +573,7 @@ int main( int argc, char *argv[] )
 					gainToStr( audioTrack->gain ),
 					panToStr( audioTrack->pan ),
 					audioTrack->edit_rate->numerator, audioTrack->edit_rate->denominator,
-					rationalToFloat(audioTrack->edit_rate),
+					rationalToFloat_p(audioTrack->edit_rate),
 					(audioTrack->name != NULL) ? audioTrack->name : L""
 			 );
 
@@ -669,7 +684,6 @@ int main( int argc, char *argv[] )
 					tc_in.string,
 					tc_len.string,
 					tc_out.string,
-					// (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start),
 					( fadein != NULL ) ?
 						(fadein->flags & AAFI_INTERPOL_NONE)     ? "CURV_NON" :
 						(fadein->flags & AAFI_INTERPOL_LINEAR)   ? "CURV_LIN" :
@@ -689,7 +703,7 @@ int main( int argc, char *argv[] )
 						"" :
 					"none    ",
 					(audioClip->Essence) ? audioClip->Essence->unique_file_name : L"",
-					audioClip->Essence->file_name
+					(audioClip->Essence) ? audioClip->Essence->file_name : L""
 				);
 
 

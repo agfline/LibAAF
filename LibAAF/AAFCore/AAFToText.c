@@ -1414,6 +1414,9 @@ const wchar_t * ParameterToText( AAF_Data *aafd, const aafUID_t *auid )
 	if ( auidCmp( auid, &AAFParameterDef_PhaseOffset ) )
 		return L"AAFParameterDef_PhaseOffset";
 
+	/* Seen in Avid and PT files */
+	// if ( auidCmp( auid, &PanVol_IsTrimGainEffect ) )
+	// 	return L"PanVol_IsTrimGainEffect";
 
 	if ( auidCmp( auid, &AAFUID_NULL ) )
 		return L"AAFUID_NULL";

@@ -3,6 +3,17 @@
 
 #include <stdio.h>
 
+
+
+typedef enum verbosityLevel_e {
+	VERB_QUIET = 0,
+	VERB_ERROR,
+	VERB_WARNING,
+	VERB_DEBUG
+} verbosityLevel_e;
+
+
+
 /**
  *	Displays a warning with its associated source filename,
  *	function name, line number and a custom message.
@@ -13,8 +24,8 @@
  *	This macro doesn't change the execution flow.
  */
 
-#define _warning( ... )                              \
-	if ( 1 )                                         \
+#define _warning( v, ... )                              \
+	if ( v >= VERB_WARNING )                           \
 	{                                                \
 		fprintf( stderr, "WARNING %s:%d in %s() : ", \
 			__FILE__,                                \
@@ -38,8 +49,8 @@
  *	calling _error().
  */
 
-#define _error( ... )                                \
-	if ( 1 )                                         \
+#define _error( v, ... )                                \
+	if ( v >= VERB_ERROR )                                         \
 	{                                                \
 		fprintf( stderr, "__ERROR %s:%d in %s() : ", \
 			__FILE__,                                \

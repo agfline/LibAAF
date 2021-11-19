@@ -107,7 +107,7 @@
 	Prop = malloc( sizeof(aafPropertyDef) );         \
 	if ( Prop == NULL )                              \
 	{                                                \
-		_error( "%s.\n", strerror( errno ) );        \
+		_error( aafd->verb, "%s.\n", strerror( errno ) );        \
 		return NULL;                                 \
 	}                                                \
 	Prop->pid         = Pid;                         \
@@ -168,7 +168,7 @@ static aafObject * newObject( AAF_Data  *aafd,
  *	@return      A pointer to the newly created aafProperty.
  */
 
-static aafProperty * newProperty( aafPropertyDef *Def );
+static aafProperty * newProperty( AAF_Data *aafd, aafPropertyDef *Def );
 
 
 /**
@@ -426,14 +426,21 @@ AAF_Data *aaf_alloc()
 	AAF_Data *aafd = calloc( sizeof(AAF_Data), sizeof(unsigned char) );
 
 	if ( aafd == NULL )
-		_error( "%s.\n", strerror( errno ) );
+		_error( aafd->verb, "%s.\n", strerror( errno ) );
 
 	aafd->cfbd = NULL;
+	aafd->verb = VERB_DEBUG;
+
+	aafd->Identification.CompanyName = NULL;
+	aafd->Identification.ProductName = NULL;
+	aafd->Identification.ProductVersionString = NULL;
+	aafd->Identification.Platform = NULL;
+
+	aafd->Classes = NULL;
+	aafd->Objects = NULL;
 
 	return aafd;
 }
-
-
 
 
 
@@ -452,9 +459,16 @@ int aaf_load_file( AAF_Data *aafd, const char *file )
 		return -1;
 	}
 
+	aafd->cfbd->verb = aafd->verb;
+
 	if ( cfb_load_file( &aafd->cfbd, file ) < 0 )
 	{
-		aaf_release( &aafd );
+		// printf("aafd : %p\n", aafd );
+
+		// aaf_release( &aafd );
+
+		// printf("aafd : %p\n", aafd );
+
 		return 1;
 	}
 
@@ -472,25 +486,25 @@ int aaf_load_file( AAF_Data *aafd, const char *file )
 
 	if ( setDefaultClasses( aafd ) < 0 )
 	{
-		aaf_release( &aafd );
+		// aaf_release( &aafd );
 		return -1;
 	}
 
 	if ( retrieveObjectTree( aafd ) < 0 )
 	{
-		aaf_release( &aafd );
+		// aaf_release( &aafd );
 		return -1;
 	}
 
 	if ( parse_Header( aafd ) < 0 )
 	{
-		aaf_release( &aafd );
+		// aaf_release( &aafd );
 		return -1;
 	}
 
 	if ( parse_Identification( aafd ) < 0 )
 	{
-		aaf_release( &aafd );
+		// aaf_release( &aafd );
 		return -1;
 	}
 
@@ -618,7 +632,7 @@ wchar_t * aaf_get_ObjectPath( aafObject *Obj )
     //
 	// if ( path == NULL )
 	// {
-	// 	_error( "%s.\n", strerror( errno ) );
+	// 	_error( aafd->verb, "%s.\n", strerror( errno ) );
 	// 	return NULL;
 	// }
 
@@ -650,7 +664,7 @@ wchar_t * aaf_get_ObjectPath( aafObject *Obj )
     //
 	// 	if ( offset + pathLen + 1 > CFB_PATH_NAME_SZ )
 	// 	{
-	// 		_error( "Retrieved path length is bigger than CFB_PATH_NAME_SZ.\n" );
+	// 		_error( aafd->verb, "Retrieved path length is bigger than CFB_PATH_NAME_SZ.\n" );
 	// 		return NULL;
 	// 	}
     //
@@ -844,7 +858,7 @@ aafProperty * aaf_get_property( aafObject *Obj, aafPID_t pid )
 		{
 			/* TODO pass aafd to PIDToText() */
 			if ( PDef->pid == pid && PDef->isReq == 1 )
-				_warning( "Could not find the required property %ls (%u).\n", PIDToText( NULL, pid ), pid );
+				_warning( Obj->aafd->verb, "Could not find the required property %ls (%u).\n", PIDToText( NULL, pid ), pid );
 		}
 	}
 
@@ -953,7 +967,7 @@ wchar_t * aaf_get_propertyIndirectValueWstr( aafObject *Obj, aafPID_t pid )
 
 	if ( auidCmp( &Indirect->TypeDef, &AAFTypeID_String ) == 0 )
 	{
-		_warning( "Indirect value is not of type String.\n" );
+		_warning( Obj->aafd->verb, "Indirect value is not of type String.\n" );
 		return NULL;
 	}
 
@@ -1002,7 +1016,7 @@ wchar_t * aaf_get_propertyIndirectValueWstr( aafObject *Obj, aafPID_t pid )
 // 		 auidCmp( hdrClsID, &AAFFileKind_Aaf4KBinary  ) )
 // 			return 1;
 //
-// //  _warning( "Unsuported AAF encoding (%ls).\n", FileKindToText( hdrClsID ) );
+// //  _warning( aafd->verb, "Unsuported AAF encoding (%ls).\n", FileKindToText( hdrClsID ) );
 //
 // 	return 0;
 // }
@@ -1021,7 +1035,7 @@ static aafObject * newObject( AAF_Data *aafd, cfbNode *Node, aafClass *Class, aa
 
 	if ( Obj == NULL )
 	{
-		_error( "%s.\n", strerror( errno ) );
+		_error( aafd->verb, "%s.\n", strerror( errno ) );
 		return NULL;
 	}
 
@@ -1034,6 +1048,7 @@ static aafObject * newObject( AAF_Data *aafd, cfbNode *Node, aafClass *Class, aa
 	w16tow32( Obj->Name, Node->_ab, Node->_cb );
 #endif
 
+	Obj->aafd       = aafd;
 	Obj->Class      = Class;
 	Obj->Node       = Node;
 	Obj->Properties = NULL;
@@ -1052,13 +1067,13 @@ static aafObject * newObject( AAF_Data *aafd, cfbNode *Node, aafClass *Class, aa
 
 
 
-static aafProperty * newProperty( aafPropertyDef *Def )
+static aafProperty * newProperty( AAF_Data *aafd, aafPropertyDef *Def )
 {
 	aafProperty *Prop = calloc( sizeof(aafProperty), sizeof(unsigned char) );
 
 	if ( Prop == NULL )
 	{
-		_error( "%s.\n", strerror( errno ) );
+		_error( aafd->verb, "%s.\n", strerror( errno ) );
 		return NULL;
 	}
 
@@ -1080,7 +1095,7 @@ static int parse_Header( AAF_Data *aafd )
 
 	if ( Header == NULL )
 	{
-		_error( "Missing Header Object.\n" );
+		_error( aafd->verb, "Missing Header Object.\n" );
 		return -1;
 	}
 
@@ -1090,7 +1105,7 @@ static int parse_Header( AAF_Data *aafd )
 
 	if ( ByteOrder == NULL )
 	{
-		_warning( "Missing Header::ByteOrder.\n" );
+		_warning( aafd->verb, "Missing Header::ByteOrder.\n" );
 	}
 
 	aafd->Header.ByteOrder = *ByteOrder;
@@ -1101,7 +1116,7 @@ static int parse_Header( AAF_Data *aafd )
 
 	if ( LastModified == NULL )
 	{
-		_warning( "Missing Header::LastModified.\n" );
+		_warning( aafd->verb, "Missing Header::LastModified.\n" );
 	}
 
 	aafd->Header.LastModified = LastModified;
@@ -1112,7 +1127,7 @@ static int parse_Header( AAF_Data *aafd )
 
 	if ( Version == NULL )
 	{
-		_warning( "Missing Header::Version.\n" );
+		_warning( aafd->verb, "Missing Header::Version.\n" );
 	}
 
 	aafd->Header.Version = Version;
@@ -1123,7 +1138,7 @@ static int parse_Header( AAF_Data *aafd )
 
 	if ( ObjectModelVersion == NULL )
 	{
-		_warning( "Missing Header::ObjectModelVersion.\n" );
+		_warning( aafd->verb, "Missing Header::ObjectModelVersion.\n" );
 	}
 
 	aafd->Header.ObjectModelVersion = *ObjectModelVersion;
@@ -1134,7 +1149,8 @@ static int parse_Header( AAF_Data *aafd )
 
 	if ( OperationalPattern == NULL )
 	{
-		_warning( "Missing Header::OperationalPattern.\n" );
+		_warning( aafd->verb, "Missing Header::OperationalPattern.\n" );
+		OperationalPattern = (aafUID_t*)&AUID_NULL;
 	}
 
 	aafd->Header.OperationalPattern = OperationalPattern;
@@ -1154,7 +1170,7 @@ static int parse_Identification( AAF_Data *aafd )
 
 	if ( Identif == NULL )
 	{
-		_error( "Missing Identification Object.\n" );
+		_error( aafd->verb, "Missing Identification Object.\n" );
 		return -1;
 	}
 
@@ -1164,7 +1180,7 @@ static int parse_Identification( AAF_Data *aafd )
 
 	if ( Company == NULL )
 	{
-		_warning( "Missing Identification::CompanyName.\n" );
+		_warning( aafd->verb, "Missing Identification::CompanyName.\n" );
 	}
 
 	aafd->Identification.CompanyName = Company;
@@ -1175,7 +1191,7 @@ static int parse_Identification( AAF_Data *aafd )
 
 	if ( ProductName == NULL )
 	{
-		_warning( "Missing Identification::ProductName.\n" );
+		_warning( aafd->verb, "Missing Identification::ProductName.\n" );
 	}
 
 	aafd->Identification.ProductName = ProductName;
@@ -1186,7 +1202,7 @@ static int parse_Identification( AAF_Data *aafd )
 
 	if ( ProductVersion == NULL )
 	{
-		_warning( "Missing Identification::ProductVersion.\n" );
+		_warning( aafd->verb, "Missing Identification::ProductVersion.\n" );
 	}
 
 	aafd->Identification.ProductVersion = ProductVersion;
@@ -1197,7 +1213,7 @@ static int parse_Identification( AAF_Data *aafd )
 
 	if ( ProductVersionString == NULL )
 	{
-		_warning( "Missing Identification::ProductVersionString.\n" );
+		_warning( aafd->verb, "Missing Identification::ProductVersionString.\n" );
 	}
 
 	aafd->Identification.ProductVersionString = ProductVersionString;
@@ -1208,7 +1224,7 @@ static int parse_Identification( AAF_Data *aafd )
 
 	if ( ProductID == NULL )
 	{
-		_warning( "Missing Identification::ProductID.\n" );
+		_warning( aafd->verb, "Missing Identification::ProductID.\n" );
 	}
 
 	aafd->Identification.ProductID = ProductID;
@@ -1220,7 +1236,7 @@ static int parse_Identification( AAF_Data *aafd )
 
 	if ( Date == NULL )
 	{
-		_warning( "Missing Identification::Date.\n" );
+		_warning( aafd->verb, "Missing Identification::Date.\n" );
 	}
 
 	aafd->Identification.Date = Date;
@@ -1232,7 +1248,7 @@ static int parse_Identification( AAF_Data *aafd )
 
 	if ( ToolkitVersion == NULL )
 	{
-		_warning( "Missing Identification::ToolkitVersion.\n" );
+		_warning( aafd->verb, "Missing Identification::ToolkitVersion.\n" );
 	}
 
 	aafd->Identification.ToolkitVersion = ToolkitVersion;
@@ -1244,7 +1260,7 @@ static int parse_Identification( AAF_Data *aafd )
 
 	if ( Platform == NULL )
 	{
-		_warning( "Missing Identification::Platform.\n" );
+		_warning( aafd->verb, "Missing Identification::Platform.\n" );
 	}
 
 	aafd->Identification.Platform = Platform;
@@ -1256,7 +1272,7 @@ static int parse_Identification( AAF_Data *aafd )
 
 	if ( GenerationAUID == NULL )
 	{
-		_warning( "Missing Identification::GenerationAUID.\n" );
+		_warning( aafd->verb, "Missing Identification::GenerationAUID.\n" );
 	}
 
 	aafd->Identification.GenerationAUID = GenerationAUID;
@@ -1316,7 +1332,7 @@ static int retrieveObjectTree( AAF_Data *aafd )
 
 	if ( Class == NULL && auidCmp( Class->ID, (aafUID_t*)&Node->_clsId ) != 0 )
 	{
-		_error( "Looks like the fist Object is not the Root Class : %ls.\n",
+		_error( aafd->verb, "Looks like the fist Object is not the Root Class : %ls.\n",
 				ClassIDToText( aafd, Class->ID ) );
 		return -1;
 	}
@@ -1350,7 +1366,7 @@ static int retrieveObjectTree( AAF_Data *aafd )
 
 	if ( Header == NULL )
 	{
-		_error( "Could not retrieve properties for %ls.\n", aaf_get_ObjectPath( aafd->Root ) );
+		_error( aafd->verb, "Could not retrieve properties for %ls.\n", aaf_get_ObjectPath( aafd->Root ) );
 		return -1;
 	}
 
@@ -1383,7 +1399,7 @@ static int retrieveObjectTree( AAF_Data *aafd )
 
 	if ( rc < 0 )
 	{
-		_error( "Could not retrieve property %ls.\n", PIDToText( aafd, PDef->pid ) );
+		_error( aafd->verb, "Could not retrieve property %ls.\n", PIDToText( aafd, PDef->pid ) );
 		return -1;
 	}
 
@@ -1397,7 +1413,7 @@ static int retrieveObjectTree( AAF_Data *aafd )
 
 	if ( MetaDic == NULL )
 	{
-		_error( "Missing PID_Root_MetaDictionary.\n" );
+		_error( aafd->verb, "Missing PID_Root_MetaDictionary.\n" );
 		return -1;
 	}
 
@@ -1406,7 +1422,7 @@ static int retrieveObjectTree( AAF_Data *aafd )
 
 	if ( ClassDefs == NULL )
 	{
-		_error( "Missing PID_MetaDictionary_ClassDefinitions.\n" );
+		_error( aafd->verb, "Missing PID_MetaDictionary_ClassDefinitions.\n" );
 		return -1;
 	}
 
@@ -1426,7 +1442,7 @@ static int retrieveObjectTree( AAF_Data *aafd )
 
 	if ( rc < 0 )
 	{
-		_error( "Could not retrieve property %ls.\n", PIDToText( aafd, PDef->pid ) );
+		_error( aafd->verb, "Could not retrieve property %ls.\n", PIDToText( aafd, PDef->pid ) );
 		return -1;
 	}
 
@@ -1472,7 +1488,7 @@ static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *Target
 
 	if ( ClassDef == NULL )
 	{
-		_error( "Could not retrieve ClassDefinition.\n" );
+		_error( aafd->verb, "Could not retrieve ClassDefinition.\n" );
 		return NULL;
 	}
 
@@ -1495,7 +1511,7 @@ static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *Target
 			  auidCmp( ClassID, &AAFClassID_MetaDefinition    ) == 0 &&
 			  auidCmp( ClassID, &AAFClassID_MetaDictionary    ) == 0 )
 	{
-		_error( "Parent's Class equals Child's : %ls.\n", ClassIDToText( aafd, ClassID ) );
+		_error( aafd->verb, "Parent's Class equals Child's : %ls.\n", ClassIDToText( aafd, ClassID ) );
 		return NULL;
 	}
 
@@ -1510,7 +1526,7 @@ static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *Target
 
 		if ( isCon == NULL )
 		{
-			_error( "Missing ClassDefinition::IsConcrete.\n" );
+			_error( aafd->verb, "Missing ClassDefinition::IsConcrete.\n" );
 			return NULL;
 		}
 
@@ -1536,7 +1552,7 @@ static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *Target
 
 		if ( Pid == NULL )
 		{
-			_error( "Missing PropertyDefinition::LocalIdentification.\n" );
+			_error( aafd->verb, "Missing PropertyDefinition::LocalIdentification.\n" );
 			return NULL;
 		}
 
@@ -1556,7 +1572,7 @@ static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *Target
 
 		if ( isOpt == NULL )
 		{
-			_error( "Missing PropertyDefinition::IsOptional.\n" );
+			_error( aafd->verb, "Missing PropertyDefinition::IsOptional.\n" );
 			return NULL;
 		}
 
@@ -1612,7 +1628,7 @@ static int setObjectStrongRefSet( aafObject *Obj, aafStrongRefSetHeader_t *Heade
 
 	if ( Obj->Header == NULL )
 	{
-		_error( "%s.\n", strerror( errno ) );
+		_error( Obj->aafd->verb, "%s.\n", strerror( errno ) );
 		return -1;
 	}
 
@@ -1626,7 +1642,7 @@ static int setObjectStrongRefSet( aafObject *Obj, aafStrongRefSetHeader_t *Heade
 
 	if ( Obj->Entry == NULL )
 	{
-		_error( "%s.\n", strerror( errno ) );
+		_error( Obj->aafd->verb, "%s.\n", strerror( errno ) );
 		return -1;
 	}
 
@@ -1651,7 +1667,7 @@ static int setObjectStrongRefVector( aafObject *Obj, aafStrongRefVectorHeader_t 
 
 	if ( Obj->Header == NULL )
 	{
-		_error( "%s.\n", strerror( errno ) );
+		_error( Obj->aafd->verb, "%s.\n", strerror( errno ) );
 		return -1;
 	}
 
@@ -1662,7 +1678,7 @@ static int setObjectStrongRefVector( aafObject *Obj, aafStrongRefVectorHeader_t 
 
 	if ( Obj->Entry == NULL )
 	{
-		_error( "%s.\n", strerror( errno ) );
+		_error( Obj->aafd->verb, "%s.\n", strerror( errno ) );
 		return -1;
 	}
 
@@ -1694,7 +1710,7 @@ static int retrieveStrongReference( AAF_Data *aafd, aafProperty *Prop, aafObject
 
 	if ( Node == NULL )
 	{
-		_error( "Could not find child node.\n" );
+		_error( aafd->verb, "Could not find child node.\n" );
 		return -1;
 	}
 
@@ -1703,7 +1719,7 @@ static int retrieveStrongReference( AAF_Data *aafd, aafProperty *Prop, aafObject
 
 	if ( Class == NULL )
 	{
-		_error( "Could not retrieve Class %ls @ \"%ls\".\n", ClassIDToText( aafd, (aafUID_t*)&Node->_clsId ), aaf_get_ObjectPath( Parent ) );
+		_error( aafd->verb, "Could not retrieve Class %ls @ \"%ls\".\n", ClassIDToText( aafd, (aafUID_t*)&Node->_clsId ), aaf_get_ObjectPath( Parent ) );
 		return -1;
 	}
 
@@ -1749,7 +1765,7 @@ static int retrieveStrongReferenceSet( AAF_Data *aafd, aafProperty *Prop, aafObj
 
 	if ( Node == NULL )
 	{
-		_error( "Could not retrieve StrongReferenceSet's Index node.\n" );
+		_error( aafd->verb, "Could not retrieve StrongReferenceSet's Index node.\n" );
 		return -1;
 	}
 
@@ -1758,7 +1774,7 @@ static int retrieveStrongReferenceSet( AAF_Data *aafd, aafProperty *Prop, aafObj
 
 	if ( Header == NULL )
 	{
-		_error( "Could not retrieve StrongReferenceSet's CFB Stream.\n" );
+		_error( aafd->verb, "Could not retrieve StrongReferenceSet's CFB Stream.\n" );
 		return -1;
 	}
 
@@ -1779,7 +1795,7 @@ static int retrieveStrongReferenceSet( AAF_Data *aafd, aafProperty *Prop, aafObj
 
 		if ( Class == NULL )
 		{
-			_error( "Could not retrieve Class %ls.\n", ClassIDToText( aafd, (aafUID_t*)&Node->_clsId ) );
+			_error( aafd->verb, "Could not retrieve Class %ls.\n", ClassIDToText( aafd, (aafUID_t*)&Node->_clsId ) );
 			continue;
 		}
 
@@ -1868,7 +1884,7 @@ static int retrieveStrongReferenceVector( AAF_Data *aafd, aafProperty *Prop, aaf
 
 		if ( Class == NULL )
 		{
-			_warning( "Could not retrieve Class ID %ls.\n", ClassIDToText( aafd, (aafUID_t*)&Node->_clsId ) );
+			_warning( aafd->verb, "Could not retrieve Class ID %ls.\n", ClassIDToText( aafd, (aafUID_t*)&Node->_clsId ) );
 			continue;
 		}
 
@@ -1931,7 +1947,7 @@ static int retrieveProperty( AAF_Data *aafd, aafObject *Obj, aafPropertyDef *Def
 {
 	bo++;
 
-	aafProperty *Prop = newProperty( Def );
+	aafProperty *Prop = newProperty( aafd, Def );
 
 	if ( Prop == NULL )
 	{
@@ -1951,7 +1967,7 @@ static int retrieveProperty( AAF_Data *aafd, aafObject *Obj, aafPropertyDef *Def
 
 	if ( Prop->val == NULL )
 	{
-		_error( "%s.\n", strerror( errno ) );
+		_error( aafd->verb, "%s.\n", strerror( errno ) );
 		return -1;
 	}
 
@@ -1995,7 +2011,7 @@ static int retrieveObjectProperties( AAF_Data *aafd, aafObject *Obj )
 
 	if ( Header == NULL )
 	{
-		_error( "Could not retrieve properties : %ls.\n", aaf_get_ObjectPath( Obj ) );
+		_error( aafd->verb, "Could not retrieve properties : %ls.\n", aaf_get_ObjectPath( Obj ) );
 		return -1;
 	}
 
@@ -2010,7 +2026,7 @@ static int retrieveObjectProperties( AAF_Data *aafd, aafObject *Obj )
 
 		if ( PDef == NULL )
 		{
-			_warning( "Unknown property 0x%04x (%ls).\n", Prop->_pid, PIDToText( aafd, Prop->_pid ) );
+			_warning( aafd->verb, "Unknown property 0x%04x (%ls).\n", Prop->_pid, PIDToText( aafd, Prop->_pid ) );
 			continue;
 		}
 
@@ -2019,7 +2035,7 @@ static int retrieveObjectProperties( AAF_Data *aafd, aafObject *Obj )
 
 		if ( rc < 0 )
 		{
-			_error( "Could not retrieve property %ls.\n", PIDToText( aafd, PDef->pid ) );
+			_error( aafd->verb, "Could not retrieve property %ls.\n", PIDToText( aafd, PDef->pid ) );
 			return -1;
 		}
 
@@ -2043,7 +2059,7 @@ static cfbNode * getStrongRefIndexNode( CFB_Data *cfbd, aafObject *Parent, const
 
 	if ( Node == NULL )
 	{
-		_error( "Could not retrieve Reference Set/Vector Index Node @ \"%ls/%ls index\".\n", aaf_get_ObjectPath( Parent ), refName );
+		_error( cfbd->verb, "Could not retrieve Reference Set/Vector Index Node @ \"%ls/%ls index\".\n", aaf_get_ObjectPath( Parent ), refName );
 		return NULL;
 	}
 
@@ -2062,7 +2078,7 @@ static cfbNode * getStrongRefEntryNode( CFB_Data *cfbd, aafObject *Parent, const
 
 	if ( Node == NULL )
 	{
-		_error( "Could not retrieve Reference Set/vector Entry Node @ \"%ls/%ls index\".\n", aaf_get_ObjectPath( Parent ), refName );
+		_error( cfbd->verb, "Could not retrieve Reference Set/vector Entry Node @ \"%ls/%ls index\".\n", aaf_get_ObjectPath( Parent ), refName );
 		return NULL;
 	}
 
@@ -2084,7 +2100,7 @@ static aafPropertyIndexHeader_t * getNodeProperties( CFB_Data *cfbd, cfbNode *No
 
 	if ( propNode == NULL )
 	{
-		_error( "Could not retrieve Property Node.\n" );
+		_error( cfbd->verb, "Could not retrieve Property Node.\n" );
 		return NULL;
 	}
 
@@ -2093,7 +2109,7 @@ static aafPropertyIndexHeader_t * getNodeProperties( CFB_Data *cfbd, cfbNode *No
 
 	if ( stream == NULL )
 	{
-		_error( "Could not retrieve Property Stream.\n" );
+		_error( cfbd->verb, "Could not retrieve Property Stream.\n" );
 		return NULL;
 	}
 
@@ -2112,7 +2128,7 @@ static aafPropertyIndexHeader_t * getNodeProperties( CFB_Data *cfbd, cfbNode *No
 		prop_sz += (((aafPropertyIndexEntry_t*)(stream+((sizeof(aafPropertyIndexEntry_t)*i)+sizeof(aafPropertyIndexHeader_t))))->_length) + sizeof(aafPropertyIndexEntry_t);
 
 	if ( prop_sz != stream_sz )
-		_warning( "Stream length (%lu Bytes) does not match property length (%u Bytes).\n",
+		_warning( aafd->verb, "Stream length (%lu Bytes) does not match property length (%u Bytes).\n",
 			stream_sz,
 			prop_sz );
 */
@@ -2145,7 +2161,7 @@ static aafStrongRefSetHeader_t * getStrongRefSetList( CFB_Data *cfbd, cfbNode *N
 		w16tow32( refName, Node->_ab, Node->_cb );
 #endif
 
-		_error( "Could not retrieve StrongReferenceSet Index Stream @ \"%ls/%ls index\".\n", aaf_get_ObjectPath( Parent ), refName );
+		_error( cfbd->verb, "Could not retrieve StrongReferenceSet Index Stream @ \"%ls/%ls index\".\n", aaf_get_ObjectPath( Parent ), refName );
 
 		return NULL;
 	}
@@ -2172,7 +2188,7 @@ static aafStrongRefVectorHeader_t * getStrongRefVectorList( CFB_Data *cfbd, cfbN
 
 		utf16toa( refName, CFB_NODE_NAME_SZ, Node->_ab, Node->_cb );
 
-		_error( "Could not retrieve StrongReferenceVector Index Stream \"%ls/%s index\"\n", aaf_get_ObjectPath( Parent ), refName );
+		_error( cfbd->verb, "Could not retrieve StrongReferenceVector Index Stream \"%ls/%s index\"\n", aaf_get_ObjectPath( Parent ), refName );
 
 		return NULL;
 	}

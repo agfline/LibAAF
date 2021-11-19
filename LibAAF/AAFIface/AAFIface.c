@@ -61,7 +61,7 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 
 	if ( aafi == NULL )
 	{
-		_error( "%s.\n", strerror( errno ) );
+		_error( aafi->ctx.options.verb, "%s.\n", strerror( errno ) );
 		return NULL;
 	}
 
@@ -70,13 +70,16 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 
 	if ( aafi->Audio == NULL )
 	{
-		_error( "%s.\n", strerror( errno ) );
+		_error( aafi->ctx.options.verb, "%s.\n", strerror( errno ) );
 		return NULL;
 	}
 
 	aafi->Audio->Essences = NULL;
 	aafi->Audio->tc = NULL;
+	aafi->Audio->samplerate = 0;
+	aafi->Audio->samplesize = 0;
 	aafi->Audio->Tracks = NULL;
+	aafi->Audio->track_count = 0;
 
 
 
@@ -84,7 +87,7 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 
 	if ( aafi->Video == NULL )
 	{
-		_error( "%s.\n", strerror( errno ) );
+		_error( aafi->ctx.options.verb, "%s.\n", strerror( errno ) );
 		return NULL;
 	}
 
@@ -102,7 +105,14 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 		aafi->aafd = aaf_alloc();
 	}
 
+
 	aafi->compositionName = NULL;
+
+	aafi->ctx.is_inside_derivation_chain = 0;
+
+	aafi->ctx.options.verb = VERB_QUIET;
+	aafi->ctx.options.trace = 0;
+	// aafi->ctx.trace_leveloop = NULL;
 
 	return aafi;
 }
@@ -173,8 +183,13 @@ void aafi_release( AAF_Iface **aafi )
 		free( (*aafi)->Video );
 	}
 
+	// if ( (*aafi)->ctx.trace_leveloop )
+	// 	free( (*aafi)->ctx.trace_leveloop );
+
 
 	free( *aafi );
+
+	*aafi = NULL;
 }
 
 
@@ -182,8 +197,12 @@ void aafi_release( AAF_Iface **aafi )
 
 int aafi_load_file( AAF_Iface *aafi, const char * file )
 {
+	aafi->aafd->verb = aafi->ctx.options.verb;
+
 	if ( aaf_load_file( aafi->aafd, file ) )
 	{
+		// aaf_release( &aafi->aafd );
+		// printf("aafi_load_file() : aaf_load_file() sets aafi->aafd : %p\n", aafi->aafd );
 		return 1;
 	}
 
@@ -263,7 +282,7 @@ aafiTransition * get_xfade( aafiTimelineItem *audioItem )
 
 
 
-aafiTimelineItem * aafi_newTimelineItem( void *track, int itemType )
+aafiTimelineItem * aafi_newTimelineItem( AAF_Iface *aafi, void *track, int itemType )
 {
 
 	aafiTimelineItem *item = NULL;
@@ -274,7 +293,7 @@ aafiTimelineItem * aafi_newTimelineItem( void *track, int itemType )
 
 		if ( item == NULL )
 		{
-			_error( "%s.\n", strerror( errno ) );
+			_error( aafi->ctx.options.verb, "%s.\n", strerror( errno ) );
 			return NULL;
 		}
 
@@ -292,7 +311,7 @@ aafiTimelineItem * aafi_newTimelineItem( void *track, int itemType )
 
 		if ( item == NULL )
 		{
-			_error( "%s.\n", strerror( errno ) );
+			_error( aafi->ctx.options.verb, "%s.\n", strerror( errno ) );
 			return NULL;
 		}
 
@@ -309,7 +328,7 @@ aafiTimelineItem * aafi_newTimelineItem( void *track, int itemType )
 
 		if ( item == NULL )
 		{
-			_error( "%s.\n", strerror( errno ) );
+			_error( aafi->ctx.options.verb, "%s.\n", strerror( errno ) );
 			return NULL;
 		}
 
@@ -376,25 +395,58 @@ aafiTimelineItem * aafi_newTimelineItem( void *track, int itemType )
 
 
 
-
-void aafi_freeAudioClip( aafiAudioClip *audioClip )
+void aafi_freeAudioGain( aafiAudioGain *gain )
 {
-
-	if ( audioClip->gain != NULL )
+	if ( gain == NULL )
 	{
-		if ( audioClip->gain->time != NULL )
-		{
-			free( audioClip->gain->time );
-		}
-
-		if ( audioClip->gain->value != NULL )
-		{
-			free( audioClip->gain->value );
-		}
+		return;
 	}
 
 
-	free( audioClip->gain );
+	if ( gain->time != NULL )
+	{
+		free( gain->time );
+	}
+
+	if ( gain->value != NULL )
+	{
+		free( gain->value );
+	}
+
+	free( gain );
+}
+
+
+
+void aafi_freeAudioPan( aafiAudioPan *pan )
+{
+	aafi_freeAudioGain( (aafiAudioGain*)pan );
+}
+
+
+
+void aafi_freeAudioClip( aafiAudioClip *audioClip )
+{
+	if ( audioClip->gain != NULL )
+	{
+		aafi_freeAudioGain( audioClip->gain );
+	}
+
+	// if ( audioClip->gain != NULL )
+	// {
+	// 	if ( audioClip->gain->time != NULL )
+	// 	{
+	// 		free( audioClip->gain->time );
+	// 	}
+	//
+	// 	if ( audioClip->gain->value != NULL )
+	// 	{
+	// 		free( audioClip->gain->value );
+	// 	}
+	// }
+	//
+	//
+	// free( audioClip->gain );
 }
 
 
@@ -447,14 +499,14 @@ void aafi_freeTimelineItems( aafiTimelineItem **items )
 
 
 
-aafiUserComment * aafi_newUserComment( aafiUserComment **CommentList )
+aafiUserComment * aafi_newUserComment( AAF_Iface *aafi, aafiUserComment **CommentList )
 {
 
 	aafiUserComment *UserComment = calloc( sizeof(aafiUserComment),  1 );
 
 	if ( UserComment == NULL )
 	{
-		_error( "%s.\n", strerror( errno ) );
+		_error( aafi->ctx.options.verb, "%s.\n", strerror( errno ) );
 		return NULL;
 	}
 
@@ -545,7 +597,7 @@ aafiAudioTrack * aafi_newAudioTrack( AAF_Iface *aafi )
 
 	if ( track == NULL )
 	{
-		_error( "%s.\n", strerror( errno ) );
+		_error( aafi->ctx.options.verb, "%s.\n", strerror( errno ) );
 		return NULL;
 	}
 
@@ -582,8 +634,10 @@ aafiAudioTrack * aafi_newAudioTrack( AAF_Iface *aafi )
 
 	track->Audio = aafi->Audio;
 
-	aafi->ctx.current_track = track;
+	track->current_pos = 0;
 
+	// aafi->ctx.current_track = track;
+	// aafi->ctx.current_track_number++;
 
 	return track;
 }
@@ -612,16 +666,39 @@ void aafi_freeAudioTracks( aafiAudioTrack **tracks )
 
 		if ( track->gain != NULL )
 		{
-			free( track->gain->time );
-			free( track->gain->value );
-			free( track->gain );
+			aafi_freeAudioGain( track->gain );
+
+			// if ( track->gain->time != NULL )
+			// {
+			// 	free( track->gain->time );
+			// }
+			//
+			// if ( track->gain->value != NULL )
+			// {
+			// 	free( track->gain->value );
+			// }
+			//
+			// free( track->gain );
 		}
 
 		if ( track->pan != NULL )
 		{
-			free( track->pan->time );
-			free( track->pan->value );
-			free( track->pan );
+			aafi_freeAudioPan( track->pan );
+			// if ( track->pan->time != NULL )
+			// {
+			// 	free( track->pan->time );
+			// }
+			//
+			// if ( track->pan->value != NULL )
+			// {
+			// 	free( track->pan->value );
+			// }
+			//
+			// free( track->pan );
+
+			// free( track->pan->time );
+			// free( track->pan->value );
+			// free( track->pan );
 		}
 
 		if ( track->Items != NULL )
@@ -643,7 +720,7 @@ aafiVideoTrack * aafi_newVideoTrack( AAF_Iface *aafi )
 
 	if ( track == NULL )
 	{
-		_error( "%s.\n", strerror( errno ) );
+		_error( aafi->ctx.options.verb, "%s.\n", strerror( errno ) );
 		return NULL;
 	}
 
@@ -680,7 +757,7 @@ aafiVideoTrack * aafi_newVideoTrack( AAF_Iface *aafi )
 
 	track->Video = aafi->Video;
 
-	aafi->ctx.current_track = track;
+	// aafi->ctx.current_track = track;
 
 
 	return track;
@@ -729,7 +806,7 @@ aafiAudioEssence * aafi_newAudioEssence( AAF_Iface *aafi )
 
 	if ( audioEssence == NULL )
 	{
-		_error( "%s.\n", strerror( errno ) );
+		_error( aafi->ctx.options.verb, "%s.\n", strerror( errno ) );
 		return NULL;
 	}
 
@@ -740,6 +817,7 @@ aafiAudioEssence * aafi_newAudioEssence( AAF_Iface *aafi )
 	audioEssence->exported_file_path = NULL;
 	audioEssence->file_name = NULL;
 	audioEssence->unique_file_name = NULL;
+	audioEssence->clip_count = 0;
 
 	aafi->Audio->Essences = audioEssence;
 
@@ -798,7 +876,7 @@ aafiVideoEssence * aafi_newVideoEssence( AAF_Iface *aafi )
 
 	if ( videoEssence == NULL )
 	{
-		_error( "%s.\n", strerror( errno ) );
+		_error( aafi->ctx.options.verb, "%s.\n", strerror( errno ) );
 		return NULL;
 	}
 

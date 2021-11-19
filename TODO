@@ -72,3 +72,56 @@ TEMPLATE SESSION FOR AAF TEST (WIP)
 
     Track 11 - 5.1    -   Fixed PAN -   Fixed Gain : Clip(s) with Fade in/out/x -   Fixed Gain
     Track 12 - 5.1    - Varying PAN - Varying Gain : Clip(s) with Fade in/out/x - Varying Gain
+
+
+
+
+
+AAF parsing options :
+- Ignore essences not on timeline
+- Retrieve video
+- Retrieve fades
+- Retrieve
+- Try locate external sources // default from aaf file self folder, option from the provided locations list
+
+
+
+AAF import options :
+- Convert envelope under -90dB to mute
+- Import video
+- Import volume automation
+- Import pan automation
+- Import clip gain automation (varying)
+- Import clip gain (constant)
+- Import fades and x-fades
+- Force fade curve
+- Force fadein curve
+- Force fadeout curve
+- Force x-fade curve
+- Copy all files to project folder
+- Convert audio to format
+- Link to original sources if possible
+- Ignore ProTools sample accurate padding clips
+- Ignore ProTools fade clips and rebuild fades
+
+
+
+/* Extract a single, aaf-embedded audio file */
+aafi_extract_audio_file();
+
+/* Extract all aaf-embedded audio files, or only the ones that exist as clip on the timeline */
+aafi_extract_all_audio_files(); // ALL_FILES / FILE_MATCHES_CLIP
+
+/* Extract all aaf-embedded audio files and/or copy all external audio files, or only the ones that exist as clip on the timeline */
+aafi_gather_all_audio_files(); // ALL_FILES / FILE_MATCHES_CLIP | TRY_AUTO_LOCATE
+
+
+
+/* Extract a single, aaf-embedded video file */
+aafi_extract_video_file();
+
+/* Extract all aaf-embedded video files, or only the ones that exist as clip on the timeline */
+aafi_extract_all_video_files(); // ALL_FILES / FILE_MATCHES_CLIP
+
+/* Extract all aaf-embedded video files and/or copy all external video files, or only the ones that exist as clip on the timeline */
+aafi_gather_all_video_files(); // ALL_FILES / FILE_MATCHES_CLIP | TRY_AUTO_LOCATE

@@ -397,6 +397,9 @@ typedef struct aafObject
 
 	struct aafObject        *nextObj;
 
+
+	struct _aafData         *aafd; // only to access aafd->verb
+
 } aafObject;
 
 
@@ -603,6 +606,9 @@ typedef struct _aafData
 	 */
 
 	aafObject  *TaggedValueDefinition;
+
+
+	verbosityLevel_e verb;
 
 } AAF_Data;
 
