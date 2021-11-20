@@ -59,7 +59,7 @@ To build those, just run `make`
 
 Repo also includes a third program **ardour_aafimport**. It allows to create an Ardour session and import an AAF file into it.
 
-See [README](./ardour/README.md)
+See [README](./ardour/)
 
 ## Dependencies
 
