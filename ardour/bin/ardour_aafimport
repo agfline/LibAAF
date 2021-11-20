@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# This is a wrapper script for using the ardour-session utilities
+# it is intended to be symlinked into $PATH for every session-tool
+
+export GTK_PATH=/usr/local/etc/ardour6:/usr/local/lib/ardour6${GTK_PATH:+:$GTK_PATH}
+export LD_LIBRARY_PATH=/usr/local/lib/ardour6:/usr/local/lib/ardour6/vamp/${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+
+# Running Ardour requires these 3 variables to be set
+
+export ARDOUR_DATA_PATH=/usr/local/share/ardour6
+export ARDOUR_CONFIG_PATH=/usr/local/etc/ardour6
+export ARDOUR_DLL_PATH=/usr/local/lib/ardour6
+# export VAMP_PATH=/usr/local/lib/ardour6/vamp
+
+SELF=`basename $0`
+SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
+
+#exec valgrind --track-origins=yes  "$SCRIPTPATH/_$SELF" "$@"
+exec "$SCRIPTPATH/_$SELF" "$@"

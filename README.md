@@ -1,4 +1,4 @@
-# LibAAF
+# LibAAF (with Ardour6 support)
 
 > *LibAAF is currently a work in progress and is not production-ready yet.*
 
@@ -48,12 +48,18 @@ LibAAF was widely tested with :
 
 ## Tools
 
-Three programs are available with LibAAF :
+Two programs are available with LibAAF :
 
 * **AAFInfo** : Parses any AAF file and provides a way to dig into them.
 * **AAFExtract** : Extracts audio essences contained in an AAF file.
 
 To build those, just run `make`
+
+## Ardour
+
+Repo also includes a third program **ardour_aafimport**. It allows to create an Ardour session and import an AAF file into it.
+
+See [README](./ardour/README.md)
 
 ## Dependencies
 
