@@ -13,7 +13,7 @@ ARDOUR_INCLUDE_PATH = /usr/local/include/ardour6
 ARDOUR_LIB_PATH = /usr/local/lib/ardour6
 ```
 
-Run `make`
+Run `make ardour`
 
 Then you can run `./bin/ardour_aafimport` which is a shell wrapper for `./bin/_ardour_aafimport` binary.
 

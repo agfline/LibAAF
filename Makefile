@@ -17,15 +17,19 @@ BINDIR = ./bin
 all: libAAF tools
 
 
-
 libAAF:
-	+$(MAKE) --no-print-directory -C LibAAF
+	+$(MAKE) --no-print-directory -C LibAAF/
 
 tools: libAAF
-	+$(MAKE) --no-print-directory -C tools
+	+$(MAKE) --no-print-directory -C tools/
+
+
+ardour: libAAF
+	+$(MAKE) --no-print-directory -C tools/ ardour
+
 
 doc:
-	+$(MAKE) --no-print-directory -C doc
+	+$(MAKE) --no-print-directory -C doc/
 
 
 clean:
