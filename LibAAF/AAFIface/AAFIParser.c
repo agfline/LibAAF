@@ -328,11 +328,27 @@ static void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td,
 			printf(".");
 		}
 
+		if ( state == NOT_SUPPORTED ) {
+			printf("\n\033[38;5;130m");
+
+			// printf("CFB Object Dump : %ls\n", aaf_get_ObjectPath( Obj ) );
+			// printf("=================\n" );
+			// cfb_dump_node( aafi->aafd->cfbd, Obj->Node, 1 );
+
+			printf("Properties Dump (%ls)\n", aaf_get_ObjectPath( Obj ));
+			printf("===============\n\n");
+			// aaf_dump_nodeStreamProperties( aafi->aafd, Obj->Node );
+			aaf_dump_ObjectProperties( aafi->aafd, Obj );
+
+			printf("\x1b[0m");
+		}
+
 		printf("\x1b[0m");
 	}
 
 
 	printf("\n");
+
 
 	/* if end of branch, print one line padding */
 	if ( Obj && ( __td->eob || state == ERROR ) )
@@ -898,7 +914,7 @@ static int parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc, td 
 	}
 	else if ( auidCmp( EssenceDesc->Class->ID, &AAFClassID_SoundDescriptor ) )
 	{
-		/* Compressed Audio. Not encountered yet */
+		/* Compressed Audio (MP3, AAC ?). Not encountered yet */
 
 		__td.lv++;
 		DUMP_OBJ_NO_SUPPORT( aafi, EssenceDesc, &__td );
