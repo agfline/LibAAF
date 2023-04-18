@@ -299,7 +299,7 @@ enum TC_FORMAT tc_fps2format( float fps, uint8_t isDrop )
 
 	uint32_t ifps = (uint32_t)( fps * 100 );
 
-	printf("%i\n", ifps );
+	// printf("%i\n", ifps );
 
 	uint16_t tc_format = 0;
 
