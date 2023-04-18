@@ -24,8 +24,8 @@ tools: libAAF
 	+$(MAKE) --no-print-directory -C tools/
 
 
-ardour: libAAF
-	+$(MAKE) --no-print-directory -C tools/ ardour
+# ardour: libAAF
+# 	+$(MAKE) --no-print-directory -C tools/ ardour
 
 
 doc:

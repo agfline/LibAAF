@@ -17,7 +17,7 @@ BINDIR = ../bin
 
 all: clean $(BINDIR)/AAFInfo $(BINDIR)/AAFExtract
 
-ardour: $(BINDIR)/AAF2Ardour
+# ardour: $(BINDIR)/AAF2Ardour
 
 #depend:
 #	makedepend -Y $(SRC) 2>/dev/null
@@ -32,8 +32,8 @@ $(BINDIR)/AAFInfo: AAFInfo.c thirdparty/libTC.c
 $(BINDIR)/AAFExtract: AAFExtract.c
 	$(CC) -o $@ $^ -L$(OBJDIR) $(CFLAGS) `pkg-config --cflags sndfile` `pkg-config --libs sndfile` -lAAF -lm
 
-$(BINDIR)/AAF2Ardour: $(OBJDIR)/Ardour.o AAF2Ardour.c
-	$(CC) -o $@ $^ -L$(OBJDIR) $(CFLAGS) -lsndfile -lAAF -lm
+# $(BINDIR)/AAF2Ardour: $(OBJDIR)/Ardour.o AAF2Ardour.c
+# 	$(CC) -o $@ $^ -L$(OBJDIR) $(CFLAGS) -lsndfile -lAAF -lm
 
 
 ### Ardour
