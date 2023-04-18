@@ -137,7 +137,7 @@ void dump_hex( const unsigned char * stream, size_t stream_sz )
 {
 	if ( stream == NULL )
 	{
-		fprintf( stderr, "dump_hex() : Stream pointer is NULL.\n" );
+		fprintf( stderr, "dump_hex() : Stream pointer is NULL.\n\n" );
 		return;
 	}
 

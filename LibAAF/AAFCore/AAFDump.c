@@ -44,9 +44,9 @@ void aaf_dump_Identification( AAF_Data *aafd )
 
 void aaf_dump_ObjectProperties( AAF_Data *aafd, aafObject *Obj )
 {
-    /*
-     *  List the properties once it has been parsed and interpreted by AAFCore.
-     */
+  /*
+   *  List the properties once they have been parsed and interpreted by AAFCore.
+   */
 
 	aafProperty * Prop = NULL;
 
