@@ -63,11 +63,20 @@ void aaf_dump_ObjectProperties( AAF_Data *aafd, aafObject *Obj )
 
 void aaf_dump_rawProperties( AAF_Data *aafd, aafPropertyIndexHeader_t *PropHeader )
 {
-    aafPropertyIndexHeader_t *Header = PropHeader;
-    aafPropertyIndexEntry_t  *Prop   = NULL;
-    aafByte_t                *value  = NULL;
+  aafPropertyIndexHeader_t *Header = PropHeader;
+  aafPropertyIndexEntry_t  *Prop   = NULL;
+  aafByte_t                *value  = NULL;
 
-    uint32_t i = 0;
+  uint32_t i = 0;
+
+  if ( Header == NULL ) {
+    printf(
+      " ## Property_Header____________________________________________________\n\n"
+      " aafPropertyIndexHeader_t is NULL\n"
+      " ======================================================================\n\n"
+    );
+    return;
+  }
 
 
 	printf(
@@ -148,7 +157,7 @@ void aaf_dump_nodeStreamProperties( AAF_Data *aafd, cfbNode *node )
 	);
 
 	printf( "\n\n" );
-    
+
 
 	// foreachPropertyEntry( Header, Prop, value, i )
 	for ( Prop = (aafPropertyIndexEntry_t*)(((char*)Header) + sizeof(aafPropertyIndexHeader_t)),    \

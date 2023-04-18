@@ -716,6 +716,10 @@ uint64_t cfb_getStream( CFB_Data *cfbd, cfbNode *node, unsigned char **stream, u
 
 	uint64_t stream_len = cfb_getNodeStreamLen( cfbd, node );  //node->_ulSizeLow;
 
+	// printf("%lu\n", stream_len );
+	if ( stream_len == 0 ) {
+		return 0;
+	}
 
 	*stream    = calloc( stream_len, sizeof(unsigned char) );
 
