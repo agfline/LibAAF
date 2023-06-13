@@ -27,10 +27,10 @@ clean:
 
 
 $(BINDIR)/AAFInfo: AAFInfo.c thirdparty/libTC.c
-	$(CC) -o $@ $^ -L$(OBJDIR) $(CFLAGS) `pkg-config --cflags sndfile` `pkg-config --libs sndfile` -lAAF -lm
+	$(CC) -o $@ $^ -L$(OBJDIR) $(CFLAGS) -lAAF -lm `pkg-config --cflags sndfile` `pkg-config --libs sndfile`
 
 $(BINDIR)/AAFExtract: AAFExtract.c
-	$(CC) -o $@ $^ -L$(OBJDIR) $(CFLAGS) `pkg-config --cflags sndfile` `pkg-config --libs sndfile` -lAAF -lm
+	$(CC) -o $@ $^ -L$(OBJDIR) $(CFLAGS) -lAAF -lm `pkg-config --cflags sndfile` `pkg-config --libs sndfile`
 
 # $(BINDIR)/AAF2Ardour: $(OBJDIR)/Ardour.o AAF2Ardour.c
 # 	$(CC) -o $@ $^ -L$(OBJDIR) $(CFLAGS) -lsndfile -lAAF -lm

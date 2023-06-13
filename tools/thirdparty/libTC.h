@@ -129,12 +129,12 @@ typedef struct rational_t
 	{n, d}
 	// ( ((uint64_t)n << 32) | (d & 0xffffffff) )
 /*
-#define rationaltofloat( n ) \
+#define aafRationalToFloat( n ) \
 	(float)(( (n & 0xffffffff) == 0 ) ? 0 : ( (float)(n >> 32) / (n & 0xffffffff) ) )
 */
 
-#ifndef rationalToFloat
-#define rationalToFloat( r ) \
+#ifndef aafRationalToFloat
+#define aafRationalToFloat( r ) \
 	(( r.denominator == 0 ) ? 0 : ((float)r.numerator/r.denominator))
 #endif
 

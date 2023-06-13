@@ -62,8 +62,8 @@ static char *TC_FORMAT_STR[] = {
 static void unitValueToFrames( struct timecode *tc )
 {
 
-	float fps      = rationalToFloat( TC_FPS[tc->format] );
-	float unitRate = rationalToFloat( tc->unitRate       );
+	float fps      = aafRationalToFloat( TC_FPS[tc->format] );
+	float unitRate = aafRationalToFloat( tc->unitRate       );
 
 	tc->frameNumber = (uint32_t)( tc->unitValue / ( unitRate / fps ) );
 
@@ -113,7 +113,7 @@ static void StringToHmsf( struct timecode *tc )
 static void hmsfToFrames( struct timecode *tc )
 {
 
-	float fps = round(rationalToFloat( TC_FPS[tc->format] ));
+	float fps = round(aafRationalToFloat( TC_FPS[tc->format] ));
 
 	uint32_t dropFrames = 0;
 
@@ -143,7 +143,7 @@ static void framesToHmsf( struct timecode *tc )
 
 	int32_t frameNumber = abs(tc->frameNumber);
 
-	float fps = round(rationalToFloat( TC_FPS[tc->format] ));
+	float fps = round(aafRationalToFloat( TC_FPS[tc->format] ));
 
 
 	if ( tc->format == TC_29_97_DF ||
@@ -280,9 +280,9 @@ void tc_convert_frames( struct timecode *tc, enum TC_FORMAT format )
 {
 	tc->format  = format;
 
-	if ( tc->frames > round(rationalToFloat(TC_FPS[format])) )
+	if ( tc->frames > round(aafRationalToFloat(TC_FPS[format])) )
 	{
-		tc->frames = round(rationalToFloat(TC_FPS[format])) - 1;
+		tc->frames = round(aafRationalToFloat(TC_FPS[format])) - 1;
 	}
 
 	hmsfToFrames( tc );
@@ -306,7 +306,7 @@ enum TC_FORMAT tc_fps2format( float fps, uint8_t isDrop )
 	for ( tc_format = 0; tc_format < TC_FORMAT_LEN; tc_format++ )
 	{
 
-		if ( ifps == (uint32_t)(rationalToFloat( TC_FPS[tc_format] ) * 100) )
+		if ( ifps == (uint32_t)(aafRationalToFloat( TC_FPS[tc_format] ) * 100) )
 		{
 			if ( ( tc_format == TC_29_97_NDF ||
 				   tc_format == TC_59_94_NDF ) &&

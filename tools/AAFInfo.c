@@ -1,17 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <inttypes.h>
 #include <math.h>
 #include <getopt.h>
-
 #include <locale.h>
 
-#include "../LibAAF/libAAF.h"
+// #include <libaaf/AAFIface.h>
+// #include <libaaf/AAFIAudioFiles.h>
+// #include <libaaf/AAFDump.h>
+// #include <libaaf/CFBDump.h>
+
+#include <libaaf.h>
+
+
 #include "./thirdparty/libTC.h"
 
-// only for ANSI_COLORS macros
-#include "../LibAAF/common/utils.h"
+#include "../src/common/utils.h" // ANSI colors
 
 
 
@@ -38,7 +43,7 @@ static char * gainToStr( aafiAudioGain *gain )
 
 		snprintf( str, 32, "%s%+05.1lf dB",
 				( gain->flags & AAFI_AUDIO_GAIN_VARIABLE ) ? "(A) " : "    ",
-				  20 * log10( rationalToFloat( gain->value[0] ) ) );
+				  20 * log10( aafRationalToFloat( gain->value[0] ) ) );
 	}
 	else if ( gain->flags & AAFI_AUDIO_GAIN_VARIABLE )
 	{
@@ -70,7 +75,7 @@ static char * panToStr( aafiAudioPan *pan )
 		 *	This is indicated by the "(A)".
 		 */
 
-		float panval = rationalToFloat_p(pan->value);
+		float panval = aafRationalToFloat((*pan->value));
 
 		snprintf( str, 32, "%s%0.1f %s",
 				( pan->flags & AAFI_AUDIO_GAIN_VARIABLE ) ? "(A) " : "    ",
@@ -112,8 +117,8 @@ static void aafi_dump_VaryingValues( aafiAudioGain *Gain )
 	   // aafRational_t *value = &(Gain->value[i]);
 
 	   printf( "   VaryingValue:  _time: %f   _value: %f\n",
-		   rationalToFloat( Gain->time[i]  ),
-		   rationalToFloat( Gain->value[i] )
+		   aafRationalToFloat( Gain->time[i]  ),
+		   aafRationalToFloat( Gain->value[i] )
 	   );
 
 	   // printf("   PT:  _t: %i/%i   Gain: %.01f dB\n",
@@ -422,10 +427,10 @@ int main( int argc, char *argv[] )
 
 			printf( " %s%u:  Type: %s  Duration: %u h  %02u mn  %02u s  %03u ms   %u Ch - %u Hz - %u bit  file : %ls  file_name : %ls   (%ls)\n",
 				( i < 10 ) ? " " : "", i,
-				( audioEssence->type == AAFI_TYPE_PCM  ) ? "PCM"  :
-				( audioEssence->type == AAFI_TYPE_WAVE ) ? "WAVE" :
-				( audioEssence->type == AAFI_TYPE_AIFC ) ? "AIFC" :
-				( audioEssence->type == AAFI_TYPE_BWAV ) ? "BWAV" : "",
+				( audioEssence->type == AAFI_ESSENCE_TYPE_PCM  ) ? "PCM"  :
+				( audioEssence->type == AAFI_ESSENCE_TYPE_WAVE ) ? "WAVE" :
+				( audioEssence->type == AAFI_ESSENCE_TYPE_AIFC ) ? "AIFC" :
+				( audioEssence->type == AAFI_ESSENCE_TYPE_BWAV ) ? "BWAV" : "",
 				aeDuration_h( audioEssence ),
 				aeDuration_m( audioEssence ),
 				aeDuration_s( audioEssence ),
@@ -453,11 +458,11 @@ int main( int argc, char *argv[] )
 	{
 
     printf( "EditRrate  : %i/%i\n", aafi->Audio->tc->edit_rate->numerator, aafi->Audio->tc->edit_rate->denominator );
-    printf( "Start (EU) : %li\n", aafi->Audio->tc->start );
-    printf( "End (EU)   : %li\n", aafi->Audio->tc->end );
+    printf( "Start (EU) : %"PRIi64"\n", aafi->Audio->tc->start );
+    printf( "End (EU)   : %"PRIi64"\n", aafi->Audio->tc->end );
 
-    printf( "\n                  session start : %li\n", eu2sample( 48000, aafi->Audio->tc->edit_rate, aafi->Audio->tc->start ) );
-    printf( "\n                  session end   : %li\n\n", eu2sample( 48000, aafi->Audio->tc->edit_rate, aafi->Audio->tc->end ) );
+    printf( "\n                  session start : %"PRIi64"\n", eu2sample( 48000, aafi->Audio->tc->edit_rate, aafi->Audio->tc->start ) );
+    printf( "\n                  session end   : %"PRIi64"\n\n", eu2sample( 48000, aafi->Audio->tc->edit_rate, aafi->Audio->tc->end ) );
 
 		printf( "Composition Name     : %ls\n", aafi->compositionName );
 		printf( "======================\n" );
@@ -511,7 +516,7 @@ int main( int argc, char *argv[] )
 					(videoTrack->number < 10) ? " " : "",
 					videoTrack->number,
 					videoTrack->edit_rate->numerator, videoTrack->edit_rate->denominator,
-					rationalToFloat_p(videoTrack->edit_rate),
+					aafRationalToFloat((*videoTrack->edit_rate)),
 					(videoTrack->name != NULL) ? videoTrack->name : L""
 			 );
 
@@ -573,7 +578,7 @@ int main( int argc, char *argv[] )
 					gainToStr( audioTrack->gain ),
 					panToStr( audioTrack->pan ),
 					audioTrack->edit_rate->numerator, audioTrack->edit_rate->denominator,
-					rationalToFloat_p(audioTrack->edit_rate),
+					aafRationalToFloat((*audioTrack->edit_rate)),
 					(audioTrack->name != NULL) ? audioTrack->name : L""
 			 );
 
@@ -644,8 +649,8 @@ int main( int argc, char *argv[] )
 	//						);
 
 						printf( "   PT:  _t: %.0f   _v: %.0f\n",
-							rationalToFloat( Trans->time[i] ),
-							rationalToFloat( Trans->value[i] )
+							aafRationalToFloat( Trans->time[i] ),
+							aafRationalToFloat( Trans->value[i] )
 						);
 					}
 
@@ -666,8 +671,8 @@ int main( int argc, char *argv[] )
 
 				// enum TC_FORMAT format = tc_fps2format( (float)(aafi->Audio->tc->fps ), aafi->Audio->tc->drop );
 
-				// printf( "EditRate : %f\n", rationalToFloat(audioClip->track->edit_rate) );
-				// printf( "EditRate : %f\n", rationalToFloat(audioClip->track->edit_rate) );
+				// printf( "EditRate : %f\n", aafRationalToFloat(audioClip->track->edit_rate) );
+				// printf( "EditRate : %f\n", aafRationalToFloat(audioClip->track->edit_rate) );
 
 				// printf( "Format : %s\n", TC_FORMAT_STR[format] );
 

@@ -1,7 +1,10 @@
 #include <stdio.h>
 
-#include "../LibAAF/libAAF.h"
+// #include <libaaf/AAFIface.h>
+// #include <libaaf/AAFIAudioFiles.h>
+// #include <libaaf/AAFTypes.h>
 
+#include <libaaf.h>
 
 
 
@@ -35,7 +38,7 @@ int main( int argc, char *argv[] )
 
 	char *path = "/tmp";
 
-	int format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
+	int format = 0; //SF_FORMAT_WAV | SF_FORMAT_PCM_16;
 
 
 
