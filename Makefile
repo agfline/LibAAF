@@ -33,7 +33,7 @@ doc:
 
 
 clean:
-	-rm -f $(OBJDIR)/*.o $(OBJDIR)/*.a $(BINDIR)/AAFExtract $(BINDIR)/AAFInfo $(BINDIR)/AAF2Ardour
+	-rm -f $(OBJDIR)/*.o $(OBJDIR)/*.a $(BINDIR)/AAFExtract $(BINDIR)/AAFInfo
 	@echo
 
 install:

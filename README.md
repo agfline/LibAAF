@@ -46,21 +46,15 @@ LibAAF was widely tested with :
 | Track based Gain (fixed/varying)        | x | *Full support*                         |
 | Track based PAN (fixed/varying)         | x | *Full support*                         |
 
-## Tools
+<!-- ## Tools
 
 Two programs are available with LibAAF :
 
 * **AAFInfo** : Parses any AAF file and provides a way to dig into them.
 * **AAFExtract** : Extracts audio essences contained in an AAF file.
 
-To build those, just run `make`
+To build those, just run `make` -->
 
-## Ardour
+## Ardour Support
 
-Repo also includes a third program **ardour_aafimport**. It allows to create an Ardour session and import an AAF file into it.
-
-See [README](./ardour/)
-
-## Dependencies
-
-LibAAF uses libsndfile for embedded audio files parsing and extraction.
+This [Ardour fork](https://github.com/agfline/ardour_aaf_support) includes a tool to create ardour sessions based on AAF files : https://github.com/agfline/ardour_aaf_support/tree/master/session_utils/new_aaf_session.cc

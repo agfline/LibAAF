@@ -1,4 +1,11 @@
 .gdb_history
-Makefile.bak
 counter.sh
 tmp
+ardour/
+ardour_old/
+test_files/
+tools/Makefile
+src/Makefile
+src/Makefile.bak
+Makefile
+tmp.c
