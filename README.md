@@ -64,9 +64,15 @@ make
 sudo make install
 ```
 
+## Usage
+
+See [examples](https://github.com/agfline/LibAAF/tree/master/examples) and [tools](https://github.com/agfline/LibAAF/tree/master/tools).
+
+Note that tools will be built with `make`, however examples need to be compiled manually (instructions in files).
+
 ## Ardour Support
 
-There is and [Ardour fork](https://github.com/agfline/ardour_aaf_support) that includes an experimental [tool](https://github.com/agfline/ardour_aaf_support/tree/master/session_utils/new_aaf_session.cc) to create ardour sessions based on AAF files.
+There is an [Ardour fork](https://github.com/agfline/ardour_aaf_support) that includes an experimental [tool](https://github.com/agfline/ardour_aaf_support/tree/master/session_utils/new_aaf_session.cc) to create ardour sessions based on AAF files.
 
 You can build it using the regular ardour compilation process.
 
