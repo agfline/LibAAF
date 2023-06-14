@@ -1,4 +1,4 @@
-# LibAAF (with Ardour6 support)
+# LibAAF
 
 > *LibAAF is currently a work in progress and is not production-ready yet.*
 
@@ -55,6 +55,19 @@ Two programs are available with LibAAF :
 
 To build those, just run `make` -->
 
+## Build
+
+```
+cd build
+cmake ..
+make
+sudo make install
+```
+
 ## Ardour Support
 
-This [Ardour fork](https://github.com/agfline/ardour_aaf_support) includes a tool to create ardour sessions based on AAF files : https://github.com/agfline/ardour_aaf_support/tree/master/session_utils/new_aaf_session.cc
+There is and [Ardour fork](https://github.com/agfline/ardour_aaf_support) that includes an experimental [tool](https://github.com/agfline/ardour_aaf_support/tree/master/session_utils/new_aaf_session.cc) to create ardour sessions based on AAF files.
+
+You can build it using the regular ardour compilation process.
+
+Building this tool requires libaaf to be installed.
