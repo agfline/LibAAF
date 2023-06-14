@@ -1,10 +1,10 @@
 #include <stdio.h>
 
-#include "../LibAAF/libAAF.h"
+#include "../include/libaaf.h"
 
 /*
  * Compile:
- *  gcc global_aaf_parsing.c -lAAF `pkg-config --cflags sndfile` `pkg-config --libs sndfile`  -o global_aaf_parsing
+ *  gcc global_aaf_parsing.c -laaf -o global_aaf_parsing
  *
  * Usage:
  *  ./global_aaf_parsing myAAFFile.aaf
