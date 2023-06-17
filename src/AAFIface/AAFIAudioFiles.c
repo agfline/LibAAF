@@ -1378,7 +1378,7 @@ int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence,
   /* Retrieve stream from CFB */
 
   unsigned char *data = NULL;
-  size_t datasz = 0;
+  uint64_t datasz = 0;
 
   cfb_getStream( aafi->aafd->cfbd, audioEssence->node, &data, &datasz );
 
@@ -1438,7 +1438,14 @@ int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence,
       wavBext.time_reference = eu2sample( audioEssence->samplerate, audioEssence->mobSlotEditRate, audioEssence->timeReference );
     }
 
-    if ( riff_writeWavFileHeader( fp, &wavFmt, &wavBext, datasz ) < 0 ) {
+    if ( datasz >= (2^32) ) {
+      // TODO RF64 support ?
+      _error( aafi->ctx.options.verb, "Audio essence is bigger than maximum wav size (2^32 bytes) : %lu bytes\n", datasz );
+      free(data);
+      return -1;
+    }
+
+    if ( riff_writeWavFileHeader( fp, &wavFmt, &wavBext, (uint32_t)datasz ) < 0 ) {
       _error( aafi->ctx.options.verb, "Could not write wav audio essence header : %s\n", filePath );
     }
   }
@@ -1446,7 +1453,7 @@ int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence,
 
   // printf("Writting to file : %c %c %c %c\n", data[0], data[1], data[2], data[3] );
 
-  size_t writtenBytes = fwrite( data, sizeof(unsigned char), datasz, fp );
+  uint64_t writtenBytes = fwrite( data, sizeof(unsigned char), datasz, fp );
 
   if ( writtenBytes < datasz ) {
     _error( aafi->ctx.options.verb, "Could not write audio essence file (%"PRIu64" bytes written out of %"PRIu64" bytes) : %s\n", writtenBytes, datasz, filePath );

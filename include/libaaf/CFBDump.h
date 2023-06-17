@@ -16,7 +16,7 @@ void cfb_dump_nodeStream( CFB_Data *cfbd, cfbNode *node );
 
 void cfb_dump_nodePathStream( CFB_Data *cfbd, const wchar_t *path );
 
-void cfb_dump_nodePaths( CFB_Data *cfbd, uint32_t prevPath, char strArray[][CFB_PATH_NAME_SZ], uint32_t *str_i, cfbNode *node );
+void cfb_dump_nodePaths( CFB_Data *cfbd, uint32_t prevPath, char *strArray[], uint32_t *str_i, cfbNode *node );
 
 
 void cfb_dump_header( CFB_Data *cfbd );

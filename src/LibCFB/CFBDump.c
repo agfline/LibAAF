@@ -149,22 +149,23 @@ void cfb_dump_nodePathStream( CFB_Data *cfbd, const wchar_t *path )
 
 
 
-static int compareStrings( const void *a, const void *b )
-{
-    return strcmp( (const char *)a, (const char *)b );
-}
+// static int compareStrings( const void *a, const void *b )
+// {
+// 	return strcmp( (const char *)a, (const char *)b );
+// }
 
-void cfb_dump_nodePaths( CFB_Data *cfbd, uint32_t prevPath, char strArray[][CFB_PATH_NAME_SZ], uint32_t *str_i, cfbNode *node )
+// void cfb_dump_nodePaths( CFB_Data *cfbd, uint32_t prevPath, char strArray[][CFB_PATH_NAME_SZ], uint32_t *str_i, cfbNode *node )
+void cfb_dump_nodePaths( CFB_Data *cfbd, uint32_t prevPath, char *strArray[], uint32_t *str_i, cfbNode *node )
 {
-
-	/*
-	 *	the begining of the first function call.
-	 */
 
 	if ( node == NULL )
 	{
+		/*
+		 *	the begining of the first function call.
+		 */
+
 		node     = cfbd->nodes[0];
-		strArray = calloc( cfbd->nodes_cnt * CFB_PATH_NAME_SZ, sizeof(char) );
+		strArray = calloc( cfbd->nodes_cnt, sizeof(char*) );
 	}
 
 
@@ -173,19 +174,30 @@ void cfb_dump_nodePaths( CFB_Data *cfbd, uint32_t prevPath, char strArray[][CFB_
 
 	char *name = cfb_utf16toa( node->_ab, node->_cb );
 
-	snprintf( strArray[thisPath], CFB_PATH_NAME_SZ, "%s/%s", strArray[prevPath], name );
+	int pathlen = snprintf( NULL, 0, "%s/%s", strArray[prevPath], name );
 
-	(*str_i)++;
+	if ( pathlen < 0 ) {
+		// TODO error
+		return;
+	}
+
+	pathlen++;
+
+	strArray[thisPath] = malloc( pathlen );
+
+	snprintf( strArray[thisPath], pathlen, "%s/%s", strArray[prevPath], name );
 
 	free( name );
+
+	(*str_i)++;
 
 
 
 	if ( (int32_t)node->_sidChild > 0 )
-		cfb_dump_nodePaths( cfbd, thisPath, strArray, str_i, cfbd->nodes[node->_sidChild]    );
+		cfb_dump_nodePaths( cfbd, thisPath, strArray, str_i, cfbd->nodes[node->_sidChild] );
 
 	if ( (int32_t)node->_sidLeftSib > 0 )
-		cfb_dump_nodePaths( cfbd, prevPath, strArray, str_i, cfbd->nodes[node->_sidLeftSib]  );
+		cfb_dump_nodePaths( cfbd, prevPath, strArray, str_i, cfbd->nodes[node->_sidLeftSib] );
 
 	if ( (int32_t)node->_sidRightSib > 0 )
 		cfb_dump_nodePaths( cfbd, prevPath, strArray, str_i, cfbd->nodes[node->_sidRightSib] );
@@ -199,16 +211,17 @@ void cfb_dump_nodePaths( CFB_Data *cfbd, uint32_t prevPath, char strArray[][CFB_
 
 	if ( node == cfbd->nodes[0] )
 	{
-		uint32_t i = 0;
+		/* commented out because output is proper this way... why did we call qsort() in the first place ?! */
+		// qsort( strArray, *str_i, sizeof(char*), compareStrings );
 
-		qsort( strArray, *str_i, CFB_PATH_NAME_SZ, compareStrings );
-
-		for ( i = 0; i < cfbd->nodes_cnt && strArray[i][0] != 0x00; i++ )
-			printf( "%s\n", strArray[i] );
+		for ( uint32_t i = 0; i < cfbd->nodes_cnt && strArray[i] != NULL; i++ ) {
+			printf( "%05i : %s\n", i, strArray[i] );
+			free( strArray[i] );
+		}
 
 		free( strArray );
 
-        printf( "\n\n" );
+    printf( "\n\n" );
 	}
 
 }

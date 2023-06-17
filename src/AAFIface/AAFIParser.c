@@ -1221,7 +1221,7 @@ static int parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor, td *_
 
 
 
-	uint32_t *samplesize = (uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_SoundDescriptor_QuantizationBits );
+	uint32_t *samplesize = (uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_SoundDescriptor_QuantizationBits ); // uint32_t in AAF std
 
 	if ( samplesize == NULL ) /* req */
 	{
@@ -1229,12 +1229,18 @@ static int parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor, td *_
 		return -1;
 	}
 
-	audioEssence->samplesize = *samplesize;
+	if ( *samplesize >= (2^15) )
+	{
+		DUMP_OBJ_ERROR( aafi, PCMDescriptor, &__td, "PID_SoundDescriptor_QuantizationBits value error : %u", *samplesize );
+		return -1;
+	}
+
+	audioEssence->samplesize = (int16_t)*samplesize;
 
 	if ( aafi->Audio->samplesize >= 0 )
 	{
 		/* Set global AAF SampleSize, if it equals preceding. Otherwise set to -1 */
-		aafi->Audio->samplesize = ( aafi->Audio->samplesize == 0 || (uint16_t)aafi->Audio->samplesize == *samplesize ) ? *samplesize : (unsigned)-1;
+		aafi->Audio->samplesize = ( aafi->Audio->samplesize == 0 || (uint16_t)aafi->Audio->samplesize == audioEssence->samplesize ) ? audioEssence->samplesize : -1;
 	}
 
 
