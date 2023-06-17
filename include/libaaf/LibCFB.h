@@ -76,7 +76,7 @@ struct cfbCLSID_t
 	uint16_t Data3;
 	uint8_t  Data4[8];
 
-} __attribute__((packed));
+};// __attribute__((packed));
 
 typedef struct cfbCLSID_t cfbCLSID_t;
 
@@ -93,7 +93,7 @@ struct cfbFiletime_t
   uint32_t dwLowDateTime;
   uint32_t dwHighDateTime;
 
-} __attribute__((packed));
+}; // __attribute__((packed));
 
 typedef struct cfbFiletime_t cfbFiletime_t;
 
@@ -508,7 +508,7 @@ typedef struct StructuredStorageHeader
 
 	cfbSectorID_t    _sectFat[109];
 
-} __attribute__((packed)) cfbHeader;
+} cfbHeader; // __attribute__((packed)) cfbHeader;
 
 
 
@@ -649,7 +649,7 @@ typedef struct StructuredStorageDirectoryEntry
 
 	uint32_t      _ulSizeHigh;
 
-} __attribute__((packed)) cfbNode;
+} cfbNode; // __attribute__((packed)) cfbNode;
 
 
 
