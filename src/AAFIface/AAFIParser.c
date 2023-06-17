@@ -199,7 +199,6 @@ static int   parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd );
 
 
 
-
 static void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int state, int line, char *fmt, ... )
 {
 	if ( aafi->ctx.options.trace == 0 )
@@ -210,18 +209,23 @@ static void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td,
 	if ( Obj )
 	{
 		switch ( state ) {
-			case ERROR:		      printf("\033[38;5;124m");		break;
-			case WARNING:	      printf("\x1B[33m");					break;
-			case NOT_SUPPORTED: printf("\033[38;5;130m"); break;
-			default:            printf("\x1b[38;5;242m");		break;
+			case ERROR:		      printf( "%s", ANSI_COLOR_RED      );  break;
+			case WARNING:	      printf( "%s", ANSI_COLOR_YELLOW   );  break;
+			case NOT_SUPPORTED: printf( "%s", ANSI_COLOR_BROWN    );  break;
+			default:            printf( "%s", ANSI_COLOR_DARKGREY );  break;
 		}
-		printf("%05i\x1b[0m \x1b[38;5;242m%s \x1b[0m", line, "\u2502" );
+		printf( "%05i", line );
 	}
 	else
 	{
-		printf("\x1b[0m      \x1b[38;5;242m%s \x1b[0m", "\u2502" );
+		printf("     ");
 	}
 
+#ifndef _WIN32
+	printf( "%s%s%s", ANSI_COLOR_DARKGREY, "\u2502", ANSI_COLOR_RESET ); // │
+#else
+	printf( "%s%s%s", ANSI_COLOR_DARKGREY, "|", ANSI_COLOR_RESET ); // │
+#endif
 
 	/* Print padding and vertical lines */
 
@@ -235,18 +239,39 @@ static void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td,
 				/* next level iteration is current trace */
 				if ( i+1 == __td->lv )
 				{
-					if ( Obj )
+					if ( Obj ) {
+#ifndef _WIN32
 						printf("\u251c\u2500\u2500\u25fb "); // ├──◻
-					else
+#else
+						printf("|--> ");
+#endif
+					}
+					else {
+#ifndef _WIN32
 						printf("\u2502    "); // │
+#else
+						printf("|    ");
+#endif
+					}
 				}
-				else
+				else {
+#ifndef _WIN32
 					printf("\u2502    "); // │
+#else
+					printf("|    ");
+#endif
+				}
 			}
-			else if ( i+1 == __td->lv && Obj )
+			else if ( i+1 == __td->lv && Obj ) {
+#ifndef _WIN32
 				printf("\u2514\u2500\u2500\u25fb "); // └──◻
-			else
+#else
+				printf("`--> ");
+#endif
+			}
+			else {
 				printf("     ");
+			}
 		}
 	}
 
@@ -255,15 +280,15 @@ static void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td,
 	{
 
 		switch ( state ) {
-			case ERROR:	        printf("\033[38;5;124m");		break;
-			case WARNING:	      printf("\x1B[33m");					break;
-			case NOT_SUPPORTED: printf("\033[38;5;130m");   break;
+			case ERROR:		      printf( "%s", ANSI_COLOR_RED      );  break;
+			case WARNING:	      printf( "%s", ANSI_COLOR_YELLOW   );  break;
+			case NOT_SUPPORTED: printf( "%s", ANSI_COLOR_BROWN    );  break;
 			case INFO:
 			case OK:
 				if ( __td->sub )
-					printf("\033[38;5;242m");
+					printf( "%s", ANSI_COLOR_DARKGREY );
 				else
-					printf("\033[38;5;81m");
+					printf( "%s", ANSI_COLOR_CYAN );
 
 				break;
 		}
@@ -271,7 +296,7 @@ static void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td,
 
 		printf( "%ls ", ClassIDToText(aafi->aafd, Obj->Class->ID) );
 
-		printf("\x1b[0m");
+		printf( "%s", ANSI_COLOR_RESET );
 
 
 		if ( aafUIDCmp( Obj->Class->ID, &AAFClassID_TimelineMobSlot ) && aafUIDCmp( Obj->Parent->Class->ID, &AAFClassID_CompositionMob ) )
@@ -281,9 +306,13 @@ static void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td,
 			wchar_t   *name           = aaf_get_propertyValueWstr( Obj, PID_MobSlot_SlotName );
 			int32_t   *slotID         = aaf_get_propertyValue( Obj, PID_MobSlot_SlotID );
 
-			printf("[\x1b[1m%i\x1b[0m] (DataDef : \x1b[38;5;242m%ls\x1b[0m) %s%ls ",
+			printf("[%s%i%s] (DataDef : %s%ls%s) %s%ls ",
+				ANSI_COLOR_BOLD,
 				(slotID) ? *slotID : -1,
+				ANSI_COLOR_RESET,
+				ANSI_COLOR_DARKGREY,
 				DataDefToText( aafi->aafd, DataDefinition ),
+				ANSI_COLOR_RESET,
 				(name[0] != 0x00) ? ": " : "", (name) ? name : L""
 			 );
 
@@ -296,8 +325,10 @@ static void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td,
 			aafUID_t *usageCode = aaf_get_propertyValue( Obj, PID_Mob_UsageCode );
 			wchar_t  *name      = aaf_get_propertyValueWstr( Obj, PID_Mob_Name );
 
-			printf( "(UsageCode: \x1b[38;5;242m%ls\x1b[0m) %s%ls",
+			printf( "(UsageCode: %s%ls%s) %s%ls",
+				ANSI_COLOR_DARKGREY,
 				UsageCodeToText( usageCode ),
+				ANSI_COLOR_RESET,
 			  (name && name[0] != 0x00) ? ": " : "", (name) ? name : L""
 			);
 
@@ -307,8 +338,10 @@ static void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td,
 		{
 			aafUID_t *OperationIdentification = get_OperationGroup_OperationIdentification( aafi, Obj );
 
-			printf( "(OpIdent: \x1b[38;5;242m%ls\x1b[0m) ",
-				OperationDefToText( aafi->aafd, OperationIdentification )
+			printf( "(OpIdent: %s%ls%s) ",
+				ANSI_COLOR_DARKGREY,
+				OperationDefToText( aafi->aafd, OperationIdentification ),
+				ANSI_COLOR_RESET
 			);
 		}
 		// else if ( aafUIDCmp( Obj->Class->ID, &AAFClassID_TapeDescriptor ) ||
@@ -329,11 +362,11 @@ static void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td,
 
 		if ( state == ERROR )
 		{
-			printf(": \033[38;5;124m");
+			printf( ": %s", ANSI_COLOR_RED );
 		}
 		else if ( state == INFO )
 		{
-			printf(": \033[38;5;130m");
+			printf( ": %s", ANSI_COLOR_CYAN );
 		}
 
 		va_list args;
@@ -348,21 +381,19 @@ static void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td,
 		}
 
 		if ( state == NOT_SUPPORTED ) {
-			printf("\n\033[38;5;130m");
+			printf( "\n%s", ANSI_COLOR_BROWN );
 
 			// printf("CFB Object Dump : %ls\n", aaf_get_ObjectPath( Obj ) );
 			// printf("=================\n" );
 			// cfb_dump_node( aafi->aafd->cfbd, Obj->Node, 1 );
 
-			printf("Properties Dump (%ls)\n", aaf_get_ObjectPath( Obj ));
-			printf("===============\n\n");
+			printf( "Properties Dump (%ls)\n", aaf_get_ObjectPath( Obj ) );
+			printf( "===============\n\n" );
 			// aaf_dump_nodeStreamProperties( aafi->aafd, Obj->Node );
 			aaf_dump_ObjectProperties( aafi->aafd, Obj );
-
-			printf("\x1b[0m");
 		}
 
-		printf("\x1b[0m");
+		printf( "%s", ANSI_COLOR_RESET );
 	}
 
 

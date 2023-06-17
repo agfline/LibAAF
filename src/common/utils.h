@@ -3,21 +3,27 @@
 
 
 #ifndef _WIN32
-#define ANSI_COLOR_RED     "\x1b[31m"
-#define ANSI_COLOR_GREEN   "\x1b[92m"
-#define ANSI_COLOR_YELLOW  "\x1b[93m"
-#define ANSI_COLOR_BLUE    "\x1b[34m"
-#define ANSI_COLOR_MAGENTA "\x1b[35m"
-#define ANSI_COLOR_CYAN    "\x1b[36m"
-#define ANSI_COLOR_RESET   "\x1b[0m"
+#define ANSI_COLOR_RED      "\033[38;5;124m" //"\x1b[31m"
+#define ANSI_COLOR_GREEN    "\x1b[92m"
+#define ANSI_COLOR_YELLOW   "\x1b[33m" //"\x1b[93m"
+#define ANSI_COLOR_BROWN    "\033[38;5;130m"
+#define ANSI_COLOR_BLUE     "\x1b[34m"
+#define ANSI_COLOR_MAGENTA  "\x1b[35m"
+#define ANSI_COLOR_CYAN     "\033[38;5;81m" //"\x1b[36m"
+#define ANSI_COLOR_DARKGREY "\x1b[38;5;242m"
+#define ANSI_COLOR_BOLD     "\x1b[1m"
+#define ANSI_COLOR_RESET    "\x1b[0m"
 #else
-#define ANSI_COLOR_RED     ""
-#define ANSI_COLOR_GREEN   ""
-#define ANSI_COLOR_YELLOW  ""
-#define ANSI_COLOR_BLUE    ""
-#define ANSI_COLOR_MAGENTA ""
-#define ANSI_COLOR_CYAN    ""
-#define ANSI_COLOR_RESET   ""
+#define ANSI_COLOR_RED      ""
+#define ANSI_COLOR_GREEN    ""
+#define ANSI_COLOR_YELLOW   ""
+#define ANSI_COLOR_BROWN    ""
+#define ANSI_COLOR_BLUE     ""
+#define ANSI_COLOR_MAGENTA  ""
+#define ANSI_COLOR_CYAN     ""
+#define ANSI_COLOR_DARKGREY ""
+#define ANSI_COLOR_BOLD     ""
+#define ANSI_COLOR_RESET    ""
 #endif
 
 
