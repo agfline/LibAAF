@@ -1944,7 +1944,7 @@ static int retrieveStrongReferenceVector( AAF_Data *aafd, aafProperty *Prop, aaf
 
 static int retrieveProperty( AAF_Data *aafd, aafObject *Obj, aafPropertyDef *Def, aafPropertyIndexEntry_t *p, aafByte_t *v, uint8_t bo )
 {
-	bo++;
+	(void)bo; // ByteOrder not supported yet ?
 
 	aafProperty *Prop = newProperty( aafd, Def );
 
@@ -2144,7 +2144,7 @@ static aafStrongRefSetHeader_t * getStrongRefSetList( CFB_Data *cfbd, cfbNode *N
 		return NULL;
 
 	aafByte_t *stream = NULL;
-	size_t  stream_sz = 0;
+	uint64_t   stream_sz = 0;
 
 	cfb_getStream( cfbd, Node, &stream, &stream_sz );
 
@@ -2177,7 +2177,7 @@ static aafStrongRefVectorHeader_t * getStrongRefVectorList( CFB_Data *cfbd, cfbN
 		return NULL;
 
 	aafByte_t *stream = NULL;
-	size_t  stream_sz = 0;
+	uint64_t   stream_sz = 0;
 
 	cfb_getStream( cfbd, Node, &stream, &stream_sz );
 
