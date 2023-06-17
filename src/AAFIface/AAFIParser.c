@@ -148,7 +148,7 @@ static wchar_t   * build_unique_videofilename( AAF_Iface *aafi, aafiVideoEssence
 static aafObject * get_Object_Ancestor( AAF_Iface *aafi, aafObject *Obj, const aafUID_t *ClassID );
 
 static aafUID_t  * get_Component_DataDefinition( AAF_Iface *aafi, aafObject *Component );
-static aafUID_t  * get_FileDescriptor_ContainerFormat( AAF_Iface *aafi, aafObject *FileDescriptor );
+// static aafUID_t  * get_FileDescriptor_ContainerFormat( AAF_Iface *aafi, aafObject *FileDescriptor );
 static aafUID_t  * get_OperationGroup_OperationIdentification( AAF_Iface *aafi, aafObject *OperationGroup );
 static aafUID_t  * get_Parameter_InterpolationIdentification( AAF_Iface *aafi, aafObject *Parameter );
 
@@ -742,36 +742,36 @@ static aafUID_t * get_Component_DataDefinition( AAF_Iface *aafi, aafObject *Comp
 
 
 
-static aafUID_t * get_FileDescriptor_ContainerFormat( AAF_Iface *aafi, aafObject *FileDescriptor )
-{
-	aafWeakRef_t *ContainerDefWeakRef = aaf_get_propertyValue( FileDescriptor, PID_FileDescriptor_ContainerFormat );
-
-	if ( ContainerDefWeakRef == NULL )
-	{
-		_warning( aafi->ctx.options.verb, "Missing FileDescriptor::ContainerFormat.\n" );
-		return NULL;
-	}
-
-	aafObject *ContainerDefinition = aaf_get_ObjectByWeakRef( aafi->aafd->ContainerDefinition, ContainerDefWeakRef );
-
-	if ( ContainerDefinition == NULL )
-	{
-		_warning( aafi->ctx.options.verb, "Could not retrieve WeakRef from Dictionary::ContainerDefinitions.\n" );
-		return NULL;
-	}
-
-
-	aafUID_t  *ContainerIdentification = aaf_get_propertyValue( ContainerDefinition, PID_DefinitionObject_Identification );
-
-	if ( ContainerIdentification == NULL )
-	{
-		_warning( aafi->ctx.options.verb, "Missing ContainerDefinition's DefinitionObject::Identification.\n" );
-		return NULL;
-	}
-
-
-	return ContainerIdentification;
-}
+// static aafUID_t * get_FileDescriptor_ContainerFormat( AAF_Iface *aafi, aafObject *FileDescriptor )
+// {
+// 	aafWeakRef_t *ContainerDefWeakRef = aaf_get_propertyValue( FileDescriptor, PID_FileDescriptor_ContainerFormat );
+//
+// 	if ( ContainerDefWeakRef == NULL )
+// 	{
+// 		_warning( aafi->ctx.options.verb, "Missing FileDescriptor::ContainerFormat.\n" );
+// 		return NULL;
+// 	}
+//
+// 	aafObject *ContainerDefinition = aaf_get_ObjectByWeakRef( aafi->aafd->ContainerDefinition, ContainerDefWeakRef );
+//
+// 	if ( ContainerDefinition == NULL )
+// 	{
+// 		_warning( aafi->ctx.options.verb, "Could not retrieve WeakRef from Dictionary::ContainerDefinitions.\n" );
+// 		return NULL;
+// 	}
+//
+//
+// 	aafUID_t  *ContainerIdentification = aaf_get_propertyValue( ContainerDefinition, PID_DefinitionObject_Identification );
+//
+// 	if ( ContainerIdentification == NULL )
+// 	{
+// 		_warning( aafi->ctx.options.verb, "Missing ContainerDefinition's DefinitionObject::Identification.\n" );
+// 		return NULL;
+// 	}
+//
+//
+// 	return ContainerIdentification;
+// }
 
 
 
