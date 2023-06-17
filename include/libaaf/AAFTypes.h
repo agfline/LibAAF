@@ -238,11 +238,11 @@ typedef struct _AAF_List
 
 typedef struct _aafIndirect_t
 {
-	uint8_t           unknownByte; // TODO what's that ? 0x55? (U) in EssenceData, 0x4C (L) in Parameter Gain
+	// uint8_t              unknownByte; // TODO what's that ? 0x55? (U) in EssenceData, 0x4C (L) in Parameter Gain
 	aafUID_t          TypeDef;
 	aafByte_t         Value[];
 
-} __attribute__((packed)) aafIndirect_t;
+} /*__attribute__((packed))*/ aafIndirect_t;
 
 
 typedef int32_t aafElectroSpatialFormulation_t;
@@ -476,7 +476,7 @@ typedef struct aafPropertyIndexHeader_t
 
 	uint16_t                _entryCount;
 
-} __attribute__((packed)) aafPropertyIndexHeader_t;
+} /* __attribute__((packed)) */ aafPropertyIndexHeader_t;
 
 
 /**
@@ -535,7 +535,7 @@ typedef struct aafPropertyIndexEntry_t
 
 	uint16_t                _length;
 
-} __attribute__((packed)) aafPropertyIndexEntry_t;
+} /* __attribute__((packed)) */ aafPropertyIndexEntry_t;
 
 
 
@@ -631,7 +631,7 @@ typedef struct aafStrongRefSetEntry_t
 
 	aafByte_t               _identification[];
 
-} __attribute__((packed)) aafStrongRefSetEntry_t;
+} /* __attribute__((packed)) */ aafStrongRefSetEntry_t;
 
 
 
@@ -673,7 +673,7 @@ typedef struct aafStrongRefVectorHeader_t
 
 	uint32_t                _lastFreeKey;
 
-} __attribute__((packed)) aafStrongRefVectorHeader_t;
+} /* __attribute__((packed)) */ aafStrongRefVectorHeader_t;
 
 /**
  *	An ordered collection of strongly referenced (contained) objects.
@@ -696,7 +696,7 @@ typedef struct aafStrongRefVectorEntry_t
 
 	uint32_t                _localKey;
 
-} __attribute__((packed)) aafStrongRefVectorEntry_t;
+} /* __attribute__((packed)) */ aafStrongRefVectorEntry_t;
 
 
 
@@ -751,7 +751,7 @@ typedef struct _WeakObjectReference
 
 	aafByte_t               _identification[];
 
-} __attribute__((packed)) aafWeakRef_t;
+} /* __attribute__((packed)) */ aafWeakRef_t;
 
 
 /**
@@ -793,7 +793,7 @@ typedef struct _WeakReferenceIndexHeader
 
 	uint8_t                _identificationSize;
 
-} __attribute__((packed)) aafWeakRefHeader_t;
+} /* __attribute__((packed)) */ aafWeakRefHeader_t;
 
 
 
