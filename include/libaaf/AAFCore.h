@@ -618,11 +618,11 @@ typedef struct _aafData
 
 /**
  *	Compares two aafUID_t, returns 1 if equal or 0 otherwise.
+ *  https://github.com/Ardour/ardour/pull/805#issuecomment-1595788696
  */
 
-#define aafUIDCmp( auid1, auid2 ) \
-	( auid1 != NULL && auid2 != NULL && memcmp( auid1, auid2, sizeof(aafUID_t) ) == 0 )
-
+#define aafUIDCmp(auid1, auid2) \
+  ( (uint8_t const*)auid1 != NULL && (uint8_t const*)auid2 != NULL && memcmp( (uint8_t const*)auid1, (uint8_t const*)auid2, sizeof( aafUID_t ) ) == 0 )
 
 
 /**

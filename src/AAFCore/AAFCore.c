@@ -937,7 +937,7 @@ wchar_t * aaf_get_propertyValueWstr( aafObject *Obj, aafPID_t pid )
 
 void * aaf_get_propertyIndirectValue( aafObject *Obj, aafPID_t pid )
 {
-	aafIndirect_t *Indirect = (aafIndirect_t*)(((unsigned char*)(aaf_get_propertyValue( Obj, pid ))) + 1); // +1 offset allows to remove 'unknownByte' member from aafIndirect_t and thus __attribute__(packed)
+	aafIndirect_t *Indirect = aaf_get_propertyValue( Obj, pid );
 
 	if ( Indirect == NULL )
 	{
@@ -962,7 +962,7 @@ wchar_t * aaf_get_propertyIndirectValueWstr( aafObject *Obj, aafPID_t pid )
 		return NULL;
 	}
 
-	aafIndirect_t *Indirect = (aafIndirect_t*)(((unsigned char*)Prop->val) + 1); // +1 offset allows to remove 'unknownByte' member from aafIndirect_t and thus __attribute__(packed)
+	aafIndirect_t *Indirect = Prop->val;
 
 	if ( aafUIDCmp( &Indirect->TypeDef, &AAFTypeID_String ) == 0 )
 	{

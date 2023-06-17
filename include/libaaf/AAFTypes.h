@@ -238,11 +238,11 @@ typedef struct _AAF_List
 
 typedef struct _aafIndirect_t
 {
-	// uint8_t              unknownByte; // TODO what's that ? 0x55? (U) in EssenceData, 0x4C (L) in Parameter Gain
+	uint8_t           unknownByte; // TODO what's that ? 0x55? (U) in EssenceData, 0x4C (L) in Parameter Gain
 	aafUID_t          TypeDef;
 	aafByte_t         Value[];
 
-} /*__attribute__((packed))*/ aafIndirect_t;
+} __attribute__((packed)) aafIndirect_t;
 
 
 typedef int32_t aafElectroSpatialFormulation_t;
