@@ -1229,7 +1229,7 @@ static int parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor, td *_
 		return -1;
 	}
 
-	if ( *samplesize >= (2^15) )
+	if ( *samplesize >= (1<<15) )
 	{
 		DUMP_OBJ_ERROR( aafi, PCMDescriptor, &__td, "PID_SoundDescriptor_QuantizationBits value error : %u", *samplesize );
 		return -1;

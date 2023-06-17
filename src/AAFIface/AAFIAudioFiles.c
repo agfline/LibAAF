@@ -1438,7 +1438,7 @@ int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence,
       wavBext.time_reference = eu2sample( audioEssence->samplerate, audioEssence->mobSlotEditRate, audioEssence->timeReference );
     }
 
-    if ( datasz >= (2^32) ) {
+    if ( datasz >= (uint32_t)-1 ) {
       // TODO RF64 support ?
       _error( aafi->ctx.options.verb, "Audio essence is bigger than maximum wav size (2^32 bytes) : %lu bytes\n", datasz );
       free(data);
