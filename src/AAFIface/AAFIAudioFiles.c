@@ -295,7 +295,9 @@ char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_fi
 
 
   if ( access( uri->path, F_OK ) != -1 ) {
-    return uri->path;
+    char *path = strdup( uri->path );
+    uriFree( uri );
+    return path;
   }
 
 
@@ -357,11 +359,16 @@ char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_fi
     //
     // snprintf( fpath, len+1, "%s%c%s", aafPath, DIR_SEP, relativeEssencePath );
 
+    free( aafPath );
+
     printf("::::::: %s\n", fpath );
 
     if ( access( fpath, F_OK ) != -1 ) {
+      uriFree( uri );
       return fpath;
     }
+
+    free( fpath );
   }
   else { /* remote */
   // if ( uri->flags & URI_T_REMOTE ) {
@@ -376,8 +383,10 @@ char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_fi
     }
   }
 
+  uriFree( uri );
 
   free( filePath );
+
   return NULL;
 
 

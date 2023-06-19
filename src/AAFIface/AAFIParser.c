@@ -2718,6 +2718,8 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 						 *	We came back at level zero of parse_SourceClip() nested calls, so
 						 *	the clip and its source was added, we only have to set its length,
 						 *	offset and gain with correct values.
+						 *
+						 *  TODO: aafi->current_clip pointer to new_clip instead ?
 						 */
 
 						((aafiAudioClip*)new_clip)->len = *length;
@@ -3534,8 +3536,19 @@ static int parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue, td *_
 		else
 		{
 			/* Clip-based Gain */
-			aafi->ctx.current_clip_gain = Gain;
-			aafi->ctx.clips_using_gain = 0;
+			if ( aafi->ctx.current_clip_gain ) {
+				/*
+				 *  This occurs when a clip has an automation attached to it, plus a clip gain constant value.
+				 *	TODO: Should we had support ?
+				 */
+				DUMP_OBJ_ERROR( aafi, ConstantValue, &__td, "Clip gain was already set" );
+				aafi_freeAudioGain( Gain );
+				return -1;
+			}
+			else {
+				aafi->ctx.current_clip_gain = Gain;
+				aafi->ctx.clips_using_gain = 0;
+			}
 		}
 
 
@@ -3758,8 +3771,19 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue, td *__p
 		else
 		{
 			/* Clip-based Gain */
-			aafi->ctx.current_clip_gain = Gain;
-			aafi->ctx.clips_using_gain = 0;
+			if ( aafi->ctx.current_clip_gain ) {
+				/*
+				 *  This occurs when a clip has an automation attached to it, plus a clip gain constant value.
+				 *	TODO: Should we had support ?
+				 */
+				DUMP_OBJ_ERROR( aafi, VaryingValue, &__td, "Clip gain was already set" );
+				aafi_freeAudioGain( Gain );
+				return -1;
+			}
+			else {
+				aafi->ctx.current_clip_gain = Gain;
+				aafi->ctx.clips_using_gain = 0;
+			}
 		}
 
 
