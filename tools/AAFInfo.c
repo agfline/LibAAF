@@ -6,16 +6,10 @@
 #include <getopt.h>
 #include <locale.h>
 
-// #include <libaaf/AAFIface.h>
-// #include <libaaf/AAFIAudioFiles.h>
-// #include <libaaf/AAFDump.h>
-// #include <libaaf/CFBDump.h>
-
 #include <libaaf.h>
 
 
 #include "./thirdparty/libTC.h"
-
 #include "../src/common/utils.h" // ANSI colors
 
 
@@ -30,8 +24,9 @@ static char * gainToStr( aafiAudioGain *gain )
 	{
 		snprintf( str, 32, "      n/a   " );
 	}
-	else if ( gain->flags & AAFI_AUDIO_GAIN_CONSTANT ||
-			( gain->flags & AAFI_AUDIO_GAIN_VARIABLE && gain->pts_cnt == 2 && gain->value[0].numerator == gain->value[1].numerator ) )
+	else
+	if ( gain->flags & AAFI_AUDIO_GAIN_CONSTANT ||
+		 ( gain->flags & AAFI_AUDIO_GAIN_VARIABLE && gain->pts_cnt == 2 && gain->value[0].numerator == gain->value[1].numerator ) )
 	{
 		/*
 		 *	NOTE some implementations use VaryingValue to store a single gain value.
@@ -49,7 +44,6 @@ static char * gainToStr( aafiAudioGain *gain )
 	{
 		snprintf( str, 32, " automation " );
 	}
-
 
 	return str;
 }
@@ -103,9 +97,9 @@ static void aafi_dump_VaryingValues( aafiAudioGain *Gain )
 {
 
 	int i = 0;
-	// printf("%s\n", );
-	for( i = 0; i < Gain->pts_cnt; i++ )
-	{
+
+	for ( i = 0; i < Gain->pts_cnt; i++ ) {
+
 	   // printf( "   PT:  _t: %i/%i   _v: %i/%i\n",
 	   // 	audioTrack->gain->time[i].numerator,
 	   // 	audioTrack->gain->time[i].denominator,
@@ -169,10 +163,8 @@ void showHelp()
 
 int main( int argc, char *argv[] )
 {
+	setlocale( LC_ALL, "" );
 
-	setlocale(LC_ALL, "");
-
-//	int cfb_summary    = 0;
 	int cfb_header     = 0;
 	int cfb_fat        = 0;
 	int cfb_minifat    = 0;
@@ -252,8 +244,7 @@ int main( int argc, char *argv[] )
 
 
 
-	if ( optind == argc )
-	{
+	if ( optind == argc ) {
 		fprintf( stderr,
 			"AAFInfo: missing file operand\n"
 			"Try 'AAFInfo --help' for more informations.\n"
@@ -264,8 +255,7 @@ int main( int argc, char *argv[] )
 
 
 
-	if ( cmd == 0 )
-	{
+	if ( cmd == 0 ) {
 		fprintf( stderr,
 			"Usage: AAFInfo [CMD] [FILE]\n"
 			"Try 'AAFInfo --help' for more informations.\n"
@@ -281,26 +271,15 @@ int main( int argc, char *argv[] )
 
 	AAF_Data *aafd = aaf_alloc();
 
-	// if ( aaf_load_file( aafd, argv[argc-1] ) )
-	// 	return 1;
-
-
 	AAF_Iface *aafi = aafi_alloc( aafd );
 	aafi->ctx.options.verb = VERB_DEBUG;
 	aafi->ctx.options.trace = 1;
 
-	if ( aafi_load_file( aafi, argv[argc-1] ) )
-	{
+	if ( aafi_load_file( aafi, argv[argc-1] ) ) {
 		aafi_release( &aafi );
 		return 1;
 	}
 
-	// if ( aaf_essences || aaf_clips )
-	// {
-	// 	aafi = aafi_alloc( aafd );
-	//
-	// 	aafi_retrieveData( aafi );
-	// }
 
 	printf( "\n\n" );
 
@@ -308,32 +287,28 @@ int main( int argc, char *argv[] )
 
 
 
-	if ( get_node_str != NULL )
-	{
+	if ( get_node_str != NULL ) {
+
 		wchar_t wget_node_str[1024];
 
 		swprintf( wget_node_str, 1024, L"%s", get_node_str );
 
 		cfbNode *node = cfb_getNodeByPath( aafd->cfbd, wget_node_str, 0 );
 
-		if ( node == NULL )
-		{
+		if ( node == NULL ) {
 			printf( "Could not find node at \"%s\"\n", get_node_str );
 		}
-		else
-		{
+		else {
 			cfb_dump_node( aafd->cfbd, node, 0 );
 
 			char name[CFB_NODE_NAME_SZ];
 
 			utf16toa( name, CFB_NODE_NAME_SZ, node->_ab, node->_cb );
 
-			if ( strncmp( name, "properties", 10 ) == 0 )
-			{
+			if ( strncmp( name, "properties", 10 ) == 0 ) {
 				aaf_dump_nodeStreamProperties( aafd, node );
 			}
-			else if ( node->_mse == STGTY_STREAM )
-			{
+			else if ( node->_mse == STGTY_STREAM ) {
 				cfb_dump_nodeStream( aafd->cfbd, node );
 			}
 		}
@@ -342,34 +317,28 @@ int main( int argc, char *argv[] )
 	}
 
 
-	if ( cfb_header )
-	{
+	if ( cfb_header ) {
 		cfb_dump_header( aafd->cfbd );
 	}
 
 
-	if ( cfb_fat )
-	{
+	if ( cfb_fat ) {
 		cfb_dump_FAT( aafd->cfbd );
 	}
 
 
-	if ( cfb_minifat )
-	{
+	if ( cfb_minifat ) {
 		cfb_dump_MiniFAT( aafd->cfbd );
 	}
 
 
-	if ( cfb_difat )
-	{
+	if ( cfb_difat ) {
 		cfb_dump_DiFAT( aafd->cfbd );
 	}
 
 
-	if ( cfb_nodes )
-	{
+	if ( cfb_nodes ) {
 		uint32_t i = 0;
-
 		cfb_dump_nodePaths( aafd->cfbd, 0, NULL, &i, NULL );
 	}
 
@@ -378,33 +347,29 @@ int main( int argc, char *argv[] )
 
 
 
-	if ( aaf_summary )
-	{
+	if ( aaf_summary ) {
 		aaf_dump_Header( aafd );
 		aaf_dump_Identification( aafd );
 	}
 
 
-	if ( aaf_classes )
-	{
+	if ( aaf_classes ) {
 		aaf_dump_Classes( aafd );
 	}
 
 
-	if ( aaf_meta )
-	{
+	if ( aaf_meta ) {
 		aaf_dump_MetaDictionary( aafd );
 	}
 
 
-	if ( aaf_properties )
-	{
+	if ( aaf_properties ) {
+
 		aafObject *Object = aafd->Objects;
 
 		for ( Object = aafd->Objects; Object != NULL; Object = Object->nextObj )
 		{
 			printf( "\n\n\n" ANSI_COLOR_MAGENTA " Object" ANSI_COLOR_RESET " @ %ls\n", aaf_get_ObjectPath( Object ) );
-
 			aaf_dump_ObjectProperties( aafd, Object );
 		}
 	}
@@ -415,8 +380,7 @@ int main( int argc, char *argv[] )
 
 
 
-	if ( aaf_essences )
-	{
+	if ( aaf_essences ) {
 
 		aafiAudioEssence *audioEssence = NULL;
 
@@ -454,42 +418,39 @@ int main( int argc, char *argv[] )
 
 
 
-	if ( aaf_clips )
-	{
+	if ( aaf_clips ) {
 
     printf( "EditRrate  : %i/%i\n", aafi->Audio->tc->edit_rate->numerator, aafi->Audio->tc->edit_rate->denominator );
     printf( "Start (EU) : %"PRIi64"\n", aafi->Audio->tc->start );
     printf( "End (EU)   : %"PRIi64"\n", aafi->Audio->tc->end );
 
-    printf( "\n                  session start : %"PRIi64"\n", eu2sample( 48000, aafi->Audio->tc->edit_rate, aafi->Audio->tc->start ) );
-    printf( "\n                  session end   : %"PRIi64"\n\n", eu2sample( 48000, aafi->Audio->tc->edit_rate, aafi->Audio->tc->end ) );
+    printf( "session start : %"PRIi64"\n", eu2sample( 48000, aafi->Audio->tc->edit_rate, aafi->Audio->tc->start ) );
+    printf( "session end   : %"PRIi64"\n\n", eu2sample( 48000, aafi->Audio->tc->edit_rate, aafi->Audio->tc->end ) );
 
 		printf( "Composition Name     : %ls\n", aafi->compositionName );
-		printf( "======================\n" );
 
 		enum TC_FORMAT format = tc_fps2format( (float)(aafi->Audio->tc->fps ), aafi->Audio->tc->drop );
 
 		struct timecode tc_comp;
 		tc_set_by_unitValue( &tc_comp, aafi->Audio->tc->start, (rational_t*)aafi->Audio->tc->edit_rate, format );
 
-
 		printf("Composition TC Start : %s (%u fps %s)\n",
 			tc_comp.string,
 			aafi->Audio->tc->fps,
 			(aafi->Audio->tc->drop) ? "DF" : "NDF"
 		);
+
 		printf( "======================\n\n" );
 
-		aafiUserComment *Comment = aafi->Comments;
+		if ( aafi->Comments != NULL )	{
 
-		if ( Comment != NULL )
-		{
-			printf( "UserComments :\n==============\n" );
+			printf( "UserComments :\n" );
+			printf( "==============\n" );
 
-			while ( Comment != NULL )
-			{
+			aafiUserComment *Comment = aafi->Comments;
+
+			while ( Comment != NULL ) {
 				printf( "   * %ls : %ls\n", Comment->name, Comment->text );
-
 				Comment = Comment->next;
 			}
 
@@ -497,12 +458,12 @@ int main( int argc, char *argv[] )
 		}
 
 
-		locate_external_essence_file( aafi, L"file://10.87.230.71/mixage/DR2/Avid MediaFiles/MXF/1/3572607_RUGBY_F2_S65CFA3D0V.mxf" );
-		locate_external_essence_file( aafi, L"file:////C:/Users/mix_limo/Desktop/TEST2977052  -  OFF PODIUM ETAPE 2.aaf" );
-		locate_external_essence_file( aafi, L"file://?/E:/Adrien/ADPAAF/Sequence A Rendu.mxf" );
-		locate_external_essence_file( aafi, L"file://localhost/D:/horlaprod/Music/Logic/fonk_2/Audio Files_1/fonk_2_3#04.wav" );
-		locate_external_essence_file( aafi, L"file://localhost/Users/horlaprod/Music/Logic/fonk_2/Audio Files_1/fonk_2_3#04.wav" );
-		locate_external_essence_file( aafi, L"file:///_system/Users/horlaprod/pt2MCCzmhsFRHQgdgsTMQX.mxf" );
+		// locate_external_essence_file( aafi, L"file://10.87.230.71/mixage/DR2/Avid MediaFiles/MXF/1/3572607_RUGBY_F2_S65CFA3D0V.mxf" );
+		// locate_external_essence_file( aafi, L"file:////C:/Users/mix_limo/Desktop/TEST2977052  -  OFF PODIUM ETAPE 2.aaf" );
+		// locate_external_essence_file( aafi, L"file://?/E:/Adrien/ADPAAF/Sequence A Rendu.mxf" );
+		// locate_external_essence_file( aafi, L"file://localhost/D:/horlaprod/Music/Logic/fonk_2/Audio Files_1/fonk_2_3#04.wav" );
+		// locate_external_essence_file( aafi, L"file://localhost/Users/horlaprod/Music/Logic/fonk_2/Audio Files_1/fonk_2_3#04.wav" );
+		// locate_external_essence_file( aafi, L"file:///_system/Users/horlaprod/pt2MCCzmhsFRHQgdgsTMQX.mxf" );
 
 
 
@@ -510,8 +471,8 @@ int main( int argc, char *argv[] )
 		aafiTimelineItem *videoItem  = NULL;
 		aafiVideoClip    *videoClip  = NULL;
 
-		if ( videoTrack != NULL )
-		{
+		if ( videoTrack != NULL ) {
+
 			printf( "VideoTrack %s(%u) - edit_rate %i/%i (%02.2f)  -  \"%ls\"\n",
 					(videoTrack->number < 10) ? " " : "",
 					videoTrack->number,
@@ -520,8 +481,8 @@ int main( int argc, char *argv[] )
 					(videoTrack->name != NULL) ? videoTrack->name : L""
 			 );
 
-			 if ( videoTrack->Items )
-			 {
+			 if ( videoTrack->Items ) {
+
 				 videoItem = videoTrack->Items;
 				 videoClip = (aafiVideoClip*)&(videoItem->data);
 
@@ -565,8 +526,7 @@ int main( int argc, char *argv[] )
 
 		uint32_t i = 0;
 
-		foreach_audioTrack( audioTrack, aafi )
-		{
+		foreach_audioTrack( audioTrack, aafi ) {
 
 			printf( "Track %s(%u) - %s - Gain  %s - Pan %s - edit_rate %i/%i (%02.2f)  -  \"%ls\"\n",
 					(audioTrack->number < 10) ? " " : "",
@@ -582,23 +542,19 @@ int main( int argc, char *argv[] )
 					(audioTrack->name != NULL) ? audioTrack->name : L""
 			 );
 
-			 if ( audioTrack->gain != NULL && audioTrack->gain->flags & AAFI_AUDIO_GAIN_VARIABLE )
-			 {
+			 if ( audioTrack->gain != NULL && audioTrack->gain->flags & AAFI_AUDIO_GAIN_VARIABLE ) {
 				 printf( "TRACK GAIN AUTOMATION : \n" );
 				 aafi_dump_VaryingValues( audioTrack->gain );
 			 }
 
-			 if ( audioTrack->pan != NULL && audioTrack->pan->flags & AAFI_AUDIO_GAIN_VARIABLE )
-			 {
+			 if ( audioTrack->pan != NULL && audioTrack->pan->flags & AAFI_AUDIO_GAIN_VARIABLE ) {
 				 printf( "TRACK PAN AUTOMATION : \n" );
 				 aafi_dump_VaryingValues( audioTrack->pan );
 			 }
 
-			foreach_Item( audioItem, audioTrack )
-			{
+			foreach_Item( audioItem, audioTrack ) {
 
-				if ( audioItem->type == AAFI_TRANS )
-				{
+				if ( audioItem->type == AAFI_TRANS ) {
 
 					aafiTransition *Trans = (aafiTransition*)&audioItem->data;
 
@@ -727,12 +683,10 @@ int main( int argc, char *argv[] )
 
 
 
-	if ( aafi != NULL )
-	{
+	if ( aafi != NULL ) {
 		aafi_release( &aafi );
 	}
-	else if ( aafd != NULL )
-	{
+	else if ( aafd != NULL ) {
 		aaf_release( &aafd );
 	}
 
