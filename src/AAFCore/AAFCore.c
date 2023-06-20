@@ -937,7 +937,7 @@ wchar_t * aaf_get_propertyValueWstr( aafObject *Obj, aafPID_t pid )
 
 void * aaf_get_propertyIndirectValue( aafObject *Obj, aafPID_t pid )
 {
-	aafIndirect_t *Indirect = aaf_get_propertyValue( Obj, pid );
+	aafIndirect_t *Indirect = (aafIndirect_t*)(((unsigned char*)aaf_get_propertyValue( Obj, pid ))+1); // +1 offset allows to skip aafIndirect_t->unknownByte while maintaining memory aligned
 
 	if ( Indirect == NULL )
 	{
@@ -962,11 +962,11 @@ wchar_t * aaf_get_propertyIndirectValueWstr( aafObject *Obj, aafPID_t pid )
 		return NULL;
 	}
 
-	aafIndirect_t *Indirect = Prop->val;
+	aafIndirect_t *Indirect = (aafIndirect_t*)(((unsigned char*)Prop->val)+1); // +1 offset allows to skip aafIndirect_t->unknownByte while maintaining memory aligned
 
 	if ( aafUIDCmp( &Indirect->TypeDef, &AAFTypeID_String ) == 0 )
 	{
-		_warning( Obj->aafd->verb, "Indirect value is not of type String.\n" );
+		_warning( Obj->aafd->verb, "Indirect value is not of type String but of type %ls.\n", TypeIDToText( &Indirect->TypeDef ) );
 		return NULL;
 	}
 
@@ -1510,6 +1510,9 @@ static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *Target
 			  aafUIDCmp( ClassID, &AAFClassID_MetaDefinition    ) == 0 &&
 			  aafUIDCmp( ClassID, &AAFClassID_MetaDictionary    ) == 0 )
 	{
+		/*
+		 *	TODO: describe what's this error for
+		 */
 		_error( aafd->verb, "Parent's Class equals Child's : %ls.\n", ClassIDToText( aafd, ClassID ) );
 		return NULL;
 	}
@@ -1584,27 +1587,25 @@ static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *Target
 		PDef->name = aaf_get_propertyValueWstr( Prop, PID_MetaDefinition_Name );
 
 
-/*
-
 		aafObject *TypeDefs  = aaf_get_propertyValue( MetaDic, PID_MetaDictionary_TypeDefinitions  );
-		aafWeakRef_t *WeakRefToType = aaf_get_propertyValue( Property, PID_PropertyDefinition_Type );
+		aafWeakRef_t *WeakRefToType = aaf_get_propertyValue( Prop, PID_PropertyDefinition_Type );
 
 		aafObject *TypeDef = aaf_get_ObjectByWeakRef( TypeDefs, WeakRefToType );
 
-		char     *typeName = NULL;
+		wchar_t  *typeName = NULL;
 		aafUID_t *typeUID  = NULL;
 
 		if ( TypeDef != NULL )
 		{
 			typeUID  = aaf_get_propertyValue( TypeDef, PID_MetaDefinition_Identification );
-			typeName = aaf_get_propertyValueText( TypeDef, PID_MetaDefinition_Name );
-			printf( "TypeName : %s (%s) |  name : %s.\n",
+			memcpy( &PDef->type, typeUID, sizeof(aafUID_t) );
+			typeName = aaf_get_propertyValueWstr( TypeDef, PID_MetaDefinition_Name );
+			printf( "TypeName : %ls (%ls) |  name : %ls.\n",
 				typeName,
 				TypeIDToText( typeUID ),    // shows unknown value
-				name );
+				PDef->name );
+			free( typeName );
 		}
-*/
-
 	}
 
 	return Class;

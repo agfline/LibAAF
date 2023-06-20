@@ -680,12 +680,13 @@ int main( int argc, char *argv[] )
 				tc_set_by_unitValue( &tc_out, (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start), (rational_t*)audioClip->track->edit_rate, format );
 				tc_set_by_unitValue( &tc_len,  audioClip->len,                                                        (rational_t*)audioClip->track->edit_rate, format );
 
-				printf( " Clip:%u%s  Track:%u  Gain: %s "
+				printf( " Clip:%u%s  Track:%u  Gain: %s %s"
 						" Start:%s  Len:%s  End:%s  "
 						" Fadein: %s  Fadeout: %s  SourceFile: %ls   (%ls)\n",
 					i, ( i < 10 ) ? " " : "",
 					audioClip->track->number,
 					gainToStr( audioClip->gain ),
+					(audioClip->mute) ? "(mute)" : "      ",
 					tc_in.string,
 					tc_len.string,
 					tc_out.string,

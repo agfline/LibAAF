@@ -44,12 +44,14 @@
 
 
 #include <libaaf/AAFIface.h>
+#include <libaaf/AAFIParser.h>
 #include <libaaf/AAFIAudioFiles.h>
 #include <libaaf/AAFToText.h>
 #include <libaaf/AAFDump.h>
 #include <libaaf/debug.h>
 
 #include <libaaf/ProTools.h>
+#include <libaaf/Resolve.h>
 
 
 #include  <libaaf/AAFDefs/AAFClassDefUIDs.h>
@@ -82,11 +84,11 @@
 
 
 
-#define OK      0
-#define ERROR   1
-#define WARNING 2
-#define INFO    3
-#define NOT_SUPPORTED 4
+// #define OK      0
+// #define ERROR   1
+// #define WARNING 2
+// #define INFO    3
+// #define NOT_SUPPORTED 4
 
 
 #define INIT_DUMP( aafi ) \
@@ -109,7 +111,7 @@
 	ctx.current_clip_gain = NULL;                        \
 	ctx.current_essence = NULL;                \
 	ctx.current_clip = NULL;                        \
-
+	ctx.current_clip_is_muted = 0;                  \
 
 
 
@@ -123,6 +125,7 @@
 // 	int  sub;
 // } td;
 
+/*
 #define __td_set( __td, __ptd, offset ) \
 	__td.fn  = __LINE__;    \
 	__td.pfn = __ptd->fn;    \
@@ -132,13 +135,13 @@
 	__td.eob = 0; \
 	__td.hc  = 0; \
 	__td.sub = 0; \
+*/
 
 
 
 
 
-
-static void trace_obj( AAF_Iface *aafi, aafObject *Obj, char *color );
+// static void trace_obj( AAF_Iface *aafi, aafObject *Obj, char *color );
 
 
 static wchar_t   * build_unique_audiofilename( AAF_Iface *aafi, aafiAudioEssence *audioEssence );
@@ -174,7 +177,7 @@ static int   parse_EssenceData( AAF_Iface *aafi, aafObject *EssenceData, td *__p
 static int   parse_Component( AAF_Iface *aafi, aafObject *Component, td *__ptd );
 static int   parse_Transition( AAF_Iface *aafi, aafObject *Transition, td *__ptd );
 static int   parse_NestedScope( AAF_Iface *aafi, aafObject *NestedScope, td *__ptd );
-static int   parse_Segment( AAF_Iface *aafi, aafObject *Segment, td *__ptd );
+// static int   parse_Segment( AAF_Iface *aafi, aafObject *Segment, td *__ptd );
 static int   parse_Filler( AAF_Iface *aafi, aafObject *Filler, td *__ptd );
 static int   parse_Sequence( AAF_Iface *aafi, aafObject *Sequence, td *__ptd );
 static int   parse_Timecode( AAF_Iface *aafi, aafObject *Timecode, td *__ptd );
@@ -199,7 +202,7 @@ static int   parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd );
 
 
 
-static void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int state, int line, char *fmt, ... )
+void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int state, int line, char *fmt, ... )
 {
 	if ( aafi->ctx.options.trace == 0 )
 		return;
@@ -407,7 +410,7 @@ static void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td,
 
 
 
-static void _DUMP_OBJ_NO_SUPPORT( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int line )
+void _DUMP_OBJ_NO_SUPPORT( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int line )
 {
 
 	// aafUID_t *DataDefinition = NULL;
@@ -443,6 +446,7 @@ static void _DUMP_OBJ_NO_SUPPORT( AAF_Iface *aafi, aafObject *Obj, struct trace_
 }
 
 
+/*
 #define DUMP_OBJ( aafi, Obj, __td ) \
 	_DUMP_OBJ( aafi, Obj, __td, OK, __LINE__, "" );
 
@@ -460,14 +464,14 @@ static void _DUMP_OBJ_NO_SUPPORT( AAF_Iface *aafi, aafObject *Obj, struct trace_
 	(__td)->eob = 1; \
 	_DUMP_OBJ_NO_SUPPORT( aafi, Obj, __td, __LINE__ ); \
 	// aaf_dump_ObjectProperties( aafi->aafd, Obj );
+*/
 
 
 
 
 
 
-
-static void trace_obj( AAF_Iface *aafi, aafObject *Obj, char *color )
+void trace_obj( AAF_Iface *aafi, aafObject *Obj, char *color )
 {
 	return;
 	char buf[4096];
@@ -1793,7 +1797,7 @@ static int parse_NestedScope( AAF_Iface *aafi, aafObject *NestedScope, td *__ptd
 
 
 
-static int parse_Segment( AAF_Iface *aafi, aafObject *Segment, td *__ptd )
+int parse_Segment( AAF_Iface *aafi, aafObject *Segment, td *__ptd )
 {
 
 	struct trace_dump __td;
@@ -1886,7 +1890,9 @@ static int parse_Filler( AAF_Iface *aafi, aafObject *Filler, td *__ptd )
 		 *	Just an empty track, do nothing.
 		 */
 	}
-	else if ( aafUIDCmp( Filler->Parent->Class->ID, &AAFClassID_Sequence ) )
+	else
+	if ( aafUIDCmp( Filler->Parent->Class->ID, &AAFClassID_Sequence ) ||
+	     aafUIDCmp( Filler->Parent->Class->ID, &AAFClassID_Selector ) )
 	{
 		/*
 		 *	This represents an empty space on the timeline, between two clips
@@ -2477,6 +2483,7 @@ end:
 			}
 
 			/* Clip-based Gain */
+			aafi->ctx.current_clip_is_muted = 0;
 			aafi->ctx.current_clip_gain = NULL;
 			aafi->ctx.clips_using_gain = 0;
 		}
@@ -2725,6 +2732,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 						((aafiAudioClip*)new_clip)->len = *length;
 						((aafiAudioClip*)new_clip)->essence_offset = *startTime;
 						((aafiAudioClip*)new_clip)->gain = aafi->ctx.current_clip_gain;
+						((aafiAudioClip*)new_clip)->mute = aafi->ctx.current_clip_is_muted;
 						aafi->ctx.clips_using_gain++;
 
 						aafi->ctx.current_track->current_pos += ((aafiAudioClip*)new_clip)->len;
@@ -2809,6 +2817,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 
 			aafi->ctx.clips_using_gain++;
 			audioClip->gain = aafi->ctx.current_clip_gain;
+			audioClip->mute = aafi->ctx.current_clip_is_muted;
 			audioClip->pos  = aafi->ctx.current_track->current_pos;
 			audioClip->len  = *length;
 
@@ -3388,6 +3397,11 @@ static int parse_Selector( AAF_Iface *aafi, aafObject *Selector, td *__ptd )
  	__td_set(__td, __ptd, 1);
 
 
+	if ( resolve_AAF( aafi ) ) {
+		return resolve_parse_aafObject_Selector( aafi, Selector, &__td );
+	}
+
+
 	aafObject *Selected = aaf_get_propertyValue( Selector, PID_Selector_Selected );
 
 	if ( Selected == NULL ) /* req */
@@ -3396,21 +3410,19 @@ static int parse_Selector( AAF_Iface *aafi, aafObject *Selector, td *__ptd )
 		return -1;
 	}
 
+	// aafObject *Alternate = NULL;
+	aafObject *Alternates = aaf_get_propertyValue( Selector, PID_Selector_Alternates );
+
+	if ( Alternates == NULL ) /* opt */
+	{
+		// DUMP_OBJ_WARNING( aafi, Selector, &__td, "Missing PID_Selector_Alternates" );
+	}
+
 
 	DUMP_OBJ( aafi, Selector, &__td );
 
-
+	/* without specific software implementation we stick to Selected and forget about Alternates */
 	return parse_Segment( aafi, Selected, &__td );
-
-
-	// aafObject *Alternate  = NULL;
-	// aafObject *Alternates = aaf_get_propertyValue( Segment, PID_Selector_Alternates ); /* opt */
-	//
-	// aaf_foreach_ObjectInSet( &Alternate, Alternates, NULL )
-	// {
-	// 	parse_Segment( aafi, Alternate );
-	// }
-
 }
 
 
@@ -4019,7 +4031,7 @@ static int parse_CompositionMob( AAF_Iface *aafi, aafObject *CompoMob, td *__ptd
 
 		if ( text == NULL ) /* req */
 		{
-			DUMP_OBJ_ERROR( aafi, UserComment, &__td, "Missing PID_TaggedValue_Name" );
+			DUMP_OBJ_ERROR( aafi, UserComment, &__td, "Missing PID_TaggedValue_Value" );
 			continue;
 		}
 

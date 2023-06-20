@@ -391,6 +391,8 @@ typedef struct aafiAudioClip
 
 	aafiAudioGain         *gain;
 
+	int                    mute;
+
 
 	// uint16_t               inner_track_channel; // for multichannel track only.
 
@@ -767,7 +769,7 @@ typedef struct aafiContext
 	// aafPosition_t    current_pos;
 	aafiAudioClip   *current_clip;
 	aafiVideoClip   *current_video_clip;
-
+	int              current_clip_is_muted;
 
 	/* Transition */
 

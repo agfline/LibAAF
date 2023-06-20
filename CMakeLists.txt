@@ -89,6 +89,7 @@ set( LIBAAF_LIB_SOURCES
   ${LIB_SRC_PATH}/AAFIface/RIFFParser.c
   ${LIB_SRC_PATH}/AAFIface/URIParser.c
   ${LIB_SRC_PATH}/AAFIface/ProTools.c
+  ${LIB_SRC_PATH}/AAFIface/Resolve.c
 
   ${LIB_SRC_PATH}/common/utils.c
 )

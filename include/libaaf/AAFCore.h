@@ -133,6 +133,8 @@ typedef struct aafPropertyDefinition
 
 	wchar_t      *name; // only when Meta PropEntry. TODO realy ?
 
+	aafUID_t      type; // TODO: Should be set by attachNewProperty() in AAFClass.c
+
 
 	/**
 	 *	Pointer to the next aafPropertyDef in the list.

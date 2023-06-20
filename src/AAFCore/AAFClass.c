@@ -54,6 +54,7 @@
 	Prop->isReq       = IsReq;                       \
 	Prop->meta        = 0;                           \
 	Prop->next        = Class->Properties;           \
+	memset( &Prop->type, 0x00, sizeof(aafUID_t) );   \
 	Class->Properties = Prop;                        \
 
 
