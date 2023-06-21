@@ -1592,19 +1592,19 @@ static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *Target
 
 		aafObject *TypeDef = aaf_get_ObjectByWeakRef( TypeDefs, WeakRefToType );
 
-		wchar_t  *typeName = NULL;
+		// wchar_t  *typeName = NULL;
 		aafUID_t *typeUID  = NULL;
 
 		if ( TypeDef != NULL )
 		{
 			typeUID  = aaf_get_propertyValue( TypeDef, PID_MetaDefinition_Identification );
 			memcpy( &PDef->type, typeUID, sizeof(aafUID_t) );
-			typeName = aaf_get_propertyValueWstr( TypeDef, PID_MetaDefinition_Name );
-			printf( "TypeName : %ls (%ls) |  name : %ls.\n",
-				typeName,
-				TypeIDToText( typeUID ),    // shows unknown value
-				PDef->name );
-			free( typeName );
+			// wchar_t *typeName = aaf_get_propertyValueWstr( TypeDef, PID_MetaDefinition_Name );
+			// printf( "TypeName : %ls (%ls) |  name : %ls.\n",
+			// 	typeName,
+			// 	TypeIDToText( typeUID ),    // shows unknown value
+			// 	PDef->name );
+			// free( typeName );
 		}
 	}
 
