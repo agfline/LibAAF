@@ -1648,10 +1648,12 @@ int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 
     if ( rc < 0 ) {
       _error( aafi->ctx.options.verb, "TODO: Could not parse external essence file : %s\n", externalFilePath );
+      fclose(fp);
       free(externalFilePath);
       return -1;
     }
 
+    fclose(fp);
     free(externalFilePath);
   }
 
