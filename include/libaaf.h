@@ -12,6 +12,9 @@ extern "C" {
 #include <libaaf/CFBDump.h>
 #include <libaaf/AAFDump.h>
 
+#include <libaaf/ProTools.h>
+#include <libaaf/Resolve.h>
+
 #ifdef __cplusplus
 }
 #endif
