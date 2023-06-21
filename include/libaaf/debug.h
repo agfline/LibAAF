@@ -9,7 +9,8 @@ typedef enum verbosityLevel_e {
 	VERB_QUIET = 0,
 	VERB_ERROR,
 	VERB_WARNING,
-	VERB_DEBUG
+	VERB_DEBUG,
+	MAX_VERB
 } verbosityLevel_e;
 
 

@@ -151,6 +151,9 @@ void showHelp()
 		"   --aaf-properties           Displays all Properties.\n"
 		"\n"
 		"   --media-location   <path>  Where to find external essence files for parsing.\n"
+		"\n"
+		"   --verbose           <num>  0=quiet 1=error 2=warning 3=debug\n"
+		"   --trace                    Dump trace of AAF parsing.\n"
 		"\n\n"
 	);
 
@@ -180,6 +183,9 @@ int main( int argc, char *argv[] )
 
 	char *media_location = NULL;
 
+	enum verbosityLevel_e verb = VERB_QUIET;
+	int trace = 0;
+
 	int cmd = 0;
 
 
@@ -201,8 +207,10 @@ int main( int argc, char *argv[] )
 		{ "aaf-properties", no_argument,        0,  0x8c },
 
 		{ "media-location", required_argument,	0,	0x90 },
-		{ "get-node",   	required_argument,	0,	0x99 },
+		{ "get-node",       required_argument,	0,	0x99 },
 
+		{ "verbose",        required_argument,	0,	0xf0 },
+		{ "trace",          no_argument,	      0,	0xf1 },
 
 		{ 0,                0,                  0,  0x00 }
 	};
@@ -238,8 +246,10 @@ int main( int argc, char *argv[] )
 
 			case 0x99:	get_node_str   = optarg;    cmd++;       break;
 
+			case 0xf0:  verb = 1;                   cmd++;       break;
+			case 0xf1:  trace = 1;                  cmd++;       break;
 
-			case 'h':	showHelp();                 cmd++;       break;
+			case 'h':	showHelp();                   cmd++;       break;
 
 			default:                                cmd++;       break;
 		}
@@ -257,10 +267,19 @@ int main( int argc, char *argv[] )
 	}
 
 
-
 	if ( cmd == 0 ) {
 		fprintf( stderr,
 			"Usage: AAFInfo [CMD] [FILE]\n"
+			"Try 'AAFInfo --help' for more informations.\n"
+		);
+
+		return 1;
+	}
+
+
+	if ( verb < VERB_QUIET || verb >= MAX_VERB ) {
+		fprintf( stderr,
+			"AAFInfo: Wrong --verbosity level\n"
 			"Try 'AAFInfo --help' for more informations.\n"
 		);
 
@@ -275,8 +294,8 @@ int main( int argc, char *argv[] )
 	AAF_Data *aafd = aaf_alloc();
 
 	AAF_Iface *aafi = aafi_alloc( aafd );
-	aafi->ctx.options.verb = VERB_DEBUG;
-	aafi->ctx.options.trace = 1;
+	aafi->ctx.options.verb = verb;
+	aafi->ctx.options.trace = trace;
 	aafi->ctx.options.protools = PROTOOLS_ALL;
 	aafi->ctx.options.resolve = RESOLVE_ALL;
 	aafi->ctx.options.media_location = media_location;
@@ -465,15 +484,6 @@ int main( int argc, char *argv[] )
 
 			printf("\n\n");
 		}
-
-
-		// locate_external_essence_file( aafi, L"file://10.87.230.71/mixage/DR2/Avid MediaFiles/MXF/1/3572607_RUGBY_F2_S65CFA3D0V.mxf" );
-		// locate_external_essence_file( aafi, L"file:////C:/Users/mix_limo/Desktop/TEST2977052  -  OFF PODIUM ETAPE 2.aaf" );
-		// locate_external_essence_file( aafi, L"file://?/E:/Adrien/ADPAAF/Sequence A Rendu.mxf" );
-		// locate_external_essence_file( aafi, L"file://localhost/D:/horlaprod/Music/Logic/fonk_2/Audio Files_1/fonk_2_3#04.wav" );
-		// locate_external_essence_file( aafi, L"file://localhost/Users/horlaprod/Music/Logic/fonk_2/Audio Files_1/fonk_2_3#04.wav" );
-		// locate_external_essence_file( aafi, L"file:///_system/Users/horlaprod/pt2MCCzmhsFRHQgdgsTMQX.mxf" );
-
 
 
 		aafiVideoTrack   *videoTrack = aafi->Video->Tracks;
@@ -698,6 +708,7 @@ int main( int argc, char *argv[] )
 	else if ( aafd != NULL ) {
 		aaf_release( &aafd );
 	}
+
 	if ( media_location ) {
 		free( media_location );
 	}
