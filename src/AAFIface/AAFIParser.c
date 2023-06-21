@@ -1431,24 +1431,24 @@ static int parse_NetworkLocator( AAF_Iface *aafi, aafObject *NetworkLocator, td 
 	 *	embedded so it is not a valid way to test if essence is embedded or not.
 	 */
 
-	wchar_t *original_file = aaf_get_propertyValueWstr( NetworkLocator, PID_NetworkLocator_URLString );
+	wchar_t *original_file_path = aaf_get_propertyValueWstr( NetworkLocator, PID_NetworkLocator_URLString );
 
-	if ( original_file == NULL ) /* req */
+	if ( original_file_path == NULL ) /* req */
 	{
 		DUMP_OBJ_ERROR( aafi, NetworkLocator, &__td, "Missing PID_NetworkLocator_URLString" );
 		return -1;
 	}
 
-	wurl_decode( original_file, original_file );
+	wurl_decode( original_file_path, original_file_path ); // TODO : What about URIParser lib ?!
 
 
 	/* TODO find a better way to check if we're parsing audio */
 
 	if ( aafi->ctx.current_essence ) {
-		aafi->ctx.current_essence->original_file = original_file;
+		aafi->ctx.current_essence->original_file_path = original_file_path;
 	}
 	else if ( aafi->ctx.current_video_essence ) {
-		aafi->ctx.current_video_essence->original_file = original_file;
+		aafi->ctx.current_video_essence->original_file_path = original_file_path;
 	}
 	else
 	{
@@ -1456,7 +1456,7 @@ static int parse_NetworkLocator( AAF_Iface *aafi, aafObject *NetworkLocator, td 
 		return -1;
 	}
 
-	DUMP_OBJ_INFO( aafi, NetworkLocator, &__td, ": %ls", original_file );
+	DUMP_OBJ_INFO( aafi, NetworkLocator, &__td, ": %ls", original_file_path );
 
 
 	return 0;
@@ -4342,7 +4342,7 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 
 
 				/* Reset timeline position */
-				// aafi->ctx.current_pos = 0;
+				// aafi->ctx.current_track->current_pos = 0;
 
 				parse_Segment( aafi, Segment, &__td );
 

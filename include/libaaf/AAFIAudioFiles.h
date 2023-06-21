@@ -19,7 +19,7 @@ typedef struct aafiAudioEssence aafiAudioEssence;
   } VIO_DATA;
 #endif
 
-char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_file /*aafiAudioEssence *audioEssence*/ );
+char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_file_path, const char *search_location );
 
 int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence );
 

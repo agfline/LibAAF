@@ -843,8 +843,8 @@ aafiAudioEssence * aafi_newAudioEssence( AAF_Iface *aafi )
 
 	audioEssence->next = aafi->Audio->Essences;
 
-	audioEssence->original_file = NULL;
-	audioEssence->exported_file_path = NULL;
+	audioEssence->original_file_path = NULL;
+	audioEssence->usable_file_path = NULL;
 	audioEssence->file_name = NULL;
 	audioEssence->unique_file_name = NULL;
 	audioEssence->clip_count = 0;
@@ -871,14 +871,14 @@ void aafi_freeAudioEssences( aafiAudioEssence **audioEssence )
 	{
 		nextAudioEssence = (*audioEssence)->next;
 
-		if ( (*audioEssence)->original_file != NULL )
+		if ( (*audioEssence)->original_file_path != NULL )
 		{
-			free( (*audioEssence)->original_file );
+			free( (*audioEssence)->original_file_path );
 		}
 
-		if ( (*audioEssence)->exported_file_path != NULL )
+		if ( (*audioEssence)->usable_file_path != NULL )
 		{
-			free( (*audioEssence)->exported_file_path );
+			free( (*audioEssence)->usable_file_path );
 		}
 
 		if ( (*audioEssence)->file_name != NULL )
@@ -913,8 +913,8 @@ aafiVideoEssence * aafi_newVideoEssence( AAF_Iface *aafi )
 
 	videoEssence->next = aafi->Video->Essences;
 
-	videoEssence->original_file = NULL;
-	videoEssence->exported_file_path = NULL;
+	videoEssence->original_file_path = NULL;
+	videoEssence->usable_file_path = NULL;
 	videoEssence->file_name = NULL;
 	videoEssence->unique_file_name = NULL;
 
@@ -938,14 +938,14 @@ void aafi_freeVideoEssences( aafiVideoEssence **videoEssence )
 	{
 		nextVideoEssence = (*videoEssence)->next;
 
-		if ( (*videoEssence)->original_file != NULL )
+		if ( (*videoEssence)->original_file_path != NULL )
 		{
-			free( (*videoEssence)->original_file );
+			free( (*videoEssence)->original_file_path );
 		}
 
-		if ( (*videoEssence)->exported_file_path != NULL )
+		if ( (*videoEssence)->usable_file_path != NULL )
 		{
-			free( (*videoEssence)->exported_file_path );
+			free( (*videoEssence)->usable_file_path );
 		}
 
 		if ( (*videoEssence)->file_name != NULL )

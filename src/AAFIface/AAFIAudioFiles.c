@@ -48,10 +48,13 @@
 #endif
 
 
-
+#ifdef _WIN32
+#define DIR_SEP '\\'
+#define DIR_SEP_STR "\\"
+#else
 #define DIR_SEP '/'
 #define DIR_SEP_STR "/"
-
+#endif
 
 #define _fop_get_parent_path( start, end )\
 {\
@@ -265,7 +268,7 @@ switchagain:
 
 
 
-char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_file /*aafiAudioEssence *audioEssence*/ )
+char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_file_path, const char *search_location )
 {
   /*
    * Absolute Uniform Resource Locator (URL) complying with RFC 1738 or relative
@@ -278,28 +281,50 @@ char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_fi
    */
 
 
-  /* TODO handle realpath return value and free(absFilePath) in case of error */
-  char *filePath = malloc( PATH_MAX*2 );
-  snprintf( filePath, PATH_MAX, "%ls", original_file /*audioEssence->original_file*/ );
+
+  char *filepath = malloc( wcslen(original_file_path)+1 );
+  snprintf( filepath, wcslen(original_file_path)+1, "%ls", original_file_path /*audioEssence->original_file*/ );
+
+  // printf( "\nfilepath : %s\n", filepath );
 
 
-  /* Try AAF essence's file path */
+  if ( search_location ) {
 
-  if ( access( filePath, F_OK ) != -1 ) {
-    return filePath;
+    char *fpath = fop_concat_paths2( NULL, NULL, "%s%s", search_location, basename(filepath) );
+
+    // printf( "search_location : %s\n", fpath );
+
+    if ( access( fpath, F_OK ) != -1 ) {
+      free( filepath );
+      return fpath;
+    }
+
+    free( fpath );
   }
 
-  struct uri *uri = uriParse( filePath, URI_OPT_DECODE_ALL );
 
-  printf(">>>>>> %s\n", uri->path );
+  /* Try AAF essence's URI */
 
+  if ( access( filepath, F_OK ) != -1 ) {
+    return filepath;
+  }
+
+
+  /* Try URI path */
+
+  struct uri *uri = uriParse( filepath, URI_OPT_DECODE_ALL );
+
+  // printf( "uri->path : %s\n", uri->path );
 
   if ( access( uri->path, F_OK ) != -1 ) {
     char *path = strdup( uri->path );
     uriFree( uri );
+    free( filepath );
     return path;
   }
 
+
+  /* Try to reconstitute a relative path */
 
   if ( uri->flags & URI_T_LOCALHOST ) {
 
@@ -307,11 +332,11 @@ char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_fi
      * URI is supposed to handle relative file path, however we haven't encountered
      * any of this in real AAF files.
      * Instead, we see a lot of absolute files path, so we try to reconstitute a
-     * relative path from current AAF file location.
+     * relative path from current AAF file location and the first media parent dir
      */
 
     /*
-     * extract relative path to essence file : "<parent>/<essence.file>"
+     * extract relative path to essence file : "<firstparent>/<essence.file>"
      */
 
     char *relativeEssencePath = NULL;
@@ -351,20 +376,13 @@ char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_fi
 
     char *fpath = fop_concat_paths2( NULL, NULL, "%s%s", aafPath, relativeEssencePath );
 
-    // printf(">>>>>> %s\n", relativeEssencePath );
-    // printf(">>>>>> %s\n", aafPath );
-    // size_t len = snprintf( NULL, 0, "%s%c%s", aafPath, DIR_SEP, relativeEssencePath );
-    //
-    // char *fpath = malloc( len+1 );
-    //
-    // snprintf( fpath, len+1, "%s%c%s", aafPath, DIR_SEP, relativeEssencePath );
-
     free( aafPath );
 
-    printf("::::::: %s\n", fpath );
+    // printf("reconstituted relative path : %s\n", fpath );
 
     if ( access( fpath, F_OK ) != -1 ) {
       uriFree( uri );
+      free( filepath );
       return fpath;
     }
 
@@ -385,7 +403,7 @@ char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_fi
 
   uriFree( uri );
 
-  free( filePath );
+  free( filepath );
 
   return NULL;
 
@@ -1233,9 +1251,9 @@ char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_fi
 //
 //
 //
-//     audioEssence->exported_file_path = malloc( (strlen(filePath) + 1) * sizeof(wchar_t) );
+//     audioEssence->usable_file_path = malloc( (strlen(filePath) + 1) * sizeof(wchar_t) );
 //
-//     swprintf( audioEssence->exported_file_path, (strlen(filePath) * sizeof(wchar_t)), L"%s", filePath );
+//     swprintf( audioEssence->usable_file_path, (strlen(filePath) * sizeof(wchar_t)), L"%s", filePath );
 //
 //
 //
@@ -1417,17 +1435,18 @@ int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence,
 
   char filePath[1024];
 
-  snprintf( filePath, 1024, "%s/%ls.%s",
+  snprintf( filePath, 1024, "%s%s%ls.%s",
       outfilepath,
+      (*(outfilepath+strlen(outfilepath)-1) != DIR_SEP) ? DIR_SEP_STR : "",
       ( forcedFileName != NULL ) ? forcedFileName : eascii_to_ascii(audioEssence->unique_file_name),
-      "wav" ); /* TODO: Extension !!!! */
+      "wav" );
 
 
 
   FILE *fp = fopen( filePath, "wb" );
 
   if ( fp == NULL ) {
-    _error( aafi->ctx.options.verb, "Could not open audio essence file for writing : %s\n", filePath );
+    _error( aafi->ctx.options.verb, "Could not open audio essence file for writing (%s) : %s\n", filePath, strerror(errno) );
     free(data);
     return -1;
   }
@@ -1449,7 +1468,7 @@ int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence,
 
     if ( datasz >= (uint32_t)-1 ) {
       // TODO RF64 support ?
-      _error( aafi->ctx.options.verb, "Audio essence is bigger than maximum wav size (2^32 bytes) : %lu bytes\n", datasz );
+      _error( aafi->ctx.options.verb, "Audio essence is bigger than maximum wav size (2^32 bytes) : %"PRIu64" bytes\n", datasz );
       free(data);
       return -1;
     }
@@ -1538,9 +1557,9 @@ int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence,
 
 
 
-  audioEssence->exported_file_path = malloc( (strlen(filePath) + 1) * sizeof(wchar_t) );
+  audioEssence->usable_file_path = malloc( (strlen(filePath) + 1) * sizeof(wchar_t) );
 
-  swprintf( audioEssence->exported_file_path, (strlen(filePath) * sizeof(wchar_t)), L"%s", filePath );
+  swprintf( audioEssence->usable_file_path, (strlen(filePath) * sizeof(wchar_t)), L"%s", filePath );
 
 
 
@@ -1630,12 +1649,18 @@ int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
   }
   else {
 
-    externalFilePath = locate_external_essence_file( aafi, audioEssence->original_file );
+    externalFilePath = locate_external_essence_file( aafi, audioEssence->original_file_path, aafi->ctx.options.media_location );
 
     if ( externalFilePath == NULL ) {
-      _error( aafi->ctx.options.verb, "Could not locate external audio essence file : %ls\n", audioEssence->original_file );
+      _error( aafi->ctx.options.verb, "Could not locate external audio essence file : %ls\n", audioEssence->original_file_path );
       return -1;
     }
+
+    audioEssence->usable_file_path = malloc( (strlen(externalFilePath) + 1) * sizeof(wchar_t) );
+
+    swprintf( audioEssence->usable_file_path, (strlen(externalFilePath) * sizeof(wchar_t)), L"%s", externalFilePath );
+
+
 
     FILE *fp = fopen( externalFilePath, "rb" );
 

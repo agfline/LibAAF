@@ -153,6 +153,7 @@ void showHelp()
 		"   --aaf-meta             Lists Classes and Properties from\n"
 		"                          the MetaDictionary.\n"
 		"   --aaf-properties       Displays all Properties.\n"
+		"   --media-location   <path>  Where to find external essence files for parsing.\n"
 		"\n\n"
 	);
 
@@ -180,6 +181,7 @@ int main( int argc, char *argv[] )
 
 	char *get_node_str = NULL;
 
+	char *media_location = NULL;
 
 	int cmd = 0;
 
@@ -201,7 +203,9 @@ int main( int argc, char *argv[] )
 		{ "aaf-meta",       no_argument,        0,  0x8b },
 		{ "aaf-properties", no_argument,        0,  0x8c },
 
+		{ "media-location", required_argument,	0,	0x90 },
 		{ "get-node",   	required_argument,	0,	0x99 },
+
 
 		{ 0,                0,                  0,  0x00 }
 	};
@@ -232,6 +236,8 @@ int main( int argc, char *argv[] )
 			case 0x8a:  aaf_classes    = 1;         cmd++;       break;
 			case 0x8b:  aaf_meta       = 1;         cmd++;       break;
 			case 0x8c:  aaf_properties = 1;         cmd++;       break;
+
+			case 0x90:  media_location = strdup( optarg ); cmd++; break;
 
 			case 0x99:	get_node_str   = optarg;    cmd++;       break;
 
@@ -276,6 +282,8 @@ int main( int argc, char *argv[] )
 	aafi->ctx.options.trace = 1;
 	aafi->ctx.options.protools = PROTOOLS_ALL;
 	aafi->ctx.options.resolve = RESOLVE_ALL;
+	aafi->ctx.options.media_location = media_location;
+
 
 	if ( aafi_load_file( aafi, argv[argc-1] ) ) {
 		aafi_release( &aafi );
@@ -391,7 +399,7 @@ int main( int argc, char *argv[] )
 		foreachEssence( audioEssence, aafi->Audio->Essences )
 		{
 
-			printf( " %s%u:  Type: %s  Duration: %u h  %02u mn  %02u s  %03u ms   %u Ch - %u Hz - %u bit  file : %ls  file_name : %ls   (%ls)\n",
+			printf( " %s%u:  Type: %s  Duration: %u h  %02u mn  %02u s  %03u ms   %u Ch - %u Hz - %u bit  file : %ls  file_name : %ls   %s%ls%s\n",
 				( i < 10 ) ? " " : "", i,
 				( audioEssence->type == AAFI_ESSENCE_TYPE_PCM  ) ? "PCM"  :
 				( audioEssence->type == AAFI_ESSENCE_TYPE_WAVE ) ? "WAVE" :
@@ -404,9 +412,11 @@ int main( int argc, char *argv[] )
 				audioEssence->channels,
 				audioEssence->samplerate,
 				audioEssence->samplesize,
-				( audioEssence->is_embedded ) ? L"EMBEDDED" : audioEssence->original_file,
-				audioEssence->unique_file_name,
-				audioEssence->file_name
+				( audioEssence->is_embedded ) ? L"EMBEDDED" : ( audioEssence->usable_file_path ) ? audioEssence->usable_file_path : audioEssence->original_file_path,
+				audioEssence->file_name,
+				( wcslen(audioEssence->file_name) == wcslen(audioEssence->unique_file_name) ) ? "" : "(",
+				( wcslen(audioEssence->file_name) == wcslen(audioEssence->unique_file_name) ) ? L"" : audioEssence->unique_file_name,
+				( wcslen(audioEssence->file_name) == wcslen(audioEssence->unique_file_name) ) ? "" : ")"
 			);
 
 			// printf( "MOBID    %s\n", MobIDToText( audioEssence->sourceMobID ) );
@@ -488,7 +498,7 @@ int main( int argc, char *argv[] )
 				 videoItem = videoTrack->Items;
 				 videoClip = (aafiVideoClip*)&(videoItem->data);
 
-				 // locate_external_essence_file( aafi, videoClip->Essence->original_file );
+				 // locate_external_essence_file( aafi, videoClip->Essence->original_file_path );
 
 				 struct timecode tc_in;
 				 struct timecode tc_out;
@@ -511,7 +521,7 @@ int main( int argc, char *argv[] )
 					 tc_len.string,
 					 tc_out.string,
 					 // (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start),
-					 (videoClip->Essence) ? videoClip->Essence->original_file : L"",
+					 (videoClip->Essence) ? videoClip->Essence->original_file_path : L"",
 					 (videoClip->Essence) ? videoClip->Essence->file_name : L""
 				 );
 
@@ -690,6 +700,9 @@ int main( int argc, char *argv[] )
 	}
 	else if ( aafd != NULL ) {
 		aaf_release( &aafd );
+	}
+	if ( media_location ) {
+		free( media_location );
 	}
 
 	return 0;

@@ -283,9 +283,9 @@ typedef struct aafiAudioGain aafiAudioPan;
 typedef struct aafiAudioEssence
 {
 
-	wchar_t       *original_file;	// NetworkLocator::URLString should point to original essence file if external (and in some cases, points to the AAF itself if internal..)
-	wchar_t       *exported_file_path;    // TODO, not that used.. to be tweaked.  ----  Holds the file path, once the essence has been exported, copied or linked.
-	wchar_t       *file_name;			// MasterMob::Name -> file name
+	wchar_t       *original_file_path;	// NetworkLocator::URLString the original URI hold in AAF
+	wchar_t       *usable_file_path;    // Holds a real usable file path, once an embedded essence has been extracted, or once en external essence has been found.
+	wchar_t       *file_name;			// MasterMob::Name the original AAF file name
 	wchar_t		    *unique_file_name;	// unique name generated from file_name. Sometimes, multiple files share the same names so this unique name should be used on export.
 
 	uint16_t       clip_count; // number of clips with this essence
@@ -335,8 +335,8 @@ typedef struct aafiAudioEssence
 typedef struct aafiVideoEssence
 {
 
-	wchar_t       *original_file;	// NetworkLocator::URLString should point to original essence file if external (and in some cases, points to the AAF itself if internal..)
-	wchar_t       *exported_file_path;    // TODO, not that used.. to be tweaked.  ----  Holds the file path, once the essence has been exported, copied or linked.
+	wchar_t       *original_file_path;	// NetworkLocator::URLString should point to original essence file if external (and in some cases, points to the AAF itself if internal..)
+	wchar_t       *usable_file_path;    // TODO, not that used.. to be tweaked.  ----  Holds the file path, once the essence has been exported, copied or linked.
 	wchar_t       *file_name;			// MasterMob::Name -> file name
 	wchar_t		    *unique_file_name;	// unique name generated from file_name. Sometimes, multiple files share the same names so this unique name should be used on export.
 
