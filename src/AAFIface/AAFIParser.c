@@ -4789,11 +4789,8 @@ int aafi_retrieveData( AAF_Iface *aafi )
 	}
 
 
-
-	/* Remove sample accurate edit clips and rebuild true fades out of rendered fade clips */
-
-	if ( wcscmp( aafi->aafd->Identification.ProductName, L"ProTools" ) == 0 ) {
-		protools_post_processing( aafi, (PROTOOLS_PP_REMOVE_SAMPLE_ACCURATE_EDIT | PROTOOLS_PP_REPLACE_RENDERED_CLIP_FADES) );
+	if ( protools_AAF( aafi ) ) {
+		protools_post_processing( aafi );
 	}
 
 	return 0;

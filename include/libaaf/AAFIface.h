@@ -800,6 +800,10 @@ typedef struct aafiContext
 	struct options {
 		verbosityLevel_e verb;
 		int              trace;
+		char            *media_location;
+		/* vendor specific */
+		uint32_t         resolve;
+		uint32_t         protools;
 	} options;
 
 

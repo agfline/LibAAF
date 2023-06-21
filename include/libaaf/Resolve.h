@@ -1,11 +1,13 @@
 #ifndef __Resolve_h__
 #define __Resolve_h__
 
-#include <stdio.h>
+typedef struct AAF_Iface AAF_Iface;
 
-#include <libaaf/AAFCore.h>
-#include <libaaf/AAFIface.h>
-#include <libaaf/AAFIParser.h>
+enum resolve_options {
+  RESOLVE_INCLUDE_DISABLED_CLIPS = 1<<0,
+};
+
+#define RESOLVE_ALL (RESOLVE_INCLUDE_DISABLED_CLIPS)
 
 
 int resolve_AAF( struct AAF_Iface *aafi );

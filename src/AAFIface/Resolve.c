@@ -122,19 +122,27 @@ int resolve_parse_aafObject_Selector( struct AAF_Iface *aafi, aafObject *Selecto
 
 		// printf( "Tagged | Name: %ls    Value : %u\n", name, *value );
 
-    if ( wcsncmp( name, L"_DISABLE_CLIP_FLAG", wcslen( L"_DISABLE_CLIP_FLAG" ) ) == 0  &&  *(uint32_t*)value == 1 ) {
-      aafi->ctx.current_clip_is_muted = 1;
+    if ( aafi->ctx.options.resolve & RESOLVE_INCLUDE_DISABLED_CLIPS ) {
+      if ( wcsncmp( name, L"_DISABLE_CLIP_FLAG", wcslen( L"_DISABLE_CLIP_FLAG" ) ) == 0  &&  *(uint32_t*)value == 1 ) {
+        aafi->ctx.current_clip_is_muted = 1;
+
+        aafObject *Alternate = NULL;
+
+        int i = 0;
+        aaf_foreach_ObjectInSet( &Alternate, Alternates, NULL ) {
+          if ( i == 0 ) { /* there should be only one Segment in set, but still. Let's be carefull */
+            parse_Segment( aafi, Alternate, &__td );
+          }
+          i++;
+        }
+      }
     }
 
     free( name );
 	}
 
-
-  aafObject *Alternate = NULL;
-
-  aaf_foreach_ObjectInSet( &Alternate, Alternates, NULL )
-  {
-    parse_Segment( aafi, Alternate, &__td );
+  if ( aafi->ctx.current_clip_is_muted == 0 ) {
+    return parse_Segment( aafi, Selected, &__td );
   }
 
   return 0;

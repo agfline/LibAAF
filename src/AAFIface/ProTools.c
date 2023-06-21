@@ -66,6 +66,26 @@ static int replace_clipfade_with_fade( AAF_Iface *aafi, aafiTimelineItem *Item )
 
 
 
+int protools_AAF( struct AAF_Iface *aafi )
+{
+  int probe = 0;
+
+  // if ( aafi->aafd->Identification.CompanyName && wcscmp( aafi->aafd->Identification.CompanyName, L"Digidesign, Inc." ) == 0 ) {
+  //   probe++;
+  // }
+
+  if ( aafi->aafd->Identification.ProductName && wcscmp( aafi->aafd->Identification.ProductName, L"ProTools" ) == 0 ) {
+    probe++;
+  }
+
+  if ( probe == 1 ) {
+    return 1;
+  }
+
+  return 0;
+}
+
+
 static int is_rendered_fade( const wchar_t *clipName ) {
 
 	return \
@@ -246,7 +266,7 @@ static int replace_clipfade_with_fade( AAF_Iface *aafi, aafiTimelineItem *Item )
 
 
 
-int protools_post_processing( AAF_Iface *aafi, uint32_t flags ) {
+int protools_post_processing( AAF_Iface *aafi/*, enum protools_options flags*/ ) {
 
 	aafiAudioTrack *audioTrack = NULL;
 
@@ -265,7 +285,7 @@ int protools_post_processing( AAF_Iface *aafi, uint32_t flags ) {
 
 			wchar_t *clipName = audioClip->Essence->file_name;
 
-			if ( (flags & PROTOOLS_PP_REPLACE_RENDERED_CLIP_FADES) && is_rendered_fade( clipName ) ) {
+			if ( (aafi->ctx.options.protools & PROTOOLS_REPLACE_CLIP_FADES) && is_rendered_fade( clipName ) ) {
 
 				replace_clipfade_with_fade( aafi, audioItem );
 
@@ -273,7 +293,7 @@ int protools_post_processing( AAF_Iface *aafi, uint32_t flags ) {
 				continue;
 			}
 			else
-			if ( (flags & PROTOOLS_PP_REMOVE_SAMPLE_ACCURATE_EDIT) && is_sample_accurate_edit( clipName ) ) {
+			if ( (aafi->ctx.options.protools & PROTOOLS_REMOVE_SAMPLE_ACCURATE_EDIT) && is_sample_accurate_edit( clipName ) ) {
 
 				aafi_removeTimelineItem( aafi, audioItem );
 

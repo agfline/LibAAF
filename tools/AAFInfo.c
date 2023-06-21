@@ -274,6 +274,8 @@ int main( int argc, char *argv[] )
 	AAF_Iface *aafi = aafi_alloc( aafd );
 	aafi->ctx.options.verb = VERB_DEBUG;
 	aafi->ctx.options.trace = 1;
+	aafi->ctx.options.protools = PROTOOLS_ALL;
+	aafi->ctx.options.resolve = RESOLVE_ALL;
 
 	if ( aafi_load_file( aafi, argv[argc-1] ) ) {
 		aafi_release( &aafi );
