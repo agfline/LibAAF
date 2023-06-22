@@ -102,18 +102,19 @@
 
 
 
-#define attachNewProperty( Class, Prop, Pid, IsReq ) \
-	Prop = malloc( sizeof(aafPropertyDef) );         \
-	if ( Prop == NULL )                              \
+#define attachNewProperty( Class, PDef, Pid, IsReq ) \
+	PDef = calloc( sizeof(aafPropertyDef), sizeof(unsigned char) ); \
+	if ( PDef == NULL )                              \
 	{                                                \
 		_error( aafd->verb, "%s.\n", strerror( errno ) );        \
 		return NULL;                                 \
 	}                                                \
-	Prop->pid         = Pid;                         \
-	Prop->isReq       = IsReq;                       \
-	Prop->meta        = 0;                           \
-	Prop->next        = Class->Properties;           \
-	Class->Properties = Prop;                        \
+	PDef->pid         = Pid;                         \
+	PDef->isReq       = IsReq;                       \
+	PDef->meta        = 0;                           \
+	PDef->name        = NULL;                        \
+	PDef->next        = Class->Properties;           \
+	Class->Properties = PDef;                        \
 
 
 
@@ -542,11 +543,11 @@ void aaf_release( AAF_Data **aafd )
 		{
 			tmpPDef = PDef->next;
 
-			if ( PDef->meta )
-			{
+			// if ( PDef->meta )
+			// {
 				if ( PDef->name != NULL )
 					free( PDef->name );
-			}
+			// }
 
 			free( PDef );
 		}
@@ -1458,15 +1459,15 @@ static int retrieveObjectTree( AAF_Data *aafd )
 
 
 
-static int propertyIdExistsInClass( aafClass *Class, aafPID_t Pid )
+static aafPropertyDef * propertyIdExistsInClass( aafClass *Class, aafPID_t Pid )
 {
 	aafPropertyDef *PDef = NULL;
 
 	foreachPropertyDefinition( PDef, Class->Properties )
 		if ( PDef->pid == Pid )
-			return 1;
+			return PDef;
 
-	return 0;
+	return NULL;
 }
 
 
@@ -1539,8 +1540,9 @@ static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *Target
 	}
 	else	// if class is standard, we only set its name
 	{
-		if ( Class->name == NULL )
-		     Class->name = aaf_get_propertyValueWstr( ClassDef, PID_MetaDefinition_Name );
+		if ( Class->name == NULL ) {
+			Class->name = aaf_get_propertyValueWstr( ClassDef, PID_MetaDefinition_Name );
+		}
 	}
 
 
@@ -1558,17 +1560,6 @@ static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *Target
 			return NULL;
 		}
 
-		/*
-		 *	We skip all the properties that were already defined in setDefaultClasses().
-		 *	TODO propertyIdExists()
-		 */
-
-		if ( propertyIdExistsInClass( Class, *Pid ) )
-		{
-			// printf("Property %d exists.\n", *Pid );
-			continue;
-		}
-
 
 		aafBoolean_t *isOpt = aaf_get_propertyValue( Prop, PID_PropertyDefinition_IsOptional );
 
@@ -1578,34 +1569,76 @@ static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *Target
 			return NULL;
 		}
 
+		/*
+		 *	We skip all the properties that were already defined in setDefaultClasses().
+		 */
 
 		aafPropertyDef *PDef = NULL;
 
-		attachNewProperty( Class, PDef, *Pid, ( *isOpt ) ? 0 : 1 );
+		if ( !(PDef = propertyIdExistsInClass( Class, *Pid )) ) {
+			attachNewProperty( Class, PDef, *Pid, ( *isOpt ) ? 0 : 1 );
+			PDef->meta = 1;
+		}
+		else {
+			// // printf("Property %d exists.\n", *Pid );
+			continue;
+		}
 
-		PDef->meta = 1;
 		PDef->name = aaf_get_propertyValueWstr( Prop, PID_MetaDefinition_Name );
 
 
-		aafObject *TypeDefs  = aaf_get_propertyValue( MetaDic, PID_MetaDictionary_TypeDefinitions  );
+		aafObject *TypeDefs = aaf_get_propertyValue( MetaDic, PID_MetaDictionary_TypeDefinitions  );
+
+		if ( TypeDefs == NULL )
+		{
+			_error( aafd->verb, "Missing TypeDefinitions from MetaDictionary\n" );
+			return NULL;
+		}
+
+
 		aafWeakRef_t *WeakRefToType = aaf_get_propertyValue( Prop, PID_PropertyDefinition_Type );
+
+		if ( WeakRefToType == NULL )
+		{
+			_error( aafd->verb, "Missing PID_PropertyDefinition_Type\n" );
+			return NULL;
+		}
+
 
 		aafObject *TypeDef = aaf_get_ObjectByWeakRef( TypeDefs, WeakRefToType );
 
-		// wchar_t  *typeName = NULL;
-		aafUID_t *typeUID  = NULL;
-
-		if ( TypeDef != NULL )
+		if ( TypeDef == NULL )
 		{
-			typeUID  = aaf_get_propertyValue( TypeDef, PID_MetaDefinition_Identification );
-			memcpy( &PDef->type, typeUID, sizeof(aafUID_t) );
-			// wchar_t *typeName = aaf_get_propertyValueWstr( TypeDef, PID_MetaDefinition_Name );
-			// printf( "TypeName : %ls (%ls) |  name : %ls.\n",
-			// 	typeName,
-			// 	TypeIDToText( typeUID ),    // shows unknown value
-			// 	PDef->name );
-			// free( typeName );
+			_error( aafd->verb, "Could not retrieve TypeDefinition from dictionary.\n" );
+			return NULL;
 		}
+
+
+		aafUID_t *typeUID = aaf_get_propertyValue( TypeDef, PID_MetaDefinition_Identification );
+
+		if ( typeUID == NULL )
+		{
+			_error( aafd->verb, "Missing PID_MetaDefinition_Identification\n" );
+			return NULL;
+		}
+
+		/*
+		 *  Looks like nobody cares about AAF standard TypeDefinition. All observed files
+		 *	had incorrect values for Type Name and Identification, even Avid's files. So...
+		 */
+
+		memcpy( &PDef->type, typeUID, sizeof(aafUID_t) );
+
+
+		// wchar_t *typeName = aaf_get_propertyValueWstr( TypeDef, PID_MetaDefinition_Name );
+		//
+		// printf( "TypeName :  %ls (%ls) |  name : %ls.\n",
+		// // AUIDToText(typeUID),
+		// 	typeName,
+		// 	TypeIDToText( typeUID ),
+		// 	PDef->name );
+		//
+		// free( typeName );
 	}
 
 	return Class;

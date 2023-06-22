@@ -713,7 +713,23 @@ typedef struct aafiVideo
 } aafiVideo;
 
 
+typedef struct aafiMarker
+{
+	/**
+	 *	Holds the sequence start timecode.
+	 */
 
+	aafiTimecode     *tc;
+
+	aafPosition_t     start;
+	aafPosition_t     length;
+	aafRational_t     editRate;
+
+	wchar_t          *name;
+	wchar_t          *comment;
+	// aafiColor     
+
+} aafiMarker;
 
 
 

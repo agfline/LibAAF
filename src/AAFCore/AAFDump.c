@@ -56,7 +56,7 @@ void aaf_dump_ObjectProperties( AAF_Data *aafd, aafObject *Obj )
 
 	for ( Prop = Obj->Properties;  Prop != NULL; Prop = Prop->next )
 	{
-		printf( " :.: (0x%04x) %ls\n", Prop->pid, PIDToText( aafd, Prop->pid ) );
+		printf( " :.: (0x%04x) %ls (type: %ls)\n", Prop->pid, PIDToText( aafd, Prop->pid ), TypeIDToText( &Prop->def->type ) );
 
 		// WARNING : Wont print strong references (set/vector) corectly.
 		dump_hex( Prop->val, Prop->len );

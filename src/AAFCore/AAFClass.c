@@ -44,13 +44,14 @@
 
 
 #define attachNewProperty( aafd, Class, Prop, Pid, IsReq ) \
-	Prop = malloc( sizeof(aafPropertyDef) );         \
+	Prop = calloc( sizeof(aafPropertyDef), sizeof(unsigned char) );         \
 	if ( Prop == NULL )                              \
 	{                                                \
 		_error( aafd->verb, "%s.\n", strerror( errno ) );        \
 		return -1;                                   \
 	}                                                \
 	Prop->pid         = Pid;                         \
+	Prop->name        = NULL;                         \
 	Prop->isReq       = IsReq;                       \
 	Prop->meta        = 0;                           \
 	Prop->next        = Class->Properties;           \
