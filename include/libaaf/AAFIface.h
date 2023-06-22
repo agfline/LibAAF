@@ -236,11 +236,11 @@ typedef struct aafiTransition
 typedef struct aafiAudioGain
 {
 	/**
-	 *	Should hold the gain type (either Constant or Variable), and if it Variable,
+	 *	Should hold the gain type (either Constant or Variable), and if it is Variable,
 	 *	the interpolation used to calculate the values between two time points.
 	 */
 
-	uint16_t        flags;	// Type : Static (single multiplier for entire clip) or
+	uint16_t        flags;	// Type : Constant (single multiplier for entire clip) or
 					        //		  Variable (automation)
 					        // Interpolation : Linear, Log, Constant, Power, BSpline
 
@@ -389,7 +389,11 @@ typedef struct aafiAudioClip
 
 	aafiAudioEssence      *Essence;
 
+	/*
+	 *  Some editors (like Resolve) support automation attached to a clip AND a fixed value clip gain
+	 */
 	aafiAudioGain         *gain;
+	aafiAudioGain         *automation;
 
 	int                    mute;
 
@@ -780,8 +784,9 @@ typedef struct aafiContext
 	/* Gain */
 
 	aafiAudioGain    *current_clip_gain;
+	aafiAudioGain    *current_clip_automation;
 	int               clips_using_gain; // if none then free( current_clip_gain );
-
+	int               clips_using_automation;
 
 
 	/* Essence */

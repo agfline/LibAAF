@@ -460,6 +460,11 @@ void aafi_freeAudioClip( aafiAudioClip *audioClip )
 		aafi_freeAudioGain( audioClip->gain );
 	}
 
+	if ( audioClip->automation != NULL )
+	{
+		aafi_freeAudioGain( audioClip->automation );
+	}
+
 	// if ( audioClip->gain != NULL )
 	// {
 	// 	if ( audioClip->gain->time != NULL )

@@ -42,6 +42,7 @@
 #include <wchar.h>
 #include <locale.h>
 
+#include <math.h>
 
 #include <libaaf/AAFIface.h>
 #include <libaaf/AAFIParser.h>
@@ -109,6 +110,7 @@
 	/*ctx.current_pos = 0;*/                            \
 	ctx.current_transition = NULL;                  \
 	ctx.current_clip_gain = NULL;                        \
+	ctx.current_clip_automation = NULL;                        \
 	ctx.current_essence = NULL;                \
 	ctx.current_clip = NULL;                        \
 	ctx.current_clip_is_muted = 0;                  \
@@ -2482,10 +2484,17 @@ end:
 				aafi_freeAudioGain( aafi->ctx.current_clip_gain );
 			}
 
+			if ( aafi->ctx.clips_using_automation == 0 )
+			{
+				aafi_freeAudioGain( aafi->ctx.current_clip_automation );
+			}
+
 			/* Clip-based Gain */
 			aafi->ctx.current_clip_is_muted = 0;
 			aafi->ctx.current_clip_gain = NULL;
+			aafi->ctx.current_clip_automation = NULL;
 			aafi->ctx.clips_using_gain = 0;
+			aafi->ctx.clips_using_automation = 0;
 		}
 
 		// free( aafi->ctx.current_track->gain );
@@ -2732,8 +2741,10 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 						((aafiAudioClip*)new_clip)->len = *length;
 						((aafiAudioClip*)new_clip)->essence_offset = *startTime;
 						((aafiAudioClip*)new_clip)->gain = aafi->ctx.current_clip_gain;
+						((aafiAudioClip*)new_clip)->automation = aafi->ctx.current_clip_automation;
 						((aafiAudioClip*)new_clip)->mute = aafi->ctx.current_clip_is_muted;
 						aafi->ctx.clips_using_gain++;
+						aafi->ctx.clips_using_automation++;
 
 						aafi->ctx.current_track->current_pos += ((aafiAudioClip*)new_clip)->len;
 					}
@@ -2816,7 +2827,9 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 			aafiAudioClip    *audioClip = (aafiAudioClip*)&item->data;
 
 			aafi->ctx.clips_using_gain++;
+			aafi->ctx.clips_using_automation++;
 			audioClip->gain = aafi->ctx.current_clip_gain;
+			audioClip->automation = aafi->ctx.current_clip_automation;
 			audioClip->mute = aafi->ctx.current_clip_is_muted;
 			audioClip->pos  = aafi->ctx.current_track->current_pos;
 			audioClip->len  = *length;
@@ -3549,11 +3562,15 @@ static int parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue, td *_
 		{
 			/* Clip-based Gain */
 			if ( aafi->ctx.current_clip_gain ) {
-				/*
-				 *  This occurs when a clip has an automation attached to it, plus a clip gain constant value.
-				 *	TODO: Should we had support ?
-				 */
-				DUMP_OBJ_ERROR( aafi, ConstantValue, &__td, "Clip gain was already set" );
+
+				DUMP_OBJ_ERROR( aafi, ConstantValue, &__td, "Clip gain was already set : +%05.1lf dB", 20 * log10( aafRationalToFloat( aafi->ctx.current_clip_gain->value[0] ) ) );
+
+				// for ( int i = 0; i < aafi->ctx.current_clip_gain->pts_cnt; i++ ) {
+				// 	printf( "   VaryingValue:  _time: %f   _value: %f\n",
+				// 		aafRationalToFloat( aafi->ctx.current_clip_gain->time[i]  ),
+				// 		aafRationalToFloat( aafi->ctx.current_clip_gain->value[i] ) );
+				// }
+
 				aafi_freeAudioGain( Gain );
 				return -1;
 			}
@@ -3749,11 +3766,18 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue, td *__p
         ( Gain->value[0].numerator   == Gain->value[1].numerator   ) &&
         ( Gain->value[0].denominator == Gain->value[1].denominator ) )
     {
-        Gain->flags |= AAFI_AUDIO_GAIN_CONSTANT;
+			if ( aafRationalToFloat(Gain->value[0]) == 1.0f ) {
+				/*
+				 * gain is null, skip it. Skipping it allows not to set a useless gain then miss the real clip gain later (Resolve 18.5.AAF)
+				 */
+				aafi_freeAudioGain( Gain );
+				return -1;
+			}
+			Gain->flags |= AAFI_AUDIO_GAIN_CONSTANT;
     }
     else
     {
-        Gain->flags |= AAFI_AUDIO_GAIN_VARIABLE;
+      Gain->flags |= AAFI_AUDIO_GAIN_VARIABLE;
     }
 
 
@@ -3783,18 +3807,26 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue, td *__p
 		else
 		{
 			/* Clip-based Gain */
-			if ( aafi->ctx.current_clip_gain ) {
-				/*
-				 *  This occurs when a clip has an automation attached to it, plus a clip gain constant value.
-				 *	TODO: Should we had support ?
-				 */
-				DUMP_OBJ_ERROR( aafi, VaryingValue, &__td, "Clip gain was already set" );
-				aafi_freeAudioGain( Gain );
-				return -1;
-			}
-			else {
-				aafi->ctx.current_clip_gain = Gain;
-				aafi->ctx.clips_using_gain = 0;
+			if ( Gain->flags & AAFI_AUDIO_GAIN_CONSTANT ) {
+				if ( aafi->ctx.current_clip_gain ) {
+					DUMP_OBJ_ERROR( aafi, VaryingValue, &__td, "Clip gain was already set" );
+					aafi_freeAudioGain( Gain );
+					return -1;
+				}
+				else {
+					aafi->ctx.current_clip_gain = Gain;
+					aafi->ctx.clips_using_gain = 0;
+				}
+			} else {
+				if ( aafi->ctx.current_clip_automation ) {
+					DUMP_OBJ_ERROR( aafi, VaryingValue, &__td, "Clip automation was already set" );
+					aafi_freeAudioGain( Gain );
+					return -1;
+				}
+				else {
+					aafi->ctx.current_clip_automation = Gain;
+					aafi->ctx.clips_using_automation = 0;
+				}
 			}
 		}
 

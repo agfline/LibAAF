@@ -687,6 +687,11 @@ int main( int argc, char *argv[] )
 					(audioClip->Essence) ? audioClip->Essence->file_name : L""
 				);
 
+				if ( audioClip->automation ) {
+					printf( "CLIP GAIN AUTOMATION : \n" );
+					aafi_dump_VaryingValues( audioClip->automation );
+				}
+
 
 				i++;
 			}
