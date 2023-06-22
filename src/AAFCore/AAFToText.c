@@ -143,7 +143,7 @@ const wchar_t * FileKindToText( const aafUID_t *auid )
 
 	/* AAFUID_NULL == AAFFileKind_DontCare */
 	// if ( aafUIDCmp( auid, &AAFUID_NULL ) )
-	// 	return L"";
+	// 	return L"AAFUID_NULL";
 
 	if ( aafUIDCmp( auid, &AAFFileKind_DontCare ) )
 		return L"AAFFileKind_DontCare";
@@ -181,7 +181,7 @@ const wchar_t * FileKindToText( const aafUID_t *auid )
 	if ( aafUIDCmp( auid, &AAFFileKind_Pathological ) )
 		return L"AAFFileKind_Pathological";
 
-	return L"Unknown value";
+	return L"Unknown AAFFileKind";
 
 }
 
@@ -199,7 +199,7 @@ const wchar_t * TapeCaseTypeToText( aafTapeCaseType_t t )
 		case AAFDATCartridge:					return L"AAFDATCartridge";
 		case AAFNagraAudioTape:					return L"AAFNagraAudioTape";
 
-		default:								return L"Unknown value";
+		default:								return L"Unknown TapeCaseType";
 	}
 }
 
@@ -213,7 +213,7 @@ const wchar_t * VideoSignalTypeToText( aafVideoSignalType_t v )
 		case AAFPALSignal:						return L"AAFPALSignal";
 		case AAFSECAMSignal:					return L"AAFSECAMSignal";
 
-		default:								return L"Unknown value";
+		default:								return L"Unknown VideoSignalType";
 	}
 }
 
@@ -230,7 +230,7 @@ const wchar_t * TapeFormatTypeToText( aafTapeFormatType_t t )
 		case AAF8mmFormat:						return L"AAF8mmFormat";
 		case AAFHi8Format:						return L"AAFHi8Format";
 
-		default:								return L"Unknown value";
+		default:								return L"Unknown TapeFormatType";
 	}
 }
 
@@ -245,7 +245,7 @@ const wchar_t * FilmTypeToText( aafFilmType_t f )
 		case AAFFt8MM:							return L"AAFFt8MM";
 		case AAFFt65MM:							return L"AAFFt65MM";
 
-		default:								return L"Unknown value";
+		default:								return L"Unknown FilmType";
 	}
 }
 
@@ -262,7 +262,7 @@ const wchar_t * SignalStandardToText( aafSignalStandard_t s )
 		case AAFSignalStandard_SMPTE296M:		return L"AAFSignalStandard_SMPTE296M";
 		case AAFSignalStandard_SMPTE349M:		return L"AAFSignalStandard_SMPTE349M";
 
-		default:								return L"Unknown value";
+		default:								return L"Unknown SignalStandard";
 	}
 }
 
@@ -275,7 +275,7 @@ const wchar_t * FieldNumberToText( aafFieldNumber_t f )
 		case AAFFieldOne:						return L"AAFFieldOne";
 		case AAFFieldTwo:						return L"AAFFieldTwo";
 
-		default:								return L"Unknown value";
+		default:								return L"Unknown FieldNumber";
 	}
 }
 
@@ -287,7 +287,7 @@ const wchar_t * AlphaTransparencyToText( aafAlphaTransparency_t a )
 		case AAFMinValueTransparent:			return L"AAFMinValueTransparent";
 		case AAFMaxValueTransparent:			return L"AAFMaxValueTransparent";
 
-		default:								return L"Unknown value";
+		default:								return L"Unknown AlphaTransparency";
 	}
 }
 
@@ -302,7 +302,7 @@ const wchar_t * FrameLayoutToText( aafFrameLayout_t f )
 		case AAFMixedFields:					return L"AAFMixedFields";
 		case AAFSegmentedFrame:					return L"AAFSegmentedFrame";
 
-		default:								return L"Unknown value";
+		default:								return L"Unknown FrameLayout";
 	}
 }
 
@@ -318,7 +318,7 @@ const wchar_t * ColorSitingToText( aafColorSiting_t c )
 		case AAFRec601:							return L"AAFRec601";
 		case AAFUnknownSiting:					return L"AAFUnknownSiting";
 
-		default:								return L"Unknown value";
+		default:								return L"Unknown ColorSiting";
 	}
 }
 
@@ -334,7 +334,7 @@ const wchar_t * ProductReleaseTypeToText( aafProductReleaseType_t t )
 		case AAFVersionBeta:					return L"AAFVersionBeta";
 		case AAFVersionPrivateBuild:			return L"AAFVersionPrivateBuild";
 
-		default:								return L"Unknown value";
+		default:								return L"Unknown ProductReleaseType";
 	}
 }
 
@@ -347,7 +347,7 @@ const wchar_t * FadeTypeToText( aafFadeType_t f )
 		case AAFFadeLinearAmp:					return L"AAFFadeLinearAmp";
 		case AAFFadeLinearPower:				return L"AAFFadeLinearPower";
 
-		default:								return L"Unknown value";
+		default:								return L"Unknown FadeType";
 	}
 }
 
@@ -359,7 +359,7 @@ const wchar_t * BoolToText( aafBoolean_t b )
 		case 1:									return L"True";
 		case 0:									return L"False";
 
-		default:								return L"Unknown value";
+		default:								return L"Unknown Boolean";
 	}
 }
 
@@ -370,12 +370,12 @@ const wchar_t * OperationCategoryToText( const aafUID_t *auid )
 		return L"n/a";
 
 	if ( aafUIDCmp( auid, &AAFUID_NULL ) )
-		return L"";
+		return L"AAFUID_NULL";
 
 	if ( aafUIDCmp( auid, &AAFOperationCategory_Effect ) )
 		return L"AAFOperationCategory_Effect";
 
-	return L"Unknown value";
+	return L"Unknown AAFOperationCategory";
 }
 
 
@@ -385,7 +385,7 @@ const wchar_t * PluginCategoryToText( const aafUID_t *auid )
 		return L"n/a";
 
 	if ( aafUIDCmp( auid, &AAFUID_NULL ) )
-		return L"";
+		return L"AAFUID_NULL";
 
 	if ( aafUIDCmp( auid, &AAFPluginCategory_Effect ) )
 		return L"AAFPluginCategory_Effect";
@@ -396,7 +396,7 @@ const wchar_t * PluginCategoryToText( const aafUID_t *auid )
 	if ( aafUIDCmp( auid, &AAFPluginCategory_Interpolation ) )
 		return L"AAFPluginCategory_Interpolation";
 
-	return L"Unknown value";
+	return L"Unknown AAFPluginCategory";
 }
 
 
@@ -430,7 +430,7 @@ const wchar_t * ScanningDirectionToText( aafScanningDirection_t s )
 
 
 		default:
-	 return L"Unknown value";
+	 return L"Unknown AAFScanningDirection";
 	}
 
 }
@@ -446,7 +446,7 @@ const wchar_t * ByteOrderToText( int16_t e )
 		 e == AAF_PROPERTIES_BYTEORDER_BE )
 			return L"Big-Endian";
 
-	return L"Unknown value";
+	return L"Unknown ByteOrder";
 }
 
 
@@ -482,7 +482,7 @@ const wchar_t * ElectroSpatialToText( aafElectroSpatialFormulation_t e )
 	 return L"AAFElectroSpatialFormulation_MultiChannelMode";
 
 		default:
-	 return L"Unknown value";
+	 return L"Unknown AAFElectroSpatialFormulation";
 	}
 }
 
@@ -501,9 +501,9 @@ const wchar_t * OPDefToText( const aafUID_t *auid )
 
 
 	if ( aafUIDCmp( auid, &AAFUID_NULL ) )
-		return L"";
+		return L"AAFUID_NULL";
 
-	return L"Unknown value";
+	return L"Unknown AAFOPDef";
 
 }
 
@@ -978,9 +978,9 @@ const wchar_t * TypeIDToText( const aafUID_t *auid )
 
 
 	if ( aafUIDCmp( auid, &AAFUID_NULL ) )
-		return L"";
+		return L"AAFUID_NULL";
 
-	return L"Unknown value";
+	return L"Unknown AAFTypeID";
 
 }
 
@@ -1052,7 +1052,7 @@ const wchar_t * DataDefToText( AAF_Data *aafd, const aafUID_t *auid )
 	}
 
 
-	return L"Unknown value";
+	return L"Unknown AAFDataDef";
 
 }
 
@@ -1181,7 +1181,7 @@ const wchar_t * OperationDefToText( AAF_Data *aafd, const aafUID_t *auid )
 	}
 
 
-	return L"Unknown value";
+	return L"Unknown AAFOperationDef";
 
 }
 
@@ -1211,9 +1211,9 @@ const wchar_t * InterpolationToText( const aafUID_t *auid )
 
 
 	if ( aafUIDCmp( auid, &AAFUID_NULL ) )
-		return L"";
+		return L"AAFUID_NULL";
 
-	return L"Unknown value";
+	return L"Unknown AAFInterpolationDef";
 }
 
 
@@ -1445,7 +1445,7 @@ const wchar_t * ParameterToText( AAF_Data *aafd, const aafUID_t *auid )
 	}
 
 
-	return L"Unknown value";
+	return L"Unknown AAFParameterDef";
 }
 
 
@@ -1474,9 +1474,9 @@ const wchar_t * TransferCharacteristicToText( const aafUID_t *auid )
 
 
 	if ( aafUIDCmp( auid, &AAFUID_NULL ) )
-		return L"";
+		return L"AAFUID_NULL";
 
-	return L"Unknown value";
+	return L"Unknown AAFTransferCharacteristic";
 }
 
 
@@ -1496,9 +1496,9 @@ const wchar_t * CodingEquationsToText( const aafUID_t *auid )
 
 
 	if ( aafUIDCmp( auid, &AAFUID_NULL ) )
-		return L"";
+		return L"AAFUID_NULL";
 
-	return L"Unknown value";
+	return L"Unknown AAFCodingEquations";
 }
 
 
@@ -1518,9 +1518,9 @@ const wchar_t * ColorPrimariesToText( const aafUID_t *auid )
 
 
 	if ( aafUIDCmp( auid, &AAFUID_NULL ) )
-		return L"";
+		return L"AAFUID_NULL";
 
-	return L"Unknown value";
+	return L"Unknown AAFColorPrimaries";
 }
 
 
@@ -1546,9 +1546,9 @@ const wchar_t * UsageCodeToText( const aafUID_t *auid )
 
 
 	if ( aafUIDCmp( auid, &AAFUID_NULL ) )
-		return L"";
+		return L"AAFUID_NULL";
 
-	return L"Unknown value";
+	return L"Unknown AAFUsage";
 }
 
 
@@ -1580,7 +1580,7 @@ const wchar_t * StoredFormToText( uint16_t sf )
 	 return L"SF_OPAQUE_STREAM";
 
 		default:
-			return L"Unknown value";
+			return L"Unknown StoredForm";
 
 	}
 }
@@ -2274,7 +2274,7 @@ const wchar_t * PIDToText( AAF_Data *aafd, aafPID_t pid )
 
 	}
 
-	return L"Unknown value";
+	return L"Unknown PID_MetaDictionary";
 }
 
 
@@ -2517,7 +2517,7 @@ const wchar_t * ClassIDToText( AAF_Data *aafd, const aafUID_t *auid )
 
 	}
 
-	return L"Unknown value";
+	return L"Unknown AAFClassID";
 }
 
 
@@ -2806,7 +2806,7 @@ const wchar_t * ContainerToText( const aafUID_t *auid )
 		return L"AAFContainerDef_MXFGC_Avid_DNX_145_720p";
 
 
-	return L"Unknown value";
+	return L"Unknown AAFContainerDef";
 }
 
 
@@ -2882,5 +2882,5 @@ const wchar_t * CompressionToText( const aafUID_t *auid )
 	if ( aafUIDCmp( auid, &AUID_NULL ) )
 		return L"";
 
-	return L"Unknown value";
+	return L"Unknown AAFCompressionDef";
 }
