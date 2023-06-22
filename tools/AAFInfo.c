@@ -448,12 +448,12 @@ int main( int argc, char *argv[] )
 
 	if ( aaf_clips ) {
 
-    printf( "EditRrate  : %i/%i\n", aafi->Audio->tc->edit_rate->numerator, aafi->Audio->tc->edit_rate->denominator );
-    printf( "Start (EU) : %"PRIi64"\n", aafi->Audio->tc->start );
-    printf( "End (EU)   : %"PRIi64"\n", aafi->Audio->tc->end );
+    printf( "TC EditRrate : %i/%i\n", aafi->Audio->tc->edit_rate->numerator, aafi->Audio->tc->edit_rate->denominator );
+    printf( "TC Start (EU) : %"PRIi64"\n", aafi->Audio->tc->start );
+    printf( "TC End (EU)   : %"PRIi64"\n", aafi->Audio->tc->end );
 
-    printf( "session start : %"PRIi64"\n", eu2sample( 48000, aafi->Audio->tc->edit_rate, aafi->Audio->tc->start ) );
-    printf( "session end   : %"PRIi64"\n\n", eu2sample( 48000, aafi->Audio->tc->edit_rate, aafi->Audio->tc->end ) );
+    printf( "TC Start (samples) : %"PRIi64"\n", eu2sample( 48000, aafi->Audio->tc->edit_rate, aafi->Audio->tc->start ) );
+    printf( "TC End (samples)   : %"PRIi64"\n\n", eu2sample( 48000, aafi->Audio->tc->edit_rate, aafi->Audio->tc->end ) );
 
 		printf( "Composition Name     : %ls\n", aafi->compositionName );
 
@@ -515,9 +515,11 @@ int main( int argc, char *argv[] )
 				 memset(&tc_out, 0x00, sizeof(struct timecode));
 				 memset(&tc_len, 0x00, sizeof(struct timecode));
 
-				 tc_set_by_unitValue( &tc_in,  (videoClip->pos + videoClip->track->Video->tc->start),                  (rational_t*)videoClip->track->edit_rate, format );
-				 tc_set_by_unitValue( &tc_out, (videoClip->pos + videoClip->len + videoClip->track->Video->tc->start), (rational_t*)videoClip->track->edit_rate, format );
-				 tc_set_by_unitValue( &tc_len,  videoClip->len,                                                        (rational_t*)videoClip->track->edit_rate, format );
+				 aafPosition_t sessionStart = convertEditUnit( videoClip->track->Video->tc->start, aafi->Video->tc->edit_rate, videoClip->track->edit_rate );
+
+				 tc_set_by_unitValue( &tc_in,  (videoClip->pos + sessionStart),                  (rational_t*)videoClip->track->edit_rate, format );
+				 tc_set_by_unitValue( &tc_len,  videoClip->len,                                  (rational_t*)videoClip->track->edit_rate, format );
+				 tc_set_by_unitValue( &tc_out, (videoClip->pos + videoClip->len + sessionStart), (rational_t*)videoClip->track->edit_rate, format );
 
 				 printf( " VideoClip "
 						 " Start:%s  Len:%s  End:%s  "
@@ -651,9 +653,18 @@ int main( int argc, char *argv[] )
 
 				// printf( "Format : %s\n", TC_FORMAT_STR[format] );
 
-				tc_set_by_unitValue( &tc_in,  (audioClip->pos + audioClip->track->Audio->tc->start),                  (rational_t*)audioClip->track->edit_rate, format );
-				tc_set_by_unitValue( &tc_out, (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start), (rational_t*)audioClip->track->edit_rate, format );
-				tc_set_by_unitValue( &tc_len,  audioClip->len,                                                        (rational_t*)audioClip->track->edit_rate, format );
+
+				/*
+				 *  Composition Timecode does not always share the same edit rate as tracks and clips.
+				 *	Therefore, we need to do the conversion prior to any maths.
+				 *  For exemple, if TC is 30000/1001 and audio clips are 48000/1, then TC->start will be converted from FPS to samples.
+				 */
+
+				aafPosition_t sessionStart = convertEditUnit( audioClip->track->Audio->tc->start, aafi->Audio->tc->edit_rate, audioClip->track->edit_rate );
+
+				tc_set_by_unitValue( &tc_in,  (audioClip->pos + sessionStart),                  (rational_t*)audioClip->track->edit_rate, format );
+				tc_set_by_unitValue( &tc_len,  audioClip->len,                                  (rational_t*)audioClip->track->edit_rate, format );
+				tc_set_by_unitValue( &tc_out, (audioClip->pos + audioClip->len + sessionStart), (rational_t*)audioClip->track->edit_rate, format );
 
 				printf( " Clip:%u%s  Track:%u  Gain: %s %s"
 						" Start:%s  Len:%s  End:%s  "

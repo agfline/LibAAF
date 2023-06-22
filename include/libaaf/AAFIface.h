@@ -918,6 +918,12 @@ typedef struct AAF_Iface
 
 
 
+
+#define convertEditUnit( val, fromRate, toRate ) \
+	(int64_t)(val * (aafRationalToFloat((*toRate)) * (1 / aafRationalToFloat((*fromRate)))))
+
+
+
 #define eu2sample( samplerate, edit_rate, val ) \
 	(int64_t)(val * (samplerate * (1 / aafRationalToFloat((*edit_rate)))))
 
