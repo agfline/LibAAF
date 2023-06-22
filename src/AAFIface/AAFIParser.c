@@ -1839,6 +1839,17 @@ int parse_Segment( AAF_Iface *aafi, aafObject *Segment, td *__ptd )
 
 		return parse_Timecode( aafi, Segment, &__td );
 	}
+	else if ( aafUIDCmp( Segment->Class->ID, &AAFClassID_DescriptiveMarker ) )
+	{
+		if ( resolve_AAF( aafi ) ) {
+			resolve_parse_aafObject_DescriptiveMarker( aafi, Segment, &__td );
+		}
+		else {
+			__td.lv++;
+			DUMP_OBJ_NO_SUPPORT( aafi, Segment, &__td );
+			return -1;
+		}
+	}
 	else if ( aafUIDCmp( Segment->Class->ID, &AAFClassID_EssenceGroup ) )
 	{
 		/*
@@ -4520,6 +4531,22 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 			DUMP_OBJ_NO_SUPPORT( aafi, MobSlot, &__td );
 		}
 
+	}
+	else if ( aafUIDCmp( MobSlot->Class->ID, &AAFClassID_EventMobSlot ) ) {
+
+		aafRational_t *edit_rate = (aafRational_t*)aaf_get_propertyValue( MobSlot, PID_EventMobSlot_EditRate );
+
+		if ( edit_rate == NULL ) /* req */
+		{
+			DUMP_OBJ_ERROR( aafi, MobSlot, &__td, "Missing PID_EventMobSlot_EditRate" );
+			return -1;
+		}
+
+		aafi->ctx.current_markers_edit_rate = edit_rate;
+
+		DUMP_OBJ( aafi, MobSlot, &__td );
+
+		return parse_Segment( aafi, Segment, &__td );
 	}
 	else
 	{

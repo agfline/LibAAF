@@ -106,6 +106,7 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 		aafi->aafd = aaf_alloc();
 	}
 
+	aafi->Markers = NULL;
 
 	aafi->compositionName = NULL;
 
@@ -182,6 +183,10 @@ void aafi_release( AAF_Iface **aafi )
 		}
 
 		free( (*aafi)->Video );
+	}
+
+	if ( (*aafi)->Markers ) {
+		aafi_freeMarkers( &(*aafi)->Markers );
 	}
 
 	// if ( (*aafi)->ctx.trace_leveloop )
@@ -277,6 +282,73 @@ aafiTransition * get_xfade( aafiTimelineItem *audioItem )
 }
 
 
+
+
+
+
+aafiMarker * aafi_newMarker( AAF_Iface *aafi, aafRational_t *editRate, aafPosition_t start, aafPosition_t length, wchar_t *name, wchar_t *comment, uint16_t *(RVBColor[3]) )
+{
+	aafiMarker *marker = malloc( sizeof(aafiMarker) );
+
+	marker->edit_rate = editRate;
+	marker->start = start;
+	marker->length = length;
+
+	marker->name = name;
+	marker->comment = comment;
+
+	marker->prev = NULL;
+	marker->next = NULL;
+
+	if ( RVBColor ) {
+		marker->RVBColor[0] = (*RVBColor)[0];
+		marker->RVBColor[1] = (*RVBColor)[1];
+		marker->RVBColor[2] = (*RVBColor)[2];
+	}
+
+	if ( aafi->Markers != NULL ) {
+
+		aafiMarker *tmp = aafi->Markers;
+
+		for (; tmp != NULL; tmp = tmp->next )
+			if ( tmp->next == NULL )
+				break;
+
+		tmp->next = marker;
+		marker->prev = marker;
+	}
+	else
+	{
+		aafi->Markers = marker;
+		marker->prev = NULL;
+	}
+
+	return marker;
+}
+
+
+
+
+void aafi_freeMarkers( aafiMarker **Markers )
+{
+	aafiMarker *marker = NULL;
+	aafiMarker *nextMarker = NULL;
+
+	for ( marker = (*Markers); marker != NULL; marker = nextMarker )
+	{
+		nextMarker = marker->next;
+
+		if ( marker->name )
+			free( marker->name );
+
+		if ( marker->comment )
+			free( marker->comment );
+
+		free( marker );
+	}
+
+	*Markers = NULL;
+}
 
 
 

@@ -153,3 +153,63 @@ int resolve_parse_aafObject_Selector( struct AAF_Iface *aafi, aafObject *Selecto
 
   return 0;
 }
+
+
+
+int resolve_parse_aafObject_DescriptiveMarker( struct AAF_Iface *aafi, aafObject *DescriptiveMarker, td *__ptd )
+{
+  /*
+   *  Resolve 18.5
+   */
+
+  struct trace_dump __td;
+  __td_set(__td, __ptd, 0);
+
+
+  aafPosition_t *start = (int64_t *)aaf_get_propertyValue( DescriptiveMarker, PID_Event_Position );
+
+  if ( start == NULL ) /* req (TODO: conditional) */
+  {
+    DUMP_OBJ_ERROR( aafi, DescriptiveMarker, &__td, "Missing PID_Event_Position" );
+    return -1;
+  }
+
+
+  aafPosition_t *length = (int64_t *)aaf_get_propertyValue( DescriptiveMarker, PID_Component_Length );
+
+  if ( length == NULL ) /* opt */
+  {
+    // DUMP_OBJ_ERROR( aafi, Selector, &__td, "Missing PID_Event_Position" );
+    // return -1;
+  }
+
+
+  wchar_t *comment = aaf_get_propertyValueWstr( DescriptiveMarker, PID_Event_Comment );
+
+  wchar_t *name = aaf_get_propertyValueWstr( DescriptiveMarker, 0xfffa /* CommentMarkerUser */ );
+
+  uint16_t *RVBColor = (uint16_t*)aaf_get_propertyValue( DescriptiveMarker, 0xfff9 /* CommentMarkerColor */ );
+
+
+  if ( RVBColor ) {
+    /* big endian to little endian */
+
+    RVBColor[0] = (RVBColor[0]>>8) | (RVBColor[0]<<8);
+    RVBColor[1] = (RVBColor[1]>>8) | (RVBColor[1]<<8);
+    RVBColor[2] = (RVBColor[2]>>8) | (RVBColor[2]<<8);
+
+    // RVBColor[0] = (RVBColor[0]>>8 != 0) ? (RVBColor[0]>>8) : RVBColor[0];
+    // RVBColor[1] = (RVBColor[1]>>8 != 0) ? (RVBColor[1]>>8) : RVBColor[1];
+    // RVBColor[2] = (RVBColor[2]>>8 != 0) ? (RVBColor[2]>>8) : RVBColor[2];
+
+    // printf("%02x\n", RVBColor[0] );
+    // printf("%02x\n", RVBColor[1] );
+    // printf("%02x\n", RVBColor[2] );
+
+    // DUMP_OBJ_NO_SUPPORT( aafi, DescriptiveMarker, &__td );
+  }
+
+  aafi_newMarker( aafi, aafi->ctx.current_markers_edit_rate, *start, ((length) ? *length : 0), name, comment, &RVBColor );
+
+  return 0;
+}

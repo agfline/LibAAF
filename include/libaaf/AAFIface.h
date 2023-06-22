@@ -713,21 +713,22 @@ typedef struct aafiVideo
 } aafiVideo;
 
 
-typedef struct aafiMarker
-{
-	/**
-	 *	Holds the sequence start timecode.
-	 */
+typedef struct aafiMarker {
 
-	aafiTimecode     *tc;
+	/*
+	 * TODO: link marker to specific track ? (optional in AAF standard, not yet seen in AAF files)
+	 */
 
 	aafPosition_t     start;
 	aafPosition_t     length;
-	aafRational_t     editRate;
+	aafRational_t    *edit_rate;
 
 	wchar_t          *name;
 	wchar_t          *comment;
-	// aafiColor     
+	uint16_t          RVBColor[3];
+
+	struct aafiMarker *prev;
+	struct aafiMarker *next;
 
 } aafiMarker;
 
@@ -813,6 +814,8 @@ typedef struct aafiContext
 	aafiVideoEssence *current_video_essence;
 
 
+	aafRational_t    *current_markers_edit_rate;
+
 	int is_inside_derivation_chain;
 
 
@@ -850,6 +853,8 @@ typedef struct AAF_Iface
 	aafiAudio  *Audio;
 
 	aafiVideo  *Video;
+
+	aafiMarker *Markers;
 
 
 	wchar_t          *compositionName;
@@ -895,6 +900,8 @@ typedef struct AAF_Iface
 #define foreachEssence( essence, essenceList ) \
 	for ( essence = essenceList; essence != NULL; essence = essence->next )
 
+#define foreachMarker( marker, aafi ) \
+	for ( marker = aafi->Markers; marker != NULL; marker = marker->next )
 
 
 #define aeDuration_h( audioEssence ) \
@@ -960,7 +967,8 @@ aafiTransition * get_fadeout( aafiTimelineItem *audioItem );
 
 aafiTransition * get_xfade( aafiTimelineItem *audioItem );
 
-
+aafiMarker * aafi_newMarker( AAF_Iface *aafi, aafRational_t *editRate, aafPosition_t start, aafPosition_t length, wchar_t *name, wchar_t *comment, uint16_t *RVBColor[3] );
+void aafi_freeMarkers( aafiMarker **aafi );
 
 aafiAudioTrack * aafi_newAudioTrack( AAF_Iface *aafi );
 void   aafi_freeAudioTracks( aafiAudioTrack **tracks );

@@ -12,5 +12,6 @@ enum resolve_options {
 
 int resolve_AAF( struct AAF_Iface *aafi );
 int resolve_parse_aafObject_Selector( struct AAF_Iface *aafi, aafObject *Selector, td *__ptd );
+int resolve_parse_aafObject_DescriptiveMarker( struct AAF_Iface *aafi, aafObject *DescriptiveMarker, td *__ptd );
 
 #endif // !__Resolve_h__

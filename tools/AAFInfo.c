@@ -699,10 +699,33 @@ int main( int argc, char *argv[] )
 			printf( "\n\n" );
 		}
 
+
+		i = 0;
+		aafiMarker *marker = NULL;
+
+		foreachMarker( marker, aafi ) {
+
+			struct timecode tc_start;
+			struct timecode tc_length;
+
+			tc_set_by_unitValue( &tc_start,  marker->start,  (rational_t*)marker->edit_rate, format );
+			tc_set_by_unitValue( &tc_length, marker->length, (rational_t*)marker->edit_rate, format );
+
+			printf("Marker[%i]:  Start: %s  Length: %s  Color: #%02x%02x%02x  Label: \"%ls\"  Comment: \"%ls\"\n",
+				i++,
+				tc_start.string,
+				tc_length.string,
+				marker->RVBColor[0],
+				marker->RVBColor[1],
+				marker->RVBColor[2],
+				marker->name,
+				marker->comment );
+		}
+
+
+
 		printf( "\n\n" );
 	}
-
-
 
 
 
