@@ -457,10 +457,17 @@ int main( int argc, char *argv[] )
 
 		printf( "Composition Name     : %ls\n", aafi->compositionName );
 
-		enum TC_FORMAT format = tc_fps2format( (float)(aafi->Audio->tc->fps ), aafi->Audio->tc->drop );
+		enum TC_FORMAT tcFormat;
+
+		if ( aafi->Audio->tc->fps == 30 && aafi->Audio->tc->drop ) {
+			tcFormat = TC_29_97_DF;
+		}
+		else {
+			tcFormat = tc_fps2format( (float)(aafi->Audio->tc->fps ), aafi->Audio->tc->drop );
+		}
 
 		struct timecode tc_comp;
-		tc_set_by_unitValue( &tc_comp, aafi->Audio->tc->start, (rational_t*)aafi->Audio->tc->edit_rate, format );
+		tc_set_by_unitValue( &tc_comp, aafi->Audio->tc->start, (rational_t*)aafi->Audio->tc->edit_rate, tcFormat );
 
 		printf("Composition TC Start : %s (%u fps %s)\n",
 			tc_comp.string,
@@ -517,9 +524,9 @@ int main( int argc, char *argv[] )
 
 				 aafPosition_t sessionStart = convertEditUnit( videoClip->track->Video->tc->start, aafi->Video->tc->edit_rate, videoClip->track->edit_rate );
 
-				 tc_set_by_unitValue( &tc_in,  (videoClip->pos + sessionStart),                  (rational_t*)videoClip->track->edit_rate, format );
-				 tc_set_by_unitValue( &tc_len,  videoClip->len,                                  (rational_t*)videoClip->track->edit_rate, format );
-				 tc_set_by_unitValue( &tc_out, (videoClip->pos + videoClip->len + sessionStart), (rational_t*)videoClip->track->edit_rate, format );
+				 tc_set_by_unitValue( &tc_in,  (videoClip->pos + sessionStart),                  (rational_t*)videoClip->track->edit_rate, tcFormat );
+				 tc_set_by_unitValue( &tc_len,  videoClip->len,                                  (rational_t*)videoClip->track->edit_rate, tcFormat );
+				 tc_set_by_unitValue( &tc_out, (videoClip->pos + videoClip->len + sessionStart), (rational_t*)videoClip->track->edit_rate, tcFormat );
 
 				 printf( " VideoClip "
 						 " Start:%s  Len:%s  End:%s  "
@@ -662,9 +669,9 @@ int main( int argc, char *argv[] )
 
 				aafPosition_t sessionStart = convertEditUnit( audioClip->track->Audio->tc->start, aafi->Audio->tc->edit_rate, audioClip->track->edit_rate );
 
-				tc_set_by_unitValue( &tc_in,  (audioClip->pos + sessionStart),                  (rational_t*)audioClip->track->edit_rate, format );
-				tc_set_by_unitValue( &tc_len,  audioClip->len,                                  (rational_t*)audioClip->track->edit_rate, format );
-				tc_set_by_unitValue( &tc_out, (audioClip->pos + audioClip->len + sessionStart), (rational_t*)audioClip->track->edit_rate, format );
+				tc_set_by_unitValue( &tc_in,  (audioClip->pos + sessionStart),                  (rational_t*)audioClip->track->edit_rate, tcFormat );
+				tc_set_by_unitValue( &tc_len,  audioClip->len,                                  (rational_t*)audioClip->track->edit_rate, tcFormat );
+				tc_set_by_unitValue( &tc_out, (audioClip->pos + audioClip->len + sessionStart), (rational_t*)audioClip->track->edit_rate, tcFormat );
 
 				printf( " Clip:%u%s  Track:%u  Gain: %s %s"
 						" Start:%s  Len:%s  End:%s  "
@@ -719,8 +726,8 @@ int main( int argc, char *argv[] )
 			struct timecode tc_start;
 			struct timecode tc_length;
 
-			tc_set_by_unitValue( &tc_start,  marker->start,  (rational_t*)marker->edit_rate, format );
-			tc_set_by_unitValue( &tc_length, marker->length, (rational_t*)marker->edit_rate, format );
+			tc_set_by_unitValue( &tc_start,  marker->start,  (rational_t*)marker->edit_rate, tcFormat );
+			tc_set_by_unitValue( &tc_length, marker->length, (rational_t*)marker->edit_rate, tcFormat );
 
 			printf("Marker[%i]:  Start: %s  Length: %s  Color: #%02x%02x%02x  Label: \"%ls\"  Comment: \"%ls\"\n",
 				i++,
