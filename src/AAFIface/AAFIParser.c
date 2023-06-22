@@ -2277,15 +2277,16 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup, td *__ptd 
 		aafObject *InputSegments = aaf_get_propertyValue( OpGroup, PID_OperationGroup_InputSegments );
 
 
-		int i = 0;
+		// int i = InputSegments->Header->_entryCount;
 		__td.ll[__td.lv] = InputSegments->Header->_entryCount;
 
 		aaf_foreach_ObjectInSet( &InputSegment, InputSegments, NULL )
 		{
-			__td.ll[__td.lv] = __td.ll[__td.lv] - i++;//(MobSlot->next) ? 1 : 0;
-
+			// __td.ll[__td.lv] = __td.ll[__td.lv] - i++;//(MobSlot->next) ? 1 : 0;
 			parse_Segment( aafi, InputSegment, &__td );
 			aafi->ctx.current_multichannel_track_channel++;
+
+			__td.ll[__td.lv]--;
 		}
 
 

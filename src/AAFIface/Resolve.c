@@ -94,7 +94,7 @@ int resolve_parse_aafObject_Selector( struct AAF_Iface *aafi, aafObject *Selecto
 	// aaf_dump_ObjectProperties( aafi->aafd, ComponentAttributeList );
 
 
-
+  int ismuted = 0;
 	aafObject *ComponentAttribute = NULL;
 
 	aaf_foreach_ObjectInSet( &ComponentAttribute, ComponentAttributeList, NULL )
@@ -124,6 +124,8 @@ int resolve_parse_aafObject_Selector( struct AAF_Iface *aafi, aafObject *Selecto
 
     if ( aafi->ctx.options.resolve & RESOLVE_INCLUDE_DISABLED_CLIPS ) {
       if ( wcsncmp( name, L"_DISABLE_CLIP_FLAG", wcslen( L"_DISABLE_CLIP_FLAG" ) ) == 0  &&  *(uint32_t*)value == 1 ) {
+
+        ismuted = 1;
         aafi->ctx.current_clip_is_muted = 1;
 
         aafObject *Alternate = NULL;
@@ -133,6 +135,9 @@ int resolve_parse_aafObject_Selector( struct AAF_Iface *aafi, aafObject *Selecto
           if ( i == 0 ) { /* there should be only one Segment in set, but still. Let's be carefull */
             parse_Segment( aafi, Alternate, &__td );
           }
+          else {
+            DUMP_OBJ_ERROR( aafi, Alternate, &__td, "Multiple Alternates in Davinci Resolve selector" );
+          }
           i++;
         }
       }
@@ -141,7 +146,8 @@ int resolve_parse_aafObject_Selector( struct AAF_Iface *aafi, aafObject *Selecto
     free( name );
 	}
 
-  if ( aafi->ctx.current_clip_is_muted == 0 ) {
+  /* aafi->ctx.current_clip_is_muted was already reset at this point */
+  if ( ismuted == 0 ) {
     return parse_Segment( aafi, Selected, &__td );
   }
 
