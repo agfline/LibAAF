@@ -5,6 +5,16 @@
 
 
 
+#ifdef __GNUC__
+#define PACK( __Declaration__ ) __Declaration__ __attribute__((__packed__))
+#endif
+
+#ifdef _MSC_VER
+#define PACK( __Declaration__ ) __pragma( pack(push, 1) ) __Declaration__ __pragma( pack(pop))
+#endif
+
+
+
 // Stored forms
 /*
 #define SF_DATA                                                 0x0082
@@ -556,7 +566,7 @@ typedef struct aafPropertyIndexEntry_t
  *	followed by #_entryCount aafStrongRefSetEntry_t structs.
  */
 
-typedef struct aafStrongRefSetHeader_t
+PACK(typedef struct aafStrongRefSetHeader_t
 {
 	/**
 	 *	The number of aafStrongRefSetEntry_t structs that follow.
@@ -597,7 +607,7 @@ typedef struct aafStrongRefSetHeader_t
 
 	uint8_t                 _identificationSize;
 
-} __attribute__((packed)) aafStrongRefSetHeader_t;
+}) aafStrongRefSetHeader_t;
 
 
 typedef struct aafStrongRefSetEntry_t

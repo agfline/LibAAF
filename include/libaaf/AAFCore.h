@@ -99,10 +99,10 @@
  */
 enum aafPropertyIsRequired_e
 {
-	REQUIRED = 1,
-	REQ      = 1,
-	OPTIONAL = 0,
-	OPT      = 0
+	PROP_REQUIRED = 1,
+	PROP_REQ      = 1,
+	PROP_OPTIONAL = 0,
+	PROP_OPT      = 0
 };
 
 /**

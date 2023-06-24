@@ -212,32 +212,32 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( IOC == NULL ) { return -1; }
 
-	attachNewProperty( aafd, IOC,              prop, PID_InterchangeObject_ObjClass,                            REQ );
-	attachNewProperty( aafd, IOC,              prop, PID_InterchangeObject_Generation,                          OPT );
+	attachNewProperty( aafd, IOC,              prop, PID_InterchangeObject_ObjClass,                            PROP_REQ );
+	attachNewProperty( aafd, IOC,              prop, PID_InterchangeObject_Generation,                          PROP_OPT );
 
 
 	aafClass *Root = defineNewClass( aafd, &AAFClassID_Root, CONCRETE, IOC );
 
 	if ( Root == NULL ) { return -1; }
 
-	attachNewProperty( aafd, Root,             prop, PID_Root_MetaDictionary,                                   REQ );
-	attachNewProperty( aafd, Root,             prop, PID_Root_Header,                                           REQ );
+	attachNewProperty( aafd, Root,             prop, PID_Root_MetaDictionary,                                   PROP_REQ );
+	attachNewProperty( aafd, Root,             prop, PID_Root_Header,                                           PROP_REQ );
 
 
 	aafClass *Header = defineNewClass( aafd, &AAFClassID_Header, CONCRETE, IOC );
 
 	if ( Header == NULL ) { return -1; }
 
-	attachNewProperty( aafd, Header,           prop, PID_Header_ByteOrder,                                      REQ );
-	attachNewProperty( aafd, Header,           prop, PID_Header_LastModified,                                   REQ );
-	attachNewProperty( aafd, Header,           prop, PID_Header_Version,                                        REQ );
-	attachNewProperty( aafd, Header,           prop, PID_Header_Content,                                        REQ );
-	attachNewProperty( aafd, Header,           prop, PID_Header_Dictionary,                                     REQ );
-	attachNewProperty( aafd, Header,           prop, PID_Header_IdentificationList,                             REQ );
-	attachNewProperty( aafd, Header,           prop, PID_Header_ObjectModelVersion,                             OPT );
-	attachNewProperty( aafd, Header,           prop, PID_Header_OperationalPattern,                             OPT );
-	attachNewProperty( aafd, Header,           prop, PID_Header_EssenceContainers,                              OPT );
-	attachNewProperty( aafd, Header,           prop, PID_Header_DescriptiveSchemes,                             OPT );
+	attachNewProperty( aafd, Header,           prop, PID_Header_ByteOrder,                                      PROP_REQ );
+	attachNewProperty( aafd, Header,           prop, PID_Header_LastModified,                                   PROP_REQ );
+	attachNewProperty( aafd, Header,           prop, PID_Header_Version,                                        PROP_REQ );
+	attachNewProperty( aafd, Header,           prop, PID_Header_Content,                                        PROP_REQ );
+	attachNewProperty( aafd, Header,           prop, PID_Header_Dictionary,                                     PROP_REQ );
+	attachNewProperty( aafd, Header,           prop, PID_Header_IdentificationList,                             PROP_REQ );
+	attachNewProperty( aafd, Header,           prop, PID_Header_ObjectModelVersion,                             PROP_OPT );
+	attachNewProperty( aafd, Header,           prop, PID_Header_OperationalPattern,                             PROP_OPT );
+	attachNewProperty( aafd, Header,           prop, PID_Header_EssenceContainers,                              PROP_OPT );
+	attachNewProperty( aafd, Header,           prop, PID_Header_DescriptiveSchemes,                             PROP_OPT );
 
 
 
@@ -245,38 +245,38 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( Identif == NULL ) { return -1; }
 
-	attachNewProperty( aafd, Identif,          prop, PID_Identification_CompanyName,                            REQ );
-	attachNewProperty( aafd, Identif,          prop, PID_Identification_ProductName,                            REQ );
-	attachNewProperty( aafd, Identif,          prop, PID_Identification_ProductVersion,                         OPT );
-	attachNewProperty( aafd, Identif,          prop, PID_Identification_ProductVersionString,                   REQ );
-	attachNewProperty( aafd, Identif,          prop, PID_Identification_ProductID,                              REQ );
-	attachNewProperty( aafd, Identif,          prop, PID_Identification_Date,                                   REQ );
-	attachNewProperty( aafd, Identif,          prop, PID_Identification_ToolkitVersion,                         OPT );
-	attachNewProperty( aafd, Identif,          prop, PID_Identification_Platform,                               OPT );
-	attachNewProperty( aafd, Identif,          prop, PID_Identification_GenerationAUID,                         REQ );
+	attachNewProperty( aafd, Identif,          prop, PID_Identification_CompanyName,                            PROP_REQ );
+	attachNewProperty( aafd, Identif,          prop, PID_Identification_ProductName,                            PROP_REQ );
+	attachNewProperty( aafd, Identif,          prop, PID_Identification_ProductVersion,                         PROP_OPT );
+	attachNewProperty( aafd, Identif,          prop, PID_Identification_ProductVersionString,                   PROP_REQ );
+	attachNewProperty( aafd, Identif,          prop, PID_Identification_ProductID,                              PROP_REQ );
+	attachNewProperty( aafd, Identif,          prop, PID_Identification_Date,                                   PROP_REQ );
+	attachNewProperty( aafd, Identif,          prop, PID_Identification_ToolkitVersion,                         PROP_OPT );
+	attachNewProperty( aafd, Identif,          prop, PID_Identification_Platform,                               PROP_OPT );
+	attachNewProperty( aafd, Identif,          prop, PID_Identification_GenerationAUID,                         PROP_REQ );
 
 
 	aafClass * Dictionary = defineNewClass( aafd, &AAFClassID_Dictionary, CONCRETE, IOC );
 
 	if ( Dictionary == NULL ) { return -1; }
 
-	attachNewProperty( aafd, Dictionary,       prop, PID_Dictionary_OperationDefinitions,                       OPT );
-	attachNewProperty( aafd, Dictionary,       prop, PID_Dictionary_ParameterDefinitions,                       OPT );
-	attachNewProperty( aafd, Dictionary,       prop, PID_Dictionary_DataDefinitions,                            OPT );
-	attachNewProperty( aafd, Dictionary,       prop, PID_Dictionary_PluginDefinitions,                          OPT );
-	attachNewProperty( aafd, Dictionary,       prop, PID_Dictionary_CodecDefinitions,                           OPT );
-	attachNewProperty( aafd, Dictionary,       prop, PID_Dictionary_ContainerDefinitions,                       OPT );
-	attachNewProperty( aafd, Dictionary,       prop, PID_Dictionary_InterpolationDefinitions,                   OPT );
-	attachNewProperty( aafd, Dictionary,       prop, PID_Dictionary_KLVDataDefinitions,                         OPT );
-	attachNewProperty( aafd, Dictionary,       prop, PID_Dictionary_TaggedValueDefinitions,                     OPT );
+	attachNewProperty( aafd, Dictionary,       prop, PID_Dictionary_OperationDefinitions,                       PROP_OPT );
+	attachNewProperty( aafd, Dictionary,       prop, PID_Dictionary_ParameterDefinitions,                       PROP_OPT );
+	attachNewProperty( aafd, Dictionary,       prop, PID_Dictionary_DataDefinitions,                            PROP_OPT );
+	attachNewProperty( aafd, Dictionary,       prop, PID_Dictionary_PluginDefinitions,                          PROP_OPT );
+	attachNewProperty( aafd, Dictionary,       prop, PID_Dictionary_CodecDefinitions,                           PROP_OPT );
+	attachNewProperty( aafd, Dictionary,       prop, PID_Dictionary_ContainerDefinitions,                       PROP_OPT );
+	attachNewProperty( aafd, Dictionary,       prop, PID_Dictionary_InterpolationDefinitions,                   PROP_OPT );
+	attachNewProperty( aafd, Dictionary,       prop, PID_Dictionary_KLVDataDefinitions,                         PROP_OPT );
+	attachNewProperty( aafd, Dictionary,       prop, PID_Dictionary_TaggedValueDefinitions,                     PROP_OPT );
 
 
 	aafClass *Content = defineNewClass( aafd, &AAFClassID_ContentStorage, CONCRETE, IOC );
 
 	if ( Content == NULL ) { return -1; }
 
-	attachNewProperty( aafd, Content,          prop, PID_ContentStorage_Mobs,                                   REQ );
-	attachNewProperty( aafd, Content,          prop, PID_ContentStorage_EssenceData,                            REQ );
+	attachNewProperty( aafd, Content,          prop, PID_ContentStorage_Mobs,                                   PROP_REQ );
+	attachNewProperty( aafd, Content,          prop, PID_ContentStorage_EssenceData,                            PROP_REQ );
 
 
 
@@ -284,15 +284,15 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( Mob == NULL ) { return -1; }
 
-	attachNewProperty( aafd, Mob,              prop, PID_Mob_MobID,                                             REQ );
-	attachNewProperty( aafd, Mob,              prop, PID_Mob_Name,                                              OPT );
-	attachNewProperty( aafd, Mob,              prop, PID_Mob_Slots,                                             REQ );
-	attachNewProperty( aafd, Mob,              prop, PID_Mob_LastModified,                                      REQ );
-	attachNewProperty( aafd, Mob,              prop, PID_Mob_CreationTime,                                      REQ );
-	attachNewProperty( aafd, Mob,              prop, PID_Mob_UserComments,                                      OPT );
-	attachNewProperty( aafd, Mob,              prop, PID_Mob_Attributes,                                        OPT );
-	attachNewProperty( aafd, Mob,              prop, PID_Mob_KLVData,                                           OPT );
-	attachNewProperty( aafd, Mob,              prop, PID_Mob_UsageCode,                                         OPT );
+	attachNewProperty( aafd, Mob,              prop, PID_Mob_MobID,                                             PROP_REQ );
+	attachNewProperty( aafd, Mob,              prop, PID_Mob_Name,                                              PROP_OPT );
+	attachNewProperty( aafd, Mob,              prop, PID_Mob_Slots,                                             PROP_REQ );
+	attachNewProperty( aafd, Mob,              prop, PID_Mob_LastModified,                                      PROP_REQ );
+	attachNewProperty( aafd, Mob,              prop, PID_Mob_CreationTime,                                      PROP_REQ );
+	attachNewProperty( aafd, Mob,              prop, PID_Mob_UserComments,                                      PROP_OPT );
+	attachNewProperty( aafd, Mob,              prop, PID_Mob_Attributes,                                        PROP_OPT );
+	attachNewProperty( aafd, Mob,              prop, PID_Mob_KLVData,                                           PROP_OPT );
+	attachNewProperty( aafd, Mob,              prop, PID_Mob_UsageCode,                                         PROP_OPT );
 
 
 
@@ -300,10 +300,10 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( CompoMob == NULL ) { return -1; }
 
-	attachNewProperty( aafd, CompoMob,         prop, PID_CompositionMob_DefaultFadeLength,                      OPT );
-	attachNewProperty( aafd, CompoMob,         prop, PID_CompositionMob_DefFadeType,                            OPT );
-	attachNewProperty( aafd, CompoMob,         prop, PID_CompositionMob_DefFadeEditUnit,                        OPT );
-	attachNewProperty( aafd, CompoMob,         prop, PID_CompositionMob_Rendering,                              OPT );
+	attachNewProperty( aafd, CompoMob,         prop, PID_CompositionMob_DefaultFadeLength,                      PROP_OPT );
+	attachNewProperty( aafd, CompoMob,         prop, PID_CompositionMob_DefFadeType,                            PROP_OPT );
+	attachNewProperty( aafd, CompoMob,         prop, PID_CompositionMob_DefFadeEditUnit,                        PROP_OPT );
+	attachNewProperty( aafd, CompoMob,         prop, PID_CompositionMob_Rendering,                              PROP_OPT );
 
 
 
@@ -319,7 +319,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( SourceMob == NULL ) { return -1; }
 
-	attachNewProperty( aafd, SourceMob,        prop, PID_SourceMob_EssenceDescription,                          REQ );
+	attachNewProperty( aafd, SourceMob,        prop, PID_SourceMob_EssenceDescription,                          PROP_REQ );
 
 
 
@@ -327,10 +327,10 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( MobSlot == NULL ) { return -1; }
 
-	attachNewProperty( aafd, MobSlot,          prop, PID_MobSlot_SlotID,                                        REQ );
-	attachNewProperty( aafd, MobSlot,          prop, PID_MobSlot_SlotName,                                      OPT );
-	attachNewProperty( aafd, MobSlot,          prop, PID_MobSlot_PhysicalTrackNumber,                           OPT );
-	attachNewProperty( aafd, MobSlot,          prop, PID_MobSlot_Segment,                                       REQ );
+	attachNewProperty( aafd, MobSlot,          prop, PID_MobSlot_SlotID,                                        PROP_REQ );
+	attachNewProperty( aafd, MobSlot,          prop, PID_MobSlot_SlotName,                                      PROP_OPT );
+	attachNewProperty( aafd, MobSlot,          prop, PID_MobSlot_PhysicalTrackNumber,                           PROP_OPT );
+	attachNewProperty( aafd, MobSlot,          prop, PID_MobSlot_Segment,                                       PROP_REQ );
 
 
 
@@ -338,11 +338,11 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( TimelineMobSlot == NULL ) { return -1; }
 
-	attachNewProperty( aafd, TimelineMobSlot,  prop, PID_TimelineMobSlot_EditRate,                              REQ );
-	attachNewProperty( aafd, TimelineMobSlot,  prop, PID_TimelineMobSlot_Origin,                                REQ );
-	attachNewProperty( aafd, TimelineMobSlot,  prop, PID_TimelineMobSlot_MarkIn,                                OPT );
-	attachNewProperty( aafd, TimelineMobSlot,  prop, PID_TimelineMobSlot_MarkOut,                               OPT );
-	attachNewProperty( aafd, TimelineMobSlot,  prop, PID_TimelineMobSlot_UserPos,                               OPT );
+	attachNewProperty( aafd, TimelineMobSlot,  prop, PID_TimelineMobSlot_EditRate,                              PROP_REQ );
+	attachNewProperty( aafd, TimelineMobSlot,  prop, PID_TimelineMobSlot_Origin,                                PROP_REQ );
+	attachNewProperty( aafd, TimelineMobSlot,  prop, PID_TimelineMobSlot_MarkIn,                                PROP_OPT );
+	attachNewProperty( aafd, TimelineMobSlot,  prop, PID_TimelineMobSlot_MarkOut,                               PROP_OPT );
+	attachNewProperty( aafd, TimelineMobSlot,  prop, PID_TimelineMobSlot_UserPos,                               PROP_OPT );
 
 
 
@@ -350,7 +350,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( EventMobSlot == NULL ) { return -1; }
 
-	attachNewProperty( aafd, EventMobSlot,     prop, PID_EventMobSlot_EditRate,                                 REQ );
+	attachNewProperty( aafd, EventMobSlot,     prop, PID_EventMobSlot_EditRate,                                 PROP_REQ );
 //	attachNewProperty( aafd, EventMobSlot,     prop, PID_EventMobSlot_EventSlotOrigin,                  ??? );
 
 
@@ -367,7 +367,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( KLVData == NULL ) { return -1; }
 
-	attachNewProperty( aafd, KLVData,          prop, PID_KLVData_Value,                                         REQ );
+	attachNewProperty( aafd, KLVData,          prop, PID_KLVData_Value,                                         PROP_REQ );
 
 
 
@@ -375,8 +375,8 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( TaggedValue == NULL ) { return -1; }
 
-	attachNewProperty( aafd, TaggedValue,      prop, PID_TaggedValue_Name,                                      REQ );
-	attachNewProperty( aafd, TaggedValue,      prop, PID_TaggedValue_Value,                                     REQ );
+	attachNewProperty( aafd, TaggedValue,      prop, PID_TaggedValue_Name,                                      PROP_REQ );
+	attachNewProperty( aafd, TaggedValue,      prop, PID_TaggedValue_Value,                                     PROP_REQ );
 
 
 
@@ -384,7 +384,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( Parameter == NULL ) { return -1; }
 
-	attachNewProperty( aafd, Parameter,        prop, PID_Parameter_Definition,                                  REQ );
+	attachNewProperty( aafd, Parameter,        prop, PID_Parameter_Definition,                                  PROP_REQ );
 
 
 
@@ -392,7 +392,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( ConstantValue == NULL ) { return -1; }
 
-	attachNewProperty( aafd, ConstantValue,    prop, PID_ConstantValue_Value,                                   REQ );
+	attachNewProperty( aafd, ConstantValue,    prop, PID_ConstantValue_Value,                                   PROP_REQ );
 
 
 
@@ -400,8 +400,8 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( VaryingValue == NULL ) { return -1; }
 
-	attachNewProperty( aafd, VaryingValue,     prop, PID_VaryingValue_Interpolation,                            REQ );
-	attachNewProperty( aafd, VaryingValue,     prop, PID_VaryingValue_PointList,                                REQ );
+	attachNewProperty( aafd, VaryingValue,     prop, PID_VaryingValue_Interpolation,                            PROP_REQ );
+	attachNewProperty( aafd, VaryingValue,     prop, PID_VaryingValue_PointList,                                PROP_REQ );
 
 
 
@@ -409,9 +409,9 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( ControlPoint == NULL ) { return -1; }
 
-	attachNewProperty( aafd, ControlPoint,     prop, PID_ControlPoint_Value,                                    REQ );
-	attachNewProperty( aafd, ControlPoint,     prop, PID_ControlPoint_Time,                                     REQ );
-	attachNewProperty( aafd, ControlPoint,     prop, PID_ControlPoint_EditHint,                                 OPT );
+	attachNewProperty( aafd, ControlPoint,     prop, PID_ControlPoint_Value,                                    PROP_REQ );
+	attachNewProperty( aafd, ControlPoint,     prop, PID_ControlPoint_Time,                                     PROP_REQ );
+	attachNewProperty( aafd, ControlPoint,     prop, PID_ControlPoint_EditHint,                                 PROP_OPT );
 
 
 
@@ -427,7 +427,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( NetworkLocator == NULL ) { return -1; }
 
-	attachNewProperty( aafd, NetworkLocator,   prop, PID_NetworkLocator_URLString,                              REQ );
+	attachNewProperty( aafd, NetworkLocator,   prop, PID_NetworkLocator_URLString,                              PROP_REQ );
 
 
 
@@ -435,7 +435,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( TextLocator == NULL ) { return -1; }
 
-	attachNewProperty( aafd, TextLocator,      prop, PID_TextLocator_Name,                                      REQ );
+	attachNewProperty( aafd, TextLocator,      prop, PID_TextLocator_Name,                                      PROP_REQ );
 
 
 
@@ -457,11 +457,11 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( Component == NULL ) { return -1; }
 
-	attachNewProperty( aafd, Component,        prop, PID_Component_DataDefinition,                              REQ );
-	attachNewProperty( aafd, Component,        prop, PID_Component_Length,                                      OPT );
-	attachNewProperty( aafd, Component,        prop, PID_Component_KLVData,                                     OPT );
-	attachNewProperty( aafd, Component,        prop, PID_Component_UserComments,                                OPT );
-	attachNewProperty( aafd, Component,        prop, PID_Component_Attributes,                                  OPT );
+	attachNewProperty( aafd, Component,        prop, PID_Component_DataDefinition,                              PROP_REQ );
+	attachNewProperty( aafd, Component,        prop, PID_Component_Length,                                      PROP_OPT );
+	attachNewProperty( aafd, Component,        prop, PID_Component_KLVData,                                     PROP_OPT );
+	attachNewProperty( aafd, Component,        prop, PID_Component_UserComments,                                PROP_OPT );
+	attachNewProperty( aafd, Component,        prop, PID_Component_Attributes,                                  PROP_OPT );
 
 
 
@@ -469,8 +469,8 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( Transition == NULL ) { return -1; }
 
-	attachNewProperty( aafd, Transition,       prop, PID_Transition_OperationGroup,                             REQ );
-	attachNewProperty( aafd, Transition,       prop, PID_Transition_CutPoint,                                   REQ );
+	attachNewProperty( aafd, Transition,       prop, PID_Transition_OperationGroup,                             PROP_REQ );
+	attachNewProperty( aafd, Transition,       prop, PID_Transition_CutPoint,                                   PROP_REQ );
 
 
 
@@ -486,7 +486,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( Sequence == NULL ) { return -1; }
 
-	attachNewProperty( aafd, Sequence,         prop, PID_Sequence_Components,                                   REQ );
+	attachNewProperty( aafd, Sequence,         prop, PID_Sequence_Components,                                   PROP_REQ );
 
 
 
@@ -502,10 +502,10 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( SourceRef == NULL ) { return -1; }
 
-	attachNewProperty( aafd, SourceRef,        prop, PID_SourceReference_SourceID,                              OPT );
-	attachNewProperty( aafd, SourceRef,        prop, PID_SourceReference_SourceMobSlotID,                       REQ );
-	attachNewProperty( aafd, SourceRef,        prop, PID_SourceReference_ChannelIDs,                            OPT );
-	attachNewProperty( aafd, SourceRef,        prop, PID_SourceReference_MonoSourceSlotIDs,                     OPT );
+	attachNewProperty( aafd, SourceRef,        prop, PID_SourceReference_SourceID,                              PROP_OPT );
+	attachNewProperty( aafd, SourceRef,        prop, PID_SourceReference_SourceMobSlotID,                       PROP_REQ );
+	attachNewProperty( aafd, SourceRef,        prop, PID_SourceReference_ChannelIDs,                            PROP_OPT );
+	attachNewProperty( aafd, SourceRef,        prop, PID_SourceReference_MonoSourceSlotIDs,                     PROP_OPT );
 
 
 
@@ -513,11 +513,11 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( SourceClip == NULL ) { return -1; }
 
-	attachNewProperty( aafd, SourceClip,       prop, PID_SourceClip_StartTime,                                  OPT );
-	attachNewProperty( aafd, SourceClip,       prop, PID_SourceClip_FadeInLength,                               OPT );
-	attachNewProperty( aafd, SourceClip,       prop, PID_SourceClip_FadeInType,                                 OPT );
-	attachNewProperty( aafd, SourceClip,       prop, PID_SourceClip_FadeOutLength,                              OPT );
-	attachNewProperty( aafd, SourceClip,       prop, PID_SourceClip_FadeOutType,                                OPT );
+	attachNewProperty( aafd, SourceClip,       prop, PID_SourceClip_StartTime,                                  PROP_OPT );
+	attachNewProperty( aafd, SourceClip,       prop, PID_SourceClip_FadeInLength,                               PROP_OPT );
+	attachNewProperty( aafd, SourceClip,       prop, PID_SourceClip_FadeInType,                                 PROP_OPT );
+	attachNewProperty( aafd, SourceClip,       prop, PID_SourceClip_FadeOutLength,                              PROP_OPT );
+	attachNewProperty( aafd, SourceClip,       prop, PID_SourceClip_FadeOutType,                                PROP_OPT );
 
 
 
@@ -525,8 +525,8 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( Event == NULL ) { return -1; }
 
-	attachNewProperty( aafd, Event,            prop, PID_Event_Position,                                        REQ );
-	attachNewProperty( aafd, Event,            prop, PID_Event_Comment,                                         OPT );
+	attachNewProperty( aafd, Event,            prop, PID_Event_Position,                                        PROP_REQ );
+	attachNewProperty( aafd, Event,            prop, PID_Event_Comment,                                         PROP_OPT );
 
 
 
@@ -534,7 +534,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( CommentMarker == NULL ) { return -1; }
 
-	attachNewProperty( aafd, CommentMarker,    prop, PID_CommentMarker_Annotation,                              OPT );
+	attachNewProperty( aafd, CommentMarker,    prop, PID_CommentMarker_Annotation,                              PROP_OPT );
 
 
 
@@ -542,8 +542,8 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( DescriptiveMarker == NULL ) { return -1; }
 
-	attachNewProperty( aafd, DescriptiveMarker, prop, PID_DescriptiveMarker_DescribedSlots,                     OPT );
-	attachNewProperty( aafd, DescriptiveMarker, prop, PID_DescriptiveMarker_Description,                        OPT );
+	attachNewProperty( aafd, DescriptiveMarker, prop, PID_DescriptiveMarker_DescribedSlots,                     PROP_OPT );
+	attachNewProperty( aafd, DescriptiveMarker, prop, PID_DescriptiveMarker_Description,                        PROP_OPT );
 
 
 
@@ -551,7 +551,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( GPITrigger == NULL ) { return -1; }
 
-	attachNewProperty( aafd, GPITrigger,       prop, PID_GPITrigger_ActiveState,                                REQ );
+	attachNewProperty( aafd, GPITrigger,       prop, PID_GPITrigger_ActiveState,                                PROP_REQ );
 
 
 
@@ -559,9 +559,9 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( Timecode == NULL ) { return -1; }
 
-	attachNewProperty( aafd, Timecode,         prop, PID_Timecode_Start,                                        REQ );
-	attachNewProperty( aafd, Timecode,         prop, PID_Timecode_FPS,                                          REQ );
-	attachNewProperty( aafd, Timecode,         prop, PID_Timecode_Drop,                                         REQ );
+	attachNewProperty( aafd, Timecode,         prop, PID_Timecode_Start,                                        PROP_REQ );
+	attachNewProperty( aafd, Timecode,         prop, PID_Timecode_FPS,                                          PROP_REQ );
+	attachNewProperty( aafd, Timecode,         prop, PID_Timecode_Drop,                                         PROP_REQ );
 
 
 
@@ -569,9 +569,9 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( TCStream == NULL ) { return -1; }
 
-	attachNewProperty( aafd, TCStream,         prop, PID_TimecodeStream_SampleRate,                             REQ );
-	attachNewProperty( aafd, TCStream,         prop, PID_TimecodeStream_Source,                                 REQ );
-	attachNewProperty( aafd, TCStream,         prop, PID_TimecodeStream_SourceType,                             REQ );
+	attachNewProperty( aafd, TCStream,         prop, PID_TimecodeStream_SampleRate,                             PROP_REQ );
+	attachNewProperty( aafd, TCStream,         prop, PID_TimecodeStream_Source,                                 PROP_REQ );
+	attachNewProperty( aafd, TCStream,         prop, PID_TimecodeStream_SourceType,                             PROP_REQ );
 
 
 
@@ -579,7 +579,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( TCStream12M == NULL ) { return -1; }
 
-	attachNewProperty( aafd, TCStream12M,      prop, PID_TimecodeStream12M_IncludeSync,                         OPT );
+	attachNewProperty( aafd, TCStream12M,      prop, PID_TimecodeStream12M_IncludeSync,                         PROP_OPT );
 
 
 
@@ -587,10 +587,10 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( Edgecode == NULL ) { return -1; }
 
-	attachNewProperty( aafd, Edgecode,         prop, PID_EdgeCode_Start,                                        REQ );
-	attachNewProperty( aafd, Edgecode,         prop, PID_EdgeCode_FilmKind,                                     REQ );
-	attachNewProperty( aafd, Edgecode,         prop, PID_EdgeCode_CodeFormat,                                   REQ );
-	attachNewProperty( aafd, Edgecode,         prop, PID_EdgeCode_Header,                                       OPT );
+	attachNewProperty( aafd, Edgecode,         prop, PID_EdgeCode_Start,                                        PROP_REQ );
+	attachNewProperty( aafd, Edgecode,         prop, PID_EdgeCode_FilmKind,                                     PROP_REQ );
+	attachNewProperty( aafd, Edgecode,         prop, PID_EdgeCode_CodeFormat,                                   PROP_REQ );
+	attachNewProperty( aafd, Edgecode,         prop, PID_EdgeCode_Header,                                       PROP_OPT );
 
 
 
@@ -598,10 +598,10 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( Pulldown == NULL ) { return -1; }
 
-	attachNewProperty( aafd, Pulldown,         prop, PID_Pulldown_InputSegment,                                 REQ );
-	attachNewProperty( aafd, Pulldown,         prop, PID_Pulldown_PulldownKind,                                 REQ );
-	attachNewProperty( aafd, Pulldown,         prop, PID_Pulldown_PulldownDirection,                            REQ );
-	attachNewProperty( aafd, Pulldown,         prop, PID_Pulldown_PhaseFrame,                                   REQ );
+	attachNewProperty( aafd, Pulldown,         prop, PID_Pulldown_InputSegment,                                 PROP_REQ );
+	attachNewProperty( aafd, Pulldown,         prop, PID_Pulldown_PulldownKind,                                 PROP_REQ );
+	attachNewProperty( aafd, Pulldown,         prop, PID_Pulldown_PulldownDirection,                            PROP_REQ );
+	attachNewProperty( aafd, Pulldown,         prop, PID_Pulldown_PhaseFrame,                                   PROP_REQ );
 
 
 
@@ -609,11 +609,11 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( OperationGroup == NULL ) { return -1; }
 
-	attachNewProperty( aafd, OperationGroup,   prop, PID_OperationGroup_Operation,                              REQ );
-	attachNewProperty( aafd, OperationGroup,   prop, PID_OperationGroup_InputSegments,                          OPT );
-	attachNewProperty( aafd, OperationGroup,   prop, PID_OperationGroup_Parameters,                             OPT );
-	attachNewProperty( aafd, OperationGroup,   prop, PID_OperationGroup_Rendering,                              OPT );
-	attachNewProperty( aafd, OperationGroup,   prop, PID_OperationGroup_BypassOverride,                         OPT );
+	attachNewProperty( aafd, OperationGroup,   prop, PID_OperationGroup_Operation,                              PROP_REQ );
+	attachNewProperty( aafd, OperationGroup,   prop, PID_OperationGroup_InputSegments,                          PROP_OPT );
+	attachNewProperty( aafd, OperationGroup,   prop, PID_OperationGroup_Parameters,                             PROP_OPT );
+	attachNewProperty( aafd, OperationGroup,   prop, PID_OperationGroup_Rendering,                              PROP_OPT );
+	attachNewProperty( aafd, OperationGroup,   prop, PID_OperationGroup_BypassOverride,                         PROP_OPT );
 
 
 
@@ -621,7 +621,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( NestedScope == NULL ) { return -1; }
 
-	attachNewProperty( aafd, NestedScope,      prop, PID_NestedScope_Slots,                                     REQ );
+	attachNewProperty( aafd, NestedScope,      prop, PID_NestedScope_Slots,                                     PROP_REQ );
 
 
 
@@ -629,8 +629,8 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( ScopeReference == NULL ) { return -1; }
 
-	attachNewProperty( aafd, ScopeReference,   prop, PID_ScopeReference_RelativeScope,                          REQ );
-	attachNewProperty( aafd, ScopeReference,   prop, PID_ScopeReference_RelativeSlot,                           REQ );
+	attachNewProperty( aafd, ScopeReference,   prop, PID_ScopeReference_RelativeScope,                          PROP_REQ );
+	attachNewProperty( aafd, ScopeReference,   prop, PID_ScopeReference_RelativeSlot,                           PROP_REQ );
 
 
 
@@ -638,8 +638,8 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( Selector == NULL ) { return -1; }
 
-	attachNewProperty( aafd, Selector,         prop, PID_Selector_Selected,                                     REQ );
-	attachNewProperty( aafd, Selector,         prop, PID_Selector_Alternates,                                   OPT );
+	attachNewProperty( aafd, Selector,         prop, PID_Selector_Selected,                                     PROP_REQ );
+	attachNewProperty( aafd, Selector,         prop, PID_Selector_Alternates,                                   PROP_OPT );
 
 
 
@@ -647,8 +647,8 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( EssenceGroup == NULL ) { return -1; }
 
-	attachNewProperty( aafd, EssenceGroup,     prop, PID_EssenceGroup_Choices,                                  REQ );
-	attachNewProperty( aafd, EssenceGroup,     prop, PID_EssenceGroup_StillFrame,                               OPT );
+	attachNewProperty( aafd, EssenceGroup,     prop, PID_EssenceGroup_Choices,                                  PROP_REQ );
+	attachNewProperty( aafd, EssenceGroup,     prop, PID_EssenceGroup_StillFrame,                               PROP_OPT );
 
 
 
@@ -673,7 +673,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( EssenceDesc == NULL ) { return -1; }
 
-	attachNewProperty( aafd, EssenceDesc,      prop, PID_EssenceDescriptor_Locator,                             OPT );
+	attachNewProperty( aafd, EssenceDesc,      prop, PID_EssenceDescriptor_Locator,                             PROP_OPT );
 
 
 
@@ -681,10 +681,10 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( FileDesc == NULL ) { return -1; }
 
-	attachNewProperty( aafd, FileDesc,         prop, PID_FileDescriptor_SampleRate,                             REQ );
-	attachNewProperty( aafd, FileDesc,         prop, PID_FileDescriptor_Length,                                 REQ );
-	attachNewProperty( aafd, FileDesc,         prop, PID_FileDescriptor_ContainerFormat,                        OPT );
-	attachNewProperty( aafd, FileDesc,         prop, PID_FileDescriptor_CodecDefinition,                        OPT );
+	attachNewProperty( aafd, FileDesc,         prop, PID_FileDescriptor_SampleRate,                             PROP_REQ );
+	attachNewProperty( aafd, FileDesc,         prop, PID_FileDescriptor_Length,                                 PROP_REQ );
+	attachNewProperty( aafd, FileDesc,         prop, PID_FileDescriptor_ContainerFormat,                        PROP_OPT );
+	attachNewProperty( aafd, FileDesc,         prop, PID_FileDescriptor_CodecDefinition,                        PROP_OPT );
 //	attachNewProperty( aafd, FileDesc,         prop, PID_FileDescriptor_LinkedSlotID,                           ??? );
 
 
@@ -693,32 +693,32 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( DigitalImageDesc == NULL ) { return -1; }
 
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_Compression,                    OPT );
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_StoredHeight,                   REQ );
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_StoredWidth,                    REQ );
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_StoredF2Offset,                 OPT );
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_SampledHeight,                  OPT );
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_SampledWidth,                   OPT );
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_SampledXOffset,                 OPT );
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_SampledYOffset,                 OPT );
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_DisplayHeight,                  OPT );
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_DisplayWidth,                   OPT );
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_DisplayXOffset,                 OPT );
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_DisplayYOffset,                 OPT );
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_DisplayF2Offset,                OPT );
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_FrameLayout,                    REQ );
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_VideoLineMap,                   REQ );
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_ImageAspectRatio,               REQ );
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_ActiveFormatDescriptor,         OPT );
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_AlphaTransparency,              OPT );
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_ImageAlignmentFactor,           OPT );
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_FieldDominance,                 OPT );
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_FieldStartOffset,               OPT );
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_FieldEndOffset,                 OPT );
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_ColorPrimaries,                 OPT );
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_CodingEquations,                OPT );
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_TransferCharacteristic,         OPT );
-	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_SignalStandard,                 OPT );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_Compression,                    PROP_OPT );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_StoredHeight,                   PROP_REQ );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_StoredWidth,                    PROP_REQ );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_StoredF2Offset,                 PROP_OPT );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_SampledHeight,                  PROP_OPT );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_SampledWidth,                   PROP_OPT );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_SampledXOffset,                 PROP_OPT );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_SampledYOffset,                 PROP_OPT );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_DisplayHeight,                  PROP_OPT );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_DisplayWidth,                   PROP_OPT );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_DisplayXOffset,                 PROP_OPT );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_DisplayYOffset,                 PROP_OPT );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_DisplayF2Offset,                PROP_OPT );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_FrameLayout,                    PROP_REQ );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_VideoLineMap,                   PROP_REQ );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_ImageAspectRatio,               PROP_REQ );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_ActiveFormatDescriptor,         PROP_OPT );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_AlphaTransparency,              PROP_OPT );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_ImageAlignmentFactor,           PROP_OPT );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_FieldDominance,                 PROP_OPT );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_FieldStartOffset,               PROP_OPT );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_FieldEndOffset,                 PROP_OPT );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_ColorPrimaries,                 PROP_OPT );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_CodingEquations,                PROP_OPT );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_TransferCharacteristic,         PROP_OPT );
+	attachNewProperty( aafd, DigitalImageDesc, prop, PID_DigitalImageDescriptor_SignalStandard,                 PROP_OPT );
 
 
 
@@ -726,16 +726,16 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( CDCIDesc == NULL ) { return -1; }
 
-	attachNewProperty( aafd, CDCIDesc,         prop, PID_CDCIDescriptor_HorizontalSubsampling,                  REQ );
-	attachNewProperty( aafd, CDCIDesc,         prop, PID_CDCIDescriptor_VerticalSubsampling,                    OPT );
-	attachNewProperty( aafd, CDCIDesc,         prop, PID_CDCIDescriptor_ComponentWidth,                         REQ );
-	attachNewProperty( aafd, CDCIDesc,         prop, PID_CDCIDescriptor_AlphaSamplingWidth,                     OPT );
-	attachNewProperty( aafd, CDCIDesc,         prop, PID_CDCIDescriptor_PaddingBits,                            OPT );
-	attachNewProperty( aafd, CDCIDesc,         prop, PID_CDCIDescriptor_ColorSiting,                            OPT );
-	attachNewProperty( aafd, CDCIDesc,         prop, PID_CDCIDescriptor_BlackReferenceLevel,                    OPT );
-	attachNewProperty( aafd, CDCIDesc,         prop, PID_CDCIDescriptor_WhiteReferenceLevel,                    OPT );
-	attachNewProperty( aafd, CDCIDesc,         prop, PID_CDCIDescriptor_ColorRange,                             OPT );
-	attachNewProperty( aafd, CDCIDesc,         prop, PID_CDCIDescriptor_ReversedByteOrder,                      OPT );
+	attachNewProperty( aafd, CDCIDesc,         prop, PID_CDCIDescriptor_HorizontalSubsampling,                  PROP_REQ );
+	attachNewProperty( aafd, CDCIDesc,         prop, PID_CDCIDescriptor_VerticalSubsampling,                    PROP_OPT );
+	attachNewProperty( aafd, CDCIDesc,         prop, PID_CDCIDescriptor_ComponentWidth,                         PROP_REQ );
+	attachNewProperty( aafd, CDCIDesc,         prop, PID_CDCIDescriptor_AlphaSamplingWidth,                     PROP_OPT );
+	attachNewProperty( aafd, CDCIDesc,         prop, PID_CDCIDescriptor_PaddingBits,                            PROP_OPT );
+	attachNewProperty( aafd, CDCIDesc,         prop, PID_CDCIDescriptor_ColorSiting,                            PROP_OPT );
+	attachNewProperty( aafd, CDCIDesc,         prop, PID_CDCIDescriptor_BlackReferenceLevel,                    PROP_OPT );
+	attachNewProperty( aafd, CDCIDesc,         prop, PID_CDCIDescriptor_WhiteReferenceLevel,                    PROP_OPT );
+	attachNewProperty( aafd, CDCIDesc,         prop, PID_CDCIDescriptor_ColorRange,                             PROP_OPT );
+	attachNewProperty( aafd, CDCIDesc,         prop, PID_CDCIDescriptor_ReversedByteOrder,                      PROP_OPT );
 
 
 
@@ -743,14 +743,14 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( RGBADesc == NULL ) { return -1; }
 
-	attachNewProperty( aafd, RGBADesc,         prop, PID_RGBADescriptor_PixelLayout,                            REQ );
-	attachNewProperty( aafd, RGBADesc,         prop, PID_RGBADescriptor_Palette,                                OPT );
-	attachNewProperty( aafd, RGBADesc,         prop, PID_RGBADescriptor_PaletteLayout,                          OPT );
-	attachNewProperty( aafd, RGBADesc,         prop, PID_RGBADescriptor_ComponentMinRef,                        OPT );
-	attachNewProperty( aafd, RGBADesc,         prop, PID_RGBADescriptor_ComponentMaxRef,                        OPT );
-	attachNewProperty( aafd, RGBADesc,         prop, PID_RGBADescriptor_AlphaMinRef,                            OPT );
-	attachNewProperty( aafd, RGBADesc,         prop, PID_RGBADescriptor_AlphaMaxRef,                            OPT );
-	attachNewProperty( aafd, RGBADesc,         prop, PID_RGBADescriptor_ScanningDirection,                      OPT );
+	attachNewProperty( aafd, RGBADesc,         prop, PID_RGBADescriptor_PixelLayout,                            PROP_REQ );
+	attachNewProperty( aafd, RGBADesc,         prop, PID_RGBADescriptor_Palette,                                PROP_OPT );
+	attachNewProperty( aafd, RGBADesc,         prop, PID_RGBADescriptor_PaletteLayout,                          PROP_OPT );
+	attachNewProperty( aafd, RGBADesc,         prop, PID_RGBADescriptor_ComponentMinRef,                        PROP_OPT );
+	attachNewProperty( aafd, RGBADesc,         prop, PID_RGBADescriptor_ComponentMaxRef,                        PROP_OPT );
+	attachNewProperty( aafd, RGBADesc,         prop, PID_RGBADescriptor_AlphaMinRef,                            PROP_OPT );
+	attachNewProperty( aafd, RGBADesc,         prop, PID_RGBADescriptor_AlphaMaxRef,                            PROP_OPT );
+	attachNewProperty( aafd, RGBADesc,         prop, PID_RGBADescriptor_ScanningDirection,                      PROP_OPT );
 
 
 
@@ -758,14 +758,14 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( TapeDesc == NULL ) { return -1; }
 
-	attachNewProperty( aafd, TapeDesc,         prop, PID_TapeDescriptor_FormFactor,                             OPT );
-	attachNewProperty( aafd, TapeDesc,         prop, PID_TapeDescriptor_VideoSignal,                            OPT );
-	attachNewProperty( aafd, TapeDesc,         prop, PID_TapeDescriptor_TapeFormat,                             OPT );
-	attachNewProperty( aafd, TapeDesc,         prop, PID_TapeDescriptor_Length,                                 OPT );
-	attachNewProperty( aafd, TapeDesc,         prop, PID_TapeDescriptor_ManufacturerID,                         OPT );
-	attachNewProperty( aafd, TapeDesc,         prop, PID_TapeDescriptor_Model,                                  OPT );
-	attachNewProperty( aafd, TapeDesc,         prop, PID_TapeDescriptor_TapeBatchNumber,                        OPT );
-	attachNewProperty( aafd, TapeDesc,         prop, PID_TapeDescriptor_TapeStock,                              OPT );
+	attachNewProperty( aafd, TapeDesc,         prop, PID_TapeDescriptor_FormFactor,                             PROP_OPT );
+	attachNewProperty( aafd, TapeDesc,         prop, PID_TapeDescriptor_VideoSignal,                            PROP_OPT );
+	attachNewProperty( aafd, TapeDesc,         prop, PID_TapeDescriptor_TapeFormat,                             PROP_OPT );
+	attachNewProperty( aafd, TapeDesc,         prop, PID_TapeDescriptor_Length,                                 PROP_OPT );
+	attachNewProperty( aafd, TapeDesc,         prop, PID_TapeDescriptor_ManufacturerID,                         PROP_OPT );
+	attachNewProperty( aafd, TapeDesc,         prop, PID_TapeDescriptor_Model,                                  PROP_OPT );
+	attachNewProperty( aafd, TapeDesc,         prop, PID_TapeDescriptor_TapeBatchNumber,                        PROP_OPT );
+	attachNewProperty( aafd, TapeDesc,         prop, PID_TapeDescriptor_TapeStock,                              PROP_OPT );
 
 
 
@@ -773,14 +773,14 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( FilmDesc == NULL ) { return -1; }
 
-	attachNewProperty( aafd, FilmDesc,         prop, PID_FilmDescriptor_FilmFormat,                             OPT );
-	attachNewProperty( aafd, FilmDesc,         prop, PID_FilmDescriptor_FrameRate,                              OPT );
-	attachNewProperty( aafd, FilmDesc,         prop, PID_FilmDescriptor_PerforationsPerFrame,                   OPT );
-	attachNewProperty( aafd, FilmDesc,         prop, PID_FilmDescriptor_FilmAspectRatio,                        OPT );
-	attachNewProperty( aafd, FilmDesc,         prop, PID_FilmDescriptor_Manufacturer,                           OPT );
-	attachNewProperty( aafd, FilmDesc,         prop, PID_FilmDescriptor_Model,                                  OPT );
-	attachNewProperty( aafd, FilmDesc,         prop, PID_FilmDescriptor_FilmGaugeFormat,                        OPT );
-	attachNewProperty( aafd, FilmDesc,         prop, PID_FilmDescriptor_FilmBatchNumber,                        OPT );
+	attachNewProperty( aafd, FilmDesc,         prop, PID_FilmDescriptor_FilmFormat,                             PROP_OPT );
+	attachNewProperty( aafd, FilmDesc,         prop, PID_FilmDescriptor_FrameRate,                              PROP_OPT );
+	attachNewProperty( aafd, FilmDesc,         prop, PID_FilmDescriptor_PerforationsPerFrame,                   PROP_OPT );
+	attachNewProperty( aafd, FilmDesc,         prop, PID_FilmDescriptor_FilmAspectRatio,                        PROP_OPT );
+	attachNewProperty( aafd, FilmDesc,         prop, PID_FilmDescriptor_Manufacturer,                           PROP_OPT );
+	attachNewProperty( aafd, FilmDesc,         prop, PID_FilmDescriptor_Model,                                  PROP_OPT );
+	attachNewProperty( aafd, FilmDesc,         prop, PID_FilmDescriptor_FilmGaugeFormat,                        PROP_OPT );
+	attachNewProperty( aafd, FilmDesc,         prop, PID_FilmDescriptor_FilmBatchNumber,                        PROP_OPT );
 
 
 
@@ -788,7 +788,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( WAVEDesc == NULL ) { return -1; }
 
-	attachNewProperty( aafd, WAVEDesc,         prop, PID_WAVEDescriptor_Summary,                                REQ );
+	attachNewProperty( aafd, WAVEDesc,         prop, PID_WAVEDescriptor_Summary,                                PROP_REQ );
 
 
 
@@ -796,7 +796,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( AIFCDesc == NULL ) { return -1; }
 
-	attachNewProperty( aafd, AIFCDesc,         prop, PID_AIFCDescriptor_Summary,                                REQ );
+	attachNewProperty( aafd, AIFCDesc,         prop, PID_AIFCDescriptor_Summary,                                PROP_REQ );
 
 
 
@@ -804,12 +804,12 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( TIFFDesc == NULL ) { return -1; }
 
-	attachNewProperty( aafd, TIFFDesc,         prop, PID_TIFFDescriptor_IsUniform,                              REQ );
-	attachNewProperty( aafd, TIFFDesc,         prop, PID_TIFFDescriptor_IsContiguous,                           REQ );
-	attachNewProperty( aafd, TIFFDesc,         prop, PID_TIFFDescriptor_LeadingLines,                           OPT );
-	attachNewProperty( aafd, TIFFDesc,         prop, PID_TIFFDescriptor_TrailingLines,                          OPT );
-	attachNewProperty( aafd, TIFFDesc,         prop, PID_TIFFDescriptor_JPEGTableID,                            OPT );
-	attachNewProperty( aafd, TIFFDesc,         prop, PID_TIFFDescriptor_Summary,                                REQ );
+	attachNewProperty( aafd, TIFFDesc,         prop, PID_TIFFDescriptor_IsUniform,                              PROP_REQ );
+	attachNewProperty( aafd, TIFFDesc,         prop, PID_TIFFDescriptor_IsContiguous,                           PROP_REQ );
+	attachNewProperty( aafd, TIFFDesc,         prop, PID_TIFFDescriptor_LeadingLines,                           PROP_OPT );
+	attachNewProperty( aafd, TIFFDesc,         prop, PID_TIFFDescriptor_TrailingLines,                          PROP_OPT );
+	attachNewProperty( aafd, TIFFDesc,         prop, PID_TIFFDescriptor_JPEGTableID,                            PROP_OPT );
+	attachNewProperty( aafd, TIFFDesc,         prop, PID_TIFFDescriptor_Summary,                                PROP_REQ );
 
 
 
@@ -817,14 +817,14 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( SoundDesc == NULL ) { return -1; }
 
-	attachNewProperty( aafd, SoundDesc,        prop, PID_SoundDescriptor_AudioSamplingRate,                     REQ );
-	attachNewProperty( aafd, SoundDesc,        prop, PID_SoundDescriptor_Locked,                                OPT );
-	attachNewProperty( aafd, SoundDesc,        prop, PID_SoundDescriptor_AudioRefLevel,                         OPT );
-	attachNewProperty( aafd, SoundDesc,        prop, PID_SoundDescriptor_ElectroSpatial,                        OPT );
-	attachNewProperty( aafd, SoundDesc,        prop, PID_SoundDescriptor_Channels,                              REQ );
-	attachNewProperty( aafd, SoundDesc,        prop, PID_SoundDescriptor_QuantizationBits,                      REQ );
-	attachNewProperty( aafd, SoundDesc,        prop, PID_SoundDescriptor_DialNorm,                              OPT );
-	attachNewProperty( aafd, SoundDesc,        prop, PID_SoundDescriptor_Compression,                           OPT );
+	attachNewProperty( aafd, SoundDesc,        prop, PID_SoundDescriptor_AudioSamplingRate,                     PROP_REQ );
+	attachNewProperty( aafd, SoundDesc,        prop, PID_SoundDescriptor_Locked,                                PROP_OPT );
+	attachNewProperty( aafd, SoundDesc,        prop, PID_SoundDescriptor_AudioRefLevel,                         PROP_OPT );
+	attachNewProperty( aafd, SoundDesc,        prop, PID_SoundDescriptor_ElectroSpatial,                        PROP_OPT );
+	attachNewProperty( aafd, SoundDesc,        prop, PID_SoundDescriptor_Channels,                              PROP_REQ );
+	attachNewProperty( aafd, SoundDesc,        prop, PID_SoundDescriptor_QuantizationBits,                      PROP_REQ );
+	attachNewProperty( aafd, SoundDesc,        prop, PID_SoundDescriptor_DialNorm,                              PROP_OPT );
+	attachNewProperty( aafd, SoundDesc,        prop, PID_SoundDescriptor_Compression,                           PROP_OPT );
 
 
 
@@ -832,19 +832,19 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( PCMDesc == NULL ) { return -1; }
 
-	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_BlockAlign,                              REQ );
-	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_SequenceOffset,                          OPT );
-	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_AverageBPS,                              REQ );
-	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_ChannelAssignment,                       OPT );
-	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_PeakEnvelopeVersion,                     OPT );
-	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_PeakEnvelopeFormat,                      OPT );
-	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_PointsPerPeakValue,                      OPT );
-	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_PeakEnvelopeBlockSize,                   OPT );
-	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_PeakChannels,                            OPT );
-	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_PeakFrames,                              OPT );
-	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_PeakOfPeaksPosition,                     OPT );
-	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_PeakEnvelopeTimestamp,                   OPT );
-	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_PeakEnvelopeData,                        OPT );
+	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_BlockAlign,                              PROP_REQ );
+	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_SequenceOffset,                          PROP_OPT );
+	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_AverageBPS,                              PROP_REQ );
+	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_ChannelAssignment,                       PROP_OPT );
+	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_PeakEnvelopeVersion,                     PROP_OPT );
+	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_PeakEnvelopeFormat,                      PROP_OPT );
+	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_PointsPerPeakValue,                      PROP_OPT );
+	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_PeakEnvelopeBlockSize,                   PROP_OPT );
+	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_PeakChannels,                            PROP_OPT );
+	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_PeakFrames,                              PROP_OPT );
+	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_PeakOfPeaksPosition,                     PROP_OPT );
+	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_PeakEnvelopeTimestamp,                   PROP_OPT );
+	attachNewProperty( aafd, PCMDesc,          prop, PID_PCMDescriptor_PeakEnvelopeData,                        PROP_OPT );
 
 
 
@@ -876,8 +876,8 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( AuxiliaryDesc == NULL ) { return -1; }
 
-	attachNewProperty( aafd, AuxiliaryDesc,    prop, PID_AuxiliaryDescriptor_MimeType,                          REQ );
-	attachNewProperty( aafd, AuxiliaryDesc,    prop, PID_AuxiliaryDescriptor_CharSet,                           OPT );
+	attachNewProperty( aafd, AuxiliaryDesc,    prop, PID_AuxiliaryDescriptor_MimeType,                          PROP_REQ );
+	attachNewProperty( aafd, AuxiliaryDesc,    prop, PID_AuxiliaryDescriptor_CharSet,                           PROP_OPT );
 
 
 
@@ -897,9 +897,9 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( DefObject == NULL ) { return -1; }
 
-	attachNewProperty( aafd, DefObject,        prop, PID_DefinitionObject_Identification,                       REQ );
-	attachNewProperty( aafd, DefObject,        prop, PID_DefinitionObject_Name,                                 REQ );
-	attachNewProperty( aafd, DefObject,        prop, PID_DefinitionObject_Description,                          OPT );
+	attachNewProperty( aafd, DefObject,        prop, PID_DefinitionObject_Identification,                       PROP_REQ );
+	attachNewProperty( aafd, DefObject,        prop, PID_DefinitionObject_Name,                                 PROP_REQ );
+	attachNewProperty( aafd, DefObject,        prop, PID_DefinitionObject_Description,                          PROP_OPT );
 
 
 
@@ -915,7 +915,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( ContainerDef == NULL ) { return -1; }
 
-	attachNewProperty( aafd, ContainerDef,     prop, PID_ContainerDefinition_EssenceIsIdentified,               OPT );
+	attachNewProperty( aafd, ContainerDef,     prop, PID_ContainerDefinition_EssenceIsIdentified,               PROP_OPT );
 
 
 
@@ -923,13 +923,13 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( OperationDef == NULL ) { return -1; }
 
-	attachNewProperty( aafd, OperationDef,     prop, PID_OperationDefinition_DataDefinition,                    REQ );
-	attachNewProperty( aafd, OperationDef,     prop, PID_OperationDefinition_IsTimeWarp,                        OPT );
-	attachNewProperty( aafd, OperationDef,     prop, PID_OperationDefinition_DegradeTo,                         OPT );
-	attachNewProperty( aafd, OperationDef,     prop, PID_OperationDefinition_OperationCategory,                 OPT );
-	attachNewProperty( aafd, OperationDef,     prop, PID_OperationDefinition_NumberInputs,                      REQ );
-	attachNewProperty( aafd, OperationDef,     prop, PID_OperationDefinition_Bypass,                            OPT );
-	attachNewProperty( aafd, OperationDef,     prop, PID_OperationDefinition_ParametersDefined,                 OPT );
+	attachNewProperty( aafd, OperationDef,     prop, PID_OperationDefinition_DataDefinition,                    PROP_REQ );
+	attachNewProperty( aafd, OperationDef,     prop, PID_OperationDefinition_IsTimeWarp,                        PROP_OPT );
+	attachNewProperty( aafd, OperationDef,     prop, PID_OperationDefinition_DegradeTo,                         PROP_OPT );
+	attachNewProperty( aafd, OperationDef,     prop, PID_OperationDefinition_OperationCategory,                 PROP_OPT );
+	attachNewProperty( aafd, OperationDef,     prop, PID_OperationDefinition_NumberInputs,                      PROP_REQ );
+	attachNewProperty( aafd, OperationDef,     prop, PID_OperationDefinition_Bypass,                            PROP_OPT );
+	attachNewProperty( aafd, OperationDef,     prop, PID_OperationDefinition_ParametersDefined,                 PROP_OPT );
 
 
 
@@ -937,8 +937,8 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( ParameterDef == NULL ) { return -1; }
 
-	attachNewProperty( aafd, ParameterDef,     prop, PID_ParameterDefinition_Type,                              REQ );
-	attachNewProperty( aafd, ParameterDef,     prop, PID_ParameterDefinition_DisplayUnits,                      OPT );
+	attachNewProperty( aafd, ParameterDef,     prop, PID_ParameterDefinition_Type,                              PROP_REQ );
+	attachNewProperty( aafd, ParameterDef,     prop, PID_ParameterDefinition_DisplayUnits,                      PROP_OPT );
 
 
 
@@ -954,8 +954,8 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( CodecDef == NULL ) { return -1; }
 
-	attachNewProperty( aafd, CodecDef,         prop, PID_CodecDefinition_FileDescriptorClass,                   REQ );
-	attachNewProperty( aafd, CodecDef,         prop, PID_CodecDefinition_DataDefinitions,                       REQ );
+	attachNewProperty( aafd, CodecDef,         prop, PID_CodecDefinition_FileDescriptorClass,                   PROP_REQ );
+	attachNewProperty( aafd, CodecDef,         prop, PID_CodecDefinition_DataDefinitions,                       PROP_REQ );
 
 
 
@@ -963,26 +963,26 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( PluginDef == NULL ) { return -1; }
 
-	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_PluginCategory,                       REQ );
-	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_VersionNumber,                        REQ );
-	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_VersionString,                        OPT );
-	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_Manufacturer,                         OPT );
-	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_ManufacturerInfo,                     OPT );
-	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_ManufacturerID,                       OPT );
-	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_Platform,                             OPT );
-	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_MinPlatformVersion,                   OPT );
-	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_MaxPlatformVersion,                   OPT );
-	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_Engine,                               OPT );
-	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_MinEngineVersion,                     OPT );
-	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_MaxEngineVersion,                     OPT );
-	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_PluginAPI,                            OPT );
-	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_MinPluginAPI,                         OPT );
-	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_MaxPluginAPI,                         OPT );
-	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_SoftwareOnly,                         OPT );
-	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_Accelerator,                          OPT );
-	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_Locators,                             OPT );
-	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_Authentication,                       OPT );
-	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_DefinitionObject,                     OPT );
+	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_PluginCategory,                       PROP_REQ );
+	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_VersionNumber,                        PROP_REQ );
+	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_VersionString,                        PROP_OPT );
+	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_Manufacturer,                         PROP_OPT );
+	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_ManufacturerInfo,                     PROP_OPT );
+	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_ManufacturerID,                       PROP_OPT );
+	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_Platform,                             PROP_OPT );
+	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_MinPlatformVersion,                   PROP_OPT );
+	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_MaxPlatformVersion,                   PROP_OPT );
+	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_Engine,                               PROP_OPT );
+	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_MinEngineVersion,                     PROP_OPT );
+	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_MaxEngineVersion,                     PROP_OPT );
+	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_PluginAPI,                            PROP_OPT );
+	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_MinPluginAPI,                         PROP_OPT );
+	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_MaxPluginAPI,                         PROP_OPT );
+	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_SoftwareOnly,                         PROP_OPT );
+	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_Accelerator,                          PROP_OPT );
+	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_Locators,                             PROP_OPT );
+	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_Authentication,                       PROP_OPT );
+	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_DefinitionObject,                     PROP_OPT );
 
 
 	aafClass * TaggedValueDef = defineNewClass( aafd, &AAFClassID_TaggedValueDefinition, CONCRETE, DefObject );
@@ -997,7 +997,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( KLVDataDef == NULL ) { return -1; }
 
-	attachNewProperty( aafd, KLVDataDef,       prop, PID_KLVDataDefinition_KLVDataType,                         OPT );
+	attachNewProperty( aafd, KLVDataDef,       prop, PID_KLVDataDefinition_KLVDataType,                         PROP_OPT );
 
 
 
@@ -1005,9 +1005,9 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( EssenceData == NULL ) { return -1; }
 
-	attachNewProperty( aafd, EssenceData,      prop, PID_EssenceData_MobID,                                     REQ );
-	attachNewProperty( aafd, EssenceData,      prop, PID_EssenceData_Data,                                      REQ );
-	attachNewProperty( aafd, EssenceData,      prop, PID_EssenceData_SampleIndex,                               OPT );
+	attachNewProperty( aafd, EssenceData,      prop, PID_EssenceData_MobID,                                     PROP_REQ );
+	attachNewProperty( aafd, EssenceData,      prop, PID_EssenceData_Data,                                      PROP_REQ );
+	attachNewProperty( aafd, EssenceData,      prop, PID_EssenceData_SampleIndex,                               PROP_OPT );
 
 
 
@@ -1025,9 +1025,9 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( MetaDefinition == NULL ) { return -1; }
 
-	attachNewProperty( aafd, MetaDefinition,   prop, PID_MetaDefinition_Identification,                         REQ );
-	attachNewProperty( aafd, MetaDefinition,   prop, PID_MetaDefinition_Name,                                   REQ );
-	attachNewProperty( aafd, MetaDefinition,   prop, PID_MetaDefinition_Description,                            OPT );
+	attachNewProperty( aafd, MetaDefinition,   prop, PID_MetaDefinition_Identification,                         PROP_REQ );
+	attachNewProperty( aafd, MetaDefinition,   prop, PID_MetaDefinition_Name,                                   PROP_REQ );
+	attachNewProperty( aafd, MetaDefinition,   prop, PID_MetaDefinition_Description,                            PROP_OPT );
 
 
 
@@ -1035,9 +1035,9 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( ClassDefinition == NULL ) { return -1; }
 
-	attachNewProperty( aafd, ClassDefinition,  prop, PID_ClassDefinition_ParentClass,                           REQ );
-	attachNewProperty( aafd, ClassDefinition,  prop, PID_ClassDefinition_Properties,                            OPT );
-	attachNewProperty( aafd, ClassDefinition,  prop, PID_ClassDefinition_IsConcrete,                            REQ );
+	attachNewProperty( aafd, ClassDefinition,  prop, PID_ClassDefinition_ParentClass,                           PROP_REQ );
+	attachNewProperty( aafd, ClassDefinition,  prop, PID_ClassDefinition_Properties,                            PROP_OPT );
+	attachNewProperty( aafd, ClassDefinition,  prop, PID_ClassDefinition_IsConcrete,                            PROP_REQ );
 
 
 
@@ -1045,10 +1045,10 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( PropertyDefinition == NULL ) { return -1; }
 
-	attachNewProperty( aafd, PropertyDefinition, prop, PID_PropertyDefinition_Type,                             REQ );
-	attachNewProperty( aafd, PropertyDefinition, prop, PID_PropertyDefinition_IsOptional,                       REQ );
-	attachNewProperty( aafd, PropertyDefinition, prop, PID_PropertyDefinition_LocalIdentification,              REQ );
-	attachNewProperty( aafd, PropertyDefinition, prop, PID_PropertyDefinition_IsUniqueIdentifier,               OPT );
+	attachNewProperty( aafd, PropertyDefinition, prop, PID_PropertyDefinition_Type,                             PROP_REQ );
+	attachNewProperty( aafd, PropertyDefinition, prop, PID_PropertyDefinition_IsOptional,                       PROP_REQ );
+	attachNewProperty( aafd, PropertyDefinition, prop, PID_PropertyDefinition_LocalIdentification,              PROP_REQ );
+	attachNewProperty( aafd, PropertyDefinition, prop, PID_PropertyDefinition_IsUniqueIdentifier,               PROP_OPT );
 
 
 
@@ -1072,9 +1072,9 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( TypeDefEnum == NULL ) { return -1; }
 
-	attachNewProperty( aafd, TypeDefEnum,      prop, PID_TypeDefinitionEnumeration_ElementType,                 REQ );
-	attachNewProperty( aafd, TypeDefEnum,      prop, PID_TypeDefinitionEnumeration_ElementNames,                REQ );
-	attachNewProperty( aafd, TypeDefEnum,      prop, PID_TypeDefinitionEnumeration_ElementValues,               REQ );
+	attachNewProperty( aafd, TypeDefEnum,      prop, PID_TypeDefinitionEnumeration_ElementType,                 PROP_REQ );
+	attachNewProperty( aafd, TypeDefEnum,      prop, PID_TypeDefinitionEnumeration_ElementNames,                PROP_REQ );
+	attachNewProperty( aafd, TypeDefEnum,      prop, PID_TypeDefinitionEnumeration_ElementValues,               PROP_REQ );
 
 
 
@@ -1082,8 +1082,8 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( TypeDefExtEnum == NULL ) { return -1; }
 
-	attachNewProperty( aafd, TypeDefExtEnum,   prop, PID_TypeDefinitionExtendibleEnumeration_ElementNames,      REQ );
-	attachNewProperty( aafd, TypeDefExtEnum,   prop, PID_TypeDefinitionExtendibleEnumeration_ElementValues,     REQ );
+	attachNewProperty( aafd, TypeDefExtEnum,   prop, PID_TypeDefinitionExtendibleEnumeration_ElementNames,      PROP_REQ );
+	attachNewProperty( aafd, TypeDefExtEnum,   prop, PID_TypeDefinitionExtendibleEnumeration_ElementValues,     PROP_REQ );
 
 
 
@@ -1091,8 +1091,8 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( TypeDefFixedArray == NULL ) { return -1; }
 
-	attachNewProperty( aafd, TypeDefFixedArray, prop, PID_TypeDefinitionFixedArray_ElementType,                 REQ );
-	attachNewProperty( aafd, TypeDefFixedArray, prop, PID_TypeDefinitionFixedArray_ElementCount,                REQ );
+	attachNewProperty( aafd, TypeDefFixedArray, prop, PID_TypeDefinitionFixedArray_ElementType,                 PROP_REQ );
+	attachNewProperty( aafd, TypeDefFixedArray, prop, PID_TypeDefinitionFixedArray_ElementCount,                PROP_REQ );
 
 
 
@@ -1108,8 +1108,8 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( TypeDefInt == NULL ) { return -1; }
 
-	attachNewProperty( aafd, TypeDefInt,       prop, PID_TypeDefinitionInteger_Size,                            REQ );
-	attachNewProperty( aafd, TypeDefInt,       prop, PID_TypeDefinitionInteger_IsSigned,                        REQ );
+	attachNewProperty( aafd, TypeDefInt,       prop, PID_TypeDefinitionInteger_Size,                            PROP_REQ );
+	attachNewProperty( aafd, TypeDefInt,       prop, PID_TypeDefinitionInteger_IsSigned,                        PROP_REQ );
 
 
 
@@ -1125,8 +1125,8 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( TypeDefRecord == NULL ) { return -1; }
 
-	attachNewProperty( aafd, TypeDefRecord,    prop, PID_TypeDefinitionRecord_MemberTypes,                      REQ );
-	attachNewProperty( aafd, TypeDefRecord,    prop, PID_TypeDefinitionRecord_MemberNames,                      REQ );
+	attachNewProperty( aafd, TypeDefRecord,    prop, PID_TypeDefinitionRecord_MemberTypes,                      PROP_REQ );
+	attachNewProperty( aafd, TypeDefRecord,    prop, PID_TypeDefinitionRecord_MemberNames,                      PROP_REQ );
 
 
 
@@ -1134,7 +1134,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( TypeDefRename == NULL ) { return -1; }
 
-	attachNewProperty( aafd, TypeDefRename,    prop, PID_TypeDefinitionRename_RenamedType,                      REQ );
+	attachNewProperty( aafd, TypeDefRename,    prop, PID_TypeDefinitionRename_RenamedType,                      PROP_REQ );
 
 
 
@@ -1142,7 +1142,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( TypeDefSet == NULL ) { return -1; }
 
-	attachNewProperty( aafd, TypeDefSet,       prop, PID_TypeDefinitionSet_ElementType,                         REQ );
+	attachNewProperty( aafd, TypeDefSet,       prop, PID_TypeDefinitionSet_ElementType,                         PROP_REQ );
 
 
 
@@ -1158,7 +1158,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( TypeDefString == NULL ) { return -1; }
 
-	attachNewProperty( aafd, TypeDefString,    prop, PID_TypeDefinitionString_ElementType,                      REQ );
+	attachNewProperty( aafd, TypeDefString,    prop, PID_TypeDefinitionString_ElementType,                      PROP_REQ );
 
 
 
@@ -1166,7 +1166,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( TypeDefStrongObjRef == NULL ) { return -1; }
 
-	attachNewProperty( aafd, TypeDefStrongObjRef, prop, PID_TypeDefinitionStrongObjectReference_ReferencedType, REQ );
+	attachNewProperty( aafd, TypeDefStrongObjRef, prop, PID_TypeDefinitionStrongObjectReference_ReferencedType, PROP_REQ );
 
 
 
@@ -1174,7 +1174,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( TypeDefVariableArray == NULL ) { return -1; }
 
-	attachNewProperty( aafd, TypeDefVariableArray, prop, PID_TypeDefinitionVariableArray_ElementType,           REQ );
+	attachNewProperty( aafd, TypeDefVariableArray, prop, PID_TypeDefinitionVariableArray_ElementType,           PROP_REQ );
 
 
 
@@ -1182,8 +1182,8 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( TypeDefWeakObjRef == NULL ) { return -1; }
 
-	attachNewProperty( aafd, TypeDefWeakObjRef, prop, PID_TypeDefinitionWeakObjectReference_ReferencedType,     REQ );
-	attachNewProperty( aafd, TypeDefWeakObjRef, prop, PID_TypeDefinitionWeakObjectReference_TargetSet,          REQ );
+	attachNewProperty( aafd, TypeDefWeakObjRef, prop, PID_TypeDefinitionWeakObjectReference_ReferencedType,     PROP_REQ );
+	attachNewProperty( aafd, TypeDefWeakObjRef, prop, PID_TypeDefinitionWeakObjectReference_TargetSet,          PROP_REQ );
 
 
 
@@ -1191,8 +1191,8 @@ int setDefaultClasses( AAF_Data *aafd )
 
 	if ( MetaDictionary == NULL ) { return -1; }
 
-	attachNewProperty( aafd, MetaDictionary,   prop, PID_MetaDictionary_ClassDefinitions,                       OPT );
-	attachNewProperty( aafd, MetaDictionary,   prop, PID_MetaDictionary_TypeDefinitions,                        OPT );
+	attachNewProperty( aafd, MetaDictionary,   prop, PID_MetaDictionary_ClassDefinitions,                       PROP_OPT );
+	attachNewProperty( aafd, MetaDictionary,   prop, PID_MetaDictionary_TypeDefinitions,                        PROP_OPT );
 
 
 	return 0;

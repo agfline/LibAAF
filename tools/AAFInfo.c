@@ -3,8 +3,13 @@
 #include <string.h>
 #include <inttypes.h>
 #include <math.h>
-#include <getopt.h>
 #include <locale.h>
+
+#ifdef _MSC_VER
+	#include <libaaf/win/getopt.h>
+#else
+	#include <getopt.h>
+#endif
 
 #include <libaaf.h>
 

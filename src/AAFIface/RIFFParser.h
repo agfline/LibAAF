@@ -17,14 +17,14 @@ struct riffHeaderChunk {
 
   char format[4];
   unsigned char data[];
-} __attribute__((__packed__));
+};
 
 struct riffChunk {
   char ckid[4];
   uint32_t cksz;
 
   unsigned char data[];
-} __attribute__((__packed__));
+};
 
 struct wavFmtChunk {
 	char ckid[4]; //'fmt '
@@ -36,7 +36,7 @@ struct wavFmtChunk {
 	uint32_t avg_bytes_per_sec;
 	uint16_t block_align;
 	uint16_t bits_per_sample;
-} __attribute__((__packed__));
+};
 
 struct wavBextChunk {
 	char     ckid[4]; //'bext'
@@ -79,7 +79,7 @@ struct wavBextChunk {
 		of bext structure when parsing.
 	*/
 
-} __attribute__((__packed__));
+};
 
 struct aiffCOMMChunk {
   char ckid[4]; //'COMM'
@@ -89,7 +89,7 @@ struct aiffCOMMChunk {
   uint32_t numSampleFrames;
   uint16_t sampleSize;
   unsigned char sampleRate[10]; // 80 bit IEEE Standard 754 floating point number
-} __attribute__((__packed__));
+};
 
 
 

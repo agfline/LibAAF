@@ -84,7 +84,7 @@ typedef struct rational_t
 	int32_t           numerator;
 	int32_t           denominator;
 
-} __attribute__((packed)) rational_t;
+} /*__attribute__((packed))*/ rational_t;
 
 // static rational_t TC_FPS[] = {
 // 	0x0000000000000001,  // UNKNWON       0/1

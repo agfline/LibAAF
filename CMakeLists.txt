@@ -10,13 +10,21 @@ option( BUILD_TOOLS      "Build AAFInfo and AAFExtract programs"     ON )
 option( XBUILD_WIN       "Cross compile libaaf on Linux for Windows" OFF )
 
 
-
 if ( NOT BUILD_SHARED_LIB AND NOT BUILD_STATIC_LIB )
   message( FATAL_ERROR "You need to enable at least one lib build (BUILD_STATIC_LIB or BUILD_SHARED_LIB)." )
 endif()
 
 
 if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
+  set( LIBAAF_COMPILE_OPTIONS
+    -W
+    -Wall
+    -Wextra
+    # -Wconversion
+    -O3
+    -g
+    -fdebug-prefix-map=${SRC_PATH}=.
+  )
   if ( XBUILD_WIN )
     message( "┌─────────────────────────────┐" )
     message( "│ Cross compiling for Windows │" )
@@ -40,6 +48,11 @@ if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
     set( LIB_INSTALL_PATH     "/usr/local/lib/" )
     set( HEADERS_INSTALL_PATH "/usr/local/include/" )
   endif()
+elseif ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows" )
+  set( LIBAAF_PREFIX "lib" )
+  set( LIBAAF_SHARED_SUFFIX ".dll" )
+  set( LIBAAF_STATIC_SUFFIX ".obj" ) # MSVC
+  set( PROG_SUFFIX ".exe" )
 endif()
 
 
@@ -94,14 +107,6 @@ set( LIBAAF_LIB_SOURCES
   ${LIB_SRC_PATH}/common/utils.c
 )
 
-set( LIBAAF_COMPILE_OPTIONS
-  -W
-  -Wall
-  -O3
-  -g
-  -fdebug-prefix-map=${SRC_PATH}=.
-)
-
 
 if ( BUILD_SHARED_LIB )
   add_library( aaf-shared SHARED ${LIBAAF_LIB_SOURCES} )
@@ -141,7 +146,11 @@ if ( BUILD_TOOLS )
     message( "Building AAFIface and AAFExtract upon shared library" )
   endif()
 
-  link_libraries( ${LINK_LIB} "-lm" )
+  if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
+    link_libraries( ${LINK_LIB} "-lm" )
+  else()
+    link_libraries( ${LINK_LIB} )
+  endif()
 
   add_executable( AAFInfo
     ${TOOLS_SRC_PATH}/AAFInfo.c

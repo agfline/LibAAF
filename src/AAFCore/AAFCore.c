@@ -920,7 +920,7 @@ wchar_t * aaf_get_propertyValueWstr( aafObject *Obj, aafPID_t pid )
 
 #ifdef _WIN32
 	memcpy( string,
-		( Prop->len % 2 ) ? Prop->val+1 : Prop->val,
+		( Prop->len % 2 ) ? (wchar_t*)Prop->val+1 : Prop->val,
 		( Prop->len % 2 ) ? Prop->len-1 : Prop->len );
 #else
 	w16tow32( string,

@@ -1,23 +1,27 @@
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h> // readlink()
+// #include <unistd.h> // readlink()
 #include <wchar.h>
-#include <unistd.h> // access()
-#include <dirent.h>
+// #include <dirent.h>
 #include <inttypes.h>
 #include <ctype.h>
-#include <libgen.h> // dirname()
+// #include <libgen.h> // basename()
 #include <stdarg.h>
 
 #if defined(__linux__)
   #include <linux/limits.h>
   #include <arpa/inet.h>
   #include <mntent.h>
+  #include <unistd.h> // access()
 #elif defined(__APPLE__)
   #include <sys/syslimits.h>
+  #include <unistd.h> // access()
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
   #include <limits.h>
-  // #include <Ws2tcpip.h>
+  #define R_OK    4       /* Test for read permission.  */
+  #define W_OK    2       /* Test for write permission.  */
+  // #define X_OK    1       /* execute permission - unsupported in windows*/
+  #define F_OK    0       /* Test for existence.  */
 #endif
 
 
@@ -112,6 +116,22 @@ char * fop_get_parent_path( const char *path, char **buf, size_t *bufsz, char in
   return pbuf;
 }
 
+
+
+const char * fop_get_file( const char *filepath )
+{
+  if ( filepath == NULL ) {
+    return NULL;
+  }
+
+  const char *end = filepath + strlen(filepath);
+
+  while ( end > filepath && *end != DIR_SEP ) {
+    --end;
+  }
+
+  return (*end==DIR_SEP) ? end+1 : end;
+}
 
 
 /*
@@ -290,7 +310,7 @@ char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_fi
 
   if ( search_location ) {
 
-    char *fpath = fop_concat_paths2( NULL, NULL, "%s%s", search_location, basename(filepath) );
+    char *fpath = fop_concat_paths2( NULL, NULL, "%s%s", search_location, fop_get_file(filepath) );
 
     // printf( "search_location : %s\n", fpath );
 

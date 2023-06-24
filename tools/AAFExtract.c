@@ -1,5 +1,10 @@
 #include <stdio.h>
+
+#ifdef _MSC_VER
+#include <libaaf/win/getopt.h>
+#else
 #include <getopt.h>
+#endif
 
 #include <libaaf.h>
 

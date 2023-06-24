@@ -20,21 +20,23 @@
  *	along with LibCFB. If not, see <http://www.gnu.org/licenses/>.
  */
 
- #include <stdint.h>
+#include <stdint.h>
 
- #if defined(__linux__)
- #include <linux/limits.h>
- #elif defined(__APPLE__)
- #include <sys/syslimits.h>
- #else// windows
- #include <limits.h>
- #endif
+#if defined(__linux__)
+#include <linux/limits.h>
+#elif defined(__APPLE__)
+#include <sys/syslimits.h>
+#else// windows
+#include <windows.h> // MAX_PATH
+#include <limits.h>
+#define PATH_MAX MAX_PATH // TODO: can we get rid of it ?
+#endif
 
- #include <wchar.h>
+#include <wchar.h>
 
- // #include "CFBTypes.h"
- #include <libaaf/debug.h>
- // #include "CFBDump.h"
+// #include "CFBTypes.h"
+#include <libaaf/debug.h>
+// #include "CFBDump.h"
 
 /**
  *	@file LibCFB/LibCFB.h
@@ -235,9 +237,11 @@ typedef enum cfbSpecialSectorID_e
 /**
  *	Storage Type. These are the values used by cfbNode._mse
  *	to specify the type of the node.
+ *
+ *  NOTE: microsoft already define enum tagSTGTY, but it lacks of STGTY_INVALID and STGTY_ROOT.
  */
 
-typedef enum tagSTGTY
+typedef enum customTagSTGTY
 {
 	/**
 	 *	Unknown storage type.
@@ -245,7 +249,7 @@ typedef enum tagSTGTY
 
 	STGTY_INVALID   = 0,
 
-
+#ifndef _MSC_VER
 	/**
 	 *	The node is a storage object, that is a "directory" node.
 	 *
@@ -282,7 +286,7 @@ typedef enum tagSTGTY
 
 	STGTY_PROPERTY  = 4,
 
-
+#endif
 	/**
 	 *	The node is the Root node (SID 0).
 	 */
