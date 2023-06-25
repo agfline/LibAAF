@@ -6,7 +6,7 @@
 #define ANSI_COLOR_RED      "\033[38;5;124m" //"\x1b[31m"
 #define ANSI_COLOR_GREEN    "\x1b[92m"
 #define ANSI_COLOR_YELLOW   "\x1b[33m" //"\x1b[93m"
-#define ANSI_COLOR_BROWN    "\033[38;5;130m"
+#define ANSI_COLOR_ORANGE   "\033[38;5;130m"
 #define ANSI_COLOR_BLUE     "\x1b[34m"
 #define ANSI_COLOR_MAGENTA  "\x1b[35m"
 #define ANSI_COLOR_CYAN     "\033[38;5;81m" //"\x1b[36m"
@@ -17,7 +17,7 @@
 #define ANSI_COLOR_RED      ""
 #define ANSI_COLOR_GREEN    ""
 #define ANSI_COLOR_YELLOW   ""
-#define ANSI_COLOR_BROWN    ""
+#define ANSI_COLOR_ORANGE   ""
 #define ANSI_COLOR_BLUE     ""
 #define ANSI_COLOR_MAGENTA  ""
 #define ANSI_COLOR_CYAN     ""
@@ -28,6 +28,7 @@
 
 
 size_t utf16toa( char *astr, uint16_t alen, uint16_t *wstr, uint16_t wlen );
+wchar_t * atowchar( const char *astr, uint16_t alen );
 
 
 wchar_t * eascii_to_ascii( wchar_t *str );

@@ -38,6 +38,24 @@ size_t utf16toa( char *astr, uint16_t alen, uint16_t *wstr, uint16_t wlen )
 }
 
 
+
+wchar_t * atowchar( const char *astr, uint16_t alen )
+{
+	uint16_t i = 0;
+
+	wchar_t *wstr = calloc( alen+1, sizeof(wchar_t) );
+
+	for ( i = 0; i < alen; i++ )
+		wstr[i] = (wchar_t)astr[i];
+
+
+//	wstr[--i] = 0x0000;
+
+	return wstr;
+}
+
+
+
 /* https://stackoverflow.com/questions/2736753/how-to-remove-extension-from-file-name */
 char *remove_file_ext (char* myStr, char extSep, char pathSep)
 {
