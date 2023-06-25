@@ -119,7 +119,7 @@ char * formatPosValue( aafPosition_t pos, aafRational_t *editRate, enum pos_form
 		return buf;
 	}
 	else if ( posFormat == POS_FORMAT_SAMPLES ) {
-		snprintf( buf, POS_FORMAT_BUFFER_LEN, "%lu", eu2sample( samplerate, editRate, pos ) );
+		snprintf( buf, POS_FORMAT_BUFFER_LEN, "%"PRIi64, eu2sample( samplerate, editRate, pos ) );
 		return buf;
 	}
 	else if ( posFormat == POS_FORMAT_HMS ) {
@@ -487,7 +487,7 @@ int main( int argc, char *argv[] )
 
 		printf( "\n" );
 
-		printf( " Sample Rate          : %li\n", aafi->Audio->samplerate );
+		printf( " Sample Rate          : %"PRIi64"\n", aafi->Audio->samplerate );
 		printf( " Sample Size          : %i\n", aafi->Audio->samplesize );
 
 

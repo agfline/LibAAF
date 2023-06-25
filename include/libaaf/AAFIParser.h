@@ -41,11 +41,11 @@ typedef struct AAF_Iface AAF_Iface;
 
 
 
-#define OK      0
-#define ERROR   1
-#define WARNING 2
-#define INFO    3
-#define NOT_SUPPORTED 4
+#define TD_OK      0
+#define TD_ERROR   1
+#define TD_WARNING 2
+#define TD_INFO    3
+#define TD_NOT_SUPPORTED 4
 
 #define __td_set( __td, __ptd, offset ) \
 	__td.fn  = __LINE__;    \
@@ -59,17 +59,17 @@ typedef struct AAF_Iface AAF_Iface;
 
 
 #define DUMP_OBJ( aafi, Obj, __td ) \
-	_DUMP_OBJ( aafi, Obj, __td, OK, __LINE__, "" );
+	_DUMP_OBJ( aafi, Obj, __td, TD_OK, __LINE__, "" );
 
 #define DUMP_OBJ_ERROR( aafi, Obj, __td, ... ) \
 	(__td)->eob = 1; \
-	_DUMP_OBJ( aafi, Obj, __td, ERROR, __LINE__, __VA_ARGS__ );
+	_DUMP_OBJ( aafi, Obj, __td, TD_ERROR, __LINE__, __VA_ARGS__ );
 
 #define DUMP_OBJ_WARNING( aafi, Obj, __td, ... ) \
-	_DUMP_OBJ( aafi, Obj, __td, WARNING, __LINE__, __VA_ARGS__ );
+	_DUMP_OBJ( aafi, Obj, __td, TD_WARNING, __LINE__, __VA_ARGS__ );
 
 #define DUMP_OBJ_INFO( aafi, Obj, __td, ... ) \
-	_DUMP_OBJ( aafi, Obj, __td, OK, __LINE__, __VA_ARGS__ );
+	_DUMP_OBJ( aafi, Obj, __td, TD_OK, __LINE__, __VA_ARGS__ );
 
 #define DUMP_OBJ_NO_SUPPORT( aafi, Obj, __td ) \
 	(__td)->eob = 1; \

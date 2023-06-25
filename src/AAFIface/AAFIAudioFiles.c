@@ -22,6 +22,9 @@
   #define W_OK    2       /* Test for write permission.  */
   // #define X_OK    1       /* execute permission - unsupported in windows*/
   #define F_OK    0       /* Test for existence.  */
+  #ifndef _MSC_VER
+    #include <unistd.h> // access()
+  #endif
 #endif
 
 

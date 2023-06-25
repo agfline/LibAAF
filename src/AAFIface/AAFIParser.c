@@ -260,9 +260,9 @@ void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int st
 	if ( Obj )
 	{
 		switch ( state ) {
-			case ERROR:		      printf( "%s", ANSI_COLOR_RED      );  break;
-			case WARNING:	      printf( "%s", ANSI_COLOR_YELLOW   );  break;
-			case NOT_SUPPORTED: printf( "%s", ANSI_COLOR_ORANGE    );  break;
+			case TD_ERROR:		      printf( "%s", ANSI_COLOR_RED      );  break;
+			case TD_WARNING:	      printf( "%s", ANSI_COLOR_YELLOW   );  break;
+			case TD_NOT_SUPPORTED: printf( "%s", ANSI_COLOR_ORANGE    );  break;
 			default:            printf( "%s", ANSI_COLOR_DARKGREY );  break;
 		}
 		printf( "%05i", line );
@@ -331,11 +331,11 @@ void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int st
 	{
 
 		switch ( state ) {
-			case ERROR:		      printf( "%s", ANSI_COLOR_RED      );  break;
-			case WARNING:	      printf( "%s", ANSI_COLOR_YELLOW   );  break;
-			case NOT_SUPPORTED: printf( "%s", ANSI_COLOR_ORANGE    );  break;
-			case INFO:
-			case OK:
+			case TD_ERROR:		      printf( "%s", ANSI_COLOR_RED      );  break;
+			case TD_WARNING:	      printf( "%s", ANSI_COLOR_YELLOW   );  break;
+			case TD_NOT_SUPPORTED: printf( "%s", ANSI_COLOR_ORANGE    );  break;
+			case TD_INFO:
+			case TD_OK:
 				if ( __td->sub )
 					printf( "%s", ANSI_COLOR_DARKGREY );
 				else
@@ -411,11 +411,11 @@ void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int st
 		// }
 
 
-		if ( state == ERROR )
+		if ( state == TD_ERROR )
 		{
 			printf( ": %s", ANSI_COLOR_RED );
 		}
-		else if ( state == INFO )
+		else if ( state == TD_INFO )
 		{
 			printf( ": %s", ANSI_COLOR_CYAN );
 		}
@@ -426,14 +426,14 @@ void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int st
 		vprintf(fmt, args);
 		va_end(args);
 
-		if ( state == ERROR || state == INFO )
+		if ( state == TD_ERROR || state == TD_INFO )
 		{
 			printf(".");
 		}
 
-		if ( state == NOT_SUPPORTED || ( aafi->ctx.options.trace_class && wcscmp( ClassIDToText(aafi->aafd, Obj->Class->ID), aafi->ctx.options.trace_class ) == 0) ) {
+		if ( state == TD_NOT_SUPPORTED || ( aafi->ctx.options.trace_class && wcscmp( ClassIDToText(aafi->aafd, Obj->Class->ID), aafi->ctx.options.trace_class ) == 0) ) {
 
-			printf( "\n%s", ( state == NOT_SUPPORTED ) ? ANSI_COLOR_ORANGE : "" );
+			printf( "\n%s", ( state == TD_NOT_SUPPORTED ) ? ANSI_COLOR_ORANGE : "" );
 
 			// printf("CFB Object Dump : %ls\n", aaf_get_ObjectPath( Obj ) );
 			// printf("=================\n" );
@@ -491,7 +491,7 @@ void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int st
 
 
 	/* if end of branch, print one line padding */
-	if ( Obj && ( __td->eob || state == ERROR ) )
+	if ( Obj && ( __td->eob || state == TD_ERROR ) )
 		_DUMP_OBJ( aafi, NULL, __td, 0, -1, "" );
 }
 
@@ -505,7 +505,7 @@ void _DUMP_OBJ_NO_SUPPORT( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *_
 	if ( aafUIDCmp( Obj->Class->ID, &AAFClassID_TimelineMobSlot ) && aafUIDCmp( Obj->Parent->Class->ID, &AAFClassID_CompositionMob ) )
 	{
 		/* this part is handled by _DUMP_OBJ() already. */
-		_DUMP_OBJ( aafi, Obj, __td, NOT_SUPPORTED, line, "" );
+		_DUMP_OBJ( aafi, Obj, __td, TD_NOT_SUPPORTED, line, "" );
 		return;
 	// 	aafObject *Segment = aaf_get_propertyValue( Obj, PID_MobSlot_Segment );
 	//
@@ -522,7 +522,7 @@ void _DUMP_OBJ_NO_SUPPORT( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *_
 	// DataDefinition = get_Component_DataDefinition( aafi, Obj );
 
 
-	_DUMP_OBJ( aafi, Obj, __td, NOT_SUPPORTED, line, "" );
+	_DUMP_OBJ( aafi, Obj, __td, TD_NOT_SUPPORTED, line, "" );
 
 	// _DUMP_OBJ( aafi, Obj, __td, WARNING, line, "%s%ls%s",
 	// 	// ClassIDToText( aafi->aafd, Obj->Class->ID ),

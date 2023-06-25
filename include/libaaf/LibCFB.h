@@ -23,13 +23,16 @@
 #include <stdint.h>
 
 #if defined(__linux__)
-#include <linux/limits.h>
+  #include <linux/limits.h>
 #elif defined(__APPLE__)
-#include <sys/syslimits.h>
-#else// windows
-#include <windows.h> // MAX_PATH
-#include <limits.h>
-#define PATH_MAX MAX_PATH // TODO: can we get rid of it ?
+  #include <sys/syslimits.h>
+#elif defined(_MSC_VER)// MSVC
+  #include <windows.h> // MAX_PATH
+  #include <limits.h>
+  #define PATH_MAX MAX_PATH // TODO: can we get rid of it ?
+#elif defined(_WIN32)
+  #include <windows.h> // MAX_PATH
+  #include <limits.h>
 #endif
 
 #include <wchar.h>
@@ -249,7 +252,7 @@ typedef enum customTagSTGTY
 
 	STGTY_INVALID   = 0,
 
-#ifndef _MSC_VER
+#ifndef _WIN32
 	/**
 	 *	The node is a storage object, that is a "directory" node.
 	 *
