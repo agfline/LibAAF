@@ -49,6 +49,7 @@ if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
     set( HEADERS_INSTALL_PATH "/usr/local/include/" )
   endif()
 elseif ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows" )
+  set( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS 1 )
   set( LIBAAF_PREFIX "lib" )
   set( LIBAAF_SHARED_SUFFIX ".dll" )
   set( LIBAAF_STATIC_SUFFIX ".obj" ) # MSVC
