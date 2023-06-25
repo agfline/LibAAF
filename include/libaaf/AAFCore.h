@@ -629,9 +629,27 @@ typedef struct _aafData
  *  https://github.com/Ardour/ardour/pull/805#issuecomment-1595788696
  */
 
-#define aafUIDCmp(auid1, auid2) \
-  ( (uint8_t const*)auid1 != NULL && (uint8_t const*)auid2 != NULL && memcmp( (uint8_t const*)auid1, (uint8_t const*)auid2, sizeof( aafUID_t ) ) == 0 )
+// #define aafUIDCmp(auid1, auid2)
+//  ( auid1 != NULL && auid2 != NULL && memcmp( auid1, auid2, sizeof( aafUID_t ) ) == 0 )
 
+#define aafUIDCmp(auid1, auid2) \
+  ( auid1 != NULL && \
+		auid2 != NULL && \
+		(auid1)->Data1 == (auid2)->Data1 && \
+		(auid1)->Data2 == (auid2)->Data2 && \
+		(auid1)->Data3 == (auid2)->Data3 && \
+		(auid1)->Data4[0] == (auid2)->Data4[0] && \
+		(auid1)->Data4[1] == (auid2)->Data4[1] && \
+		(auid1)->Data4[2] == (auid2)->Data4[2] && \
+		(auid1)->Data4[3] == (auid2)->Data4[3] && \
+		(auid1)->Data4[4] == (auid2)->Data4[4] && \
+		(auid1)->Data4[5] == (auid2)->Data4[5] && \
+		(auid1)->Data4[6] == (auid2)->Data4[6] && \
+		(auid1)->Data4[7] == (auid2)->Data4[7] )
+	// uint32_t Data1;
+	// uint16_t Data2;
+	// uint16_t Data3;
+	// uint8_t  Data4[8];
 
 /**
  *	Compares two aafMobID_t, returns 1 if equal or 0 otherwise.
@@ -657,7 +675,7 @@ typedef struct _aafData
  */
 
 #define aafRationalToFloat( r ) \
-	(( r.denominator == 0 ) ? 0 : ((float)r.numerator/r.denominator))
+	(( (r).denominator == 0 ) ? 0 : ((float)(r).numerator/(r).denominator))
 
 
 /**
@@ -666,7 +684,7 @@ typedef struct _aafData
  */
 
 #define aafRationalToint64( r ) \
-	(( r.denominator == 0 ) ? 0 : (int64_t)(r.numerator/r.denominator))
+	(( (r).denominator == 0 ) ? 0 : (int64_t)((r).numerator/(r).denominator))
 
 
 
@@ -870,6 +888,10 @@ void * aaf_get_propertyValue( aafObject *Obj,
 
 wchar_t * aaf_get_propertyValueWstr( aafObject *Obj, aafPID_t pid );
 
+
+
+
+aafUID_t * aaf_get_propertyIndirectValueType( aafObject *Obj, aafPID_t pid );
 
 /**
  *	Retrieves a Property by its ID out of an Object, interprets it as an aafIndirect_t and

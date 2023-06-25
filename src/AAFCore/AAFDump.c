@@ -45,6 +45,14 @@ void aaf_dump_Identification( AAF_Data *aafd )
 
 
 
+void aaf_dump_ObjectProperty( AAF_Data *aafd, aafProperty *Prop )
+{
+	printf( " :.: (0x%04x) %ls (%ls)\n", Prop->pid, PIDToText( aafd, Prop->pid ), StoredFormToText( Prop->sf ) /*AUIDToText( &Prop->def->type ),*/ /*TypeIDToText( &(Prop->def->type) )*/ );
+	// WARNING : Wont print strong references (set/vector) corectly.
+	dump_hex( Prop->val, Prop->len );
+}
+
+
 
 void aaf_dump_ObjectProperties( AAF_Data *aafd, aafObject *Obj )
 {
@@ -56,10 +64,11 @@ void aaf_dump_ObjectProperties( AAF_Data *aafd, aafObject *Obj )
 
 	for ( Prop = Obj->Properties;  Prop != NULL; Prop = Prop->next )
 	{
-		printf( " :.: (0x%04x) %ls (type: %ls)\n", Prop->pid, PIDToText( aafd, Prop->pid ), TypeIDToText( &Prop->def->type ) );
-
-		// WARNING : Wont print strong references (set/vector) corectly.
-		dump_hex( Prop->val, Prop->len );
+    aaf_dump_ObjectProperty( aafd, Prop );
+		// printf( " :.: (0x%04x) %ls (%ls)\n", Prop->pid, PIDToText( aafd, Prop->pid ), StoredFormToText( Prop->sf ) /*AUIDToText( &Prop->def->type ),*/ /*TypeIDToText( &(Prop->def->type) )*/ );
+    //
+		// // WARNING : Wont print strong references (set/vector) corectly.
+		// dump_hex( Prop->val, Prop->len );
 	}
 }
 

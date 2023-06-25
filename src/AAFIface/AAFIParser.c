@@ -62,7 +62,7 @@
 #include  <libaaf/AAFDefs/AAFOperationDefs.h>
 #include  <libaaf/AAFDefs/AAFParameterDefs.h>
 #include  <libaaf/AAFDefs/AAFInterpolatorDefs.h>
-// #include  <libaaf/AAFDefs/AAFTypeDefUIDs.h>
+#include  <libaaf/AAFDefs/AAFTypeDefUIDs.h>
 #include  <libaaf/AAFDefs/AAFExtEnum.h>
 // #include  <libaaf/AAFDefs/AAFFileKinds.h>
 #include  <libaaf/AAFDefs/AAFOPDefs.h>
@@ -203,6 +203,52 @@ static int   parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd );
 
 
 
+void xplore_StrongObjectReferenceVector( AAF_Iface *aafi, aafObject *ObjCollection, td *__ptd )
+{
+
+	struct trace_dump __td;
+	__td_set(__td, __ptd, 0);
+
+	// aaf_dump_ObjectProperties( aafi->aafd, ComponentAttributeList );
+
+
+	aafObject *Obj = NULL;
+
+	aaf_foreach_ObjectInSet( &Obj, ObjCollection, NULL )
+	{
+		// aaf_dump_ObjectProperties( aafi->aafd, ObjCollection );
+
+		/* TODO implement retrieve_TaggedValue() */
+
+		if ( aaf_get_property( Obj, PID_TaggedValue_Name ) &&
+		     aaf_get_property( Obj, PID_TaggedValue_Value ) )
+		{
+			wchar_t  *name = aaf_get_propertyValueWstr( Obj, PID_TaggedValue_Name );
+			void    *value = aaf_get_propertyIndirectValue( Obj, PID_TaggedValue_Value );
+			aafUID_t *type = aaf_get_propertyIndirectValueType( Obj, PID_TaggedValue_Value );
+
+			if ( aafUIDCmp( type, &AAFTypeID_Int32 ) ) {
+				printf( "Tagged     |     Name: %ls%*s      Value (%ls)  : %i\n", name, 56-(int)wcslen(name), " ", TypeIDToText(type), *(int32_t*)value );
+			}
+			else
+			if ( aafUIDCmp( type, &AAFTypeID_String ) ) {
+				value = aaf_get_propertyIndirectValueWstr( Obj, PID_TaggedValue_Value );
+				printf( "Tagged     |     Name: %ls%*s      Value (%ls) : %ls\n", name, 56-(int)wcslen(name), " ", TypeIDToText(type), (wchar_t*)value );
+				free( value );
+			}
+			else {
+				printf( "Tagged     |     Name: %ls%*s      Value (%s%ls%s) : %sUNKNOWN_TYPE%s\n", name, 56-(int)wcslen(name), " ", ANSI_COLOR_RED, TypeIDToText(type), ANSI_COLOR_RESET, ANSI_COLOR_RED, ANSI_COLOR_RESET );
+			}
+
+			free( name );
+		}
+		else {
+			aaf_dump_ObjectProperties( aafi->aafd, Obj );
+		}
+	}
+}
+
+
 
 void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int state, int line, char *fmt, ... )
 {
@@ -216,7 +262,7 @@ void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int st
 		switch ( state ) {
 			case ERROR:		      printf( "%s", ANSI_COLOR_RED      );  break;
 			case WARNING:	      printf( "%s", ANSI_COLOR_YELLOW   );  break;
-			case NOT_SUPPORTED: printf( "%s", ANSI_COLOR_BROWN    );  break;
+			case NOT_SUPPORTED: printf( "%s", ANSI_COLOR_ORANGE    );  break;
 			default:            printf( "%s", ANSI_COLOR_DARKGREY );  break;
 		}
 		printf( "%05i", line );
@@ -287,7 +333,7 @@ void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int st
 		switch ( state ) {
 			case ERROR:		      printf( "%s", ANSI_COLOR_RED      );  break;
 			case WARNING:	      printf( "%s", ANSI_COLOR_YELLOW   );  break;
-			case NOT_SUPPORTED: printf( "%s", ANSI_COLOR_BROWN    );  break;
+			case NOT_SUPPORTED: printf( "%s", ANSI_COLOR_ORANGE    );  break;
 			case INFO:
 			case OK:
 				if ( __td->sub )
@@ -385,8 +431,9 @@ void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int st
 			printf(".");
 		}
 
-		if ( state == NOT_SUPPORTED ) {
-			printf( "\n%s", ANSI_COLOR_BROWN );
+		if ( state == NOT_SUPPORTED || ( aafi->ctx.options.trace_class && wcscmp( ClassIDToText(aafi->aafd, Obj->Class->ID), aafi->ctx.options.trace_class ) == 0) ) {
+
+			printf( "\n%s", ( state == NOT_SUPPORTED ) ? ANSI_COLOR_ORANGE : "" );
 
 			// printf("CFB Object Dump : %ls\n", aaf_get_ObjectPath( Obj ) );
 			// printf("=================\n" );
@@ -396,6 +443,44 @@ void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int st
 			printf( "===============\n\n" );
 			// aaf_dump_nodeStreamProperties( aafi->aafd, Obj->Node );
 			aaf_dump_ObjectProperties( aafi->aafd, Obj );
+		}
+		else {
+
+			aafProperty * Prop = NULL;
+			int hasUnknownProps = 0;
+			for ( Prop = Obj->Properties;  Prop != NULL; Prop = Prop->next )
+			{
+				if ( Prop->def->meta ) {
+
+					// printf("\n");
+
+					if ( aafi->ctx.options.trace_meta ) {
+						// aaf_dump_ObjectProperties( aafi->aafd, Obj );
+
+						// if ( Prop->pid == 0xffca ) {
+						if ( Prop->sf == SF_STRONG_OBJECT_REFERENCE_VECTOR ) {
+							printf("\n" );
+							printf( " >>> (0x%04x) %ls (%ls)\n", Prop->pid, PIDToText( aafi->aafd, Prop->pid ), StoredFormToText( Prop->sf ) /*AUIDToText( &Prop->def->type ),*/ /*TypeIDToText( &(Prop->def->type) )*/ );
+							void *propValue = aaf_get_propertyValue( Obj, Prop->pid );
+							xplore_StrongObjectReferenceVector( aafi, propValue, __td );
+
+							// DUMP_OBJ_NO_SUPPORT( aafi, propValue, __td );
+						}
+						else {
+							printf("\n" );
+							aaf_dump_ObjectProperty( aafi->aafd, Prop );
+						}
+					}
+					else {
+						printf( "%s%s %ls[0x%04x]", ANSI_COLOR_RESET, (!hasUnknownProps) ? "  (MetaProps:" : "", PIDToText( aafi->aafd, Prop->pid ), Prop->pid );
+						// dump_hex( Prop->val, Prop->len );
+						hasUnknownProps++;
+					}
+				}
+			}
+			if ( aafi->ctx.options.trace_meta == 0 && hasUnknownProps ) {
+				printf(")");
+			}
 		}
 
 		printf( "%s", ANSI_COLOR_RESET );
@@ -1194,6 +1279,19 @@ static int parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor, td *_
 
 
 	audioEssence->type = AAFI_ESSENCE_TYPE_PCM;
+
+
+
+	/* Duration of the essence in sample units (not edit units !) */
+	aafPosition_t *length = (aafPosition_t*)aaf_get_propertyValue( PCMDescriptor, PID_FileDescriptor_Length );
+
+	if ( length == NULL ) /* req */
+	{
+		DUMP_OBJ_ERROR( aafi, PCMDescriptor, &__td, "Missing PID_FileDescriptor_Length" );
+		return -1;
+	}
+
+	audioEssence->length = *length;
 
 
 
@@ -3498,7 +3596,7 @@ static int parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue, td *_
 	struct trace_dump __td;
 	__td_set(__td, __ptd, 1);
 
-	__td.sub = 1;
+	// __td.sub = 1;
 
 	if ( !aaf_get_propertyValue( ConstantValue->Parent, PID_OperationGroup_InputSegments ) ) {
 		__td.eob = 1;
@@ -3647,7 +3745,7 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue, td *__p
 	struct trace_dump __td;
  	__td_set(__td, __ptd, 1);
 
-	__td.sub = 1;
+	// __td.sub = 1;
 
 	if ( !aaf_get_propertyValue( VaryingValue->Parent, PID_OperationGroup_InputSegments ) ) {
 		__td.eob = 1;
@@ -3811,14 +3909,22 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue, td *__p
 				break;
 
 
-		if ( aafUIDCmp( Obj->Class->ID, &AAFClassID_TimelineMobSlot ) )
-		{
+		if ( aafUIDCmp( Obj->Class->ID, &AAFClassID_TimelineMobSlot ) ) {
 			/* Track-based Gain */
-			aafi->ctx.current_track->gain = Gain;
+
+			if ( aafi->ctx.current_track->gain ) {
+				DUMP_OBJ_ERROR( aafi, VaryingValue, &__td, "Track Gain was already set" );
+				aafi_freeAudioGain( Gain );
+				return -1;
+			}
+			else {
+				aafi->ctx.current_track->gain = Gain;
+				DUMP_OBJ( aafi, VaryingValue, &__td );
+			}
 		}
-		else
-		{
+		else {
 			/* Clip-based Gain */
+
 			if ( Gain->flags & AAFI_AUDIO_GAIN_CONSTANT ) {
 				if ( aafi->ctx.current_clip_gain ) {
 					DUMP_OBJ_ERROR( aafi, VaryingValue, &__td, "Clip gain was already set" );
@@ -3829,7 +3935,8 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue, td *__p
 					aafi->ctx.current_clip_gain = Gain;
 					aafi->ctx.clips_using_gain = 0;
 				}
-			} else {
+			}
+			else {
 				if ( aafi->ctx.current_clip_automation ) {
 					DUMP_OBJ_ERROR( aafi, VaryingValue, &__td, "Clip automation was already set" );
 					aafi_freeAudioGain( Gain );
@@ -3841,10 +3948,6 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue, td *__p
 				}
 			}
 		}
-
-
-		DUMP_OBJ( aafi, VaryingValue, &__td );
-
 	}
 	else if ( aafUIDCmp( OperationIdentification, &AAFOperationDef_MonoAudioPan ) &&
 	          aafUIDCmp( ParamDef, &AAFParameterDef_Pan ) )
@@ -3863,8 +3966,7 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue, td *__p
 
 		Pan->pts_cnt = retrieve_ControlPoints( aafi, Points, &Pan->time, &Pan->value );
 
-		if ( Pan->pts_cnt < 0 )
-		{
+		if ( Pan->pts_cnt < 0 ) {
 			DUMP_OBJ_ERROR( aafi, VaryingValue, &__td, "Could not retrieve ControlPoints" );
 			free( Pan );
 			return -1;
@@ -3874,10 +3976,36 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue, td *__p
 		// 	printf("time_%i : %i/%i   value_%i : %i/%i\n", i, Gain->time[i].numerator, Gain->time[i].denominator, i, Gain->value[i].numerator, Gain->value[i].denominator  );
 		// }
 
-		aafi->ctx.current_track->pan = Pan;
+		/* If Pan has 2 ControlPoints with both the same value, it means
+		 * we have a constant Pan curve. So we can assume constant Pan here. */
 
-		DUMP_OBJ( aafi, VaryingValue, &__td );
+		if ( Pan->pts_cnt == 2 &&
+				( Pan->value[0].numerator   == Pan->value[1].numerator   ) &&
+				( Pan->value[0].denominator == Pan->value[1].denominator ) )
+		{
+			// if ( aafRationalToFloat(Gain->value[0]) == 1.0f ) {
+			// 	/*
+			// 	 * Pan is null, skip it. Skipping it allows not to set a useless gain then miss the real clip gain later (Resolve 18.5.AAF)
+			// 	 */
+			// 	aafi_freeAudioGain( Gain );
+			// 	return -1;
+			// }
+			Pan->flags |= AAFI_AUDIO_GAIN_CONSTANT;
+		}
+		else
+		{
+			Pan->flags |= AAFI_AUDIO_GAIN_VARIABLE;
+		}
 
+		if ( aafi->ctx.current_track->pan ) {
+			DUMP_OBJ_ERROR( aafi, VaryingValue, &__td, "Track Pan was already set" );
+			aafi_freeAudioGain( Pan );
+			return -1;
+		}
+		else {
+			aafi->ctx.current_track->pan = Pan;
+			DUMP_OBJ( aafi, VaryingValue, &__td );
+		}
 	}
 	else
 	{

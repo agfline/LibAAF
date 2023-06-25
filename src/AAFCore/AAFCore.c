@@ -952,6 +952,21 @@ void * aaf_get_propertyIndirectValue( aafObject *Obj, aafPID_t pid )
 
 
 
+aafUID_t * aaf_get_propertyIndirectValueType( aafObject *Obj, aafPID_t pid )
+{
+	aafIndirect_t *Indirect = (aafIndirect_t*)(((unsigned char*)aaf_get_propertyValue( Obj, pid ))+1); // +1 offset allows to skip aafIndirect_t->unknownByte while maintaining memory aligned
+
+	if ( Indirect == NULL )
+	{
+		return NULL;
+	}
+
+	// TODO ? ensures the Indirect->Value is what it pretend to be by size check.
+
+	return &Indirect->TypeDef;
+}
+
+
 
 wchar_t * aaf_get_propertyIndirectValueWstr( aafObject *Obj, aafPID_t pid )
 {

@@ -18,41 +18,52 @@
 #include "../src/common/utils.h" // ANSI colors
 
 
+#define POS_FORMAT_BUFFER_LEN 32
 
-static char * gainToStr( aafiAudioGain *gain )
-{
+enum pos_format {
+	POS_FORMAT_TC = 0,
+	POS_FORMAT_SAMPLES,
+	POS_FORMAT_HMS
+};
+
+#define INTERPOL_TO_STRING( x ) \
+	(x) ? \
+		(x->flags & AAFI_INTERPOL_NONE)     ? "CURV_NON" : \
+		(x->flags & AAFI_INTERPOL_LINEAR)   ? "CURV_LIN" : \
+		(x->flags & AAFI_INTERPOL_LOG)      ? "CURV_LOG" : \
+		(x->flags & AAFI_INTERPOL_CONSTANT) ? "CURV_CST" : \
+		(x->flags & AAFI_INTERPOL_POWER)    ? "CURV_PWR" : \
+		(x->flags & AAFI_INTERPOL_BSPLINE)  ? "CURV_BSP" : \
+		"" : "none    "
+
+#define ESSENCE_TYPE_TO_STRING( type ) \
+	( type == AAFI_ESSENCE_TYPE_PCM  ) ? "PCM " : \
+	( type == AAFI_ESSENCE_TYPE_WAVE ) ? "WAVE" : \
+	( type == AAFI_ESSENCE_TYPE_AIFC ) ? "AIFC" : \
+	( type == AAFI_ESSENCE_TYPE_BWAV ) ? "BWAV" : ""
+
+
+
+
+static char * gainToStr( aafiAudioGain *gain ) {
+
 	static char str[32];
 
-	memset( str, 0x00, 32 );
-
-	if ( gain == NULL )
-	{
-		snprintf( str, 32, "      n/a   " );
+	if ( gain == NULL ) {
+		return "none    ";
 	}
 	else
-	if ( gain->flags & AAFI_AUDIO_GAIN_CONSTANT ||
-		 ( gain->flags & AAFI_AUDIO_GAIN_VARIABLE && gain->pts_cnt == 2 && gain->value[0].numerator == gain->value[1].numerator ) )
-	{
-		/*
-		 *	NOTE some implementations use VaryingValue to store a single gain value.
-		 *	This is indicated by the "(A)".
-		 *	TODO implementation have changed !
-		 */
-
-		// aafRational_t *value = &(gain->value[0]);
-
-		snprintf( str, 32, "%s%+05.1lf dB",
-				( gain->flags & AAFI_AUDIO_GAIN_VARIABLE ) ? "(A) " : "    ",
-				  20 * log10( aafRationalToFloat( gain->value[0] ) ) );
+	if ( gain->flags & AAFI_AUDIO_GAIN_CONSTANT ) {
+		snprintf( str, 32, "%+05.1lf dB", 20 * log10( aafRationalToFloat( gain->value[0] ) ) );
+		return str;
 	}
-	else if ( gain->flags & AAFI_AUDIO_GAIN_VARIABLE )
-	{
-		snprintf( str, 32, " automation " );
+	else
+	if ( gain->flags & AAFI_AUDIO_GAIN_VARIABLE ) {
+		return "(A)     ";
 	}
 
-	return str;
+	return " wtf ? ";
 }
-
 
 
 
@@ -60,73 +71,75 @@ static char * panToStr( aafiAudioPan *pan )
 {
 	static char str[32];
 
-	memset( str, 0x00, 32 );
-
-	if ( pan == NULL )
-	{
-		snprintf( str, 32, "           n/a  " );
+	if ( pan == NULL ) {
+		return "none   ";
 	}
-	else if ( pan->flags & AAFI_AUDIO_GAIN_CONSTANT ||
-			( pan->flags & AAFI_AUDIO_GAIN_VARIABLE && pan->pts_cnt == 2 && pan->value[0].numerator == pan->value[1].numerator ) )
-	{
-		/*
-		 *	NOTE some implementations use VaryingValue to store a single gain value.
-		 *	This is indicated by the "(A)".
-		 */
+	else if ( pan->flags & AAFI_AUDIO_GAIN_CONSTANT ) {
 
-		float panval = aafRationalToFloat((*pan->value));
+		float panval = aafRationalToFloat( (*pan->value) );
 
-		snprintf( str, 32, "%s%0.1f %s",
-				( pan->flags & AAFI_AUDIO_GAIN_VARIABLE ) ? "(A) " : "    ",
-				  panval,
-				( panval == 0.0 ) ? "(Left)  " :
-				( panval == 0.5 ) ? "(Center)" :
-				( panval == 1.0 ) ? "(Right) " : "" );
+		snprintf( str, 32, "%0.1f %s ",
+			  panval,
+			( panval == 0.0 ) ? "(L)" :
+			( panval == 0.5 ) ? "(C)" :
+			( panval == 1.0 ) ? "(R)" : "   " );
+		return str;
 	}
-	else if ( pan->flags & AAFI_AUDIO_GAIN_VARIABLE )
-	{
-		snprintf( str, 32, " automation " );
+	else if ( pan->flags & AAFI_AUDIO_GAIN_VARIABLE ) {
+		return "(A)    ";
 	}
 
-
-	return str;
+	return " wtf ? ";
 }
+
 
 
 /*
  *	NOTE : since aafiAudioPan is an alias of aafiAudioGain, the
- *	function can be called with both structures.
+ *	function can be called for both.
  */
 
-static void aafi_dump_VaryingValues( aafiAudioGain *Gain )
-{
-
-	int i = 0;
-
-	for ( i = 0; i < Gain->pts_cnt; i++ ) {
-
-	   // printf( "   PT:  _t: %i/%i   _v: %i/%i\n",
-	   // 	audioTrack->gain->time[i].numerator,
-	   // 	audioTrack->gain->time[i].denominator,
-	   // 	audioTrack->gain->value[i].numerator,
-	   // 	audioTrack->gain->value[i].denominator
-	   // );
-
-	   // aafRational_t *time  = &(Gain->time[i] );
-	   // aafRational_t *value = &(Gain->value[i]);
-
-	   printf( "   VaryingValue:  _time: %f   _value: %f\n",
-		   aafRationalToFloat( Gain->time[i]  ),
-		   aafRationalToFloat( Gain->value[i] )
-	   );
-
-	   // printf("   PT:  _t: %i/%i   Gain: %.01f dB\n",
-	   // 	audioTrack->gain->time[i].numerator,
-	   // 	audioTrack->gain->time[i].denominator,
-	   // 	20 * log10( (( audioTrack->gain->value[0].denominator == 0 ) ? 0 : ((float)audioTrack->gain->value[0].numerator/audioTrack->gain->value[0].denominator)) ) );
+static void dumpVaryingValues( aafiAudioGain *Gain ) {
+	for ( int i = 0; i < Gain->pts_cnt; i++ ) {
+		printf( "   VaryingValue:  _time: %f   _value: %f\n",
+			aafRationalToFloat( Gain->time[i] ),
+			aafRationalToFloat( Gain->value[i] ) );
 	}
 }
 
+
+
+char * formatPosValue( aafPosition_t pos, aafRational_t *editRate, enum pos_format posFormat, enum TC_FORMAT tcFormat, uint64_t samplerate, char *buf )
+{
+	struct timecode tc;
+
+	if ( posFormat == POS_FORMAT_TC ) {
+		tc_set_by_unitValue( &tc, pos, (rational_t*)editRate, tcFormat );
+		snprintf( buf, POS_FORMAT_BUFFER_LEN, "%s", tc.string );
+		return buf;
+	}
+	else if ( posFormat == POS_FORMAT_SAMPLES ) {
+		snprintf( buf, POS_FORMAT_BUFFER_LEN, "%lu", eu2sample( samplerate, editRate, pos ) );
+		return buf;
+	}
+	else if ( posFormat == POS_FORMAT_HMS ) {
+
+		uint64_t unitPerHour = aafRationalToFloat(*editRate) * 3600;
+		uint64_t unitPerMin  = aafRationalToFloat(*editRate) * 60;
+		uint64_t unitPerSec  = aafRationalToFloat(*editRate);
+		uint64_t unitPerMS   = aafRationalToFloat(*editRate) / 1000;
+
+		uint16_t h  =  pos / unitPerHour;
+		uint16_t m  = (pos % unitPerHour) / unitPerMin;
+		uint16_t s  = (pos % unitPerHour % unitPerMin) / unitPerSec;
+		uint16_t ms = (unitPerMS) ? ((pos % unitPerHour % unitPerMin % unitPerSec) / unitPerMS) : 0;
+
+		snprintf( buf, POS_FORMAT_BUFFER_LEN, "%02u:%02u:%02u.%03u", h, m, s, ms );
+		return buf;
+	}
+
+	return "wtf ?";
+}
 
 
 
@@ -136,33 +149,42 @@ void showHelp()
 		"\n"
 		" AAFInfo 0.1\n"
 		"\n"
-		" Compound File Binary Analysis :\n"
-		" ===============================\n"
-		"   --cfb-header           Displays the CFB Header.\n"
-		"   --cfb-fat              Displays the CFB FAT.\n"
-		"   --cfb-minifat          Displays the CFB MiniFAT.\n"
-		"   --cfb-difat            Displays the CFB DiFAT.\n"
-		"   --cfb-nodes            Displays the CFB node Tree.\n"
 		"\n"
-		"   --get-node    <path>   Retrieves and displays the node located at the given <path>.\n"
+		" CFB Analysis :\n"
 		"\n"
-		" Advanced Authoring File Analysis :\n"
-		" ==================================\n"
-		"   --aaf-summary              Displays AAF informations from both header and identification objects.\n"
-		"   --aaf-essences             Lists AAF essences.\n"
-		"   --aaf-clips                Lists AAF clips.\n"
-		"   --aaf-classes              Lists AAF Classes. The ones from MetaDictionary are shown in yellow.\n"
-		"   --aaf-meta                 Lists Classes and Properties from the MetaDictionary.\n"
-		"   --aaf-properties           Displays all Properties.\n"
+		"   --cfb-header                   Displays the CFB Header.\n"
+		"   --cfb-fat                      Displays the CFB FAT.\n"
+		"   --cfb-minifat                  Displays the CFB MiniFAT.\n"
+		"   --cfb-difat                    Displays the CFB DiFAT.\n"
+		"   --cfb-nodes                    Displays the CFB node Tree.\n"
 		"\n"
-		"   --media-location   <path>  Where to find external essence files for parsing.\n"
+		"   --get-node             <path>  Retrieves and displays the node located at the given <path>.\n"
 		"\n"
-		"   --verbose           <num>  0=quiet 1=error 2=warning 3=debug\n"
-		"   --trace                    Dump trace of AAF parsing.\n"
+		"\n"
+		" AAF Analysis :\n"
+		"\n"
+		"   --aaf-summary                  Displays AAF informations from both header and identification objects.\n"
+		"   --aaf-essences                 Lists AAF essences.\n"
+		"   --aaf-clips                    Lists AAF clips.\n"
+		"   --aaf-classes                  Lists AAF Classes. The ones from MetaDictionary are shown in yellow.\n"
+		"   --aaf-meta                     Lists Classes and Properties from the MetaDictionary.\n"
+		"   --aaf-properties               Displays all Properties.\n"
+		"\n"
+		"   --trace                        Dumps trace of AAF parsing.\n"
+		"   --trace-meta                   Prints MetaProperties in the trace.\n"
+		"   --trace-class    <AAFClassID>  Prints properties of a specific AAFClass in the trace.\n"
+		"\n"
+		"\n"
+		" Options :\n"
+		"\n"
+		"   --media-location       <path>  Where to find external essence files.\n"
+		"\n"
+		"   --pos-format <tc|hms|samples>  Position and length display format.\n"
+		"   --show-automation              Shows track and clip automation values.\n"
+		"\n"
+		"   --verbose               <num>  0=quiet 1=error 2=warning 3=debug.\n"
 		"\n\n"
 	);
-
-	exit( 0 );
 }
 
 
@@ -171,53 +193,70 @@ int main( int argc, char *argv[] )
 {
 	setlocale( LC_ALL, "" );
 
-	int cfb_header     = 0;
-	int cfb_fat        = 0;
-	int cfb_minifat    = 0;
-	int cfb_difat      = 0;
-	int cfb_nodes      = 0;
+	int rc = 0;
+	AAF_Data *aafd = NULL;
+	AAF_Iface *aafi = NULL;
 
-	int aaf_summary    = 0;
-	int aaf_essences   = 0;
-	int aaf_clips      = 0;
-	int aaf_classes    = 0;
-	int aaf_meta       = 0;
-	int aaf_properties = 0;
+	int cfb_header         = 0;
+	int cfb_fat            = 0;
+	int cfb_minifat        = 0;
+	int cfb_difat          = 0;
+	int cfb_nodes          = 0;
 
-	char *get_node_str = NULL;
+	char *get_node_str     = NULL;
 
-	char *media_location = NULL;
+	int aaf_summary        = 0;
+	int aaf_essences       = 0;
+	int aaf_clips          = 0;
+	int aaf_classes        = 0;
+	int aaf_meta           = 0;
+	int aaf_properties     = 0;
 
-	enum verbosityLevel_e verb = VERB_QUIET;
+	char *media_location   = NULL;
+
+	enum pos_format posFormat = POS_FORMAT_TC;
+	int show_automation    = 0;
+
+	enum verbosityLevel_e verb = VERB_DEBUG;
 	int trace = 0;
+	int trace_meta = 0;
+
+	wchar_t *trace_class = NULL;
 
 	int cmd = 0;
 
 
 	static struct option long_options[] = {
 
-		{ "help",			no_argument,		0,	'h'  },
+		{ "help",			       no_argument,		     0,  	'h' },
 
-		{ "cfb-header",     no_argument,        0,  0x81 },
-		{ "cfb-fat",        no_argument,        0,  0x82 },
-		{ "cfb-minifat",    no_argument,        0,  0x83 },
-		{ "cfb-difat",      no_argument,        0,  0x84 },
-		{ "cfb-nodes",      no_argument,        0,  0x85 },
+		{ "cfb-header",      no_argument,        0,  0x81 },
+		{ "cfb-fat",         no_argument,        0,  0x82 },
+		{ "cfb-minifat",     no_argument,        0,  0x83 },
+		{ "cfb-difat",       no_argument,        0,  0x84 },
+		{ "cfb-nodes",       no_argument,        0,  0x85 },
 
-		{ "aaf-summary",    no_argument,        0,  0x86 },
-		{ "aaf-essences",   no_argument,        0,  0x88 },
-		{ "aaf-clips",      no_argument,        0,  0x89 },
-		{ "aaf-classes",    no_argument,        0,  0x8a },
-		{ "aaf-meta",       no_argument,        0,  0x8b },
-		{ "aaf-properties", no_argument,        0,  0x8c },
+		{ "get-node",        required_argument,	 0,	 0x86 },
 
-		{ "media-location", required_argument,	0,	0x90 },
-		{ "get-node",       required_argument,	0,	0x99 },
+		{ "aaf-summary",     no_argument,        0,  0x87 },
+		{ "aaf-essences",    no_argument,        0,  0x88 },
+		{ "aaf-clips",       no_argument,        0,  0x89 },
+		{ "aaf-classes",     no_argument,        0,  0x8a },
+		{ "aaf-meta",        no_argument,        0,  0x8b },
+		{ "aaf-properties",  no_argument,        0,  0x8c },
 
-		{ "verbose",        required_argument,	0,	0xf0 },
-		{ "trace",          no_argument,	      0,	0xf1 },
+		{ "trace",           no_argument,	       0,	 0x91 },
+		{ "trace-meta",      no_argument,	       0,	 0x92 },
+		{ "trace-class",     required_argument,  0,  0x93 },
 
-		{ 0,                0,                  0,  0x00 }
+		{ "media-location",  required_argument,	 0,	 0x8d },
+		{ "pos-format",      required_argument,	 0,	 0x8e },
+
+		{ "show-automation", no_argument,	       0,	 0x8f },
+
+		{ "verbose",         required_argument,	 0,	 0x90 },
+
+		{ 0,                 0,                  0,  0x00 }
 	};
 
 
@@ -240,23 +279,45 @@ int main( int argc, char *argv[] )
 			case 0x84:  cfb_difat      = 1;         cmd++;       break;
 			case 0x85:  cfb_nodes      = 1;         cmd++;       break;
 
-			case 0x86:  aaf_summary    = 1;         cmd++;       break;
+			case 0x86:	get_node_str   = optarg;    cmd++;       break;
+
+			case 0x87:  aaf_summary    = 1;         cmd++;       break;
 			case 0x88:  aaf_essences   = 1;         cmd++;       break;
 			case 0x89:  aaf_clips      = 1;         cmd++;       break;
 			case 0x8a:  aaf_classes    = 1;         cmd++;       break;
 			case 0x8b:  aaf_meta       = 1;         cmd++;       break;
 			case 0x8c:  aaf_properties = 1;         cmd++;       break;
 
-			case 0x90:  media_location = strdup( optarg ); cmd++; break;
+			case 0x8d:  media_location = strdup( optarg );       break;
 
-			case 0x99:	get_node_str   = optarg;    cmd++;       break;
+			case 0x8e:
 
-			case 0xf0:  verb = 1;                   cmd++;       break;
-			case 0xf1:  trace = 1;                  cmd++;       break;
+				if ( strcmp( optarg, "tc" ) == 0 )
+					posFormat = POS_FORMAT_TC;
+				else if ( strcmp( optarg, "samples" ) == 0 )
+					posFormat = POS_FORMAT_SAMPLES;
+				else if ( strcmp( optarg, "hms" ) == 0 )
+					posFormat = POS_FORMAT_HMS;
+				else {
+					fprintf( stderr,
+						"AAFInfo: wrong --pos-format value (must be \"tc\" or \"samples\")\n"
+						"Try 'AAFInfo --help' for more informations.\n"
+					);
+					goto err;
+				}
 
-			case 'h':	showHelp();                   cmd++;       break;
+				break;
 
-			default:                                cmd++;       break;
+			case 0x8f:  show_automation = 1;                     break;
+
+			case 0x90:  verb  = 1;                               break;
+			case 0x91:  trace = 1;                  cmd++;       break;
+			case 0x92:  trace_meta = 1;                          break;
+			case 0x93:  trace_class = atowchar( optarg, strlen(optarg) ); break;
+
+			case 'h':	showHelp();        												 goto end;
+
+			default:                                             break;
 		}
 	}
 
@@ -268,7 +329,7 @@ int main( int argc, char *argv[] )
 			"Try 'AAFInfo --help' for more informations.\n"
 		);
 
-		return 1;
+		goto err;
 	}
 
 
@@ -278,7 +339,7 @@ int main( int argc, char *argv[] )
 			"Try 'AAFInfo --help' for more informations.\n"
 		);
 
-		return 1;
+		goto err;
 	}
 
 
@@ -288,19 +349,20 @@ int main( int argc, char *argv[] )
 			"Try 'AAFInfo --help' for more informations.\n"
 		);
 
-		return 1;
+		goto err;
 	}
 
 
 
-	printf( "\n\n" );
 
+	aafd = aaf_alloc();
 
-	AAF_Data *aafd = aaf_alloc();
+	aafi = aafi_alloc( aafd );
 
-	AAF_Iface *aafi = aafi_alloc( aafd );
 	aafi->ctx.options.verb = verb;
 	aafi->ctx.options.trace = trace;
+	aafi->ctx.options.trace_meta = trace_meta;
+	aafi->ctx.options.trace_class = trace_class;
 	aafi->ctx.options.protools = PROTOOLS_ALL;
 	aafi->ctx.options.resolve = RESOLVE_ALL;
 	aafi->ctx.options.media_location = media_location;
@@ -308,11 +370,11 @@ int main( int argc, char *argv[] )
 
 	if ( aafi_load_file( aafi, argv[argc-1] ) ) {
 		aafi_release( &aafi );
-		return 1;
+		goto err;
 	}
 
 
-	printf( "\n\n" );
+	printf( "\n" );
 
 
 
@@ -377,20 +439,86 @@ int main( int argc, char *argv[] )
 
 
 
+	enum TC_FORMAT tcFormat;
+
+	if ( aafi->Audio->tc->fps == 30 && aafi->Audio->tc->drop ) {
+		tcFormat = TC_29_97_DF;
+	}
+	else {
+		tcFormat = tc_fps2format( (float)(aafi->Audio->tc->fps ), aafi->Audio->tc->drop );
+	}
+
+
 
 	if ( aaf_summary ) {
+
 		aaf_dump_Header( aafd );
 		aaf_dump_Identification( aafd );
+
+		printf( " Composition Name     : %ls\n", aafi->compositionName );
+
+		printf( "\n" );
+
+		printf( " TC EditRrate         : %i/%i\n", aafi->Audio->tc->edit_rate->numerator, aafi->Audio->tc->edit_rate->denominator );
+		printf( " TC FPS               : %u %s\n", aafi->Audio->tc->fps, (aafi->Audio->tc->drop) ? "DF" : "NDF" );
+    printf( " TC Start (EU)        : %"PRIi64"\n", aafi->Audio->tc->start );
+    printf( " TC End (EU)          : %"PRIi64"\n", aafi->Audio->tc->end );
+
+    printf( " TC Start (samples)   : %"PRIi64"\n", eu2sample( aafi->Audio->samplerate, aafi->Audio->tc->edit_rate, aafi->Audio->tc->start ) );
+    printf( " TC End (samples)     : %"PRIi64"\n", eu2sample( aafi->Audio->samplerate, aafi->Audio->tc->edit_rate, aafi->Audio->tc->end ) );
+
+		struct timecode tc_start;
+		struct timecode tc_end;
+
+		tc_set_by_unitValue( &tc_start, aafi->Audio->tc->start, (rational_t*)aafi->Audio->tc->edit_rate, tcFormat );
+		tc_set_by_unitValue( &tc_end, aafi->Audio->tc->end, (rational_t*)aafi->Audio->tc->edit_rate, tcFormat );
+
+		printf( " TC Start             : %s (%u fps %s)\n",
+			tc_start.string,
+			aafi->Audio->tc->fps,
+			(aafi->Audio->tc->drop) ? "DF" : "NDF"
+		);
+
+		printf( " TC End               : %s (%u fps %s)\n",
+			tc_end.string,
+			aafi->Audio->tc->fps,
+			(aafi->Audio->tc->drop) ? "DF" : "NDF"
+		);
+
+		printf( "\n" );
+
+		printf( " Sample Rate          : %li\n", aafi->Audio->samplerate );
+		printf( " Sample Size          : %i\n", aafi->Audio->samplesize );
+
+
+		if ( aafi->Comments != NULL )	{
+
+			printf( "\n" );
+
+			printf( " UserComments :\n" );
+
+			aafiUserComment *Comment = aafi->Comments;
+			int i = 0;
+
+			while ( Comment != NULL ) {
+				printf( "   [%i]  Name: \"%ls\"   Text: \"%ls\"\n", i++, Comment->name, Comment->text );
+				Comment = Comment->next;
+			}
+		}
+
+		printf("\n\n");
 	}
 
 
 	if ( aaf_classes ) {
 		aaf_dump_Classes( aafd );
+		printf("\n\n");
 	}
 
 
 	if ( aaf_meta ) {
 		aaf_dump_MetaDictionary( aafd );
+		printf("\n\n");
 	}
 
 
@@ -403,6 +531,8 @@ int main( int argc, char *argv[] )
 			printf( "\n\n\n" ANSI_COLOR_MAGENTA " Object" ANSI_COLOR_RESET " @ %ls\n", aaf_get_ObjectPath( Object ) );
 			aaf_dump_ObjectProperties( aafd, Object );
 		}
+
+		printf("\n\n");
 	}
 
 
@@ -413,23 +543,21 @@ int main( int argc, char *argv[] )
 
 	if ( aaf_essences ) {
 
+		printf( "Media Essences :\n"
+	          "================\n\n" );
 		aafiAudioEssence *audioEssence = NULL;
 
 		uint32_t i = 0;
 
 		foreachEssence( audioEssence, aafi->Audio->Essences )
 		{
+			char posFormatBuf[POS_FORMAT_BUFFER_LEN];
+			aafRational_t essenceSampleRate = { audioEssence->samplerate, 1 };
 
-			printf( " %s%u:  Type: %s  Duration: %u h  %02u mn  %02u s  %03u ms   %u Ch - %u Hz - %u bit  file : %ls  file_name : %ls   %s%ls%s\n",
+			printf( " %s%u:  Type: %s  Length: %s   %02u Ch - %u Hz - %u bits   file : %ls  file_name : %ls   %s%ls%s\n",
 				( i < 10 ) ? " " : "", i,
-				( audioEssence->type == AAFI_ESSENCE_TYPE_PCM  ) ? "PCM"  :
-				( audioEssence->type == AAFI_ESSENCE_TYPE_WAVE ) ? "WAVE" :
-				( audioEssence->type == AAFI_ESSENCE_TYPE_AIFC ) ? "AIFC" :
-				( audioEssence->type == AAFI_ESSENCE_TYPE_BWAV ) ? "BWAV" : "",
-				aeDuration_h( audioEssence ),
-				aeDuration_m( audioEssence ),
-				aeDuration_s( audioEssence ),
-				aeDuration_ms( audioEssence ),
+				ESSENCE_TYPE_TO_STRING( audioEssence->type ),
+				formatPosValue( audioEssence->length, &essenceSampleRate, posFormat, tcFormat, audioEssence->samplerate, posFormatBuf ),
 				audioEssence->channels,
 				audioEssence->samplerate,
 				audioEssence->samplesize,
@@ -453,49 +581,8 @@ int main( int argc, char *argv[] )
 
 	if ( aaf_clips ) {
 
-    printf( "TC EditRrate : %i/%i\n", aafi->Audio->tc->edit_rate->numerator, aafi->Audio->tc->edit_rate->denominator );
-    printf( "TC Start (EU) : %"PRIi64"\n", aafi->Audio->tc->start );
-    printf( "TC End (EU)   : %"PRIi64"\n", aafi->Audio->tc->end );
-
-    printf( "TC Start (samples) : %"PRIi64"\n", eu2sample( 48000, aafi->Audio->tc->edit_rate, aafi->Audio->tc->start ) );
-    printf( "TC End (samples)   : %"PRIi64"\n\n", eu2sample( 48000, aafi->Audio->tc->edit_rate, aafi->Audio->tc->end ) );
-
-		printf( "Composition Name     : %ls\n", aafi->compositionName );
-
-		enum TC_FORMAT tcFormat;
-
-		if ( aafi->Audio->tc->fps == 30 && aafi->Audio->tc->drop ) {
-			tcFormat = TC_29_97_DF;
-		}
-		else {
-			tcFormat = tc_fps2format( (float)(aafi->Audio->tc->fps ), aafi->Audio->tc->drop );
-		}
-
-		struct timecode tc_comp;
-		tc_set_by_unitValue( &tc_comp, aafi->Audio->tc->start, (rational_t*)aafi->Audio->tc->edit_rate, tcFormat );
-
-		printf("Composition TC Start : %s (%u fps %s)\n",
-			tc_comp.string,
-			aafi->Audio->tc->fps,
-			(aafi->Audio->tc->drop) ? "DF" : "NDF"
-		);
-
-		printf( "======================\n\n" );
-
-		if ( aafi->Comments != NULL )	{
-
-			printf( "UserComments :\n" );
-			printf( "==============\n" );
-
-			aafiUserComment *Comment = aafi->Comments;
-
-			while ( Comment != NULL ) {
-				printf( "   * %ls : %ls\n", Comment->name, Comment->text );
-				Comment = Comment->next;
-			}
-
-			printf("\n\n");
-		}
+		printf( "Tracks & Clips :\n"
+						"================\n\n" );
 
 
 		aafiVideoTrack   *videoTrack = aafi->Video->Tracks;
@@ -557,17 +644,17 @@ int main( int argc, char *argv[] )
 		aafiTimelineItem *audioItem  = NULL;
 		aafiAudioClip    *audioClip  = NULL;
 
-		uint32_t i = 0;
+		uint32_t clipCount = 0;
 
 		foreach_audioTrack( audioTrack, aafi ) {
 
-			printf( "Track %s(%u) - %s - Gain  %s - Pan %s - edit_rate %i/%i (%02.2f)  -  \"%ls\"\n",
+			printf( "Track %s(%u) - %s - Gain: %s - Pan: %s - edit_rate: %i/%i (%02.2f)  -  \"%ls\"\n",
 					(audioTrack->number < 10) ? " " : "",
 					audioTrack->number,
-					(audioTrack->format == AAFI_TRACK_FORMAT_MONO)   ? "MONO"   :
+					(audioTrack->format == AAFI_TRACK_FORMAT_MONO)   ? "MONO  " :
 					(audioTrack->format == AAFI_TRACK_FORMAT_STEREO) ? "STEREO" :
-					(audioTrack->format == AAFI_TRACK_FORMAT_5_1)    ? "5.1"    :
-					(audioTrack->format == AAFI_TRACK_FORMAT_7_1)    ? "7.1"    : "Unknown",
+					(audioTrack->format == AAFI_TRACK_FORMAT_5_1)    ? "5.1   " :
+					(audioTrack->format == AAFI_TRACK_FORMAT_7_1)    ? "7.1   " : "Unknwn",
 					gainToStr( audioTrack->gain ),
 					panToStr( audioTrack->pan ),
 					audioTrack->edit_rate->numerator, audioTrack->edit_rate->denominator,
@@ -575,14 +662,14 @@ int main( int argc, char *argv[] )
 					(audioTrack->name != NULL) ? audioTrack->name : L""
 			 );
 
-			 if ( audioTrack->gain != NULL && audioTrack->gain->flags & AAFI_AUDIO_GAIN_VARIABLE ) {
+			 if ( show_automation && audioTrack->gain != NULL && audioTrack->gain->flags & AAFI_AUDIO_GAIN_VARIABLE ) {
 				 printf( "TRACK GAIN AUTOMATION : \n" );
-				 aafi_dump_VaryingValues( audioTrack->gain );
+				 dumpVaryingValues( audioTrack->gain );
 			 }
 
-			 if ( audioTrack->pan != NULL && audioTrack->pan->flags & AAFI_AUDIO_GAIN_VARIABLE ) {
+			 if ( show_automation && audioTrack->pan != NULL && audioTrack->pan->flags & AAFI_AUDIO_GAIN_VARIABLE ) {
 				 printf( "TRACK PAN AUTOMATION : \n" );
-				 aafi_dump_VaryingValues( audioTrack->pan );
+				 dumpVaryingValues( audioTrack->pan );
 			 }
 
 			foreach_Item( audioItem, audioTrack ) {
@@ -594,164 +681,105 @@ int main( int argc, char *argv[] )
 					if ( ! ( Trans->flags & AAFI_TRANS_XFADE ) )
 						continue;
 
-
-					printf( " xfade:   %s\n",
-						(Trans->flags & AAFI_INTERPOL_NONE)     ? "CURV_NON" :
-						(Trans->flags & AAFI_INTERPOL_LINEAR)   ? "CURV_LIN" :
-						(Trans->flags & AAFI_INTERPOL_LOG)      ? "CURV_LOG" :
-						(Trans->flags & AAFI_INTERPOL_CONSTANT) ? "CURV_CST" :
-						(Trans->flags & AAFI_INTERPOL_POWER)    ? "CURV_PWR" :
-						(Trans->flags & AAFI_INTERPOL_BSPLINE)  ? "CURV_BSP" :
-						""
-					);
-	/*
-					printf( "\n" );
-
-	//					aafiTransition *Trans = (aafiTransition*)&audioItem->data;
-
-					printf( " Fade     : %s\n",
-						(Trans->flags & AAFI_TRANS_FADE_IN)  ? "AAFI_TRANS_FADE_IN"  :
-						(Trans->flags & AAFI_TRANS_FADE_OUT) ? "AAFI_TRANS_FADE_OUT" :
-						(Trans->flags & AAFI_TRANS_XFADE)    ? "AAFI_TRANS_XFADE"    :
-						""
-					);
-
-					printf( " Interpol : %s\n",
-						(Trans->flags & AAFI_INTERPOL_NONE)     ? "AAFI_INTERPOL_NONE"     :
-						(Trans->flags & AAFI_INTERPOL_LINEAR)   ? "AAFI_INTERPOL_LINEAR"   :
-						(Trans->flags & AAFI_INTERPOL_LOG)      ? "AAFI_INTERPOL_LOG"      :
-						(Trans->flags & AAFI_INTERPOL_CONSTANT) ? "AAFI_INTERPOL_CONSTANT" :
-						(Trans->flags & AAFI_INTERPOL_POWER)    ? "AAFI_INTERPOL_POWER"    :
-						(Trans->flags & AAFI_INTERPOL_BSPLINE)  ? "AAFI_INTERPOL_BSPLINE"  :
-						""
-					);
-
-
-					int  i = 0;
-					for( i = 0; i < Trans->pts_cnt; i++ )
-					{
-	//						printf( "   PT:  _t: %i/%i   _v: %i/%i\n",
-	//							Trans->time[i]->numerator,
-	//							Trans->time[i]->denominator,
-	//							Trans->value[i]->numerator,
-	//							Trans->value[i]->denominator
-	//						);
-
-						printf( "   PT:  _t: %.0f   _v: %.0f\n",
-							aafRationalToFloat( Trans->time[i] ),
-							aafRationalToFloat( Trans->value[i] )
-						);
-					}
-
-					printf( "\n" );
-	*/
-
+					printf( " xfade:   %s\n", INTERPOL_TO_STRING( Trans ) );
 					continue;
 				}
+				else if ( audioItem->type == AAFI_AUDIO_CLIP ) {
 
-				audioClip = (aafiAudioClip*)&audioItem->data;
+					audioClip = (aafiAudioClip*)&audioItem->data;
 
-				aafiTransition *fadein  = get_fadein( audioItem );
-				aafiTransition *fadeout = get_fadeout( audioItem );
+					/*
+					 *  Composition Timecode does not always share the same edit rate as tracks and clips.
+					 *	Therefore, we need to do the conversion prior to any maths.
+					 *  For exemple, if TC is 30000/1001 and audio clips are 48000/1, then TC->start has to be converted from FPS to samples.
+					 */
 
-				struct timecode tc_in;
-				struct timecode tc_out;
-				struct timecode tc_len;
-
-				// enum TC_FORMAT format = tc_fps2format( (float)(aafi->Audio->tc->fps ), aafi->Audio->tc->drop );
-
-				// printf( "EditRate : %f\n", aafRationalToFloat(audioClip->track->edit_rate) );
-				// printf( "EditRate : %f\n", aafRationalToFloat(audioClip->track->edit_rate) );
-
-				// printf( "Format : %s\n", TC_FORMAT_STR[format] );
+					aafPosition_t sessionStart = convertEditUnit( audioClip->track->Audio->tc->start, aafi->Audio->tc->edit_rate, audioClip->track->edit_rate );
 
 
-				/*
-				 *  Composition Timecode does not always share the same edit rate as tracks and clips.
-				 *	Therefore, we need to do the conversion prior to any maths.
-				 *  For exemple, if TC is 30000/1001 and audio clips are 48000/1, then TC->start will be converted from FPS to samples.
-				 */
+					aafiTransition *fadein  = get_fadein( audioItem );
+					aafiTransition *fadeout = get_fadeout( audioItem );
 
-				aafPosition_t sessionStart = convertEditUnit( audioClip->track->Audio->tc->start, aafi->Audio->tc->edit_rate, audioClip->track->edit_rate );
+					char posFormatBuf1[POS_FORMAT_BUFFER_LEN];
+					char posFormatBuf2[POS_FORMAT_BUFFER_LEN];
+					char posFormatBuf3[POS_FORMAT_BUFFER_LEN];
+					char posFormatBuf4[POS_FORMAT_BUFFER_LEN];
 
-				tc_set_by_unitValue( &tc_in,  (audioClip->pos + sessionStart),                  (rational_t*)audioClip->track->edit_rate, tcFormat );
-				tc_set_by_unitValue( &tc_len,  audioClip->len,                                  (rational_t*)audioClip->track->edit_rate, tcFormat );
-				tc_set_by_unitValue( &tc_out, (audioClip->pos + audioClip->len + sessionStart), (rational_t*)audioClip->track->edit_rate, tcFormat );
+					printf( " Clip:%u%s  Gain: %s %s  GainAuto: %s "
+							" Start:%s  Len:%s  End:%s  "
+							" Fadein: %s  Fadeout: %s  SrcOffset: %s  SourceFile: %ls   (%ls)\n",
+						clipCount, ( clipCount < 10 ) ? " " : "",
+						gainToStr( audioClip->gain ),
+						(audioClip->mute) ? "(mute)" : "      ",
+						(audioClip->automation) ? "(A) " : "none",
+						formatPosValue( (audioClip->pos + sessionStart),                  audioClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf1 ),
+						formatPosValue( (audioClip->len),                                 audioClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf2 ),
+						formatPosValue( (audioClip->pos + sessionStart + audioClip->len), audioClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf3 ),
+						INTERPOL_TO_STRING( fadein ),
+						INTERPOL_TO_STRING( fadeout ),
+						// eu2sample( aafi->Audio->samplerate, audioClip->track->edit_rate, audioClip->essence_offset ),
+						formatPosValue( audioClip->essence_offset, audioClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf4 ),
+						(audioClip->Essence) ? audioClip->Essence->unique_file_name : L"",
+						(audioClip->Essence) ? audioClip->Essence->file_name : L""
+					);
 
-				printf( " Clip:%u%s  Track:%u  Gain: %s %s"
-						" Start:%s  Len:%s  End:%s  "
-						" Fadein: %s  Fadeout: %s  SourceFile: %ls   (%ls)\n",
-					i, ( i < 10 ) ? " " : "",
-					audioClip->track->number,
-					gainToStr( audioClip->gain ),
-					(audioClip->mute) ? "(mute)" : "      ",
-					tc_in.string,
-					tc_len.string,
-					tc_out.string,
-					( fadein != NULL ) ?
-						(fadein->flags & AAFI_INTERPOL_NONE)     ? "CURV_NON" :
-						(fadein->flags & AAFI_INTERPOL_LINEAR)   ? "CURV_LIN" :
-						(fadein->flags & AAFI_INTERPOL_LOG)      ? "CURV_LOG" :
-						(fadein->flags & AAFI_INTERPOL_CONSTANT) ? "CURV_CST" :
-						(fadein->flags & AAFI_INTERPOL_POWER)    ? "CURV_PWR" :
-						(fadein->flags & AAFI_INTERPOL_BSPLINE)  ? "CURV_BSP" :
-						"" :
-					"none    ",
-					( fadeout != NULL ) ?
-						(fadeout->flags & AAFI_INTERPOL_NONE)     ? "CURV_NON" :
-						(fadeout->flags & AAFI_INTERPOL_LINEAR)   ? "CURV_LIN" :
-						(fadeout->flags & AAFI_INTERPOL_LOG)      ? "CURV_LOG" :
-						(fadeout->flags & AAFI_INTERPOL_CONSTANT) ? "CURV_CST" :
-						(fadeout->flags & AAFI_INTERPOL_POWER)    ? "CURV_PWR" :
-						(fadeout->flags & AAFI_INTERPOL_BSPLINE)  ? "CURV_BSP" :
-						"" :
-					"none    ",
-					(audioClip->Essence) ? audioClip->Essence->unique_file_name : L"",
-					(audioClip->Essence) ? audioClip->Essence->file_name : L""
-				);
+					if ( show_automation && audioClip->automation ) {
+						printf( "CLIP GAIN AUTOMATION : \n" );
+						dumpVaryingValues( audioClip->automation );
+					}
 
-				if ( audioClip->automation ) {
-					printf( "CLIP GAIN AUTOMATION : \n" );
-					aafi_dump_VaryingValues( audioClip->automation );
+					clipCount++;
 				}
-
-
-				i++;
 			}
 
 			printf( "\n\n" );
 		}
 
 
-		i = 0;
+
+		if ( aafi->Markers ) {
+			printf( "Markers :\n"
+							"=========\n\n" );
+		}
+
+		uint32_t markerCount = 0;
 		aafiMarker *marker = NULL;
 
 		foreachMarker( marker, aafi ) {
 
-			struct timecode tc_start;
-			struct timecode tc_length;
+			/*
+			 *  Composition Timecode does not always share the same edit rate as markers.
+			 *	Therefore, we need to do the conversion prior to any maths.
+			 *  For exemple, if TC is 30000/1001 and markers are 48000/1, then TC->start has to be converted from FPS to samples.
+			 */
 
-			tc_set_by_unitValue( &tc_start,  marker->start,  (rational_t*)marker->edit_rate, tcFormat );
-			tc_set_by_unitValue( &tc_length, marker->length, (rational_t*)marker->edit_rate, tcFormat );
+			aafPosition_t sessionStart = convertEditUnit( audioClip->track->Audio->tc->start, aafi->Audio->tc->edit_rate, marker->edit_rate );
 
-			printf("Marker[%i]:  Start: %s  Length: %s  Color: #%02x%02x%02x  Label: \"%ls\"  Comment: \"%ls\"\n",
-				i++,
-				tc_start.string,
-				tc_length.string,
+			char posFormatBuf1[POS_FORMAT_BUFFER_LEN];
+			char posFormatBuf2[POS_FORMAT_BUFFER_LEN];
+
+			printf(" Marker[%i]:  Start: %s  Length: %s  Color: #%02x%02x%02x  Label: \"%ls\"  Comment: \"%ls\"\n",
+				markerCount++,
+				formatPosValue( (marker->start + sessionStart), marker->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf1 ),
+				formatPosValue(  marker->length,                marker->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf2 ),
 				marker->RVBColor[0],
 				marker->RVBColor[1],
 				marker->RVBColor[2],
 				marker->name,
 				marker->comment );
 		}
-
-
-
-		printf( "\n\n" );
 	}
 
 
 
+	printf( "\n\n" );
+
+	goto end;
+
+err:
+	rc = -1;
+
+end:
 
 	if ( aafi != NULL ) {
 		aafi_release( &aafi );
@@ -760,9 +788,5 @@ int main( int argc, char *argv[] )
 		aaf_release( &aafd );
 	}
 
-	if ( media_location ) {
-		free( media_location );
-	}
-
-	return 0;
+	return rc;
 }

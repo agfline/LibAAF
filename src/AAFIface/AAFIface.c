@@ -189,9 +189,13 @@ void aafi_release( AAF_Iface **aafi )
 		aafi_freeMarkers( &(*aafi)->Markers );
 	}
 
-	// if ( (*aafi)->ctx.trace_leveloop )
-	// 	free( (*aafi)->ctx.trace_leveloop );
+	if ( (*aafi)->ctx.options.trace_class ) {
+		free( (*aafi)->ctx.options.trace_class );
+	}
 
+	if ( (*aafi)->ctx.options.media_location ) {
+		free( (*aafi)->ctx.options.media_location );
+	}
 
 	free( *aafi );
 

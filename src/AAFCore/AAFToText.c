@@ -487,6 +487,30 @@ const wchar_t * ElectroSpatialToText( aafElectroSpatialFormulation_t e )
 }
 
 
+const wchar_t * StoredFormToText( enum aafStoredForm_e sf )
+{
+	switch ( sf ) {
+		case SF_DATA:                                   return L"SF_DATA";
+		case SF_DATA_STREAM:                            return L"SF_DATA_STREAM";
+		case SF_STRONG_OBJECT_REFERENCE:                return L"SF_STRONG_OBJECT_REFERENCE";
+		case SF_STRONG_OBJECT_REFERENCE_VECTOR:         return L"SF_STRONG_OBJECT_REFERENCE_VECTOR";
+		case SF_STRONG_OBJECT_REFERENCE_SET:            return L"SF_STRONG_OBJECT_REFERENCE_SET";
+		case SF_WEAK_OBJECT_REFERENCE:                  return L"SF_WEAK_OBJECT_REFERENCE";
+		case SF_WEAK_OBJECT_REFERENCE_VECTOR:           return L"SF_WEAK_OBJECT_REFERENCE_VECTOR";
+		case SF_WEAK_OBJECT_REFERENCE_SET:              return L"SF_WEAK_OBJECT_REFERENCE_SET";
+		case SF_WEAK_OBJECT_REFERENCE_STORED_OBJECT_ID: return L"SF_WEAK_OBJECT_REFERENCE_STORED_OBJECT_ID";
+		case SF_UNIQUE_OBJECT_ID:                       return L"SF_UNIQUE_OBJECT_ID";
+		case SF_OPAQUE_STREAM:                          return L"SF_OPAQUE_STREAM";
+
+		default:
+			break;
+	}
+
+	return L"Unknown StoredForm";
+
+}
+
+
 const wchar_t * OPDefToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
@@ -506,6 +530,10 @@ const wchar_t * OPDefToText( const aafUID_t *auid )
 	return L"Unknown AAFOPDef";
 
 }
+
+
+
+
 
 
 const wchar_t * TypeIDToText( const aafUID_t *auid )
@@ -1552,38 +1580,38 @@ const wchar_t * UsageCodeToText( const aafUID_t *auid )
 }
 
 
-const wchar_t * StoredFormToText( uint16_t sf )
-{
-	switch ( sf )
-	{
-		case SF_DATA:
-	 return L"SF_DATA";
-		case SF_DATA_STREAM:
-	 return L"SF_DATA_STREAM";
-		case SF_STRONG_OBJECT_REFERENCE:
-	 return L"SF_STRONG_OBJECT_REFERENCE";
-		case SF_STRONG_OBJECT_REFERENCE_VECTOR:
-	 return L"SF_STRONG_OBJECT_REFERENCE_VECTOR";
-		case SF_STRONG_OBJECT_REFERENCE_SET:
-	 return L"SF_STRONG_OBJECT_REFERENCE_SET";
-		case SF_WEAK_OBJECT_REFERENCE:
-	 return L"SF_WEAK_OBJECT_REFERENCE";
-		case SF_WEAK_OBJECT_REFERENCE_VECTOR:
-	 return L"SF_WEAK_OBJECT_REFERENCE_VECTOR";
-		case SF_WEAK_OBJECT_REFERENCE_SET:
-	 return L"SF_WEAK_OBJECT_REFERENCE_SET";
-		case SF_WEAK_OBJECT_REFERENCE_STORED_OBJECT_ID:
-	 return L"SF_WEAK_OBJECT_REFERENCE_STORED_OBJECT_ID";
-		case SF_UNIQUE_OBJECT_ID:
-	 return L"SF_UNIQUE_OBJECT_ID";
-		case SF_OPAQUE_STREAM:
-	 return L"SF_OPAQUE_STREAM";
-
-		default:
-			return L"Unknown StoredForm";
-
-	}
-}
+// const wchar_t * StoredFormToText( uint16_t sf )
+// {
+// 	switch ( sf )
+// 	{
+// 		case SF_DATA:
+// 	 return L"SF_DATA";
+// 		case SF_DATA_STREAM:
+// 	 return L"SF_DATA_STREAM";
+// 		case SF_STRONG_OBJECT_REFERENCE:
+// 	 return L"SF_STRONG_OBJECT_REFERENCE";
+// 		case SF_STRONG_OBJECT_REFERENCE_VECTOR:
+// 	 return L"SF_STRONG_OBJECT_REFERENCE_VECTOR";
+// 		case SF_STRONG_OBJECT_REFERENCE_SET:
+// 	 return L"SF_STRONG_OBJECT_REFERENCE_SET";
+// 		case SF_WEAK_OBJECT_REFERENCE:
+// 	 return L"SF_WEAK_OBJECT_REFERENCE";
+// 		case SF_WEAK_OBJECT_REFERENCE_VECTOR:
+// 	 return L"SF_WEAK_OBJECT_REFERENCE_VECTOR";
+// 		case SF_WEAK_OBJECT_REFERENCE_SET:
+// 	 return L"SF_WEAK_OBJECT_REFERENCE_SET";
+// 		case SF_WEAK_OBJECT_REFERENCE_STORED_OBJECT_ID:
+// 	 return L"SF_WEAK_OBJECT_REFERENCE_STORED_OBJECT_ID";
+// 		case SF_UNIQUE_OBJECT_ID:
+// 	 return L"SF_UNIQUE_OBJECT_ID";
+// 		case SF_OPAQUE_STREAM:
+// 	 return L"SF_OPAQUE_STREAM";
+//
+// 		default:
+// 			return L"Unknown StoredForm";
+//
+// 	}
+// }
 
 
 const wchar_t * PIDToText( AAF_Data *aafd, aafPID_t pid )

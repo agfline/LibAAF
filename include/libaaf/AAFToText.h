@@ -60,6 +60,8 @@ const wchar_t * ElectroSpatialToText( aafElectroSpatialFormulation_t e );
 
 const wchar_t * TypeIDToText( const aafUID_t *auid );
 
+const wchar_t * StoredFormToText( enum aafStoredForm_e sf );
+
 const wchar_t * OPDefToText( const aafUID_t *auid );
 
 const wchar_t * DataDefToText( AAF_Data *aafd, const aafUID_t *auid );
@@ -78,7 +80,7 @@ const wchar_t * ColorPrimariesToText( const aafUID_t *auid );
 
 const wchar_t * UsageCodeToText( const aafUID_t *auid );
 
-const wchar_t * StoredFormToText( uint16_t sf );
+// const wchar_t * StoredFormToText( uint16_t sf );
 
 const wchar_t * PIDToText( AAF_Data *aafd, aafPID_t pid );
 
