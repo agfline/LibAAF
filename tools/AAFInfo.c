@@ -781,12 +781,18 @@ err:
 
 end:
 
-	if ( aafi != NULL ) {
+	if ( aafi ) {
 		aafi_release( &aafi );
 	}
-	else if ( aafd != NULL ) {
-		aaf_release( &aafd );
+	else {
+		if ( media_location ) {
+			free( media_location );
+		}
+		if ( aafd ) {
+			aaf_release( &aafd );
+		}
 	}
+
 
 	return rc;
 }
