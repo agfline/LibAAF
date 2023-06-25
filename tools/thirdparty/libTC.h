@@ -87,7 +87,7 @@ typedef struct rational_t
 } /*__attribute__((packed))*/ rational_t;
 
 // static rational_t TC_FPS[] = {
-// 	0x0000000000000001,  // UNKNWON       0/1
+// 	0x0000000000000001,  // UNKNOWN       0/1
 // 	0x00005dc0000003e9,  // TC_23_976     24000/1001
 // 	0x0000001800000001,  // TC_24         24/1
 // 	0x0000001900000001,  // TC_25         25/1
@@ -106,7 +106,7 @@ typedef struct rational_t
 // };
 
 // static rational_t TC_FPS[] = {
-// 	{0x00000000, 0x00000001},  // UNKNWON       0/1
+// 	{0x00000000, 0x00000001},  // UNKNOWN       0/1
 // 	{0x00005dc0, 0x000003e9},  // TC_23_976     24000/1001
 // 	{0x00000018, 0x00000001},  // TC_24         24/1
 // 	{0x00000019, 0x00000001},  // TC_25         25/1
@@ -140,7 +140,7 @@ typedef struct rational_t
 
 struct timecode
 {
-	uint64_t   unitValue;	// some value of unknwon unit (eg. samples)
+	uint64_t   unitValue;	// some value of unknown unit (eg. samples)
 
 	rational_t unitRate;	// value units per second (eg. 48000)
 
