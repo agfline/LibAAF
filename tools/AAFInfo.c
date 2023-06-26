@@ -369,7 +369,6 @@ int main( int argc, char *argv[] )
 
 
 	if ( aafi_load_file( aafi, argv[argc-1] ) ) {
-		aafi_release( &aafi );
 		goto err;
 	}
 

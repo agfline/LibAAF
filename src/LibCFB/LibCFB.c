@@ -228,11 +228,15 @@ void cfb_release( CFB_Data **cfbd )
 		(*cfbd)->DiFAT = NULL;
 	}
 
-	if ( (*cfbd)->fat != NULL )
+	if ( (*cfbd)->fat != NULL ) {
 		free( (*cfbd)->fat );
+		(*cfbd)->fat = NULL;
+	}
 
-	if ( (*cfbd)->miniFat != NULL )
+	if ( (*cfbd)->miniFat != NULL ) {
 		free( (*cfbd)->miniFat );
+		(*cfbd)->miniFat = NULL;
+	}
 
 	if ( (*cfbd)->nodes != NULL )
 	{
@@ -244,17 +248,21 @@ void cfb_release( CFB_Data **cfbd )
 			free( (*cfbd)->nodes[i]);
 			i += ( 1 << (*cfbd)->hdr->_uSectorShift ) / sizeof(cfbNode);
 		}
+
+		free( (*cfbd)->nodes );
+		(*cfbd)->nodes = NULL;
 	}
 
-	if ( (*cfbd)->nodes != NULL )
-		free( (*cfbd)->nodes );
+	// if ( (*cfbd)->nodes != NULL )
+	// 	free( (*cfbd)->nodes );
 
-	if ( (*cfbd)->hdr != NULL )
+	if ( (*cfbd)->hdr != NULL ) {
 		free( (*cfbd)->hdr );
+		(*cfbd)->hdr = NULL;
+	}
 
 
 	free( *cfbd );
-
 	*cfbd = NULL;
 }
 
@@ -569,13 +577,15 @@ static uint64_t cfb_readFile( CFB_Data *cfbd, unsigned char *buf, uint64_t offse
 
 static void cfb_closeFile( CFB_Data *cfbd )
 {
-	if ( cfbd->fp == NULL )
+	if ( cfbd == NULL || cfbd->fp == NULL )
 		return;
 
 	if ( fclose( cfbd->fp ) != 0 )
 	{
 		_error( cfbd->verb, "%s.\n", strerror(errno) );
 	}
+
+	cfbd->fp = NULL;
 }
 
 
@@ -909,6 +919,7 @@ static int cfb_retrieveFileHeader( CFB_Data *cfbd )
 	if ( cfb_readFile( cfbd, (unsigned char*)cfbd->hdr, 0, sizeof(cfbHeader) ) == 0 )
 	{
 		free( cfbd->hdr );
+		cfbd->hdr = NULL;
 		return -1;
 	}
 

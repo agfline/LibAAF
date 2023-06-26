@@ -303,6 +303,9 @@ char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_fi
    * uses the / character as the path separator.
    */
 
+  if ( original_file_path == NULL ) {
+    return NULL;
+  }
 
 
   char *filepath = malloc( wcslen(original_file_path)+1 );
