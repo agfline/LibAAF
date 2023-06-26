@@ -80,9 +80,9 @@ typedef struct AAF_Iface AAF_Iface;
 
 int aafi_retrieveData( AAF_Iface *aafi );
 
-void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int state, int line, char *fmt, ... );
+void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int state, int line, const char *fmt, ... );
 void _DUMP_OBJ_NO_SUPPORT( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int line );
-void trace_obj( AAF_Iface *aafi, aafObject *Obj, char *color );
+void trace_obj( AAF_Iface *aafi, aafObject *Obj, const char *color );
 
 int parse_Segment( AAF_Iface *aafi, aafObject *Segment, td *__ptd );
 

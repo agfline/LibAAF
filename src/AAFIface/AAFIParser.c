@@ -251,7 +251,7 @@ void xplore_StrongObjectReferenceVector( AAF_Iface *aafi, aafObject *ObjCollecti
 
 
 
-void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int state, int line, char *fmt, ... )
+void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int state, int line, const char *fmt, ... )
 {
 	if ( aafi->ctx.options.trace == 0 )
 		return;
@@ -539,7 +539,7 @@ void _DUMP_OBJ_NO_SUPPORT( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *_
 
 
 
-void trace_obj( AAF_Iface *aafi, aafObject *Obj, char *color )
+void trace_obj( AAF_Iface *aafi, aafObject *Obj, const char *color )
 {
 	return;
 	char buf[4096];

@@ -65,7 +65,7 @@ enum pos_format {
 
 
 
-static char * gainToStr( aafiAudioGain *gain ) {
+static const char * gainToStr( aafiAudioGain *gain ) {
 
 	static char str[32];
 
@@ -87,7 +87,7 @@ static char * gainToStr( aafiAudioGain *gain ) {
 
 
 
-static char * panToStr( aafiAudioPan *pan )
+static const char * panToStr( aafiAudioPan *pan )
 {
 	static char str[32];
 
@@ -129,7 +129,7 @@ static void dumpVaryingValues( aafiAudioGain *Gain ) {
 
 
 
-char * formatPosValue( aafPosition_t pos, aafRational_t *editRate, enum pos_format posFormat, enum TC_FORMAT tcFormat, uint64_t samplerate, char *buf )
+static const char * formatPosValue( aafPosition_t pos, aafRational_t *editRate, enum pos_format posFormat, enum TC_FORMAT tcFormat, uint64_t samplerate, char *buf )
 {
 	struct timecode tc;
 
