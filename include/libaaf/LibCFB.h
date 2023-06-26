@@ -182,59 +182,105 @@ typedef struct cfbFiletime_t
 
 /**
  *	This enum defines sector IDs and storage IDs (SID) with special meanings.
+ *  NOTE: enum was turned to MACRO, because of -Wpedantic (and even though they are valid 32bits...)
  */
 
-typedef enum cfbSpecialSectorID_e
-{
-	/**
-	 *	Maximum sector ID.
-	 */
-
-	CFB_MAX_REG_SECT = 0xfffffffa,
+#define CFB_MAX_REG_SECT  0xfffffffa
 
 
-	/**
-	 *	Denotes a DiFAT sector ID in the FAT or MiniFAT.
-	 */
+/**
+ *	Denotes a DiFAT sector ID in the FAT or MiniFAT.
+ */
 
-	CFB_DIFAT_SECT   = 0xfffffffc,
-
-
-	/**
-	 *	Denotes a FAT sector ID in the FAT or MiniFAT.
-	 */
-
-	CFB_FAT_SECT     = 0xfffffffd,
+#define CFB_DIFAT_SECT    0xfffffffc
 
 
-	/**
-	 *	End of a virtual stream chain.
-	 */
+/**
+ *	Denotes a FAT sector ID in the FAT or MiniFAT.
+ */
 
-	CFB_END_OF_CHAIN = 0xfffffffe,
-
-
-	/**
-	 *	Unallocated FAT or MiniFAT sector.
-	 */
-
-	CFB_FREE_SECT    = 0xffffffff,
+#define CFB_FAT_SECT      0xfffffffd
 
 
-	/**
-	 *	Maximum directory entry ID.
-	 */
+/**
+ *	End of a virtual stream chain.
+ */
 
-	CFB_MAX_REG_SID  = 0xfffffffa,
+#define CFB_END_OF_CHAIN  0xfffffffe
 
 
-	/**
-	 *	Unallocated directory entry.
-	 */
+/**
+ *	Unallocated FAT or MiniFAT sector.
+ */
 
-	CFB_NO_STREAM    = 0xffffffff
+#define CFB_FREE_SECT     0xffffffff
 
-} cfbSpecialSectorID_e;
+
+/**
+ *	Maximum directory entry ID.
+ */
+
+#define CFB_MAX_REG_SID   0xfffffffa
+
+
+/**
+ *	Unallocated directory entry.
+ */
+
+#define CFB_NO_STREAM     0xffffffff
+
+
+// typedef enum cfbSpecialSectorID_e
+// {
+// 	/**
+// 	 *	Maximum sector ID.
+// 	 */
+//
+// 	CFB_MAX_REG_SECT = 0xfffffffa,
+//
+//
+// 	/**
+// 	 *	Denotes a DiFAT sector ID in the FAT or MiniFAT.
+// 	 */
+//
+// 	CFB_DIFAT_SECT   = 0xfffffffc,
+//
+//
+// 	/**
+// 	 *	Denotes a FAT sector ID in the FAT or MiniFAT.
+// 	 */
+//
+// 	CFB_FAT_SECT     = 0xfffffffd,
+//
+//
+// 	/**
+// 	 *	End of a virtual stream chain.
+// 	 */
+//
+// 	CFB_END_OF_CHAIN = 0xfffffffe,
+//
+//
+// 	/**
+// 	 *	Unallocated FAT or MiniFAT sector.
+// 	 */
+//
+// 	CFB_FREE_SECT    = 0xffffffff,
+//
+//
+// 	/**
+// 	 *	Maximum directory entry ID.
+// 	 */
+//
+// 	CFB_MAX_REG_SID  = 0xfffffffa,
+//
+//
+// 	/**
+// 	 *	Unallocated directory entry.
+// 	 */
+//
+// 	CFB_NO_STREAM    = 0xffffffff
+//
+// } cfbSpecialSectorID_e;
 
 
 

@@ -21,7 +21,7 @@
 #ifndef __ProTools_h__
 #define __ProTools_h__
 
-typedef struct AAF_Iface AAF_Iface;
+struct AAF_Iface;
 
 enum protools_options {
   PROTOOLS_REMOVE_SAMPLE_ACCURATE_EDIT = 1<<0,

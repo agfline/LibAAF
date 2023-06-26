@@ -21,7 +21,7 @@
 #ifndef __Resolve_h__
 #define __Resolve_h__
 
-typedef struct AAF_Iface AAF_Iface;
+struct AAF_Iface;
 
 enum resolve_options {
   RESOLVE_INCLUDE_DISABLED_CLIPS = 1<<0,

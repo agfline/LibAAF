@@ -25,8 +25,8 @@
 
 #define BUFFER_LEN 4096
 
-typedef struct AAF_Iface AAF_Iface;
-typedef struct aafiAudioEssence aafiAudioEssence;
+struct AAF_Iface;
+struct aafiAudioEssence;
 
 
 #ifdef USE_LIBSNDFILE

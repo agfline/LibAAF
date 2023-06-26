@@ -38,7 +38,7 @@
 #include <libaaf/AAFCore.h>
 #include <libaaf/AAFIface.h>
 
-typedef struct AAF_Iface AAF_Iface;
+struct AAF_Iface;
 
 
 
