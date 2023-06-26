@@ -163,7 +163,7 @@ int resolve_parse_aafObject_DescriptiveMarker( struct AAF_Iface *aafi, aafObject
    */
 
   struct trace_dump __td;
-  __td_set(__td, __ptd, 0);
+  __td_set(__td, __ptd, 1);
 
 
   aafPosition_t *start = (int64_t *)aaf_get_propertyValue( DescriptiveMarker, PID_Event_Position );
@@ -210,6 +210,8 @@ int resolve_parse_aafObject_DescriptiveMarker( struct AAF_Iface *aafi, aafObject
   }
 
   aafi_newMarker( aafi, aafi->ctx.current_markers_edit_rate, *start, ((length) ? *length : 0), name, comment, &RVBColor );
+
+  DUMP_OBJ( aafi, DescriptiveMarker, &__td );
 
   return 0;
 }
