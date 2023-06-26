@@ -15,6 +15,21 @@ if ( NOT BUILD_SHARED_LIB AND NOT BUILD_STATIC_LIB )
 endif()
 
 
+
+
+# cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+find_package( Git )
+add_custom_target( version
+  ${CMAKE_COMMAND} -D SRC=${PROJECT_SOURCE_DIR}/src/version.h.in
+                   -D DST=${PROJECT_SOURCE_DIR}/include/libaaf/version.h
+                   -D PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
+                   -D GIT_EXECUTABLE=${GIT_EXECUTABLE}
+                   -P ${CMAKE_SOURCE_DIR}/GenerateVersionHeader.cmake
+  )
+
+
+
+
 if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
   set( LIBAAF_COMPILE_OPTIONS
     -W
@@ -111,6 +126,7 @@ set( LIBAAF_LIB_SOURCES
 
 if ( BUILD_SHARED_LIB )
   add_library( aaf-shared SHARED ${LIBAAF_LIB_SOURCES} )
+  add_dependencies( aaf-shared version )
   target_compile_options( aaf-shared PUBLIC ${LIBAAF_COMPILE_OPTIONS} )
   set_target_properties( aaf-shared PROPERTIES OUTPUT_NAME "aaf" )
   set_target_properties( aaf-shared PROPERTIES
@@ -123,6 +139,7 @@ endif( BUILD_SHARED_LIB )
 
 if ( BUILD_STATIC_LIB )
   add_library( aaf-static STATIC ${LIBAAF_LIB_SOURCES} )
+  add_dependencies( aaf-static version )
   target_compile_options( aaf-static PUBLIC ${LIBAAF_COMPILE_OPTIONS} )
   set_target_properties( aaf-static PROPERTIES OUTPUT_NAME "aaf" )
   set_target_properties( aaf-static PROPERTIES

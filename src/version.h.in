@@ -18,27 +18,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef libaaf_h
-#define libaaf_h
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include <libaaf/version.h>
-
-#include <libaaf/LibCFB.h>
-#include <libaaf/AAFCore.h>
-#include <libaaf/AAFIface.h>
-#include <libaaf/AAFIAudioFiles.h>
-#include <libaaf/CFBDump.h>
-#include <libaaf/AAFDump.h>
-
-#include <libaaf/ProTools.h>
-#include <libaaf/Resolve.h>
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif // ! libaaf_h
+#ifndef LIBAAF_VERSION_H_
+#define LIBAAF_VERSION_H_
+#define LIBAAF_VERSION "@LIBAAF_VERSION@"
+#endif  /* LIBAAF_VERSION_H_ */
