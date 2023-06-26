@@ -109,10 +109,10 @@ char * fop_get_parent_path( const char *path, char **buf, size_t *bufsz, char in
   size_t pathsz = strlen( path ) + 1;
 
   if ( buf == NULL ) {
-    pbuf = strdup( path );
+    pbuf = c99strdup( path );
   }
   else if ( *buf == NULL ) {
-    *buf = strdup( path );
+    *buf = c99strdup( path );
     if ( bufsz )
       *bufsz = pathsz;
     pbuf = *buf;
@@ -363,7 +363,7 @@ char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_fi
   // printf( "uri->path : %s\n", uri->path );
 
   if ( access( uri->path, F_OK ) != -1 ) {
-    char *path = strdup( uri->path );
+    char *path = c99strdup( uri->path );
     uriFree( uri );
     free( filepath );
     return path;
@@ -406,7 +406,7 @@ char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_fi
      * extract path to AAF file
      */
 
-    char *aafPath = strdup( aafi->aafd->cfbd->file );
+    char *aafPath = c99strdup( aafi->aafd->cfbd->file );
 
     p = aafPath + strlen(aafPath);
 

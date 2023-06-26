@@ -28,6 +28,35 @@
 
 
 
+char * c99strdup( const char *src )
+{
+  if ( !src ) {
+    return NULL;
+  }
+  
+  int len = 0;
+
+  while ( src[len] ) {
+    len++;
+  }
+
+  char *str = malloc( len + 1 );
+
+  if ( !str )
+    return NULL;
+
+  char *p = str;
+
+  while ( *src ) {
+    *(p++) = *(src++);
+  }
+
+  *p = '\0';
+
+  return str;
+}
+
+
 size_t utf16toa( char *astr, uint16_t alen, uint16_t *wstr, uint16_t wlen )
 {
      uint32_t i = 0;

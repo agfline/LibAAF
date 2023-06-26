@@ -28,6 +28,8 @@
 
 #include <libaaf.h>
 
+#include "../src/common/utils.h" // ANSI colors, c99strdup()
+
 
 void usage() {
 
@@ -64,11 +66,11 @@ int main( int argc, char *argv[] )
         break;
 
       case 'p':
-        output_path = strdup(optarg);
+        output_path = c99strdup(optarg);
         break;
 
       case 'f':
-				aaf_file = strdup(optarg);
+				aaf_file = c99strdup(optarg);
         break;
 
       default:

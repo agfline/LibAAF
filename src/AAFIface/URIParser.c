@@ -23,6 +23,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <stdint.h>
 
 #ifdef _MSC_VER
   #include <BaseTsd.h>
@@ -109,7 +110,7 @@ static int _uri_parse_query( struct uri *uri, const char **pos, const char *end 
 static int _uri_parse_fragment( struct uri *uri, const char **pos, const char *end );
 
 static void _uri_scheme2schemeType( struct uri *uri );
-static int  _snprintf_realloc( char **str, ssize_t *size, ssize_t offset, const char *format, ... );
+static int  _snprintf_realloc( char **str, size_t *size, size_t offset, const char *format, ... );
 
 #ifdef BUILD_URI_TEST //  gcc -g -W -Wall ./URIParser.c -D BUILD_URI_TEST
   static int  _uri_cmp( const struct uri *a, const struct uri *b );
@@ -1099,22 +1100,22 @@ static void _uri_scheme2schemeType( struct uri *uri ) {
 
 
 
-static int _snprintf_realloc( char **str, ssize_t *size, ssize_t offset, const char *format, ... )
+static int _snprintf_realloc( char **str, size_t *size, size_t offset, const char *format, ... )
 {
-  ssize_t tmpsize = 0;
+  size_t tmpsize = 0;
   if ( !size ) {
     size = &tmpsize;
   }
 
-  ssize_t retval, needed;
+  int retval, needed;
   va_list ap;
   va_start(ap, format);
   while ( 0 <= (retval = vsnprintf((*str)+offset, (*size)-offset, format, ap)) // Error?
-         && (*size)-offset <  (needed = retval + 1)) // Space?
+         && (int64_t)((*size)-offset) <  (needed = retval + 1)) // Space?
   {
     va_end(ap);
     *size *= 2;                                                  // Space?
-    if ((*size)-offset < needed) *size = needed;                          // Space!
+    if ((int64_t)((*size)-offset) < needed) *size = needed;                          // Space!
     char *p = realloc(*str, *size);                              // Alloc
     if (p) {
       *str = p;

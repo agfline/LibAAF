@@ -33,6 +33,7 @@
 #define ANSI_COLOR_RESET    "\x1b[0m"
 
 
+char * c99strdup( const char *src );
 
 size_t utf16toa( char *astr, uint16_t alen, uint16_t *wstr, uint16_t wlen );
 wchar_t * atowchar( const char *astr, uint16_t alen );

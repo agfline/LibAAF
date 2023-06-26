@@ -35,7 +35,7 @@
 
 
 #include "./thirdparty/libTC.h"
-#include "../src/common/utils.h" // ANSI colors
+#include "../src/common/utils.h" // ANSI colors, c99strdup()
 
 
 #define POS_FORMAT_BUFFER_LEN 32
@@ -308,7 +308,7 @@ int main( int argc, char *argv[] )
 			case 0x8b:  aaf_meta       = 1;         cmd++;       break;
 			case 0x8c:  aaf_properties = 1;         cmd++;       break;
 
-			case 0x8d:  media_location = strdup( optarg );       break;
+			case 0x8d:  media_location = c99strdup( optarg );    break;
 
 			case 0x8e:
 
