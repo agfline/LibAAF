@@ -129,10 +129,10 @@ char * formatPosValue( aafPosition_t pos, aafRational_t *editRate, enum pos_form
 		uint64_t unitPerSec  = aafRationalToFloat(*editRate);
 		uint64_t unitPerMS   = aafRationalToFloat(*editRate) / 1000;
 
-		uint16_t h  =  pos / unitPerHour;
-		uint16_t m  = (pos % unitPerHour) / unitPerMin;
-		uint16_t s  = (pos % unitPerHour % unitPerMin) / unitPerSec;
-		uint16_t ms = (unitPerMS) ? ((pos % unitPerHour % unitPerMin % unitPerSec) / unitPerMS) : 0;
+		uint16_t h  = (unitPerHour) ?  (pos / unitPerHour) : 0;
+		uint16_t m  = (unitPerMin)  ? ((pos % unitPerHour) / unitPerMin) : 0;
+		uint16_t s  = (unitPerSec)  ? ((pos % unitPerHour  % unitPerMin) / unitPerSec) : 0;
+		uint16_t ms = (unitPerMS)   ? ((pos % unitPerHour  % unitPerMin  % unitPerSec) / unitPerMS) : 0;
 
 		snprintf( buf, POS_FORMAT_BUFFER_LEN, "%02u:%02u:%02u.%03u", h, m, s, ms );
 		return buf;
