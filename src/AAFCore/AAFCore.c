@@ -925,7 +925,7 @@ wchar_t * aaf_get_propertyValueWstr( aafObject *Obj, aafPID_t pid )
 		( Prop->len % 2 ) ? Prop->len-1 : Prop->len );
 #else
 	w16tow32( string,
-		( Prop->len % 2 ) ? Prop->val+1 : Prop->val,
+		( Prop->len % 2 ) ? (char*)Prop->val+1 : Prop->val,
 		( Prop->len % 2 ) ? Prop->len-1 : Prop->len );
 #endif
 
