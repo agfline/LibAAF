@@ -26,7 +26,7 @@
 #include <locale.h>
 
 #ifdef _MSC_VER
-	#include <libaaf/win/getopt.h>
+	#include "win/getopt.h"
 #else
 	#include <getopt.h>
 #endif
