@@ -272,11 +272,7 @@ void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int st
 		printf("     ");
 	}
 
-#ifndef _WIN32
-	printf( "%s%s%s", ANSI_COLOR_DARKGREY, "\u2502", ANSI_COLOR_RESET ); // │
-#else
-	printf( "%s%s%s", ANSI_COLOR_DARKGREY, "|", ANSI_COLOR_RESET ); // │
-#endif
+	printf( "%s%ls%s", ANSI_COLOR_DARKGREY, L"\u2502", ANSI_COLOR_RESET ); // │
 
 	/* Print padding and vertical lines */
 
@@ -291,34 +287,18 @@ void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int st
 				if ( i+1 == __td->lv )
 				{
 					if ( Obj ) {
-#ifndef _WIN32
-						printf("\u251c\u2500\u2500\u25fb "); // ├──◻
-#else
-						printf("|--> ");
-#endif
+						printf( "%ls", L"\u251c\u2500\u2500\u25fb " ); // ├──◻
 					}
 					else {
-#ifndef _WIN32
-						printf("\u2502    "); // │
-#else
-						printf("|    ");
-#endif
+						printf( "%ls", L"\u2502    " ); // │
 					}
 				}
 				else {
-#ifndef _WIN32
-					printf("\u2502    "); // │
-#else
-					printf("|    ");
-#endif
+					printf( "%ls", L"\u2502    " ); // │
 				}
 			}
 			else if ( i+1 == __td->lv && Obj ) {
-#ifndef _WIN32
-				printf("\u2514\u2500\u2500\u25fb "); // └──◻
-#else
-				printf("`--> ");
-#endif
+				printf( "%ls", L"\u2514\u2500\u2500\u25fb " ); // └──◻
 			}
 			else {
 				printf("     ");

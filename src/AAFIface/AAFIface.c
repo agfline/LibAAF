@@ -47,8 +47,11 @@
 #include <libaaf/AAFIface.h>
 #include <libaaf/AAFIParser.h>
 
-
-
+#ifdef _WIN32
+	#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+		#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+	#endif
+#endif
 
 
 
@@ -115,6 +118,17 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 	aafi->ctx.options.verb = VERB_QUIET;
 	aafi->ctx.options.trace = 0;
 	// aafi->ctx.trace_leveloop = NULL;
+
+
+	/* some init part */
+
+#ifdef _WIN32
+	/* enables ANSI colors and unicode chars */
+	HANDLE hOut = GetStdHandle( STD_OUTPUT_HANDLE );
+	DWORD dwMode = 0;
+	GetConsoleMode( hOut, &dwMode );
+	SetConsoleMode( hOut, (dwMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING) );
+#endif
 
 	return aafi;
 }
