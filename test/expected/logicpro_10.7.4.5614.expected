@@ -1,0 +1,105 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2023-06-23 14:21:28.00
+ AAF ObjSpec Version  : 1.1
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFUID_NULL
+
+
+ CompanyName          : App
+ ProductName          : Log
+ ProductVersion       : 10.7.4.5614 AAFVersionReleased (1)
+ ProductVersionString : 10.7
+ ProductID            : { 0x00000000 0x0000 0x0000 { 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 } }
+ Date                 : 2023-06-23 14:21:22.00
+ ToolkitVersion       : 1.1.6.0 AAFVersionReleased (1)
+ Platform             : AAFSDK (MacOS X)
+ GenerationAUID       : { 0xc8a0f5c1 0x69de 0x11d2 { 0xb6 0xbc 0xfc 0xab 0x70 0xff 0x73 0x31 } }
+
+
+ Composition Name     : LogicProX AAF Test
+
+ TC EditRrate         : 48000/1
+ TC FPS               : 30 DF
+ TC Start (EU)        : 0
+ TC End (EU)          : 0
+ TC Start (samples)   : 0
+ TC End (samples)     : 0
+ TC Start             : 00:00:00;00 (30 fps DF)
+ TC End               : 00:00:00;00 (30 fps DF)
+
+ Sample Rate          : 48000
+ Sample Size          : 16
+
+
+Media Essences :
+================
+
+  0:  Type: WAVE  Length: 00:00:08.774   01 Ch - 48000 Hz - 16 bits   file : /home/agfline/Programming/libaaf/LibAAF/test/aaf/Audio Files/LogicProX AAF Test_8#01.R.wav  file_name : LogicProX AAF Test_8#01.R.wav
+  1:  Type: WAVE  Length: 00:00:08.774   01 Ch - 48000 Hz - 16 bits   file : /home/agfline/Programming/libaaf/LibAAF/test/aaf/Audio Files/LogicProX AAF Test_8#01.L.wav  file_name : LogicProX AAF Test_8#01.L.wav
+  2:  Type: WAVE  Length: 00:00:05.929   01 Ch - 48000 Hz - 16 bits   file : /home/agfline/Programming/libaaf/LibAAF/test/aaf/Audio Files/speech-sample_1.wav  file_name : speech-sample_1.wav
+  3:  Type: WAVE  Length: 00:00:05.929   01 Ch - 48000 Hz - 16 bits   file : /home/agfline/Programming/libaaf/LibAAF/test/aaf/Audio Files/speech-sample.wav  file_name : speech-sample.wav
+  4:  Type: WAVE  Length: 00:00:05.000   01 Ch - 48000 Hz - 16 bits   file : /home/agfline/Programming/libaaf/LibAAF/test/aaf/Audio Files/m18dbs24le@48k-mono.wav  file_name : m18dbs24le@48k-mono.wav
+
+
+Tracks & Clips :
+================
+
+Track  (1) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 1 - red track color - clip fades -L"
+ Clip:0   Gain: none             GainAuto: none  Start:00:00:00.000  Len:00:00:00.500  End:00:00:00.500   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: m18dbs24le@48k-mono.wav   (m18dbs24le@48k-mono.wav)
+ Clip:1   Gain: none             GainAuto: none  Start:00:00:01.001  Len:00:00:00.500  End:00:00:01.501   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: m18dbs24le@48k-mono.wav   (m18dbs24le@48k-mono.wav)
+ Clip:2   Gain: none             GainAuto: none  Start:00:00:02.002  Len:00:00:00.500  End:00:00:02.502   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: m18dbs24le@48k-mono.wav   (m18dbs24le@48k-mono.wav)
+ Clip:3   Gain: none             GainAuto: none  Start:00:00:03.003  Len:00:00:00.500  End:00:00:03.503   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: m18dbs24le@48k-mono.wav   (m18dbs24le@48k-mono.wav)
+
+
+Track  (2) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 1 - red track color - clip fades -R"
+ Clip:4   Gain: none             GainAuto: none  Start:00:00:00.000  Len:00:00:00.500  End:00:00:00.500   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: m18dbs24le@48k-mono.wav   (m18dbs24le@48k-mono.wav)
+ Clip:5   Gain: none             GainAuto: none  Start:00:00:01.001  Len:00:00:00.500  End:00:00:01.501   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: m18dbs24le@48k-mono.wav   (m18dbs24le@48k-mono.wav)
+ Clip:6   Gain: none             GainAuto: none  Start:00:00:02.002  Len:00:00:00.500  End:00:00:02.502   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: m18dbs24le@48k-mono.wav   (m18dbs24le@48k-mono.wav)
+ Clip:7   Gain: none             GainAuto: none  Start:00:00:03.003  Len:00:00:00.500  End:00:00:03.503   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: m18dbs24le@48k-mono.wav   (m18dbs24le@48k-mono.wav)
+
+
+Track  (3) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 2 - purple track color - clip crossfades -L"
+ Clip:8   Gain: none             GainAuto: none  Start:00:00:00.000  Len:00:00:01.334  End:00:00:01.334   Fadein: none      Fadeout: none      SrcOffset: 00:00:02.068  SourceFile: speech-sample.wav   (speech-sample.wav)
+ Clip:9   Gain: none             GainAuto: none  Start:00:00:01.334  Len:00:00:01.267  End:00:00:02.602   Fadein: none      Fadeout: none      SrcOffset: 00:00:02.068  SourceFile: speech-sample.wav   (speech-sample.wav)
+ Clip:10  Gain: none             GainAuto: none  Start:00:00:02.602  Len:00:00:01.368  End:00:00:03.970   Fadein: none      Fadeout: none      SrcOffset: 00:00:02.068  SourceFile: speech-sample.wav   (speech-sample.wav)
+ Clip:11  Gain: none             GainAuto: none  Start:00:00:03.970  Len:00:00:01.935  End:00:00:05.905   Fadein: none      Fadeout: none      SrcOffset: 00:00:02.068  SourceFile: speech-sample.wav   (speech-sample.wav)
+
+
+Track  (4) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 2 - purple track color - clip crossfades -R"
+ Clip:12  Gain: none             GainAuto: none  Start:00:00:00.000  Len:00:00:01.334  End:00:00:01.334   Fadein: none      Fadeout: none      SrcOffset: 00:00:02.068  SourceFile: speech-sample.wav   (speech-sample.wav)
+ Clip:13  Gain: none             GainAuto: none  Start:00:00:01.334  Len:00:00:01.267  End:00:00:02.602   Fadein: none      Fadeout: none      SrcOffset: 00:00:02.068  SourceFile: speech-sample.wav   (speech-sample.wav)
+ Clip:14  Gain: none             GainAuto: none  Start:00:00:02.602  Len:00:00:01.368  End:00:00:03.970   Fadein: none      Fadeout: none      SrcOffset: 00:00:02.068  SourceFile: speech-sample.wav   (speech-sample.wav)
+ Clip:15  Gain: none             GainAuto: none  Start:00:00:03.970  Len:00:00:01.935  End:00:00:05.905   Fadein: none      Fadeout: none      SrcOffset: 00:00:02.068  SourceFile: speech-sample.wav   (speech-sample.wav)
+
+
+Track  (5) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 3 - track icon & fixed level/pan - clip gain/mute -L"
+ Clip:16  Gain: none             GainAuto: none  Start:00:00:00.000  Len:00:00:05.929  End:00:00:05.929   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: speech-sample_1.wav   (speech-sample_1.wav)
+ Clip:17  Gain: none             GainAuto: none  Start:00:00:14.500  Len:00:00:05.929  End:00:00:20.429   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: speech-sample_1.wav   (speech-sample_1.wav)
+
+
+Track  (6) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 3 - track icon & fixed level/pan - clip gain/mute -R"
+ Clip:18  Gain: none             GainAuto: none  Start:00:00:00.000  Len:00:00:05.929  End:00:00:05.929   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: speech-sample_1.wav   (speech-sample_1.wav)
+ Clip:19  Gain: none             GainAuto: none  Start:00:00:14.500  Len:00:00:05.929  End:00:00:20.429   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: speech-sample_1.wav   (speech-sample_1.wav)
+
+
+Track  (7) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 8 - Take folder -L"
+ Clip:20  Gain: none             GainAuto: none  Start:00:00:01.968  Len:00:00:00.184  End:00:00:02.152   Fadein: none      Fadeout: none      SrcOffset: 00:00:07.939  SourceFile: LogicProX AAF Test_8#01.L.wav   (LogicProX AAF Test_8#01.L.wav)
+ Clip:21  Gain: none             GainAuto: none  Start:00:00:02.152  Len:00:00:00.187  End:00:00:02.339   Fadein: none      Fadeout: none      SrcOffset: 00:00:07.556  SourceFile: LogicProX AAF Test_8#01.L.wav   (LogicProX AAF Test_8#01.L.wav)
+ Clip:22  Gain: none             GainAuto: none  Start:00:00:02.339  Len:00:00:00.195  End:00:00:02.535   Fadein: none      Fadeout: none      SrcOffset: 00:00:06.041  SourceFile: LogicProX AAF Test_8#01.L.wav   (LogicProX AAF Test_8#01.L.wav)
+
+
+Track  (8) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 8 - Take folder -R"
+ Clip:23  Gain: none             GainAuto: none  Start:00:00:01.968  Len:00:00:00.184  End:00:00:02.152   Fadein: none      Fadeout: none      SrcOffset: 00:00:07.939  SourceFile: LogicProX AAF Test_8#01.R.wav   (LogicProX AAF Test_8#01.R.wav)
+ Clip:24  Gain: none             GainAuto: none  Start:00:00:02.152  Len:00:00:00.187  End:00:00:02.339   Fadein: none      Fadeout: none      SrcOffset: 00:00:07.556  SourceFile: LogicProX AAF Test_8#01.R.wav   (LogicProX AAF Test_8#01.R.wav)
+ Clip:25  Gain: none             GainAuto: none  Start:00:00:02.339  Len:00:00:00.195  End:00:00:02.535   Fadein: none      Fadeout: none      SrcOffset: 00:00:06.041  SourceFile: LogicProX AAF Test_8#01.R.wav   (LogicProX AAF Test_8#01.R.wav)
+
+
+Track  (9) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 4 - track/clips pan/level automation -L"
+ Clip:26  Gain: none             GainAuto: (A)   Start:00:00:00.000  Len:00:00:05.929  End:00:00:05.929   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: speech-sample_1.wav   (speech-sample_1.wav)
+ Clip:27  Gain: none             GainAuto: (A)   Start:00:00:06.940  Len:00:00:05.929  End:00:00:12.870   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: speech-sample_1.wav   (speech-sample_1.wav)
+
+
+Track (10) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 4 - track/clips pan/level automation -R"
+ Clip:28  Gain: none             GainAuto: (A)   Start:00:00:00.000  Len:00:00:05.929  End:00:00:05.929   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: speech-sample_1.wav   (speech-sample_1.wav)
+ Clip:29  Gain: none             GainAuto: (A)   Start:00:00:06.940  Len:00:00:05.929  End:00:00:12.870   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: speech-sample_1.wav   (speech-sample_1.wav)

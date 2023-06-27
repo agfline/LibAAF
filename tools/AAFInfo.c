@@ -389,6 +389,7 @@ int main( int argc, char *argv[] )
 
 
 	if ( aafi_load_file( aafi, argv[argc-1] ) ) {
+		fprintf( stderr, "Failed to open %s\n", argv[argc-1] );
 		goto err;
 	}
 
@@ -573,7 +574,7 @@ int main( int argc, char *argv[] )
 			char posFormatBuf[POS_FORMAT_BUFFER_LEN];
 			aafRational_t essenceSampleRate = { audioEssence->samplerate, 1 };
 
-			printf( " %s%u:  Type: %s  Length: %s   %02u Ch - %u Hz - %u bits   file : %ls  file_name : %ls   %s%ls%s\n",
+			printf( " %s%u:  Type: %s  Length: %s   %02u Ch - %u Hz - %u bits   file : %ls  file_name : %ls%s%ls%s\n",
 				( i < 10 ) ? " " : "", i,
 				ESSENCE_TYPE_TO_STRING( audioEssence->type ),
 				formatPosValue( audioEssence->length, &essenceSampleRate, posFormat, tcFormat, audioEssence->samplerate, posFormatBuf ),
@@ -582,7 +583,7 @@ int main( int argc, char *argv[] )
 				audioEssence->samplesize,
 				( audioEssence->is_embedded ) ? L"EMBEDDED" : ( audioEssence->usable_file_path ) ? audioEssence->usable_file_path : audioEssence->original_file_path,
 				audioEssence->file_name,
-				( wcslen(audioEssence->file_name) == wcslen(audioEssence->unique_file_name) ) ? "" : "(",
+				( wcslen(audioEssence->file_name) == wcslen(audioEssence->unique_file_name) ) ? "" : "   (",
 				( wcslen(audioEssence->file_name) == wcslen(audioEssence->unique_file_name) ) ? L"" : audioEssence->unique_file_name,
 				( wcslen(audioEssence->file_name) == wcslen(audioEssence->unique_file_name) ) ? "" : ")"
 			);

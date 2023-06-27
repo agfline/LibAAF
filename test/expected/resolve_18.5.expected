@@ -1,0 +1,285 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2023-06-27 12:25:19.00
+ AAF ObjSpec Version  : 1.1
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFUID_NULL
+
+
+ CompanyName          : Blackmagic Design
+ ProductName          : DaVinci Resolve
+ ProductVersion       : 18.5.0.0 AAFVersionReleased (1)
+ ProductVersionString : Unknown version
+ ProductID            : { 0xd2ad8ac0 0x01af 0x0000 { 0x00 0x00 0x00 0x00 0xaf 0x01 0x00 0x00 } }
+ Date                 : 2023-06-27 12:25:19.00
+ ToolkitVersion       : 1.1.6.0 AAFVersionReleased (1)
+ Platform             : AAFSDK (Win32)
+ GenerationAUID       : { 0x990894c6 0x7209 0x470b { 0xb6 0x3d 0x0e 0x20 0x18 0x30 0xcc 0xe6 } }
+
+
+ Composition Name     : Resolve 18.5
+
+ TC EditRrate         : 30000/1001
+ TC FPS               : 30 DF
+ TC Start (EU)        : 107892
+ TC End (EU)          : 2927725
+ TC Start (samples)   : 172799824
+ TC End (samples)     : 4689044480
+ TC Start             : 01:00:00;00 (30 fps DF)
+ TC End               : 03:08:08;17 (30 fps DF)
+
+ Sample Rate          : 48000
+ Sample Size          : 24
+
+
+Media Essences :
+================
+
+  0:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/16-multi-channel.wav  file_name : 16-multi-channel   (16-multi-channel_15)
+  1:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/16-multi-channel.wav  file_name : 16-multi-channel   (16-multi-channel_14)
+  2:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/16-multi-channel.wav  file_name : 16-multi-channel   (16-multi-channel_13)
+  3:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/16-multi-channel.wav  file_name : 16-multi-channel   (16-multi-channel_12)
+  4:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/16-multi-channel.wav  file_name : 16-multi-channel   (16-multi-channel_11)
+  5:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/16-multi-channel.wav  file_name : 16-multi-channel   (16-multi-channel_10)
+  6:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/16-multi-channel.wav  file_name : 16-multi-channel   (16-multi-channel_9)
+  7:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/16-multi-channel.wav  file_name : 16-multi-channel   (16-multi-channel_8)
+  8:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/16-multi-channel.wav  file_name : 16-multi-channel   (16-multi-channel_7)
+  9:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/16-multi-channel.wav  file_name : 16-multi-channel   (16-multi-channel_6)
+ 10:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/16-multi-channel.wav  file_name : 16-multi-channel   (16-multi-channel_5)
+ 11:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/16-multi-channel.wav  file_name : 16-multi-channel   (16-multi-channel_4)
+ 12:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/16-multi-channel.wav  file_name : 16-multi-channel   (16-multi-channel_3)
+ 13:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/16-multi-channel.wav  file_name : 16-multi-channel   (16-multi-channel_2)
+ 14:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/16-multi-channel.wav  file_name : 16-multi-channel   (16-multi-channel_1)
+ 15:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/16-multi-channel.wav  file_name : 16-multi-channel
+ 16:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/7.1-Film-channel-identif.wav  file_name : 7   (7_15)
+ 17:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/7.1-Film-channel-identif.wav  file_name : 7   (7_14)
+ 18:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/7.1-Film-channel-identif.wav  file_name : 7   (7_13)
+ 19:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/7.1-Film-channel-identif.wav  file_name : 7   (7_12)
+ 20:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/7.1-Film-channel-identif.wav  file_name : 7   (7_11)
+ 21:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/7.1-Film-channel-identif.wav  file_name : 7   (7_10)
+ 22:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/7.1-Film-channel-identif.wav  file_name : 7   (7_9)
+ 23:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/7.1-Film-channel-identif.wav  file_name : 7   (7_8)
+ 24:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/7.1-SMPTE-channel-identif.wav  file_name : 7   (7_7)
+ 25:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/7.1-SMPTE-channel-identif.wav  file_name : 7   (7_6)
+ 26:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/7.1-SMPTE-channel-identif.wav  file_name : 7   (7_5)
+ 27:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/7.1-SMPTE-channel-identif.wav  file_name : 7   (7_4)
+ 28:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/7.1-SMPTE-channel-identif.wav  file_name : 7   (7_3)
+ 29:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/7.1-SMPTE-channel-identif.wav  file_name : 7   (7_2)
+ 30:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/7.1-SMPTE-channel-identif.wav  file_name : 7   (7_1)
+ 31:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/7.1-SMPTE-channel-identif.wav  file_name : 7
+ 32:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/5.1-Film-channel-identif.wav  file_name : 5   (5_11)
+ 33:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/5.1-Film-channel-identif.wav  file_name : 5   (5_10)
+ 34:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/5.1-Film-channel-identif.wav  file_name : 5   (5_9)
+ 35:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/5.1-Film-channel-identif.wav  file_name : 5   (5_8)
+ 36:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/5.1-Film-channel-identif.wav  file_name : 5   (5_7)
+ 37:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/5.1-Film-channel-identif.wav  file_name : 5   (5_6)
+ 38:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/5.1-SMPTE-channel-identif.wav  file_name : 5   (5_5)
+ 39:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/5.1-SMPTE-channel-identif.wav  file_name : 5   (5_4)
+ 40:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/5.1-SMPTE-channel-identif.wav  file_name : 5   (5_3)
+ 41:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/5.1-SMPTE-channel-identif.wav  file_name : 5   (5_2)
+ 42:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/5.1-SMPTE-channel-identif.wav  file_name : 5   (5_1)
+ 43:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/5.1-SMPTE-channel-identif.wav  file_name : 5
+ 44:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/m18dbs24le@48k-mono.wav  file_name : m18dbs24le@48k-mono - solo clip on left track channel
+ 45:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/stereo-identif.wav  file_name : stereo-identif   (stereo-identif_1)
+ 46:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/stereo-identif.wav  file_name : stereo-identif
+ 47:  Type: PCM   Length: 00:00:05.929   01 Ch - 48000 Hz - 24 bits   file : file:///C:/Users/user/Desktop/libAAF/test/res/speech-sample.mp3  file_name : speech-sample   (speech-sample_2)
+ 48:  Type: PCM   Length: 00:00:05.929   01 Ch - 48000 Hz - 24 bits   file : file:///C:/Users/user/Desktop/libAAF/test/res/speech-sample.mp3  file_name : speech-sample.mp3 - -100db
+ 49:  Type: PCM   Length: 00:00:05.929   01 Ch - 48000 Hz - 24 bits   file : file:///C:/Users/user/Desktop/libAAF/test/res/speech-sample.mp3  file_name : speech-sample.mp3 - disabled
+ 50:  Type: PCM   Length: 00:00:05.929   01 Ch - 48000 Hz - 24 bits   file : file:///C:/Users/user/Desktop/libAAF/test/res/speech-sample.mp3  file_name : speech-sample.mp3
+ 51:  Type: PCM   Length: 00:00:05.929   01 Ch - 48000 Hz - 24 bits   file : file:///C:/Users/user/Desktop/libAAF/test/res/speech-sample.mp3  file_name : speech-sample.mp3 - ClipPan Right - clip attached marker
+ 52:  Type: PCM   Length: 00:00:05.929   01 Ch - 48000 Hz - 24 bits   file : file:///C:/Users/user/Desktop/libAAF/test/res/speech-sample.mp3  file_name : speech-sample.mp3 +6db
+ 53:  Type: PCM   Length: 00:00:05.929   01 Ch - 48000 Hz - 24 bits   file : file:///C:/Users/user/Desktop/libAAF/test/res/speech-sample.mp3  file_name : speech-sample   (speech-sample_1)
+ 54:  Type: PCM   Length: 00:00:05.929   01 Ch - 48000 Hz - 24 bits   file : file:///C:/Users/user/Desktop/libAAF/test/res/speech-sample.mp3  file_name : speech-sample.mp3 - batchXfade equal gain
+ 55:  Type: PCM   Length: 00:00:05.929   01 Ch - 48000 Hz - 24 bits   file : file:///C:/Users/user/Desktop/libAAF/test/res/speech-sample.mp3  file_name : speech-sample.mp3 - batchXfade unlinked slow curves 32frames
+ 56:  Type: PCM   Length: 00:00:05.929   01 Ch - 48000 Hz - 24 bits   file : file:///C:/Users/user/Desktop/libAAF/test/res/speech-sample.mp3  file_name : speech-sample.mp3 - batchXfade equal gain 32frames
+ 57:  Type: PCM   Length: 00:00:05.929   01 Ch - 48000 Hz - 24 bits   file : file:///C:/Users/user/Desktop/libAAF/test/res/speech-sample.mp3  file_name : speech-sample.mp3 - batchXfade equal power 32frames
+ 58:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/m18dbs24le@48k-mono.wav  file_name : m18dbs24le@48k-mono - linked   (m18dbs24le@48k-mono - linked_1)
+ 59:  Type: PCM   Length: 00:00:05.929   01 Ch - 48000 Hz - 24 bits   file : file:///C:/Users/user/Desktop/libAAF/test/res/speech-sample.mp3  file_name : speech-sample
+ 60:  Type: PCM   Length: 00:00:05.929   01 Ch - 48000 Hz - 24 bits   file : file:///C:/Users/user/Desktop/libAAF/test/res/speech-sample.mp3  file_name : speech-sample.mp3 - XFadeObj -3db 15 frames
+ 61:  Type: PCM   Length: 00:00:05.929   01 Ch - 48000 Hz - 24 bits   file : file:///C:/Users/user/Desktop/libAAF/test/res/speech-sample.mp3  file_name : speech-sample.mp3 - XFadeObj +3db 15 frames
+ 62:  Type: PCM   Length: 00:00:05.929   01 Ch - 48000 Hz - 24 bits   file : file:///C:/Users/user/Desktop/libAAF/test/res/speech-sample.mp3  file_name : speech-sample.mp3 - XFadeObj Linear 15 frames
+ 63:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/m18dbs24le@48k-mono.wav  file_name : m18dbs24le@48k-mono - linked
+ 64:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/m18dbs24le@48k-mono.wav  file_name : m18dbs24le@48k-mono - batchfade slow 6frames
+ 65:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/m18dbs24le@48k-mono.wav  file_name : m18dbs24le@48k-mono - batchfade exp 6frames
+ 66:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/m18dbs24le@48k-mono.wav  file_name : m18dbs24le@48k-mono - batchfade linear 6frames
+ 67:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/m18dbs24le@48k-mono.wav  file_name : m18dbs24le@48k-mono - batchfade log 6frames
+ 68:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/m18dbs24le@48k-mono.wav  file_name : m18dbs24le@48k-mono - batchfade fast 6frames
+ 69:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/m18dbs24le@48k-mono.wav  file_name : m18dbs24le@48k-mono - batchfade scurve 6frames
+ 70:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/m18dbs24le@48k-mono.wav  file_name : m18dbs24le@48k-mono - custom fades
+ 71:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/m18dbs24le@48k-mono.wav  file_name : m18dbs24le@48k-mono - +3db fades 6frames
+ 72:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/m18dbs24le@48k-mono.wav  file_name : m18dbs24le@48k-mono - -3db fades 6frames
+ 73:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/m18dbs24le@48k-mono.wav  file_name : m18dbs24le@48k-mono - 0db fades 6frames
+ 74:  Type: WAVE  Length: 00:00:00.000   00 Ch - 0 Hz - 0 bits   file : file://localhost/C:/Users/user/Desktop/libAAF/test/res/m18dbs24le@48k-mono.wav  file_name : m18dbs24le@48k-mono - no fades
+
+
+Tracks & Clips :
+================
+
+VideoTrack  (1) - edit_rate 30000/1001 (29.97)  -  ""
+ VideoClip  Start:00:59:59;29  Len:00:01:01;00  End:01:01:00;29   SourceFile: file:///C:/Users/user/Desktop/libAAF/test/res/sample@29.97df.mp4   (sample@29)
+
+
+
+Track  (1) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 1"
+ Clip:0   Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:00.500  End:01:00:00.496   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: m18dbs24le@48k-mono - no fades   (m18dbs24le@48k-mono - no fades)
+ Clip:1   Gain: +00.0 dB         GainAuto: none  Start:01:00:00.997  Len:00:00:00.500  End:01:00:01.497   Fadein: CURV_LIN  Fadeout: CURV_LIN  SrcOffset: 00:00:00.500  SourceFile: m18dbs24le@48k-mono - 0db fades 6frames   (m18dbs24le@48k-mono - 0db fades 6frames)
+ Clip:2   Gain: +00.0 dB         GainAuto: none  Start:01:00:01.998  Len:00:00:00.500  End:01:00:02.498   Fadein: CURV_LIN  Fadeout: CURV_LIN  SrcOffset: 00:00:00.500  SourceFile: m18dbs24le@48k-mono - -3db fades 6frames   (m18dbs24le@48k-mono - -3db fades 6frames)
+ Clip:3   Gain: +00.0 dB         GainAuto: none  Start:01:00:02.999  Len:00:00:00.500  End:01:00:03.499   Fadein: CURV_LIN  Fadeout: CURV_LIN  SrcOffset: 00:00:00.500  SourceFile: m18dbs24le@48k-mono - +3db fades 6frames   (m18dbs24le@48k-mono - +3db fades 6frames)
+ Clip:4   Gain: +00.0 dB         GainAuto: none  Start:01:00:04.000  Len:00:00:00.500  End:01:00:04.500   Fadein: CURV_LIN  Fadeout: CURV_LIN  SrcOffset: 00:00:00.500  SourceFile: m18dbs24le@48k-mono - custom fades   (m18dbs24le@48k-mono - custom fades)
+ Clip:5   Gain: +00.0 dB         GainAuto: none  Start:01:00:05.001  Len:00:00:00.500  End:01:00:05.501   Fadein: CURV_LIN  Fadeout: CURV_LIN  SrcOffset: 00:00:00.500  SourceFile: m18dbs24le@48k-mono - batchfade scurve 6frames   (m18dbs24le@48k-mono - batchfade scurve 6frames)
+ Clip:6   Gain: +00.0 dB         GainAuto: none  Start:01:00:06.002  Len:00:00:00.500  End:01:00:06.502   Fadein: CURV_LIN  Fadeout: CURV_LIN  SrcOffset: 00:00:00.500  SourceFile: m18dbs24le@48k-mono - batchfade fast 6frames   (m18dbs24le@48k-mono - batchfade fast 6frames)
+ Clip:7   Gain: +00.0 dB         GainAuto: none  Start:01:00:07.003  Len:00:00:00.500  End:01:00:07.503   Fadein: CURV_LIN  Fadeout: CURV_LIN  SrcOffset: 00:00:00.500  SourceFile: m18dbs24le@48k-mono - batchfade log 6frames   (m18dbs24le@48k-mono - batchfade log 6frames)
+ Clip:8   Gain: +00.0 dB         GainAuto: none  Start:01:00:08.004  Len:00:00:00.500  End:01:00:08.504   Fadein: CURV_LIN  Fadeout: CURV_LIN  SrcOffset: 00:00:00.500  SourceFile: m18dbs24le@48k-mono - batchfade linear 6frames   (m18dbs24le@48k-mono - batchfade linear 6frames)
+ Clip:9   Gain: +00.0 dB         GainAuto: none  Start:01:00:09.005  Len:00:00:00.500  End:01:00:09.505   Fadein: CURV_LIN  Fadeout: CURV_LIN  SrcOffset: 00:00:00.500  SourceFile: m18dbs24le@48k-mono - batchfade exp 6frames   (m18dbs24le@48k-mono - batchfade exp 6frames)
+ Clip:10  Gain: +00.0 dB         GainAuto: none  Start:01:00:10.006  Len:00:00:00.500  End:01:00:10.506   Fadein: CURV_LIN  Fadeout: CURV_LIN  SrcOffset: 00:00:00.500  SourceFile: m18dbs24le@48k-mono - batchfade slow 6frames   (m18dbs24le@48k-mono - batchfade slow 6frames)
+ Clip:11  Gain: none             GainAuto: none  Start:01:00:12.008  Len:00:00:00.500  End:01:00:12.508   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.467  SourceFile: m18dbs24le@48k-mono - linked   (m18dbs24le@48k-mono - linked)
+
+
+Track  (2) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 2 - -4db 100L"
+ Clip:12  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:02.502  End:01:00:02.498   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: speech-sample.mp3 - XFadeObj Linear 15 frames   (speech-sample.mp3 - XFadeObj Linear 15 frames)
+ xfade:   CURV_LIN
+ Clip:13  Gain: +00.0 dB         GainAuto: none  Start:01:00:01.998  Len:00:00:02.002  End:01:00:04.000   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.917  SourceFile: speech-sample.mp3 - XFadeObj +3db 15 frames   (speech-sample.mp3 - XFadeObj +3db 15 frames)
+ xfade:   CURV_LIN
+ Clip:14  Gain: none             GainAuto: none  Start:01:00:03.499  Len:00:00:01.501  End:01:00:05.001   Fadein: none      Fadeout: none      SrcOffset: 00:00:01.256  SourceFile: speech-sample.mp3 - XFadeObj -3db 15 frames   (speech-sample.mp3 - XFadeObj -3db 15 frames)
+ xfade:   CURV_LIN
+ Clip:15  Gain: +00.0 dB         GainAuto: none  Start:01:00:04.500  Len:00:00:01.757  End:01:00:06.258   Fadein: none      Fadeout: none      SrcOffset: 00:00:01.029  SourceFile: speech-sample   (speech-sample)
+ Clip:16  Gain: none             GainAuto: none  Start:01:00:12.008  Len:00:00:00.500  End:01:00:12.508   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.467  SourceFile: m18dbs24le@48k-mono - linked_1   (m18dbs24le@48k-mono - linked)
+ Clip:17  Gain: +00.0 dB         GainAuto: none  Start:01:00:13.934  Len:00:00:03.633  End:01:00:17.567   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: speech-sample.mp3 - batchXfade equal power 32frames   (speech-sample.mp3 - batchXfade equal power 32frames)
+ xfade:   CURV_LIN
+ Clip:18  Gain: +00.0 dB         GainAuto: none  Start:01:00:16.499  Len:00:00:03.605  End:01:00:20.105   Fadein: none      Fadeout: none      SrcOffset: 00:00:01.634  SourceFile: speech-sample.mp3 - batchXfade equal gain 32frames   (speech-sample.mp3 - batchXfade equal gain 32frames)
+ xfade:   CURV_LIN
+ Clip:19  Gain: +00.0 dB         GainAuto: none  Start:01:00:19.037  Len:00:00:02.719  End:01:00:21.757   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.066  SourceFile: speech-sample.mp3 - batchXfade unlinked slow curves 32frames   (speech-sample.mp3 - batchXfade unlinked slow curves 32frames)
+ xfade:   CURV_LIN
+ Clip:20  Gain: +00.0 dB         GainAuto: none  Start:01:00:20.689  Len:00:00:03.072  End:01:00:23.761   Fadein: none      Fadeout: none      SrcOffset: 00:00:01.634  SourceFile: speech-sample.mp3 - batchXfade equal gain   (speech-sample.mp3 - batchXfade equal gain)
+
+
+Track  (3) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 3 - track automation level/pan(5points)"
+ Clip:21  Gain: none             GainAuto: (A)   Start:00:59:59.996  Len:00:00:05.929  End:01:00:05.926   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: speech-sample_1   (speech-sample)
+ Clip:22  Gain: +06.0 dB         GainAuto: (A)   Start:01:00:08.004  Len:00:00:05.929  End:01:00:13.934   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: speech-sample.mp3 +6db   (speech-sample.mp3 +6db)
+ Clip:23  Gain: none             GainAuto: none  Start:01:00:16.012  Len:00:00:05.929  End:01:00:21.942   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: speech-sample.mp3 - ClipPan Right - clip attached marker   (speech-sample.mp3 - ClipPan Right - clip attached marker)
+ Clip:24  Gain: none     (mute)  GainAuto: none  Start:01:00:24.020  Len:00:00:05.929  End:01:00:29.950   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: speech-sample.mp3   (speech-sample.mp3)
+ Clip:25  Gain: none     (mute)  GainAuto: none  Start:01:00:32.028  Len:00:00:05.929  End:01:00:37.958   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: speech-sample.mp3 - disabled   (speech-sample.mp3 - disabled)
+ Clip:26  Gain: -99.0 dB         GainAuto: none  Start:01:00:40.036  Len:00:00:05.929  End:01:00:45.966   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: speech-sample.mp3 - -100db   (speech-sample.mp3 - -100db)
+
+
+Track  (4) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 4 - Layered Audio Editing"
+ Clip:27  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:05.929  End:01:00:05.926   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: speech-sample_2   (speech-sample)
+
+
+Track  (5) - STEREO - Gain: none     - Pan: (A)     - edit_rate: 48000/1 (48000.00)  -  "Audio 5 - stereo - track pan automation"
+ Clip:28  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:01.935  End:01:00:01.931   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: stereo-identif   (stereo-identif)
+ Clip:29  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:01.935  End:01:00:01.931   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: stereo-identif_1   (stereo-identif)
+ Clip:30  Gain: none             GainAuto: none  Start:01:00:04.981  Len:00:00:00.500  End:01:00:05.481   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.500  SourceFile: m18dbs24le@48k-mono - solo clip on left track channel   (m18dbs24le@48k-mono - solo clip on left track channel)
+ Clip:31  Gain: none             GainAuto: none  Start:01:00:04.981  Len:00:00:00.500  End:01:00:05.481   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.500  SourceFile: m18dbs24le@48k-mono - solo clip on left track channel   (m18dbs24le@48k-mono - solo clip on left track channel)
+
+
+Track  (6) - 5.1    - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 6 - 5.1 (SMPTE)"
+ Clip:32  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:07.073  End:01:00:07.070   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 5   (5)
+ Clip:33  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:07.073  End:01:00:07.070   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 5_1   (5)
+ Clip:34  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:07.073  End:01:00:07.070   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 5_2   (5)
+ Clip:35  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:07.073  End:01:00:07.070   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 5_3   (5)
+ Clip:36  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:07.073  End:01:00:07.070   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 5_4   (5)
+ Clip:37  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:07.073  End:01:00:07.070   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 5_5   (5)
+
+
+Track  (7) - 5.1    - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 7 - 5.1 (ITU775)"
+ Clip:38  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:07.073  End:01:00:07.070   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 5_6   (5)
+ Clip:39  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:07.073  End:01:00:07.070   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 5_7   (5)
+ Clip:40  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:07.073  End:01:00:07.070   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 5_8   (5)
+ Clip:41  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:07.073  End:01:00:07.070   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 5_9   (5)
+ Clip:42  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:07.073  End:01:00:07.070   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 5_10   (5)
+ Clip:43  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:07.073  End:01:00:07.070   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 5_11   (5)
+
+
+Track  (8) - 7.1    - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 8 - 7.1 (SMPTE)"
+ Clip:44  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:10.910  End:01:00:10.907   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 7   (7)
+ Clip:45  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:10.910  End:01:00:10.907   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 7_1   (7)
+ Clip:46  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:10.910  End:01:00:10.907   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 7_2   (7)
+ Clip:47  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:10.910  End:01:00:10.907   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 7_3   (7)
+ Clip:48  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:10.910  End:01:00:10.907   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 7_4   (7)
+ Clip:49  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:10.910  End:01:00:10.907   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 7_5   (7)
+ Clip:50  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:10.910  End:01:00:10.907   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 7_6   (7)
+ Clip:51  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:10.910  End:01:00:10.907   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 7_7   (7)
+
+
+Track  (9) - 7.1    - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 9 - 7.1 (ITU775)"
+ Clip:52  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:10.910  End:01:00:10.907   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 7_8   (7)
+ Clip:53  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:10.910  End:01:00:10.907   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 7_9   (7)
+ Clip:54  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:10.910  End:01:00:10.907   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 7_10   (7)
+ Clip:55  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:10.910  End:01:00:10.907   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 7_11   (7)
+ Clip:56  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:10.910  End:01:00:10.907   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 7_12   (7)
+ Clip:57  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:10.910  End:01:00:10.907   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 7_13   (7)
+ Clip:58  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:10.910  End:01:00:10.907   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 7_14   (7)
+ Clip:59  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:10.910  End:01:00:10.907   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 7_15   (7)
+
+
+Track (10) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 10 - custom 16ch"
+ Clip:60  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:01.951  End:01:00:01.948   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 16-multi-channel   (16-multi-channel)
+
+
+Track (11) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 10 - custom 16ch"
+ Clip:61  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:01.951  End:01:00:01.948   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 16-multi-channel_1   (16-multi-channel)
+
+
+Track (12) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 10 - custom 16ch"
+ Clip:62  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:01.951  End:01:00:01.948   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 16-multi-channel_2   (16-multi-channel)
+
+
+Track (13) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 10 - custom 16ch"
+ Clip:63  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:01.951  End:01:00:01.948   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 16-multi-channel_3   (16-multi-channel)
+
+
+Track (14) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 10 - custom 16ch"
+ Clip:64  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:01.951  End:01:00:01.948   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 16-multi-channel_4   (16-multi-channel)
+
+
+Track (15) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 10 - custom 16ch"
+ Clip:65  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:01.951  End:01:00:01.948   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 16-multi-channel_5   (16-multi-channel)
+
+
+Track (16) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 10 - custom 16ch"
+ Clip:66  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:01.951  End:01:00:01.948   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 16-multi-channel_6   (16-multi-channel)
+
+
+Track (17) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 10 - custom 16ch"
+ Clip:67  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:01.951  End:01:00:01.948   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 16-multi-channel_7   (16-multi-channel)
+
+
+Track (18) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 10 - custom 16ch"
+ Clip:68  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:01.951  End:01:00:01.948   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 16-multi-channel_8   (16-multi-channel)
+
+
+Track (19) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 10 - custom 16ch"
+ Clip:69  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:01.951  End:01:00:01.948   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 16-multi-channel_9   (16-multi-channel)
+
+
+Track (20) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 10 - custom 16ch"
+ Clip:70  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:01.951  End:01:00:01.948   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 16-multi-channel_10   (16-multi-channel)
+
+
+Track (21) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 10 - custom 16ch"
+ Clip:71  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:01.951  End:01:00:01.948   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 16-multi-channel_11   (16-multi-channel)
+
+
+Track (22) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 10 - custom 16ch"
+ Clip:72  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:01.951  End:01:00:01.948   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 16-multi-channel_12   (16-multi-channel)
+
+
+Track (23) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 10 - custom 16ch"
+ Clip:73  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:01.951  End:01:00:01.948   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 16-multi-channel_13   (16-multi-channel)
+
+
+Track (24) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 10 - custom 16ch"
+ Clip:74  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:01.951  End:01:00:01.948   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 16-multi-channel_14   (16-multi-channel)
+
+
+Track (25) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 10 - custom 16ch"
+ Clip:75  Gain: none             GainAuto: none  Start:00:59:59.996  Len:00:00:01.951  End:01:00:01.948   Fadein: none      Fadeout: none      SrcOffset: 00:00:00.000  SourceFile: 16-multi-channel_15   (16-multi-channel)
+
+
+Markers :
+=========
+
+ Marker[0]:  Start: 01:00:16.000  Length: 00:00:00.000  Color: #007fe3  Label: "Marker 1"  Comment: "Some notes attached, blue marker, starting @ 01:00:16;00, no duration"
+ Marker[1]:  Start: 01:00:24.000  Length: 00:00:00.000  Color: #ff44c8  Label: "Marker 2"  Comment: "I'm purple"
+ Marker[2]:  Start: 01:00:33.000  Length: 00:00:03.000  Color: #00ced0  Label: "Marker 3"  Comment: "I'm cyan, I start @ 01:00:32;00 and I last for 3s and 0 frame"
