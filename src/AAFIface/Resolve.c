@@ -22,6 +22,7 @@
 #include <stdint.h>
 
 #include <libaaf/AAFIParser.h>
+#include <libaaf/AAFToText.h>
 #include <libaaf/AAFDefs/AAFPropertyIDs.h>
 
 #include <libaaf.h>
@@ -95,8 +96,11 @@ int resolve_parse_aafObject_Selector( struct AAF_Iface *aafi, aafObject *Selecto
 	}
 
 
+  printf("Selected   is  %ls\n", ClassIDToText( aafi->aafd, Selected->Class->ID ) );
+  printf("Alternates is  %ls\n", ClassIDToText( aafi->aafd, Alternates->Class->ID ) );
 
-  void *ComponentAttributeList = aaf_get_propertyValue( Selector, 0xfffc /* ComponentAttributeList */ );
+
+  void *ComponentAttributeList = aaf_get_propertyValue( Selector, aaf_get_PropertyIDByName( aafi->aafd, L"ComponentAttributeList" ) );
 
 	if ( ComponentAttributeList == NULL )
 	{
@@ -206,9 +210,9 @@ int resolve_parse_aafObject_DescriptiveMarker( struct AAF_Iface *aafi, aafObject
 
   wchar_t *comment = aaf_get_propertyValueWstr( DescriptiveMarker, PID_Event_Comment );
 
-  wchar_t *name = aaf_get_propertyValueWstr( DescriptiveMarker, 0xfffa /* CommentMarkerUser */ );
+  wchar_t *name = aaf_get_propertyValueWstr( DescriptiveMarker, aaf_get_PropertyIDByName( aafi->aafd, L"CommentMarkerUser" ) );
 
-  uint16_t *RVBColor = (uint16_t*)aaf_get_propertyValue( DescriptiveMarker, 0xfff9 /* CommentMarkerColor */ );
+  uint16_t *RVBColor = (uint16_t*)aaf_get_propertyValue( DescriptiveMarker, aaf_get_PropertyIDByName( aafi->aafd, L"CommentMarkerColor" ) );
 
 
   if ( RVBColor ) {
