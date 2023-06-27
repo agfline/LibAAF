@@ -96,8 +96,6 @@ int resolve_parse_aafObject_Selector( struct AAF_Iface *aafi, aafObject *Selecto
 	}
 
 
-  printf("Selected   is  %ls\n", ClassIDToText( aafi->aafd, Selected->Class->ID ) );
-  printf("Alternates is  %ls\n", ClassIDToText( aafi->aafd, Alternates->Class->ID ) );
 
 
   void *ComponentAttributeList = aaf_get_propertyValue( Selector, aaf_get_PropertyIDByName( aafi->aafd, L"ComponentAttributeList" ) );
