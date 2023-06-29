@@ -536,7 +536,7 @@ typedef struct aafiAudioTrack
 
 	uint32_t                 number;
 
-	uint16_t                 format;
+	uint16_t                 format; // aafiTrackFormat_e, value = channel count
 
 	/**
 	 *	Track name
@@ -862,7 +862,7 @@ typedef struct AAF_Iface
 
 	wchar_t          *compositionName;
 
-	aafPosition_t     compositionStart;
+	aafPosition_t     compositionStart; // aafi->Audio->tc->start  OR IF UNDEFINED  aafi->Video->tc->start
 	aafRational_t     compositionStart_editRate;
 
 	aafPosition_t     compositionLength;
