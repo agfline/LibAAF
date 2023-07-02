@@ -1686,6 +1686,8 @@ int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
         ______________________________________________________________________
      */
 
+    // dump_hex( audioEssence->summary->val, audioEssence->summary->len );
+
     rc = riff_parseAudioFile( &RIFFAudioFile, &embeddedAudioDataReaderCallback, audioEssence->summary->val, &audioEssence->summary->len );
 
     if ( rc < 0 ) {

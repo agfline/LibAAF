@@ -22,6 +22,15 @@
 #define __RIFFParser__
 
 
+#ifdef __GNUC__
+#define PACK( __Declaration__ ) __Declaration__ __attribute__((__packed__))
+#endif
+
+#ifdef _MSC_VER
+#define PACK( __Declaration__ ) __pragma( pack(push, 1) ) __Declaration__ __pragma( pack(pop))
+#endif
+
+
 struct RIFFAudioFile {
   /* common to wave/aiff */
   uint32_t sampleRate;
@@ -31,22 +40,22 @@ struct RIFFAudioFile {
 };
 
 
-struct riffHeaderChunk {
+PACK(struct riffHeaderChunk {
   char ckid[4];
   uint32_t cksz;
 
   char format[4];
   unsigned char data[];
-};
+});
 
-struct riffChunk {
+PACK(struct riffChunk {
   char ckid[4];
   uint32_t cksz;
 
   unsigned char data[];
-};
+});
 
-struct wavFmtChunk {
+PACK(struct wavFmtChunk {
 	char ckid[4]; //'fmt '
 	uint32_t cksz;
 
@@ -56,9 +65,9 @@ struct wavFmtChunk {
 	uint32_t avg_bytes_per_sec;
 	uint16_t block_align;
 	uint16_t bits_per_sample;
-};
+});
 
-struct wavBextChunk {
+PACK(struct wavBextChunk {
 	char     ckid[4]; //'bext'
 	uint32_t cksz;
 
@@ -99,9 +108,9 @@ struct wavBextChunk {
 		of bext structure when parsing.
 	*/
 
-};
+});
 
-struct aiffCOMMChunk {
+PACK(struct aiffCOMMChunk {
   char ckid[4]; //'COMM'
   uint32_t cksz;
 
@@ -109,7 +118,7 @@ struct aiffCOMMChunk {
   uint32_t numSampleFrames;
   uint16_t sampleSize;
   unsigned char sampleRate[10]; // 80 bit IEEE Standard 754 floating point number
-};
+});
 
 
 
