@@ -4880,7 +4880,7 @@ int aafi_retrieveData( AAF_Iface *aafi )
 
 	foreachEssence( audioEssence, aafi->Audio->Essences ) {
 
-		if ( audioEssence->summary != NULL ) {
+		if ( audioEssence->type != AAFI_ESSENCE_TYPE_PCM ) {
 			parse_audio_summary( aafi, audioEssence );
 		}
 

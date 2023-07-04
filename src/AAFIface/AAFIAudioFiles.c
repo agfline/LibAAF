@@ -1679,16 +1679,16 @@ int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
   char *externalFilePath = NULL;
 
 
-  if ( audioEssence->summary == NULL ) {
-    _warning( aafi->ctx.options.verb, "TODO: Audio essence has no summary. Trying essence data stream.\n" );
-    return -1;
-  }
-
 
   struct RIFFAudioFile RIFFAudioFile;
 
 
   if ( audioEssence->is_embedded ) {
+
+    if ( audioEssence->summary == NULL ) {
+      _warning( aafi->ctx.options.verb, "TODO: Audio essence has no summary. Should try essence data stream ?\n" );
+      return -1;
+    }
 
     /*
         Adobe Premiere Pro, embedded mp3/mp4 files converted to PCM/AIFF on export, AAFClassID_AIFCDescriptor, 'COMM' is valid.
@@ -1711,6 +1711,8 @@ int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
     }
   }
   else {
+
+    /* TODO: can external essence have audioEssence->summary too ? */
 
     externalFilePath = locate_external_essence_file( aafi, audioEssence->original_file_path, aafi->ctx.options.media_location );
 
