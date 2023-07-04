@@ -202,9 +202,11 @@ static int   parse_SourceMob( AAF_Iface *aafi, aafObject *SourceMob, td *__ptd )
 
 static int   parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd );
 
+static void xplore_StrongObjectReferenceVector( AAF_Iface *aafi, aafObject *ObjCollection, td *__ptd );
 
 
-void xplore_StrongObjectReferenceVector( AAF_Iface *aafi, aafObject *ObjCollection, td *__ptd )
+
+static void xplore_StrongObjectReferenceVector( AAF_Iface *aafi, aafObject *ObjCollection, td *__ptd )
 {
 
 	struct trace_dump __td;

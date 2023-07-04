@@ -23,6 +23,7 @@
 
 #include <libaaf/AAFTypes.h>
 #include <libaaf/AAFToText.h>
+#include <libaaf/AAFDump.h>
 
 #include "../common/utils.h"
 

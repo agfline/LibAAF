@@ -25,7 +25,7 @@
 #include <wchar.h>
 #include <stdlib.h>
 
-
+#include "utils.h"
 
 
 char * c99strdup( const char *src )
@@ -33,7 +33,7 @@ char * c99strdup( const char *src )
   if ( !src ) {
     return NULL;
   }
-  
+
   int len = 0;
 
   while ( src[len] ) {

@@ -705,7 +705,7 @@ typedef struct _aafData
  *	@return  A pointer to the newly allocated structure.
  */
 
-AAF_Data * aaf_alloc();
+AAF_Data * aaf_alloc( void );
 
 
 /**

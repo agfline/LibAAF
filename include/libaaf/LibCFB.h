@@ -924,7 +924,7 @@ const wchar_t * CLSIDToText( cfbCLSID_t *clsid );
  *	@{
  */
 
-CFB_Data * cfb_alloc();
+CFB_Data * cfb_alloc( void );
 
 /**
  *	@}

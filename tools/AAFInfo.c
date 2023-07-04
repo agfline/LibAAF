@@ -163,7 +163,7 @@ static const char * formatPosValue( aafPosition_t pos, aafRational_t *editRate, 
 
 
 
-void showHelp()
+static void showHelp( void )
 {
 	printf(
 		"\n"

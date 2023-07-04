@@ -50,10 +50,12 @@
 
 #include <libaaf/AAFIface.h>
 // #include <libaaf/AAFToText.h> // MobIDToText()
+#include <libaaf/AAFIAudioFiles.h>
 #include <libaaf/debug.h>
 
 #include "RIFFParser.h"
 #include "URIParser.h"
+
 #include "../common/utils.h"
 
 // #define SIGNED_SIZEOF(x) sizeof(x)
@@ -83,65 +85,74 @@
 #define DIR_SEP_STR "/"
 #endif
 
+/*
 #define _fop_get_parent_path( start, end )\
 {\
   end--;\
-  /* removes any remaining trailing '/' */\
   while ( end > start && *end == DIR_SEP ) {\
     if ( end-1 == start && *start == DIR_SEP )\
       break;\
     --end;\
   }\
-  /* removes any file/dir name, up to '/' */\
   while ( end > start && *end != DIR_SEP ) {\
     if ( end-1 == start && *start == DIR_SEP )\
       break;\
     --end;\
   }\
 }
+*/
 
-char * fop_get_parent_path( const char *path, char **buf, size_t *bufsz, char include_trailing_sep )
-{
-  if ( path == NULL )
-    return NULL;
-
-  char  *pbuf = NULL;
-  size_t pathsz = strlen( path ) + 1;
-
-  if ( buf == NULL ) {
-    pbuf = c99strdup( path );
-  }
-  else if ( *buf == NULL ) {
-    *buf = c99strdup( path );
-    if ( bufsz )
-      *bufsz = pathsz;
-    pbuf = *buf;
-  }
-  else if ( *buf && bufsz ) {
-    if ( *bufsz < pathsz ) {
-      *buf = realloc( *buf, pathsz );
-      *bufsz = pathsz;
-      pbuf = *buf;
-    }
-  }
-
-  const char *start = path;
-  const char *end = path + (pathsz-1);
-
-  // debug( "Get parent path from : %.*s", (int)(end - start), path );
-
-  _fop_get_parent_path( start, end );
-
-  snprintf( pbuf, pathsz, "%.*s%s", (int)(end - start), start, (include_trailing_sep==DIR_SEP) ? DIR_SEP_STR : "" );
-
-  // debug( "Parent path          : %s", pbuf );
-
-  return pbuf;
-}
+// static char * fop_get_parent_path( const char *path, char **buf, size_t *bufsz, char include_trailing_sep );
+static const char * fop_get_file( const char *filepath );
+static char * (fop_concat_paths2)( int argc, char **pconcat, int *pconcatsize, const char *fmt, ... );
+static size_t embeddedAudioDataReaderCallback( unsigned char *buf, size_t offset, size_t reqLen, void *user1, void *user2 );
+static size_t externalAudioDataReaderCallback( unsigned char *buf, size_t offset, size_t reqLen, void *user1, void *user2 );
 
 
 
-const char * fop_get_file( const char *filepath )
+
+// static char * fop_get_parent_path( const char *path, char **buf, size_t *bufsz, char include_trailing_sep )
+// {
+//   if ( path == NULL )
+//     return NULL;
+//
+//   char  *pbuf = NULL;
+//   size_t pathsz = strlen( path ) + 1;
+//
+//   if ( buf == NULL ) {
+//     pbuf = c99strdup( path );
+//   }
+//   else if ( *buf == NULL ) {
+//     *buf = c99strdup( path );
+//     if ( bufsz )
+//       *bufsz = pathsz;
+//     pbuf = *buf;
+//   }
+//   else if ( *buf && bufsz ) {
+//     if ( *bufsz < pathsz ) {
+//       *buf = realloc( *buf, pathsz );
+//       *bufsz = pathsz;
+//       pbuf = *buf;
+//     }
+//   }
+//
+//   const char *start = path;
+//   const char *end = path + (pathsz-1);
+//
+//   // debug( "Get parent path from : %.*s", (int)(end - start), path );
+//
+//   _fop_get_parent_path( start, end );
+//
+//   snprintf( pbuf, pathsz, "%.*s%s", (int)(end - start), start, (include_trailing_sep==DIR_SEP) ? DIR_SEP_STR : "" );
+//
+//   // debug( "Parent path          : %s", pbuf );
+//
+//   return pbuf;
+// }
+
+
+
+static const char * fop_get_file( const char *filepath )
 {
   if ( filepath == NULL ) {
     return NULL;
@@ -164,7 +175,7 @@ const char * fop_get_file( const char *filepath )
 #define NARGS(...) NARGS_SEQ(__VA_ARGS__, 9, 8, 7, 6, 5, 4, 3, 2, 1)
 #define fop_concat_paths2(pconcat, pconcatsize, ...) fop_concat_paths2(NARGS(__VA_ARGS__) - 1, pconcat, pconcatsize, __VA_ARGS__)
 
-char * (fop_concat_paths2)( int argc, char **pconcat, int *pconcatsize, const char *fmt, ... )
+static char * (fop_concat_paths2)( int argc, char **pconcat, int *pconcatsize, const char *fmt, ... )
 {
   va_list   args1, args2;
   va_start( args1, fmt );
@@ -341,6 +352,7 @@ char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_fi
     // printf( "search_location : %s\n", fpath );
 
     if ( access( fpath, F_OK ) != -1 ) {
+      // printf( "FOUND: %s\n", fpath );
       free( filepath );
       return fpath;
     }
@@ -352,6 +364,7 @@ char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_fi
   /* Try AAF essence's URI */
 
   if ( access( filepath, F_OK ) != -1 ) {
+    // printf( "FOUND: %s\n", filepath );
     return filepath;
   }
 
@@ -364,6 +377,7 @@ char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_fi
 
   if ( access( uri->path, F_OK ) != -1 ) {
     char *path = c99strdup( uri->path );
+    // printf( "FOUND: %s\n", path );
     uriFree( uri );
     free( filepath );
     return path;
@@ -429,6 +443,7 @@ char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_fi
     if ( access( fpath, F_OK ) != -1 ) {
       uriFree( uri );
       free( filepath );
+      // printf( "FOUND: %s\n", filepath );
       return fpath;
     }
 
@@ -1619,7 +1634,7 @@ int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence,
 
 
 
-size_t embeddedAudioDataReaderCallback( unsigned char *buf, size_t offset, size_t reqLen, void *user1, void *user2 ) {
+static size_t embeddedAudioDataReaderCallback( unsigned char *buf, size_t offset, size_t reqLen, void *user1, void *user2 ) {
 
   unsigned char *data = user1;
   size_t datasz = *(size_t*)user2;
@@ -1643,7 +1658,7 @@ size_t embeddedAudioDataReaderCallback( unsigned char *buf, size_t offset, size_
   return reqLen;
 }
 
-size_t externalAudioDataReaderCallback( unsigned char *buf, size_t offset, size_t reqLen, void *user1, void *user2 ) {
+static size_t externalAudioDataReaderCallback( unsigned char *buf, size_t offset, size_t reqLen, void *user1, void *user2 ) {
 
   (void)user2;
 

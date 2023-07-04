@@ -31,7 +31,7 @@
 #include "../src/common/utils.h" // ANSI colors, c99strdup()
 
 
-void usage() {
+static void usage( void ) {
 
 }
 

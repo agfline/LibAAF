@@ -32,7 +32,7 @@ add_custom_target( version
 
 if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
   set( LIBAAF_COMPILE_OPTIONS
-    -W
+    -W -Wstrict-prototypes -Wmissing-prototypes
     -Wall -Wcast-align -Wextra -Wwrite-strings -Wunsafe-loop-optimizations -Wlogical-op -std=c99 -pedantic -Wshadow # = Ardour's Waf --strict --c-strict
     # -Wconversion
     -O3
