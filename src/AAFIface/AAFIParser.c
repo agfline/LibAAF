@@ -4880,23 +4880,22 @@ int aafi_retrieveData( AAF_Iface *aafi )
 
 	foreachEssence( audioEssence, aafi->Audio->Essences ) {
 
-		if ( audioEssence->type != AAFI_ESSENCE_TYPE_PCM ) {
-			parse_audio_summary( aafi, audioEssence );
-		}
+		/* TODO: rename (not only summary, can be external file too) */
+		parse_audio_summary( aafi, audioEssence );
 
 		/* TODO : check samplerate / samplesize proportions accross essences, and choose the most used values as composition values */
 		if ( aafi->Audio->samplerate == 0 || aafi->Audio->samplerate == audioEssence->samplerate ) {
 			aafi->Audio->samplerate = audioEssence->samplerate;
 		}
 		else {
-			_warning( aafi->ctx.options.verb, "audioEssence '%ls' has different samplerate : %u\n", audioEssence->file_name, audioEssence->samplerate );
+			// _warning( aafi->ctx.options.verb, "audioEssence '%ls' has different samplerate : %u\n", audioEssence->file_name, audioEssence->samplerate );
 		}
 
 		if ( aafi->Audio->samplesize == 0 || aafi->Audio->samplesize == audioEssence->samplesize ) {
 			aafi->Audio->samplesize = audioEssence->samplesize;
 		}
 		else {
-			_warning( aafi->ctx.options.verb, "audioEssence '%ls' has different samplesize : %i\n", audioEssence->file_name, audioEssence->samplesize );
+			// _warning( aafi->ctx.options.verb, "audioEssence '%ls' has different samplesize : %i\n", audioEssence->file_name, audioEssence->samplesize );
 		}
 	}
 
