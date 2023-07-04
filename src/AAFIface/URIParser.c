@@ -320,7 +320,7 @@ static int _uri_parse_userinfo( struct uri *uri, const char **pos, const char *e
   }
 
   if ( userinfoIllegalCharacters > 0 ) {
-    fprintf( stderr, "uri userinfo contains %i invalid char%s\n", userinfoIllegalCharacters, (userinfoIllegalCharacters>1) ? "s" : "" );
+    // fprintf( stderr, "uri userinfo contains %i invalid char%s\n", userinfoIllegalCharacters, (userinfoIllegalCharacters>1) ? "s" : "" );
     goto err;
   }
 
