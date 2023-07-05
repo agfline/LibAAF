@@ -1619,10 +1619,11 @@ int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence,
 
 
   audioEssence->usable_file_path = malloc( (strlen(filePath) + 1) * sizeof(wchar_t) );
-
-  swprintf( audioEssence->usable_file_path, (strlen(filePath) * sizeof(wchar_t)), L"%s", filePath );
-
-
+#ifdef _WIN32
+  swprintf( audioEssence->usable_file_path, strlen(filePath)+1, L"%S", filePath );
+#else
+  swprintf( audioEssence->usable_file_path, strlen(filePath)+1, L"%s", filePath );
+#endif
 
   free( data );
 
