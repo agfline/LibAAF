@@ -1500,7 +1500,7 @@ int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence,
       outfilepath,
       (*(outfilepath+strlen(outfilepath)-1) != DIR_SEP) ? DIR_SEP_STR : "",
       ( forcedFileName != NULL ) ? forcedFileName : eascii_to_ascii(audioEssence->unique_file_name),
-      "wav" );
+      (audioEssence->type == AAFI_ESSENCE_TYPE_AIFC) ? "aif" : "wav" );
 
 
 
