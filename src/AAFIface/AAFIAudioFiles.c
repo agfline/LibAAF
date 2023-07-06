@@ -60,6 +60,17 @@
 
 // #define SIGNED_SIZEOF(x) sizeof(x)
 
+/*
+ * swprintf() specific string format identifiers
+ * https://learn.microsoft.com/en-us/cpp/c-runtime-library/format-specification-syntax-printf-and-wprintf-functions?view=msvc-170#type
+ */
+#ifdef _WIN32
+  #define WPRIs  L"S" // char*
+	#define WPRIws L"s" // wchar_t*
+#else
+  #define WPRIs  L"s"  // char*
+	#define WPRIws L"ls" // wchar_t*
+#endif
 
 
 #ifdef USE_LIBSNDFILE
@@ -1619,11 +1630,8 @@ int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence,
 
 
   audioEssence->usable_file_path = malloc( (strlen(filePath) + 1) * sizeof(wchar_t) );
-#ifdef _WIN32
-  swprintf( audioEssence->usable_file_path, strlen(filePath)+1, L"%S", filePath );
-#else
-  swprintf( audioEssence->usable_file_path, strlen(filePath)+1, L"%s", filePath );
-#endif
+
+  swprintf( audioEssence->usable_file_path, strlen(filePath)+1, L"%" WPRIs, filePath );
 
   free( data );
 
@@ -1724,7 +1732,7 @@ int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 
     audioEssence->usable_file_path = malloc( (strlen(externalFilePath) + 1) * sizeof(wchar_t) );
 
-    swprintf( audioEssence->usable_file_path, (strlen(externalFilePath) * sizeof(wchar_t)), L"%s", externalFilePath );
+    swprintf( audioEssence->usable_file_path, strlen(externalFilePath)+1, L"%" WPRIs, externalFilePath );
 
 
 

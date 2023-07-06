@@ -39,7 +39,13 @@
 
 #include "../common/utils.h"
 
-
+#ifdef _WIN32
+  #define WPRIs  L"S" // char*
+	#define WPRIws L"s" // wchar_t*
+#else
+  #define WPRIs  L"s"  // char*
+	#define WPRIws L"ls" // wchar_t*
+#endif
 
 
 
@@ -2102,7 +2108,7 @@ static cfbNode * getStrongRefIndexNode( CFB_Data *cfbd, aafObject *Parent, const
 {
 	wchar_t name[CFB_NODE_NAME_SZ];
 
-	swprintf( name, CFB_NODE_NAME_SZ, L"%ls index", refName );
+	swprintf( name, CFB_NODE_NAME_SZ, L"%" WPRIws L" index", refName );
 
 	cfbNode * Node = cfb_getChildNode( cfbd, name, Parent->Node );
 
@@ -2121,7 +2127,7 @@ static cfbNode * getStrongRefEntryNode( CFB_Data *cfbd, aafObject *Parent, const
 {
 	wchar_t name[CFB_NODE_NAME_SZ];
 
-	swprintf( name, CFB_NODE_NAME_SZ, L"%ls{%x}", refName, index );
+	swprintf( name, CFB_NODE_NAME_SZ, L"%" WPRIws L"{%x}", refName, index );
 
 	cfbNode *Node = cfb_getChildNode( cfbd, name, Parent->Node );
 

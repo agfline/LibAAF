@@ -38,6 +38,14 @@
 #include "../src/common/utils.h" // ANSI colors, c99strdup()
 
 
+#ifdef _WIN32
+  #define WPRIs  L"S" // char*
+	#define WPRIws L"s" // wchar_t*
+#else
+  #define WPRIs  L"s"  // char*
+	#define WPRIws L"ls" // wchar_t*
+#endif
+
 #define POS_FORMAT_BUFFER_LEN 32
 
 enum pos_format {
@@ -404,7 +412,7 @@ int main( int argc, char *argv[] )
 
 		wchar_t wget_node_str[1024];
 
-		swprintf( wget_node_str, 1024, L"%s", get_node_str );
+		swprintf( wget_node_str, 1024, L"%" WPRIws, get_node_str );
 
 		cfbNode *node = cfb_getNodeByPath( aafd->cfbd, wget_node_str, 0 );
 

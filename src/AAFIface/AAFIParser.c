@@ -77,7 +77,13 @@
 #define uint unsigned int // windows
 #endif
 
-
+#ifdef _WIN32
+  #define WPRIs  L"S" // char*
+	#define WPRIws L"s" // wchar_t*
+#else
+  #define WPRIs  L"s"  // char*
+	#define WPRIws L"ls" // wchar_t*
+#endif
 
 
 
@@ -1590,7 +1596,7 @@ static int parse_EssenceData( AAF_Iface *aafi, aafObject *EssenceData, td *__ptd
 
 	wchar_t *path = aaf_get_ObjectPath( EssenceData );
 
-	swprintf( DataPath, CFB_PATH_NAME_SZ, L"%ls/%ls", path, StreamName );
+	swprintf( DataPath, CFB_PATH_NAME_SZ, L"%" WPRIws L"/%" WPRIws, path, StreamName );
 
 	free( StreamName );
 
