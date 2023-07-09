@@ -344,12 +344,16 @@ void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int st
 			aafObject *Segment        = aaf_get_propertyValue( Obj, PID_MobSlot_Segment );
 			aafUID_t  *DataDefinition = get_Component_DataDefinition( aafi, Segment );
 			wchar_t   *name           = aaf_get_propertyValueWstr( Obj, PID_MobSlot_SlotName );
-			int32_t   *slotID         = aaf_get_propertyValue( Obj, PID_MobSlot_SlotID );
+      int32_t   *slotID         = aaf_get_propertyValue( Obj, PID_MobSlot_SlotID );
+      int32_t   *trackNo        = aaf_get_propertyValue( Obj, PID_MobSlot_PhysicalTrackNumber );
 
-			printf("[%s%i%s] (DataDef : %s%ls%s) %s%ls ",
+			printf("[slot:%s%i%s track:%s%i%s] (DataDef : %s%ls%s) %s%ls ",
 				ANSI_COLOR_BOLD,
 				(slotID) ? *slotID : -1,
 				ANSI_COLOR_RESET,
+        ANSI_COLOR_BOLD,
+        (trackNo) ? *trackNo : -1,
+        ANSI_COLOR_RESET,
 				ANSI_COLOR_DARKGREY,
 				DataDefToText( aafi->aafd, DataDefinition ),
 				ANSI_COLOR_RESET,
