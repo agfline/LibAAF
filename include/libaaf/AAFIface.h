@@ -401,11 +401,25 @@ typedef struct aafiAudioClip
 
 	// uint16_t               inner_track_channel; // for multichannel track only.
 
-	aafPosition_t          pos;
+	aafPosition_t          pos; /* in edit unit, edit rate definition is aafiAudioTrack->edit_rate */
 
-	aafPosition_t          len;
+	aafPosition_t          len; /* in edit unit, edit rate definition is aafiAudioTrack->edit_rate */
 
-	aafPosition_t          essence_offset; // start position in the source file
+	/*
+	 * Start position in source file, set from SourceClip::StartTime
+	 *
+	 * « Specifies the offset from the origin of the referenced Mob MobSlot in edit units
+	 * determined by the SourceClip object’s context.
+	 *
+	 * A SourceClip’s StartTime and Length values are in edit units determined by the slot
+	 * owning the SourceClip.
+
+	 * Informative note: If the SourceClip references a MobSlot that specifies a different
+	 * edit rate than the MobSlot owning the SourceClip, the StartTime and Length are in
+	 * edit units of the slot owning the SourceClip, and not edit units of the referenced slot.»
+	 */
+
+	aafPosition_t          essence_offset; /* in edit unit, edit rate definition is aafiAudioTrack->edit_rate */
 
 	struct aafiTimelineItem      *Item; // Corresponding timeline item, currently used in ardour to retrieve fades/x-fades
 
@@ -923,7 +937,7 @@ typedef struct AAF_Iface
 
 
 #define convertEditUnit( val, fromRate, toRate ) \
-	(int64_t)(val * (aafRationalToFloat((*toRate)) * (1 / aafRationalToFloat((*fromRate)))))
+	(int64_t)(val * (aafRationalToFloat((toRate)) * (1 / aafRationalToFloat((fromRate)))))
 
 
 
