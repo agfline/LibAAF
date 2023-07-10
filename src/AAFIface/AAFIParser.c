@@ -4886,6 +4886,11 @@ int aafi_retrieveData( AAF_Iface *aafi )
 	// 	}
 	// }
 
+  /* aafi->Audio->tc->end is set to composition duration. Add tc->start to set composition end time */
+  if ( aafi->Audio->tc && aafi->Audio->tc->end ) {
+    aafi->Audio->tc->end += aafi->Audio->tc->start;
+  }
+
 
 
 	/* *** Post processing *** */
