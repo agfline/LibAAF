@@ -2829,7 +2829,6 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 
 					aafi->ctx.current_clip = (aafiAudioClip*)new_clip;
 
-					if ( new_clip && ( CurrentUsageCode && aafUIDCmp( CurrentUsageCode, &AAFUsage_TopLevel ) ) )
 					{
 						/*
 						 *	All derivation chain calls ended.
@@ -2855,7 +2854,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 				else if ( aafUIDCmp( DataDefinition, &AAFDataDef_Picture ) ||
 				          aafUIDCmp( DataDefinition, &AAFDataDef_LegacyPicture ) )
 				{
-					if ( new_clip && ( CurrentUsageCode && aafUIDCmp( CurrentUsageCode, &AAFUsage_TopLevel ) ) )
+					if ( new_clip && aafUIDCmp( CurrentUsageCode, &AAFUsage_TopLevel ) )
 					{
 						/*
 						 *	All derivation chain calls ended.
@@ -3062,7 +3061,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 
 
 			if ( !aafUIDCmp( aafi->aafd->Header.OperationalPattern, &AAFOPDef_EditProtocol ) ||
-			     ( CurrentUsageCode && aafUIDCmp( CurrentUsageCode, &AAFUsage_TopLevel ) ) )
+			      aafUIDCmp( CurrentUsageCode, &AAFUsage_TopLevel ) )
 			{
 				/*
 				 *	NOTE for AAFOPDef_EditProtocol only :
