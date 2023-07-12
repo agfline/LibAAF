@@ -732,7 +732,7 @@ aafiAudioTrack * aafi_newAudioTrack( AAF_Iface *aafi )
 
 	track->gain = NULL;
 
-	track->format = AAFI_TRACK_FORMAT_MONO;
+	track->format = AAFI_TRACK_FORMAT_NOT_SET;
 
 
 

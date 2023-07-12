@@ -396,8 +396,8 @@ typedef struct aafiAudioClip
 
 	int                    mute;
 
+	int                    channel_count;
 
-	// uint16_t               inner_track_channel; // for multichannel track only.
 
 	aafPosition_t          pos; /* in edit unit, edit rate definition is aafiAudioTrack->edit_rate */
 
@@ -431,8 +431,6 @@ typedef struct aafiVideoClip
 	struct aafiVideoTrack *track;
 
 	aafiVideoEssence      *Essence;
-
-	// uint16_t               inner_track_channel; // for multichannel track only.
 
 	aafPosition_t          pos;
 
@@ -527,10 +525,12 @@ typedef struct aafiTimecode
 
 typedef enum aafiTrackFormat_e
 {
-	AAFI_TRACK_FORMAT_MONO   = 1,
-	AAFI_TRACK_FORMAT_STEREO = 2,
-	AAFI_TRACK_FORMAT_5_1    = 6,
-	AAFI_TRACK_FORMAT_7_1    = 8
+	AAFI_TRACK_FORMAT_NOT_SET = 0,
+	AAFI_TRACK_FORMAT_MONO    = 1,
+	AAFI_TRACK_FORMAT_STEREO  = 2,
+	AAFI_TRACK_FORMAT_5_1     = 6,
+	AAFI_TRACK_FORMAT_7_1     = 8,
+	AAFI_TRACK_FORMAT_UNKNOWN = 99
 
 } aafiTrackFormat_e;
 
@@ -794,16 +794,14 @@ typedef struct aafiContext
 	// void * current_track;
 	// int    current_track_number; // used only when missing MobSlot::PhysicalTrackNumber
 
-	aafBoolean_t     current_track_is_multichannel;
-
-	uint16_t         current_multichannel_track_channel;
-
-	aafPosition_t    current_multichannel_track_clip_length;
-
 	// aafPosition_t    current_pos;
 	aafiAudioClip   *current_clip;
 	aafiVideoClip   *current_video_clip;
 	int              current_clip_is_muted;
+
+	int              current_clip_is_combined; // Inside OperationGroup::AAFOperationDef_AudioChannelCombiner
+	int              current_combined_clip_total_channel;
+	int              current_combined_clip_channel_num; // current SourceClip represents channel num
 
 	/* Transition */
 

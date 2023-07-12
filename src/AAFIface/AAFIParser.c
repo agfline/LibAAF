@@ -111,9 +111,6 @@
 #define RESET_CONTEXT( ctx )                        \
 	/*ctx.MobSlot = NULL;*/                             \
 	ctx.current_track = NULL;                       \
-	ctx.current_track_is_multichannel = 0;          \
-	ctx.current_multichannel_track_channel = 0;     \
-	ctx.current_multichannel_track_clip_length = 0; \
 	/*ctx.current_pos = 0;*/                            \
 	ctx.current_transition = NULL;                  \
 	ctx.current_clip_gain = NULL;                        \
@@ -121,7 +118,13 @@
 	ctx.current_essence = NULL;                \
 	ctx.current_clip = NULL;                        \
 	ctx.current_clip_is_muted = 0;                  \
+  ctx.current_clip_is_combined = 0; \
+  ctx.current_combined_clip_total_channel = 0; \
+  ctx.current_combined_clip_channel_num = 0; \
 
+  // ctx.current_track_is_multichannel = 0;
+  // ctx.current_multichannel_track_channel = 0;
+  // ctx.current_multichannel_track_clip_length = 0;
 
 
 // typedef struct trace_dump {
@@ -2368,10 +2371,6 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup, td *__ptd 
 
 		/**************************************************************************************/
 
-		aafi->ctx.current_track_is_multichannel = 1;
-		aafi->ctx.current_multichannel_track_channel = 0;
-
-
 		DUMP_OBJ( aafi, OpGroup, &__td );
 
 
@@ -2379,15 +2378,17 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup, td *__ptd 
 		aafObject *InputSegments = aaf_get_propertyValue( OpGroup, PID_OperationGroup_InputSegments );
 
 
-		// int i = InputSegments->Header->_entryCount;
 		__td.ll[__td.lv] = InputSegments->Header->_entryCount;
+
+		aafi->ctx.current_clip_is_combined = 1;
+		aafi->ctx.current_combined_clip_total_channel = InputSegments->Header->_entryCount;
+		aafi->ctx.current_combined_clip_channel_num = 0;
 
 		aaf_foreach_ObjectInSet( &InputSegment, InputSegments, NULL )
 		{
-			// __td.ll[__td.lv] = __td.ll[__td.lv] - i++;//(MobSlot->next) ? 1 : 0;
 			parse_Segment( aafi, InputSegment, &__td );
-			aafi->ctx.current_multichannel_track_channel++;
 
+      aafi->ctx.current_combined_clip_channel_num++;
 			__td.ll[__td.lv]--;
 		}
 
@@ -2395,40 +2396,66 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup, td *__ptd 
 		/*
 		 *	Sets the track format.
 		 */
+
 		aafiAudioTrack *current_track = (aafiAudioTrack*)aafi->ctx.current_track;
 
-		if ( aafi->ctx.current_multichannel_track_channel == 2 )
+    aafiTrackFormat_e track_format = AAFI_TRACK_FORMAT_UNKNOWN;
+
+		if ( aafi->ctx.current_combined_clip_total_channel == 2 )
 		{
-			current_track->format = AAFI_TRACK_FORMAT_STEREO;
+			track_format = AAFI_TRACK_FORMAT_STEREO;
 		}
-		else if ( aafi->ctx.current_multichannel_track_channel == 6 )
+		else if ( aafi->ctx.current_combined_clip_total_channel == 6 )
 		{
-			current_track->format = AAFI_TRACK_FORMAT_5_1;
+			track_format = AAFI_TRACK_FORMAT_5_1;
 		}
-		else if ( aafi->ctx.current_multichannel_track_channel == 8 )
+		else if ( aafi->ctx.current_combined_clip_total_channel == 8 )
 		{
-			current_track->format = AAFI_TRACK_FORMAT_7_1;
+			track_format = AAFI_TRACK_FORMAT_7_1;
 		}
 		else
 		{
-			DUMP_OBJ_ERROR( aafi, OpGroup, &__td, "Unknown track format (%u)", aafi->ctx.current_multichannel_track_channel );
+			DUMP_OBJ_ERROR( aafi, OpGroup, &__td, "Unknown track format (%u)", aafi->ctx.current_combined_clip_total_channel );
+
+			/*
+			 *	Reset multichannel track context.
+			 */
+
+			aafi->ctx.current_clip_is_combined = 0;
+			aafi->ctx.current_combined_clip_total_channel = 0;
+			aafi->ctx.current_combined_clip_channel_num = 0;
+
 			return -1;
 		}
 
 
-		/*
-		 *	Update the current position.
-		 */
+    if ( current_track->format != AAFI_TRACK_FORMAT_NOT_SET &&
+         current_track->format != track_format )
+    {
 
-		aafi->ctx.current_track->current_pos += aafi->ctx.current_multichannel_track_clip_length;
+      DUMP_OBJ_ERROR( aafi, OpGroup, &__td, "Track format (%u) does not match current clip (%u)", current_track->format, track_format );
+
+      /*
+       *	Reset multichannel track context.
+       */
+
+      aafi->ctx.current_clip_is_combined = 0;
+      aafi->ctx.current_combined_clip_total_channel = 0;
+      aafi->ctx.current_combined_clip_channel_num = 0;
+
+      return -1;
+    }
+
+    current_track->format = track_format;
 
 
 		/*
 		 *	Reset multichannel track context.
 		 */
 
-		aafi->ctx.current_multichannel_track_channel = 0;
-		aafi->ctx.current_track_is_multichannel = 0;
+		aafi->ctx.current_clip_is_combined = 0;
+		aafi->ctx.current_combined_clip_total_channel = 0;
+		aafi->ctx.current_combined_clip_channel_num = 0;
 
 
 		/**************************************************************************************/
@@ -2829,6 +2856,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 
 					aafi->ctx.current_clip = (aafiAudioClip*)new_clip;
 
+					if ( new_clip && aafUIDCmp( CurrentUsageCode, &AAFUsage_TopLevel ) )
 					{
 						/*
 						 *	All derivation chain calls ended.
@@ -2922,11 +2950,40 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 
 
 
-			/* Add the new clip */
+			if ( aafi->ctx.current_clip_is_combined &&
+           aafi->ctx.current_combined_clip_channel_num > 0 )
+      {
+
+				/*
+				 * Parsing multichannel audio clip (AAFOperationDef_AudioChannelCombiner)
+				 * We already parsed first SourceClip in AAFOperationDef_AudioChannelCombiner.
+				 * We just have to check everything match for all clips left (each clip represents a channel)
+				 */
+
+				if ( aafi->ctx.current_clip->len != *length ) {
+					DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "SourceClip length does not match first one in AAFOperationDef_AudioChannelCombiner" );
+					return -1;
+				}
+
+				if ( !aafMobIDCmp( aafi->ctx.current_clip->masterMobID, sourceID ) ) {
+					DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "SourceClip SourceID does not match first one in AAFOperationDef_AudioChannelCombiner" );
+					return -1;
+				}
+
+				DUMP_OBJ( aafi, SourceClip, &__td );
+				return 0;
+			}
+
+
+			/*
+			 *	Create new clip, only if we are parsing a single mono clip, or if
+			 *	we are parsing the first SourceClip describing a multichannel clip
+			 *	inside an AAFOperationDef_AudioChannelCombiner
+			 */
 
 			aafiTimelineItem *item = aafi_newTimelineItem( aafi, aafi->ctx.current_track, AAFI_AUDIO_CLIP );
 
-			aafiAudioClip    *audioClip = (aafiAudioClip*)&item->data;
+			aafiAudioClip *audioClip = (aafiAudioClip*)&item->data;
 
 			aafi->ctx.clips_using_gain++;
 			aafi->ctx.clips_using_automation++;
@@ -2951,6 +3008,12 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 			 *	should always point to the corresponding "MasterMob", that is a different Mob.
 			 */
 
+			// if ( aafMobIDCmp( aafi->ctx.current_clip->masterMobID, sourceID ) ) {
+			// 	printf("SAME_SOURCE_ID : %ls\n", AUIDToText(sourceID) );
+			// } else {
+			// 	printf("DIFFERENT_SOURCE_ID : %ls\n", AUIDToText(sourceID) );
+			// }
+
 			audioClip->masterMobID = sourceID;
 
 			// if ( audioClip->masterMobID == NULL )
@@ -2962,27 +3025,65 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 
 
 
-			if ( aafi->ctx.current_track_is_multichannel == 0 )
-			{
-				if ( /*!aafUIDCmp( aafi->aafd->Header.OperationalPattern, &AAFOPDef_EditProtocol ) ||*/
-				     aafUIDCmp( CurrentUsageCode, &AAFUsage_TopLevel ) )
-				{
-					/*
-					 *	NOTE for AAFOPDef_EditProtocol only :
-					 *
-					 *	If SourceClip belongs to a TopLevel Mob, we can update position.
-					 *	Otherwise, it means we are inside a derivation chain ( ie: TopLevel:CompositionMob -> SourceClip -> SubLevel:CompositionMob -> SourceClip )
-					 *	and the clip length is not the good one. In that case, position is updated above.
-					 */
+      if ( !aafi->ctx.is_inside_derivation_chain ) {
 
-					aafi->ctx.current_track->current_pos += audioClip->len;
-				}
-			}
-			else
-			{
-				aafi->ctx.current_multichannel_track_clip_length = audioClip->len;
-			}
+        /*
+         * We DO NOT update current pos if SourceClip belongs to a sub CompositionMob
+         * because in that case, current pos was already updated by initial SourceClip
+         * pointing to AAFClassID_CompositionMob
 
+04606│├──◻ AAFClassID_TimelineMobSlot [slot:16 track:8] (DataDef : AAFDataDef_LegacySound)
+02064││    └──◻ AAFClassID_Sequence
+02037││         ├──◻ AAFClassID_Filler
+     ││         │
+02502││         ├──◻ AAFClassID_OperationGroup (OpIdent: AAFOperationDef_MonoAudioGain)   (MetaProps: ComponentAttributeList[0xffcc])
+03780││         │    ├──◻ AAFClassID_ConstantValue
+POS UPDATED HERE --> └──◻ AAFClassID_SourceClip
+02842││         │         └──◻ AAFClassID_CompositionMob (UsageCode: AAFUsage_AdjustedClip) : Islamic Call to Prayer - Amazing Adhan by Edris Aslami.mp3.new.01  (MetaProps: MobAttributeList[0xfff9] ConvertFrameRate[0xfff8])
+04606││         │              └──◻ AAFClassID_TimelineMobSlot [slot:2 track:2] (DataDef : AAFDataDef_LegacySound)
+02502││         │                   └──◻ AAFClassID_OperationGroup (OpIdent: AAFOperationDef_MonoAudioGain)
+03780││         │                        ├──◻ AAFClassID_ConstantValue
+YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
+03085││         │                             └──◻ AAFClassID_MasterMob (UsageCode: n/a) : Islamic Call to Prayer - Amazing Adhan by Edris Aslami.mp3.new.01  (MetaProps: AppCode[0xfffa])
+04705││         │                                  └──◻ AAFClassID_TimelineMobSlot
+03305││         │                                       └──◻ AAFClassID_SourceClip
+04412││         │                                            ├──◻ AAFClassID_SourceMob (UsageCode: n/a) : Islamic Call to Prayer - Amazing Adhan by Edris Aslami.mp3  (MetaProps: MobAttributeList[0xfff9])
+01400││         │                                            │    └──◻ AAFClassID_WAVEDescriptor
+01555││         │                                            │         └──◻ AAFClassID_NetworkLocator : file:///MEDIA2/2199_Rapport_Astellas Main Content/audio/AX TEST.aaf
+     ││         │                                            │
+01800││         ├──◻ AAFClassID_Transition
+02283││         │    └──◻ AAFClassID_OperationGroup (OpIdent: AAFOperationDef_MonoAudioDissolve)   (MetaProps: ComponentAttributeList[0xffcc])
+03934││         │         └──◻ AAFClassID_VaryingValue
+     ││         │
+02502││         ├──◻ AAFClassID_OperationGroup (OpIdent: AAFOperationDef_MonoAudioGain)   (MetaProps: ComponentAttributeList[0xffcc])
+03780││         │    ├──◻ AAFClassID_ConstantValue
+02836││         │    └──◻ AAFClassID_SourceClip
+02842││         │         └──◻ AAFClassID_CompositionMob (UsageCode: AAFUsage_AdjustedClip) : Islamic Call to Prayer - Amazing Adhan by Edris Aslami.mp3.new.01  (MetaProps: MobAttributeList[0xfff9] ConvertFrameRate[0xfff8])
+04606││         │              └──◻ AAFClassID_TimelineMobSlot [slot:2 track:2] (DataDef : AAFDataDef_LegacySound)
+02502││         │                   └──◻ AAFClassID_OperationGroup (OpIdent: AAFOperationDef_MonoAudioGain)
+03780││         │                        ├──◻ AAFClassID_ConstantValue
+03080││         │                        └──◻ AAFClassID_SourceClip
+03085││         │                             └──◻ AAFClassID_MasterMob (UsageCode: n/a) : Islamic Call to Prayer - Amazing Adhan by Edris Aslami.mp3.new.01  (MetaProps: AppCode[0xfffa])
+04705││         │                                  └──◻ AAFClassID_TimelineMobSlot
+03270││         │                                       └──◻ AAFClassID_SourceClip Essence already parsed: Linking with Islamic Call to Prayer - Amazing Adhan by Edris Aslami.mp3.new.01
+     ││         │
+02037││         └──◻ AAFClassID_Filler
+         */
+
+				aafi->ctx.current_track->current_pos += audioClip->len;
+      }
+
+
+      if ( aafi->ctx.current_clip_is_combined == 0 ) {
+        if ( aafi->ctx.current_track->format != AAFI_TRACK_FORMAT_NOT_SET &&
+             aafi->ctx.current_track->format != AAFI_TRACK_FORMAT_MONO )
+        {
+          DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Track format (%u) does not match current clip (%u)", aafi->ctx.current_track->format, AAFI_TRACK_FORMAT_MONO );
+        }
+        else {
+          aafi->ctx.current_track->format = AAFI_TRACK_FORMAT_MONO;
+        }
+      }
 
 
 
@@ -3016,6 +3117,11 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 				memcpy( &(aafi->ctx), &ctxBackup, sizeof(struct aafiContext) );
 
 			}
+      else {
+        DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "RefMob isn't MasterMob : %ls", ClassIDToText( aafi->aafd, refMob->Class->ID ) );
+        // parse_CompositionMob( )
+        return -1;
+      }
 
 		}
 		else if ( aafUIDCmp( DataDefinition, &AAFDataDef_Picture ) ||
@@ -3139,6 +3245,14 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 
 		uint32_t *masterMobSlotID = aaf_get_propertyValue( ParentMobSlot, PID_MobSlot_SlotID );
 
+
+		// uint32_t *essenceChannelNum = (uint32_t*)aaf_get_propertyValue( ParentMobSlot, PID_MobSlot_PhysicalTrackNumber );
+		//
+		// if ( essenceChannelNum == NULL ) { /* opt */
+		// 	printf( "PhysicalTrackNumber: NOT SET\n" );
+		// } else {
+		// 	printf( "PhysicalTrackNumber: %u\n", *essenceChannelNum );
+		// }
 
 
 		if ( aafUIDCmp( DataDefinition, &AAFDataDef_Sound ) ||
@@ -4924,6 +5038,22 @@ int aafi_retrieveData( AAF_Iface *aafi )
 	aafiAudioTrack *audioTrack = NULL;
 
 	foreach_audioTrack( audioTrack, aafi ) {
+
+		// aafiTimelineItem *audioItem  = NULL;
+		// aafiAudioClip    *audioClip  = NULL;
+		//
+		// if ( audioTrack->format > 1 ) {
+		//
+		// 	foreach_Item( audioItem, audioTrack ) {
+		//
+		// 		if ( audioItem->type == AAFI_TRANS ) {
+		// 			continue;
+		// 		}
+		//
+		// 		audioClip = (aafiAudioClip*)&audioItem->data;
+		// 	}
+		// }
+
 		if ( audioTrack->current_pos > aafi->Audio->length ) {
 			aafi->Audio->length = audioTrack->current_pos;
 			aafi->Audio->length_editRate.numerator   = audioTrack->edit_rate->numerator;
