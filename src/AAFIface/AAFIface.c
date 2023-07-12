@@ -944,6 +944,7 @@ aafiAudioEssence * aafi_newAudioEssence( AAF_Iface *aafi )
 	audioEssence->file_name = NULL;
 	audioEssence->unique_file_name = NULL;
 	audioEssence->clip_count = 0;
+	audioEssence->user = NULL;
 
 	aafi->Audio->Essences = audioEssence;
 
