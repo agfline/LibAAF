@@ -96,6 +96,9 @@
 #define DIR_SEP_STR "/"
 #endif
 
+#define IS_DIR_SEP(c) \
+  ( (c) == DIR_SEP || (c) == '/' )
+
 /*
 #define _fop_get_parent_path( start, end )\
 {\
@@ -171,11 +174,11 @@ static const char * fop_get_file( const char *filepath )
 
   const char *end = filepath + strlen(filepath);
 
-  while ( end > filepath && *end != DIR_SEP ) {
+  while ( end > filepath && !IS_DIR_SEP(*end) ) {
     --end;
   }
 
-  return (*end==DIR_SEP) ? end+1 : end;
+  return ( IS_DIR_SEP(*end) ) ? end+1 : end;
 }
 
 
@@ -268,9 +271,9 @@ switchagain:
          *  path element, where we keep one single '/' if any
          */
 
-        while ( arglen > 1 && *(arg+(arglen-1)) == DIR_SEP ) {
+        while ( arglen > 1 && IS_DIR_SEP(*(arg+(arglen-1))) ) {
           // debug( "%i %c %c", arglen, *(arg+(arglen-1)), *(arg+(arglen-2)) );
-          if ( modcount == totalmods && *(arg+(arglen-2)) != DIR_SEP )
+          if ( modcount == totalmods && !IS_DIR_SEP(*(arg+(arglen-2))) )
             break;
           arglen--;
         }
@@ -280,8 +283,8 @@ switchagain:
          *  path element, where we keep one single '/' if any
          */
 
-        while ( *arg == DIR_SEP ) {
-          if ( modcount == 1 && *(arg+1) != DIR_SEP )
+        while ( IS_DIR_SEP(*arg) ) {
+          if ( modcount == 1 && !IS_DIR_SEP(*(arg+1)) )
             break;
           arg++; arglen--;
         }
@@ -436,7 +439,7 @@ char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_fi
     p = aafPath + strlen(aafPath);
 
     while ( p > aafPath ) {
-      if ( *p == DIR_SEP ) {
+      if ( IS_DIR_SEP(*p) ) {
         *p = 0x00;
         break;
       }
@@ -1509,7 +1512,7 @@ int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence,
 
   snprintf( filePath, 1024, "%s%s%ls.%s",
       outfilepath,
-      (*(outfilepath+strlen(outfilepath)-1) != DIR_SEP) ? DIR_SEP_STR : "",
+      ( !IS_DIR_SEP(*(outfilepath+strlen(outfilepath)-1)) ) ? DIR_SEP_STR : "",
       ( forcedFileName != NULL ) ? forcedFileName : eascii_to_ascii(audioEssence->unique_file_name),
       (audioEssence->type == AAFI_ESSENCE_TYPE_AIFC) ? "aif" : "wav" );
 
