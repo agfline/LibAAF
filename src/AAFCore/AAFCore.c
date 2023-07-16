@@ -1170,7 +1170,7 @@ static int parse_Header( AAF_Data *aafd )
 
 	if ( OperationalPattern == NULL )
 	{
-		_warning( aafd->verb, "Missing Header::OperationalPattern.\n" );
+		warning( "Missing Header::OperationalPattern." );
 		OperationalPattern = (const aafUID_t*)&AUID_NULL;
 	}
 
