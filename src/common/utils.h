@@ -21,6 +21,8 @@
 #ifndef __utils_h__
 #define __utils_h__
 
+#include <stdint.h>
+
 #define ANSI_COLOR_RED      "\033[38;5;124m" //"\x1b[31m"
 #define ANSI_COLOR_GREEN    "\x1b[92m"
 #define ANSI_COLOR_YELLOW   "\x1b[33m" //"\x1b[93m"
