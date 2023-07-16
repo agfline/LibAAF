@@ -21,6 +21,8 @@
 #ifndef __RIFFParser__
 #define __RIFFParser__
 
+#include <libaaf/AAFIface.h> //  LIB_AAF_IFACE_ID
+#include <libaaf/debug.h>
 
 #ifdef __GNUC__
 #define PACK( __Declaration__ ) __Declaration__ __attribute__((__packed__))
@@ -30,6 +32,14 @@
 #define PACK( __Declaration__ ) __pragma( pack(push, 1) ) __Declaration__ __pragma( pack(pop))
 #endif
 
+
+struct riffContext {
+  void *user;
+  void DEBUG_FUNCTION_POINTER;
+  char *_dbg_msg;
+  int   _dbg_msg_size;
+  verbosityLevel_e verb;
+};
 
 struct RIFFAudioFile {
   /* common to wave/aiff */
@@ -122,8 +132,8 @@ PACK(struct aiffCOMMChunk {
 
 
 
-int riff_parseAudioFile( struct RIFFAudioFile *RIFFAudioFile, size_t (*readerCallback)(unsigned char *, size_t, size_t, void*, void*), void *user1, void *user2 );
+int riff_parseAudioFile( struct RIFFAudioFile *RIFFAudioFile, size_t (*readerCallback)(unsigned char *, size_t, size_t, void*, void*, void*), void *user1, void *user2, void *user3, struct dbg *dbg );
 
-int riff_writeWavFileHeader( FILE *fp, struct wavFmtChunk *wavFmt, struct wavBextChunk *wavBext, uint32_t audioDataSize );
+int riff_writeWavFileHeader( FILE *fp, struct wavFmtChunk *wavFmt, struct wavBextChunk *wavBext, uint32_t audioDataSize, struct dbg *dbg );
 
 #endif // ! __RIFFParser__

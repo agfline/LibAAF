@@ -1492,7 +1492,7 @@ const wchar_t * ParameterToText( AAF_Data *aafd, const aafUID_t *auid )
 			swprintf( TEXTParameterDef, 1024, L"%" WPRIws, name );
 			free( name );
 
-			// printf("Description : %ls\n", aaf_get_propertyValueText( ParameterDefinition, PID_DefinitionObject_Description ) );
+			// debug("Description : %ls\n", aaf_get_propertyValueText( ParameterDefinition, PID_DefinitionObject_Description ) );
 
 			return TEXTParameterDef;
 		}

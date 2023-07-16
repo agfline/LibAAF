@@ -21,6 +21,8 @@
 #ifndef URI_PARSER_H
 #define URI_PARSER_H
 
+#include <libaaf/AAFIface.h> //  LIB_AAF_IFACE_ID
+
 
 #define MAX_URI_LENGTH 64000
 
@@ -193,7 +195,7 @@ struct uri {
 
 
 
-struct uri * uriParse( const char *, enum uri_option );
+struct uri * uriParse( const char *, enum uri_option, struct dbg *dbg );
 char * uriDecodeString( char *str );
 void uriFree( struct uri * );
 

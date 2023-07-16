@@ -55,6 +55,14 @@
 #endif
 
 
+#define debug( ... ) \
+	_dbg( aafi->dbg, aafi, DEBUG_SRC_ID_AAF_IFACE, VERB_DEBUG, __VA_ARGS__ )
+
+#define warning( ... ) \
+	_dbg( aafi->dbg, aafi, DEBUG_SRC_ID_AAF_IFACE, VERB_WARNING, __VA_ARGS__ )
+
+#define error( ... ) \
+	_dbg( aafi->dbg, aafi, DEBUG_SRC_ID_AAF_IFACE, VERB_ERROR, __VA_ARGS__ )
 
 
 
@@ -65,7 +73,16 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 
 	if ( aafi == NULL )
 	{
-		_error( aafi->ctx.options.verb, "%s.\n", strerror( errno ) );
+		// error( "%s.", strerror( errno ) );
+		return NULL;
+	}
+
+
+	aafi->dbg = new_debug();
+
+	if ( aafi->dbg == NULL )
+	{
+		// error( "%s.", strerror( errno ) );
 		return NULL;
 	}
 
@@ -74,7 +91,7 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 
 	if ( aafi->Audio == NULL )
 	{
-		_error( aafi->ctx.options.verb, "%s.\n", strerror( errno ) );
+		// error( "%s.", strerror( errno ) );
 		return NULL;
 	}
 
@@ -91,7 +108,7 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 
 	if ( aafi->Video == NULL )
 	{
-		_error( aafi->ctx.options.verb, "%s.\n", strerror( errno ) );
+		// error( "%s.", strerror( errno ) );
 		return NULL;
 	}
 
@@ -107,7 +124,7 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 	}
 	else
 	{
-		aafi->aafd = aaf_alloc();
+		aafi->aafd = aaf_alloc( aafi->dbg );
 	}
 
 	aafi->Markers = NULL;
@@ -120,6 +137,8 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 	aafi->ctx.options.trace = 0;
 	// aafi->ctx.trace_leveloop = NULL;
 
+	// aafi->verb = VERB_QUIET;
+	// aafi->debug_callback = &debug_callback;
 
 	/* some init part */
 
@@ -134,6 +153,13 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 	return aafi;
 }
 
+
+void aafi_set_debug( AAF_Iface *aafi, verbosityLevel_e v ) {
+	// aafi->verb = v;
+	// aafi->aafd->verb = v;
+	// aafi->aafd->cfbd->verb = v;
+	aafi->dbg->verb = v;
+}
 
 
 
@@ -212,6 +238,11 @@ void aafi_release( AAF_Iface **aafi )
 		free( (*aafi)->ctx.options.media_location );
 	}
 
+
+	if ( (*aafi)->dbg ) {
+		free_debug( (*aafi)->dbg );
+	}
+
 	free( *aafi );
 
 	*aafi = NULL;
@@ -222,12 +253,11 @@ void aafi_release( AAF_Iface **aafi )
 
 int aafi_load_file( AAF_Iface *aafi, const char * file )
 {
-	aafi->aafd->verb = aafi->ctx.options.verb;
+	// aafi->aafd->verb = aafi->ctx.options.verb;
 
 	if ( aaf_load_file( aafi->aafd, file ) )
 	{
-		// aaf_release( &aafi->aafd );
-		// printf("aafi_load_file() : aaf_load_file() sets aafi->aafd : %p\n", aafi->aafd );
+		error( "Could not load file : %s\n", file );
 		return 1;
 	}
 
@@ -385,7 +415,7 @@ aafiTimelineItem * aafi_newTimelineItem( AAF_Iface *aafi, void *track, int itemT
 
 		if ( item == NULL )
 		{
-			_error( aafi->ctx.options.verb, "%s.\n", strerror( errno ) );
+			error( "%s.", strerror( errno ) );
 			return NULL;
 		}
 
@@ -403,7 +433,7 @@ aafiTimelineItem * aafi_newTimelineItem( AAF_Iface *aafi, void *track, int itemT
 
 		if ( item == NULL )
 		{
-			_error( aafi->ctx.options.verb, "%s.\n", strerror( errno ) );
+			error( "%s.", strerror( errno ) );
 			return NULL;
 		}
 
@@ -420,7 +450,7 @@ aafiTimelineItem * aafi_newTimelineItem( AAF_Iface *aafi, void *track, int itemT
 
 		if ( item == NULL )
 		{
-			_error( aafi->ctx.options.verb, "%s.\n", strerror( errno ) );
+			error( "%s.", strerror( errno ) );
 			return NULL;
 		}
 
@@ -630,7 +660,7 @@ aafiUserComment * aafi_newUserComment( AAF_Iface *aafi, aafiUserComment **Commen
 
 	if ( UserComment == NULL )
 	{
-		_error( aafi->ctx.options.verb, "%s.\n", strerror( errno ) );
+		error( "%s.", strerror( errno ) );
 		return NULL;
 	}
 
@@ -721,7 +751,7 @@ aafiAudioTrack * aafi_newAudioTrack( AAF_Iface *aafi )
 
 	if ( track == NULL )
 	{
-		_error( aafi->ctx.options.verb, "%s.\n", strerror( errno ) );
+		error( "%s.", strerror( errno ) );
 		return NULL;
 	}
 
@@ -844,7 +874,7 @@ aafiVideoTrack * aafi_newVideoTrack( AAF_Iface *aafi )
 
 	if ( track == NULL )
 	{
-		_error( aafi->ctx.options.verb, "%s.\n", strerror( errno ) );
+		error( "%s.", strerror( errno ) );
 		return NULL;
 	}
 
@@ -932,7 +962,7 @@ aafiAudioEssence * aafi_newAudioEssence( AAF_Iface *aafi )
 
 	if ( audioEssence == NULL )
 	{
-		_error( aafi->ctx.options.verb, "%s.\n", strerror( errno ) );
+		error( "%s.", strerror( errno ) );
 		return NULL;
 	}
 
@@ -1003,7 +1033,7 @@ aafiVideoEssence * aafi_newVideoEssence( AAF_Iface *aafi )
 
 	if ( videoEssence == NULL )
 	{
-		_error( aafi->ctx.options.verb, "%s.\n", strerror( errno ) );
+		error( "%s.", strerror( errno ) );
 		return NULL;
 	}
 

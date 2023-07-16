@@ -31,8 +31,17 @@
 #endif
 
 #include "URIParser.h"
+#include <libaaf/debug.h>
 
 
+#define debug( ... ) \
+	_dbg( dbg, NULL, DEBUG_SRC_ID_AAF_IFACE, VERB_DEBUG, __VA_ARGS__ )
+
+#define warning( ... ) \
+	_dbg( dbg, NULL, DEBUG_SRC_ID_AAF_IFACE, VERB_WARNING, __VA_ARGS__ )
+
+#define error( ... ) \
+	_dbg( dbg, NULL, DEBUG_SRC_ID_AAF_IFACE, VERB_ERROR, __VA_ARGS__ )
 
 
 #define IS_LOWALPHA(c)\
@@ -92,7 +101,7 @@
   str = malloc( sizeof(char) * ((end - start) + 1) );\
 \
   if ( NULL == str ) {\
-    fprintf( stderr, "URI allocation failed.\n" );\
+    error( "URI allocation failed" );\
     goto err;\
   }\
 \
@@ -101,13 +110,13 @@
 
 
 
-static int _uri_parse_scheme( struct uri *uri, const char **pos, const char *end );
-static int _uri_parse_authority( struct uri *uri, const char **pos, const char *end );
-static int _uri_parse_userinfo( struct uri *uri, const char **pos, const char *end );
-static int _uri_parse_hostname( struct uri *uri, const char **pos, const char *end );
-static int _uri_parse_path( struct uri *uri, const char **pos, const char *end );
-static int _uri_parse_query( struct uri *uri, const char **pos, const char *end );
-static int _uri_parse_fragment( struct uri *uri, const char **pos, const char *end );
+static int _uri_parse_scheme( struct uri *uri, const char **pos, const char *end, struct dbg *dbg );
+static int _uri_parse_authority( struct uri *uri, const char **pos, const char *end, struct dbg *dbg );
+static int _uri_parse_userinfo( struct uri *uri, const char **pos, const char *end, struct dbg *dbg );
+static int _uri_parse_hostname( struct uri *uri, const char **pos, const char *end, struct dbg *dbg );
+static int _uri_parse_path( struct uri *uri, const char **pos, const char *end, struct dbg *dbg );
+static int _uri_parse_query( struct uri *uri, const char **pos, const char *end, struct dbg *dbg );
+static int _uri_parse_fragment( struct uri *uri, const char **pos, const char *end, struct dbg *dbg );
 
 static void _uri_scheme2schemeType( struct uri *uri );
 static int  _snprintf_realloc( char **str, size_t *size, size_t offset, const char *format, ... );
@@ -176,20 +185,20 @@ char * uriDecodeString( char *str ) {
 
 
 
-static int _uri_parse_scheme( struct uri *uri, const char **pos, const char *end ) {
+static int _uri_parse_scheme( struct uri *uri, const char **pos, const char *end, struct dbg *dbg ) {
 
   const char *p = *pos;
 
   while ( p < end && *p != ':' ) {
     if ( !SCHEME_SAFE_CHAR(*p) ) {
-      fprintf( stderr, "uri scheme contains invalid character : '%c' (0x%02x)\n", *p, *p );
+      error( "uri scheme contains invalid character : '%c' (0x%02x)", *p, *p );
       goto err;
     }
     p++;
   }
 
   if ( *pos == p ) {
-    fprintf( stderr, "uri is missing scheme.\n" );
+    error( "uri is missing scheme" );
     goto err;
   }
 
@@ -225,7 +234,7 @@ err:
 
 
 
-static int _uri_parse_authority( struct uri *uri, const char **pos, const char *end ) {
+static int _uri_parse_authority( struct uri *uri, const char **pos, const char *end, struct dbg *dbg ) {
 
   /*
    * RFC 3986 - Uniform Resource Identifier (URI): Generic Syntax
@@ -294,7 +303,7 @@ err:
 
 
 
-static int _uri_parse_userinfo( struct uri *uri, const char **pos, const char *end ) {
+static int _uri_parse_userinfo( struct uri *uri, const char **pos, const char *end, struct dbg *dbg ) {
 
   int hasUserinfo = 0;
   int userinfoIllegalCharacters = 0;
@@ -320,7 +329,7 @@ static int _uri_parse_userinfo( struct uri *uri, const char **pos, const char *e
   }
 
   if ( userinfoIllegalCharacters > 0 ) {
-    // fprintf( stderr, "uri userinfo contains %i invalid char%s\n", userinfoIllegalCharacters, (userinfoIllegalCharacters>1) ? "s" : "" );
+    error( "uri userinfo contains %i invalid char%s", userinfoIllegalCharacters, (userinfoIllegalCharacters>1) ? "s" : "" );
     goto err;
   }
 
@@ -370,7 +379,7 @@ err:
 
 
 
-static int _uri_parse_hostname( struct uri *uri, const char **pos, const char *end ) {
+static int _uri_parse_hostname( struct uri *uri, const char **pos, const char *end, struct dbg *dbg ) {
 
   const char *p = *pos;
 
@@ -398,7 +407,7 @@ static int _uri_parse_hostname( struct uri *uri, const char **pos, const char *e
       }
     }
     else {
-      fprintf( stderr, "URI IPv6 Parser error : %s\n", iperr );
+      error( "URI IPv6 Parser error : %s\n", iperr );
       free(iperr);
       goto err;
     }
@@ -425,7 +434,7 @@ static int _uri_parse_hostname( struct uri *uri, const char **pos, const char *e
       p++;
     }
 
-    // printf(" >>> %.*s\n", (int)(p-*pos), p );
+    // debug( " >>> %.*s", (int)(p-*pos), p );
 
     URI_SET_STR( uri->host, *pos, p );
   }
@@ -471,7 +480,7 @@ static int _uri_parse_hostname( struct uri *uri, const char **pos, const char *e
            ( !SCHEME_ALLOW_QUERY(uri) || *p != '?' ) &&
            ( !SCHEME_ALLOW_FRAGMENT(uri) || *p != '#' ) ) {
       if ( !IS_DIGIT(*p) ) {
-        fprintf( stderr, "URI port contains non-digit char : %c (0x%02x).\n", *p, *p );
+        error( "URI port contains non-digit char : %c (0x%02x).\n", *p, *p );
         goto err;
       }
       p++;
@@ -490,7 +499,7 @@ err:
 
 
 
-static int _uri_parse_path( struct uri *uri, const char **pos, const char *end ) {
+static int _uri_parse_path( struct uri *uri, const char **pos, const char *end, struct dbg *dbg ) {
 
   int winDrive = 0;
 
@@ -519,7 +528,7 @@ static int _uri_parse_path( struct uri *uri, const char **pos, const char *end )
     p++;
   }
 
-  // printf(" >>> (%i) %.*s\n", (int)(p-*pos), (int)(p-*pos), p );
+  // debug( " >>> (%i) %.*s", (int)(p-*pos), (int)(p-*pos), p );
 
   URI_SET_STR( uri->path, *pos, p );
 
@@ -547,7 +556,7 @@ err:
 
 
 
-static int _uri_parse_query( struct uri *uri, const char **pos, const char *end ) {
+static int _uri_parse_query( struct uri *uri, const char **pos, const char *end, struct dbg *dbg ) {
 
   const char *p = *pos;
 
@@ -576,7 +585,7 @@ err:
 
 
 
-static int _uri_parse_fragment( struct uri *uri, const char **pos, const char *end ) {
+static int _uri_parse_fragment( struct uri *uri, const char **pos, const char *end, struct dbg *dbg ) {
 
   /*
    * https://datatracker.ietf.org/doc/html/draft-yevstifeyev-ftp-uri-scheme#section-3.2.4.2
@@ -619,7 +628,7 @@ err:
 
 
 
-struct uri * uriParse( const char *uristr, enum uri_option optflags ) {
+struct uri * uriParse( const char *uristr, enum uri_option optflags, struct dbg *dbg ) {
 
   if ( uristr == NULL ) {
     return NULL;
@@ -634,7 +643,7 @@ struct uri * uriParse( const char *uristr, enum uri_option optflags ) {
   size_t urilen = strlen(uristr);
 
   if ( urilen >= MAX_URI_LENGTH ) {
-    fprintf( stderr, "uri is too long\n" );
+    error( "uri is too long" );
     goto err;
   }
 
@@ -645,21 +654,21 @@ struct uri * uriParse( const char *uristr, enum uri_option optflags ) {
   const char *end = pos + urilen;
 
 
-  _uri_parse_scheme( uri, &pos, end );
+  _uri_parse_scheme( uri, &pos, end, dbg );
 
-  if ( _uri_parse_authority( uri, &pos, end ) ) {
-    _uri_parse_userinfo( uri, &pos, end );
-    _uri_parse_hostname( uri, &pos, end );
+  if ( _uri_parse_authority( uri, &pos, end, dbg ) ) {
+    _uri_parse_userinfo( uri, &pos, end, dbg );
+    _uri_parse_hostname( uri, &pos, end, dbg );
   }
 
-  _uri_parse_path( uri, &pos, end );
+  _uri_parse_path( uri, &pos, end, dbg );
 
   if ( SCHEME_ALLOW_QUERY( uri ) ) {
-    _uri_parse_query( uri, &pos, end );
+    _uri_parse_query( uri, &pos, end, dbg );
   }
 
   if ( SCHEME_ALLOW_FRAGMENT( uri ) ) {
-    _uri_parse_fragment( uri, &pos, end );
+    _uri_parse_fragment( uri, &pos, end, dbg );
   }
 
 
@@ -892,7 +901,7 @@ int isIPv6( const char *s, int size, char **err ) {
           }
           return 0;
         }
-        // printf("%i\n", octet );
+        // debug( "%i", octet );
         prev = 'p';
         ipv4portion++;
         continue;
@@ -990,7 +999,7 @@ int isIPv6( const char *s, int size, char **err ) {
           return 0;
         }
 
-        // printf("%i\n", octet );
+        // debug( "%i", octet );
 
         if ( i+1 == size ) {
           if ( err ) {
@@ -1017,9 +1026,9 @@ int isIPv6( const char *s, int size, char **err ) {
   }
 
 
-  // printf("segments : %i\n", segmentCount );
-  // printf("empty segments : %i\n", emptySegmentCount );
-  // printf("ipv4portion : %i\n", ipv4portion );
+  // debug( "segments : %i", segmentCount );
+  // debug( "empty segments : %i", emptySegmentCount );
+  // debug( "ipv4portion : %i", ipv4portion );
 
 
   if ( ipv4portion > 4 ) {
@@ -1054,7 +1063,7 @@ int isIPv6( const char *s, int size, char **err ) {
    * 2: valid ipv6 address and is loopback
    */
 
-  // printf("LOCALHOST >>>>>>> %i\n", loopback );
+  // debug( "LOCALHOST >>>>>>> %i", loopback );
   return (loopback==1) ? 2 : 1;
 }
 

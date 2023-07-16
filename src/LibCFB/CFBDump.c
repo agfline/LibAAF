@@ -30,6 +30,14 @@
 #include "../common/utils.h"
 
 
+#define debug( ... ) \
+	_dbg( cfbd->dbg, cfbd, DEBUG_SRC_ID_LIB_CFB, VERB_DEBUG, __VA_ARGS__ )
+
+#define warning( ... ) \
+	_dbg( cfbd->dbg, cfbd, DEBUG_SRC_ID_LIB_CFB, VERB_WARNING, __VA_ARGS__ )
+
+#define error( ... ) \
+	_dbg( cfbd->dbg, cfbd, DEBUG_SRC_ID_LIB_CFB, VERB_ERROR, __VA_ARGS__ )
 
 
 
@@ -44,13 +52,16 @@ void cfb_dump_node( CFB_Data *cfbd, cfbNode *node, int print_stream )
 
 	char * asciiName = cfb_utf16toa( node->_ab, node->_cb );
 
-	printf( "\n" );
+	int offset = 0;
+  struct dbg *dbg = cfbd->dbg;
 
-	printf( " _ab          : %s\n", asciiName );
+  offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n" );
 
-	printf( " _cb          : %u\n", node->_cb );
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " _ab          : %s\n", asciiName );
 
-	printf( " _mse         : %s\n",
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " _cb          : %u\n", node->_cb );
+
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " _mse         : %s\n",
 		node->_mse == 0 ? "STGTY_INVALID"   :
 		node->_mse == 1 ? "STGTY_STORAGE"   :
 		node->_mse == 2 ? "STGTY_STREAM"    :
@@ -58,42 +69,42 @@ void cfb_dump_node( CFB_Data *cfbd, cfbNode *node, int print_stream )
 		node->_mse == 4 ? "STGTY_PROPERTY"  :
 		node->_mse == 5 ? "STGTY_ROOT" : "" );
 
-	printf( " _bflags      : %s\n", node->_bflags == 1 ? "BLACK" : "RED" );
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " _bflags      : %s\n", node->_bflags == 1 ? "BLACK" : "RED" );
 
-	printf( " _sidLeftSib  : 0x%08x\n", node->_sidLeftSib );
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " _sidLeftSib  : 0x%08x\n", node->_sidLeftSib );
 
-	printf( " _sidRightSib : 0x%08x\n", node->_sidRightSib );
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " _sidRightSib : 0x%08x\n", node->_sidRightSib );
 
 	if ( node->_mse == STGTY_STORAGE || node->_mse == STGTY_ROOT )
 	{
-		printf( " _sidChild    : 0x%08x\n", node->_sidChild );
+		offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " _sidChild    : 0x%08x\n", node->_sidChild );
 
-		printf( " _clsid       : %ls\n", CLSIDToText( &(node->_clsId) ) );
+		offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " _clsid       : %ls\n", CLSIDToText( &(node->_clsId) ) );
 
-		printf( " _dwUserFlags : 0x%08x (%d)\n", node->_dwUserFlags, node->_dwUserFlags );
+		offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " _dwUserFlags : 0x%08x (%d)\n", node->_dwUserFlags, node->_dwUserFlags );
 	}
 
 	if ( node->_mse == STGTY_INVALID )
 	{
-		printf( " _time  (cre) : 0x%08x%08x\n",
+		offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " _time  (cre) : 0x%08x%08x\n",
 			node->_time[0].dwHighDateTime,
 			node->_time[0].dwLowDateTime );
 
-		printf( " _      (mod) : 0x%08x%08x\n",
+		offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " _      (mod) : 0x%08x%08x\n",
 			node->_time[1].dwHighDateTime,
 			node->_time[1].dwLowDateTime );
 	}
 
 	if ( node->_mse == STGTY_STREAM || node->_mse == STGTY_ROOT )
 	{
-		printf( " _sectStart   : 0x%08x (%d)\n", node->_sectStart, node->_sectStart );
+		offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " _sectStart   : 0x%08x (%d)\n", node->_sectStart, node->_sectStart );
 
-		printf( " _ulSizeLow   : 0x%08x (%d)\n", node->_ulSizeLow, node->_ulSizeLow );
+		offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " _ulSizeLow   : 0x%08x (%d)\n", node->_ulSizeLow, node->_ulSizeLow );
 
-		printf( " _ulSizeHigh  : 0x%08x (%d)\n", node->_ulSizeHigh, node->_ulSizeHigh );
+		offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " _ulSizeHigh  : 0x%08x (%d)\n", node->_ulSizeHigh, node->_ulSizeHigh );
 	}
 
-	printf( "\n\n" );
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n\n" );
 
 	if ( asciiName )
     {
@@ -113,18 +124,19 @@ void cfb_dump_node( CFB_Data *cfbd, cfbNode *node, int print_stream )
 
 void cfb_dump_nodePath( CFB_Data *cfbd, const wchar_t *path, int print_stream )
 {
-    cfbNode *node = cfb_getNodeByPath( cfbd, path, 0 );
+  cfbNode *node = cfb_getNodeByPath( cfbd, path, 0 );
 
-    if ( node == NULL )
-    {
-        fprintf( stderr, "cfb_dump_nodePath() : Could not find node at \"%ls\"\n", path );
-        return;
-    }
+  if ( node == NULL ) {
+    error( "cfb_dump_nodePath() : Could not find node at \"%ls\"\n", path );
+    return;
+  }
 
-    cfb_dump_node( cfbd, node, print_stream );
+	int offset = 0;
+	struct dbg *dbg = cfbd->dbg;
 
+  cfb_dump_node( cfbd, node, print_stream );
 
-    printf( "\n\n" );
+  offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n\n" );
 }
 
 
@@ -132,14 +144,14 @@ void cfb_dump_nodePath( CFB_Data *cfbd, const wchar_t *path, int print_stream )
 
 void cfb_dump_nodeStream( CFB_Data *cfbd, cfbNode *node )
 {
-    unsigned char *stream = NULL;
-    uint64_t       stream_sz = 0;
+  unsigned char *stream = NULL;
+  uint64_t       stream_sz = 0;
 
-    cfb_getStream( cfbd, node, &stream, &stream_sz );
+  cfb_getStream( cfbd, node, &stream, &stream_sz );
 
-    dump_hex( stream, stream_sz );
+  dump_hex( stream, stream_sz, &cfbd->dbg->_dbg_msg, &cfbd->dbg->_dbg_msg_size, 0 );
 
-    free( stream );
+  free( stream );
 }
 
 
@@ -147,22 +159,21 @@ void cfb_dump_nodeStream( CFB_Data *cfbd, cfbNode *node )
 
 void cfb_dump_nodePathStream( CFB_Data *cfbd, const wchar_t *path )
 {
-    cfbNode *node = cfb_getNodeByPath( cfbd, path, 0 );
+  cfbNode *node = cfb_getNodeByPath( cfbd, path, 0 );
 
-    if ( node == NULL )
-    {
-        fprintf( stderr, "cfb_dump_nodePathStream() : Could not find node at \"%ls\"\n", path );
-        return;
-    }
+  if ( node == NULL ) {
+    error( "cfb_dump_nodePathStream() : Could not find node at \"%ls\"\n", path );
+    return;
+  }
 
-    unsigned char *stream = NULL;
-    uint64_t       stream_sz = 0;
+  unsigned char *stream = NULL;
+  uint64_t       stream_sz = 0;
 
-    cfb_getStream( cfbd, node, &stream, &stream_sz );
+  cfb_getStream( cfbd, node, &stream, &stream_sz );
 
-    dump_hex( stream, stream_sz );
+  dump_hex( stream, stream_sz, &cfbd->dbg->_dbg_msg, &cfbd->dbg->_dbg_msg_size, 0 );
 
-    free( stream );
+  free( stream );
 }
 
 
@@ -230,17 +241,20 @@ void cfb_dump_nodePaths( CFB_Data *cfbd, uint32_t prevPath, char *strArray[], ui
 
 	if ( node == cfbd->nodes[0] )
 	{
+		int offset = 0;
+		struct dbg *dbg = cfbd->dbg;
+
 		/* commented out because output is proper this way... why did we call qsort() in the first place ?! */
 		// qsort( strArray, *str_i, sizeof(char*), compareStrings );
 
 		for ( uint32_t i = 0; i < cfbd->nodes_cnt && strArray[i] != NULL; i++ ) {
-			printf( "%05i : %s\n", i, strArray[i] );
+			offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%05i : %s\n", i, strArray[i] );
 			free( strArray[i] );
 		}
 
 		free( strArray );
 
-    printf( "\n\n" );
+    offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n\n" );
 	}
 
 }
@@ -252,40 +266,43 @@ void cfb_dump_header( CFB_Data *cfbd )
 {
 	cfbHeader *cfbh = cfbd->hdr;
 
-	printf( "_abSig              : 0x%08"PRIx64"\n", cfbh->_abSig );
+	int offset = 0;
+	struct dbg *dbg = cfbd->dbg;
 
-	printf( "_clsId              : %ls\n", CLSIDToText( &(cfbh->_clsid) ) );
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "_abSig              : 0x%08"PRIx64"\n", cfbh->_abSig );
 
-	printf( " version            : %u.%u ( 0x%04x 0x%04x )\n",
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "_clsId              : %ls\n", CLSIDToText( &(cfbh->_clsid) ) );
+
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " version            : %u.%u ( 0x%04x 0x%04x )\n",
 		cfbh->_uMinorVersion, cfbh->_uDllVersion,
 		cfbh->_uMinorVersion, cfbh->_uDllVersion );
 
-	printf( "_uByteOrder         : %s ( 0x%04x )\n",
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "_uByteOrder         : %s ( 0x%04x )\n",
 		cfbh->_uByteOrder == 0xFFFE ? "little-endian" :
 		cfbh->_uByteOrder == 0xFEFF ? "big-endian" : "?",
 		cfbh->_uByteOrder );
 
-	printf( "_uSectorShift       : %u (%u bytes sectors)\n",
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "_uSectorShift       : %u (%u bytes sectors)\n",
 		cfbh->_uSectorShift,
 		1<<cfbh->_uSectorShift );
 
-	printf( "_uMiniSectorShift   : %u (%u bytes mini-sectors)\n",
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "_uMiniSectorShift   : %u (%u bytes mini-sectors)\n",
 		cfbh->_uMiniSectorShift,
 		1<<cfbh->_uMiniSectorShift );
 
-	printf( "_usReserved0        : 0x%02x\n", cfbh->_usReserved );
-	printf( "_ulReserved1        : 0x%04x\n", cfbh->_ulReserved1 );
-	printf( "_csectDir           : %u\n", cfbh->_csectDir );
-	printf( "_csectFat           : %u\n", cfbh->_csectFat );
-	printf( "_sectDirStart       : %u\n", cfbh->_sectDirStart );
-	printf( "_signature          : %u\n", cfbh->_signature );
-	printf( "_ulMiniSectorCutoff : %u\n", cfbh->_ulMiniSectorCutoff );
-	printf( "_sectMiniFatStart   : %u\n", cfbh->_sectMiniFatStart );
-	printf( "_csectMiniFat       : %u\n", cfbh->_csectMiniFat );
-	printf( "_sectDifStart       : %u\n", cfbh->_sectDifStart );
-	printf( "_csectDif           : %u\n", cfbh->_csectDif );
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "_usReserved0        : 0x%02x\n", cfbh->_usReserved );
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "_ulReserved1        : 0x%04x\n", cfbh->_ulReserved1 );
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "_csectDir           : %u\n", cfbh->_csectDir );
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "_csectFat           : %u\n", cfbh->_csectFat );
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "_sectDirStart       : %u\n", cfbh->_sectDirStart );
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "_signature          : %u\n", cfbh->_signature );
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "_ulMiniSectorCutoff : %u\n", cfbh->_ulMiniSectorCutoff );
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "_sectMiniFatStart   : %u\n", cfbh->_sectMiniFatStart );
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "_csectMiniFat       : %u\n", cfbh->_csectMiniFat );
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "_sectDifStart       : %u\n", cfbh->_sectDifStart );
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "_csectDif           : %u\n", cfbh->_csectDif );
 
-	printf( "\n" );
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n" );
 }
 
 
@@ -293,30 +310,33 @@ void cfb_dump_header( CFB_Data *cfbd )
 
 void cfb_dump_FAT( CFB_Data *cfbd )
 {
-    printf( "_CFB_FAT_______________________________________________________________________________________\n\n" );
+	int offset = 0;
+	struct dbg *dbg = cfbd->dbg;
 
-    uint32_t i = 0;
+  offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "_CFB_FAT_______________________________________________________________________________________\n\n" );
 
-    for ( i = 0; i < cfbd->fat_sz; i++ )
-        printf( " SECT[%u] : 0x%08x %s\n",
-            i,
-            cfbd->fat[i],
-            ( cfbd->fat[i] == CFB_MAX_REG_SECT ) ? "(CFB_MAX_REG_SECT)" :
-            ( cfbd->fat[i] == CFB_DIFAT_SECT   ) ? "(CFB_DIFAT_SECT)"   :
-            ( cfbd->fat[i] == CFB_FAT_SECT     ) ? "(CFB_FAT_SECT)"     :
-            ( cfbd->fat[i] == CFB_END_OF_CHAIN ) ? "(CFB_END_OF_CHAIN)" :
-            ( cfbd->fat[i] == CFB_FREE_SECT    ) ? "(CFB_FREE_SECT)"    :
-            ""
-        );
+  uint32_t i = 0;
 
-    printf( "\n" );
+  for ( i = 0; i < cfbd->fat_sz; i++ )
+      offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " SECT[%u] : 0x%08x %s\n",
+          i,
+          cfbd->fat[i],
+          ( cfbd->fat[i] == CFB_MAX_REG_SECT ) ? "(CFB_MAX_REG_SECT)" :
+          ( cfbd->fat[i] == CFB_DIFAT_SECT   ) ? "(CFB_DIFAT_SECT)"   :
+          ( cfbd->fat[i] == CFB_FAT_SECT     ) ? "(CFB_FAT_SECT)"     :
+          ( cfbd->fat[i] == CFB_END_OF_CHAIN ) ? "(CFB_END_OF_CHAIN)" :
+          ( cfbd->fat[i] == CFB_FREE_SECT    ) ? "(CFB_FREE_SECT)"    :
+          ""
+      );
 
-    printf( " End of FAT.\n\n" );
+  offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n" );
 
-    printf( " Total FAT entries   : %u\n", cfbd->fat_sz );
-    printf( " Count of FAT sector : %u\n", cfbd->hdr->_csectFat );
+  offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " End of FAT.\n\n" );
 
-    printf( "\n\n" );
+  offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " Total FAT entries   : %u\n", cfbd->fat_sz );
+  offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " Count of FAT sector : %u\n", cfbd->hdr->_csectFat );
+
+  offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n\n" );
 }
 
 
@@ -324,31 +344,34 @@ void cfb_dump_FAT( CFB_Data *cfbd )
 
 void cfb_dump_MiniFAT( CFB_Data *cfbd )
 {
-    printf( "_CFB_MiniFAT___________________________________________________________________________________\n\n" );
+	int offset = 0;
+	struct dbg *dbg = cfbd->dbg;
 
-    uint32_t i = 0;
+  offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "_CFB_MiniFAT___________________________________________________________________________________\n\n" );
 
-    for ( i = 0; i < cfbd->miniFat_sz; i++ )
-        printf( " SECT[%u] : 0x%08x %s\n",
-            i,
-            cfbd->miniFat[i],
-            ( cfbd->miniFat[i] == CFB_MAX_REG_SECT ) ? "(CFB_MAX_REG_SECT)" :
-            ( cfbd->miniFat[i] == CFB_DIFAT_SECT   ) ? "(CFB_DIFAT_SECT)"   :
-            ( cfbd->miniFat[i] == CFB_FAT_SECT     ) ? "(CFB_FAT_SECT)"     :
-            ( cfbd->miniFat[i] == CFB_END_OF_CHAIN ) ? "(CFB_END_OF_CHAIN)" :
-            ( cfbd->miniFat[i] == CFB_FREE_SECT    ) ? "(CFB_FREE_SECT)"    :
-            ""
-        );
+  uint32_t i = 0;
 
-    printf( "\n" );
+  for ( i = 0; i < cfbd->miniFat_sz; i++ )
+      offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " SECT[%u] : 0x%08x %s\n",
+          i,
+          cfbd->miniFat[i],
+          ( cfbd->miniFat[i] == CFB_MAX_REG_SECT ) ? "(CFB_MAX_REG_SECT)" :
+          ( cfbd->miniFat[i] == CFB_DIFAT_SECT   ) ? "(CFB_DIFAT_SECT)"   :
+          ( cfbd->miniFat[i] == CFB_FAT_SECT     ) ? "(CFB_FAT_SECT)"     :
+          ( cfbd->miniFat[i] == CFB_END_OF_CHAIN ) ? "(CFB_END_OF_CHAIN)" :
+          ( cfbd->miniFat[i] == CFB_FREE_SECT    ) ? "(CFB_FREE_SECT)"    :
+          ""
+      );
 
-    printf( " End of MiniFAT.\n\n" );
+  offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n" );
 
-    printf( " Total MiniFAT entries   : %u\n", cfbd->miniFat_sz );
-    printf( " First MiniFAT sector ID : %u\n", cfbd->hdr->_sectMiniFatStart );
-    printf( " Count of MiniFAT sector : %u\n", cfbd->hdr->_csectMiniFat );
+  offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " End of MiniFAT.\n\n" );
 
-    printf( "\n\n" );
+  offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " Total MiniFAT entries   : %u\n", cfbd->miniFat_sz );
+  offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " First MiniFAT sector ID : %u\n", cfbd->hdr->_sectMiniFatStart );
+  offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " Count of MiniFAT sector : %u\n", cfbd->hdr->_csectMiniFat );
+
+  offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n\n" );
 }
 
 
@@ -356,29 +379,32 @@ void cfb_dump_MiniFAT( CFB_Data *cfbd )
 
 void cfb_dump_DiFAT( CFB_Data *cfbd )
 {
-    printf( "_CFB_DiFAT_____________________________________________________________________________________\n\n" );
+	int offset = 0;
+	struct dbg *dbg = cfbd->dbg;
 
-    uint32_t i = 0;
+  offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "_CFB_DiFAT_____________________________________________________________________________________\n\n" );
 
-    for ( i = 0; i < cfbd->DiFAT_sz; i++ )
-        printf( " SECT[%u] : 0x%08x %s\n",
-            i,
-            cfbd->DiFAT[i],
-            ( cfbd->DiFAT[i] == CFB_MAX_REG_SECT ) ? "(CFB_MAX_REG_SECT)" :
-            ( cfbd->DiFAT[i] == CFB_DIFAT_SECT   ) ? "(CFB_DIFAT_SECT)"   :
-            ( cfbd->DiFAT[i] == CFB_FAT_SECT     ) ? "(CFB_FAT_SECT)"     :
-            ( cfbd->DiFAT[i] == CFB_END_OF_CHAIN ) ? "(CFB_END_OF_CHAIN)" :
-            ( cfbd->DiFAT[i] == CFB_FREE_SECT    ) ? "(CFB_FREE_SECT)"    :
-            ""
-        );
+  uint32_t i = 0;
 
-    printf( "\n" );
+  for ( i = 0; i < cfbd->DiFAT_sz; i++ )
+      offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " SECT[%u] : 0x%08x %s\n",
+          i,
+          cfbd->DiFAT[i],
+          ( cfbd->DiFAT[i] == CFB_MAX_REG_SECT ) ? "(CFB_MAX_REG_SECT)" :
+          ( cfbd->DiFAT[i] == CFB_DIFAT_SECT   ) ? "(CFB_DIFAT_SECT)"   :
+          ( cfbd->DiFAT[i] == CFB_FAT_SECT     ) ? "(CFB_FAT_SECT)"     :
+          ( cfbd->DiFAT[i] == CFB_END_OF_CHAIN ) ? "(CFB_END_OF_CHAIN)" :
+          ( cfbd->DiFAT[i] == CFB_FREE_SECT    ) ? "(CFB_FREE_SECT)"    :
+          ""
+      );
 
-    printf( " End of DiFAT.\n\n" );
+  offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n" );
 
-    printf( " Total DiFAT entries   : %u\n", cfbd->DiFAT_sz );
-    printf( " First DiFAT sector ID : %u\n", cfbd->hdr->_sectDifStart );
-    printf( " Count of DiFAT sector : Header + %u\n", cfbd->hdr->_csectDif );
+  offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " End of DiFAT.\n\n" );
 
-    printf( "\n\n" );
+  offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " Total DiFAT entries   : %u\n", cfbd->DiFAT_sz );
+  offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " First DiFAT sector ID : %u\n", cfbd->hdr->_sectDifStart );
+  offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " Count of DiFAT sector : Header + %u\n", cfbd->hdr->_csectDif );
+
+  offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n\n" );
 }

@@ -142,7 +142,7 @@ int resolve_parse_aafObject_Selector( struct AAF_Iface *aafi, aafObject *Selecto
 		}
 
 
-		// printf( "Tagged | Name: %ls    Value : %u\n", name, *value );
+		// debug( "Tagged | Name: %ls    Value : %u", name, *value );
 
     if ( aafi->ctx.options.resolve & RESOLVE_INCLUDE_DISABLED_CLIPS ) {
       if ( wcsncmp( name, L"_DISABLE_CLIP_FLAG", wcslen( L"_DISABLE_CLIP_FLAG" ) ) == 0  &&  *(uint32_t*)value == 1 ) {
@@ -224,9 +224,9 @@ int resolve_parse_aafObject_DescriptiveMarker( struct AAF_Iface *aafi, aafObject
     // RVBColor[1] = (RVBColor[1]>>8 != 0) ? (RVBColor[1]>>8) : RVBColor[1];
     // RVBColor[2] = (RVBColor[2]>>8 != 0) ? (RVBColor[2]>>8) : RVBColor[2];
 
-    // printf("%02x\n", RVBColor[0] );
-    // printf("%02x\n", RVBColor[1] );
-    // printf("%02x\n", RVBColor[2] );
+    // debug("%02x", RVBColor[0] );
+    // debug("%02x", RVBColor[1] );
+    // debug("%02x", RVBColor[2] );
 
     // DUMP_OBJ_NO_SUPPORT( aafi, DescriptiveMarker, &__td );
   }

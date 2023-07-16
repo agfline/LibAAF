@@ -28,6 +28,70 @@
 #include "utils.h"
 
 
+
+
+int snprintf_realloc( char **str, int *size, size_t offset, const char *format, ... )
+{
+  int tmpsize = 0;
+  if ( !size ) {
+    size = &tmpsize;
+  }
+
+  int retval, needed;
+  va_list ap;
+  va_start(ap, format);
+  while ( 0 <= (retval = vsnprintf((*str)+offset, (*size)-offset, format, ap)) // Error?
+         && (int64_t)((*size)-offset) <  (needed = retval + 1)) // Space?
+  {
+    va_end(ap);
+    *size *= 2;                                                  // Space?
+    if ((int64_t)((*size)-offset) < needed) *size = needed + offset;                          // Space!
+    char *p = realloc(*str, *size);                              // Alloc
+    if (p) {
+      *str = p;
+    } else {
+      free(*str);
+      *str  = NULL;
+      *size = 0;
+      return -1;
+    }
+    va_start(ap, format);
+  }
+  va_end(ap);
+  return retval;
+}
+
+
+int vsnprintf_realloc( char **str, int *size, int offset, const char *fmt, va_list *args )
+{
+  va_list args2, args3;
+  va_copy( args2, *args );
+  va_copy( args3, *args );
+
+  int needed = vsnprintf( NULL, 0, fmt, args2 ) + 1;
+  if ( needed >= (*size) - offset ) {
+    char *p = realloc( *str, offset+needed );
+    if (p) {
+      *str = p;
+      *size = offset+needed;
+    } else {
+      /* TODO: realloc() faillure */
+      // free(*str);
+      // *str  = NULL;
+      // *size = 0;
+      // return -1;
+    }
+  }
+  va_end( args2 );
+
+  int written = vsnprintf( (*str)+offset, (*size)-offset, fmt, args3 );
+  va_end( args3 );
+
+  return written;
+}
+
+
+
 char * c99strdup( const char *src )
 {
   if ( !src ) {
@@ -229,15 +293,15 @@ wchar_t * eascii_to_ascii( wchar_t *str )
 
 
 
-void dump_hex( const unsigned char * stream, size_t stream_sz )
+int dump_hex( const unsigned char *stream, size_t stream_sz, char **buf, int *bufsz, int offset )
 {
 	if ( stream == NULL )
 	{
-		fprintf( stderr, "dump_hex() : Stream pointer is NULL.\n\n" );
-		return;
+		// fprintf( stderr, "dump_hex() : Stream pointer is NULL.\n\n" );
+		return -1;
 	}
 
-
+  int initialOffset = offset;
 	uint32_t i = 0;
 
 	char hex[49];
@@ -245,7 +309,7 @@ void dump_hex( const unsigned char * stream, size_t stream_sz )
 
 	uint32_t count   = 0;
 
-	printf( " ______________________________ Hex Dump ______________________________\n\n" );
+	offset += snprintf_realloc( buf, bufsz, offset, " ______________________________ Hex Dump ______________________________\n\n" );
 
 	while ( count < stream_sz )
 	{
@@ -306,12 +370,13 @@ void dump_hex( const unsigned char * stream, size_t stream_sz )
 
 		count += lineLen;
 
-		printf( " %s  |  %s\n", hex, ascii );
+		offset += snprintf_realloc( buf, bufsz, offset, " %s  |  %s\n", hex, ascii );
 
 	}
 
-	printf( " ______________________________________________________________________\n\n" );
+	offset += snprintf_realloc( buf, bufsz, offset, " ______________________________________________________________________\n\n" );
 
+  return offset - initialOffset; // bytes written
 }
 
 

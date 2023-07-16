@@ -43,12 +43,22 @@
 #include <libaaf/debug.h>
 
 
+#define debug( ... ) \
+	_dbg( aafd->dbg, aafd, DEBUG_SRC_ID_AAF_CORE, VERB_DEBUG, __VA_ARGS__ )
+
+#define warning( ... ) \
+	_dbg( aafd->dbg, aafd, DEBUG_SRC_ID_AAF_CORE, VERB_WARNING, __VA_ARGS__ )
+
+#define error( ... ) \
+	_dbg( aafd->dbg, aafd, DEBUG_SRC_ID_AAF_CORE, VERB_ERROR, __VA_ARGS__ )
+
+
 
 #define attachNewProperty( aafd, Class, Prop, Pid, IsReq ) \
 	Prop = calloc( sizeof(aafPropertyDef), sizeof(unsigned char) );         \
 	if ( Prop == NULL )                              \
 	{                                                \
-		_error( aafd->verb, "%s.\n", strerror( errno ) );        \
+		error( "%s.", strerror( errno ) );        \
 		return -1;                                   \
 	}                                                \
 	Prop->pid         = Pid;                         \
@@ -97,7 +107,7 @@ aafClass * defineNewClass( AAF_Data *aafd, const aafUID_t *id, uint8_t isConcret
 
 	if ( Class == NULL )
 	{
-		_error( aafd->verb, "%s.\n", strerror( errno ) );
+		error( "%s.", strerror( errno ) );
 		return NULL;
 	}
 
@@ -155,40 +165,6 @@ aafPropertyDef * getPropertyDefinitionByID( aafClass *Classes, aafPID_t PID )
 	return NULL;
 }
 
-
-/*
-void printClasses( aafClass *Class, int depth )
-{
-
-	aafPropertyDef *p = NULL;
-
-
-	for ( ; Class != NULL; Class = Class->next )
-	{
-		if ( Class->isConcrete == ABSTRACT )
-			continue;
-
-		printf( "%*c::%s\n", depth, ' ', ClassIDToText( Class->id ) );
-
-
-		p = Class->properties;
-
-		while ( p != NULL )
-		{
-			printf( "%*c   +%s\n", depth, ' ', PIDToText( p->pid ) );
-
-			p = p->next;
-		}
-
-		if ( Class->parent != NULL )
-			printClasses( Class->parent, depth+6 );
-
-		printf( "\n" );
-
-	}
-
-}
-*/
 
 
 /**

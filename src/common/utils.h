@@ -21,6 +21,9 @@
 #ifndef __utils_h__
 #define __utils_h__
 
+#include <stdarg.h>
+
+
 #define ANSI_COLOR_RED      "\033[38;5;124m" //"\x1b[31m"
 #define ANSI_COLOR_GREEN    "\x1b[92m"
 #define ANSI_COLOR_YELLOW   "\x1b[33m" //"\x1b[93m"
@@ -32,6 +35,9 @@
 #define ANSI_COLOR_BOLD     "\x1b[1m"
 #define ANSI_COLOR_RESET    "\x1b[0m"
 
+
+int snprintf_realloc( char **str, int *size, size_t offset, const char *format, ... );
+int vsnprintf_realloc( char **str, int *size, int offset, const char *fmt, va_list *args );
 
 char * c99strdup( const char *src );
 
@@ -45,7 +51,7 @@ char *remove_file_ext (char* myStr, char extSep, char pathSep);
 
 wchar_t * w16tow32( wchar_t *w32buf, uint16_t *w16buf, size_t w16len );
 
-void dump_hex( const unsigned char * stream, size_t stream_sz );
+int dump_hex( const unsigned char *stream, size_t stream_sz, char **buf, int *bufsz, int offset );
 
 char * url_decode( char *dst, char *src );
 

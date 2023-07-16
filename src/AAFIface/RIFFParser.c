@@ -27,6 +27,16 @@
 #include "RIFFParser.h"
 
 
+#define debug( ... ) \
+	_dbg( dbg, NULL, DEBUG_SRC_ID_AAF_IFACE, VERB_DEBUG, __VA_ARGS__ )
+
+#define warning( ... ) \
+	_dbg( dbg, NULL, DEBUG_SRC_ID_AAF_IFACE, VERB_WARNING, __VA_ARGS__ )
+
+#define error( ... ) \
+	_dbg( dbg, NULL, DEBUG_SRC_ID_AAF_IFACE, VERB_ERROR, __VA_ARGS__ )
+
+
 #define BE2LE32( val ) \
   (((val>>24)&0xff) | ((val<<8)&0xff0000) | ((val>>8)&0xff00) | ((val<<24)&0xff000000))
 
@@ -37,8 +47,9 @@ static uint32_t beExtended2leUint32( const unsigned char numx[10] );
 
 
 
-int riff_writeWavFileHeader( FILE *fp, struct wavFmtChunk *wavFmt, struct wavBextChunk *wavBext, uint32_t audioDataSize ) {
+int riff_writeWavFileHeader( FILE *fp, struct wavFmtChunk *wavFmt, struct wavBextChunk *wavBext, uint32_t audioDataSize, struct dbg *dbg ) {
 
+  (void)dbg;
   uint32_t filesize = (4 /* WAVE */) + sizeof(struct wavFmtChunk) + ((wavBext) ? sizeof(struct wavBextChunk) : 0) + (8 /*data chunk header*/) + audioDataSize;
 
   size_t writtenBytes = fwrite( "RIFF", sizeof(unsigned char), 4, fp );
@@ -106,7 +117,7 @@ int riff_writeWavFileHeader( FILE *fp, struct wavFmtChunk *wavFmt, struct wavBex
 
 
 
-int riff_parseAudioFile( struct RIFFAudioFile *RIFFAudioFile, size_t (*readerCallback)(unsigned char *, size_t, size_t, void*, void*), void *user1, void *user2 ) {
+int riff_parseAudioFile( struct RIFFAudioFile *RIFFAudioFile, size_t (*readerCallback)(unsigned char *, size_t, size_t, void*, void*, void*), void *user1, void *user2, void *user3, struct dbg *dbg ) {
 
   struct riffChunk chunk;
   struct riffHeaderChunk riff;
@@ -114,10 +125,10 @@ int riff_parseAudioFile( struct RIFFAudioFile *RIFFAudioFile, size_t (*readerCal
   memset( RIFFAudioFile, 0x00, sizeof(struct RIFFAudioFile) );
 
 
-  size_t bytesRead = readerCallback( (unsigned char*)&riff, 0, sizeof(riff), user1, user2 );
+  size_t bytesRead = readerCallback( (unsigned char*)&riff, 0, sizeof(riff), user1, user2, user3 );
 
   if ( bytesRead < sizeof(riff) ) {
-    printf( "Could not read file\n" );
+    error( "Could not read file" );
     return -1;
   }
 
@@ -149,13 +160,13 @@ int riff_parseAudioFile( struct RIFFAudioFile *RIFFAudioFile, size_t (*readerCal
     be = 0;
   }
   else {
-    printf( "File is not a valid RIFF/WAVE or RIFF/AIFF : Missing format identifier\n" );
+    error( "File is not a valid RIFF/WAVE or RIFF/AIFF : Missing format identifier" );
     return -1;
   }
 
 
 
-  // printf("%.4s %.4s (%u bytes)\n", riff.ckid, riff.format, riff.cksz );
+  debug( "%.4s %.4s (%u bytes)", riff.ckid, riff.format, riff.cksz );
 
 
 
@@ -164,10 +175,10 @@ int riff_parseAudioFile( struct RIFFAudioFile *RIFFAudioFile, size_t (*readerCal
 
   while ( pos < filesize ) {
 
-    bytesRead = readerCallback( (unsigned char*)&chunk, pos, sizeof(chunk), user1, user2 );
+    bytesRead = readerCallback( (unsigned char*)&chunk, pos, sizeof(chunk), user1, user2, user3 );
 
     if ( bytesRead < sizeof(chunk) ) {
-      // printf("Could not read chunk @ %"PRIu64" (%"PRIu64" bytes returned)\n", pos, bytesRead );
+      error( "Could not read chunk @ %"PRIu64" (%"PRIu64" bytes returned)", pos, bytesRead );
       break;
     }
 
@@ -175,7 +186,7 @@ int riff_parseAudioFile( struct RIFFAudioFile *RIFFAudioFile, size_t (*readerCal
       chunk.cksz = BE2LE32(chunk.cksz);
     }
 
-    // printf(" * Got chunk : %.4s (%u bytes)\n", chunk.ckid, chunk.cksz );
+    debug( "Got chunk : %.4s (%u bytes)", chunk.ckid, chunk.cksz );
 
     if ( !be ) { /* WAVE */
 
@@ -186,7 +197,7 @@ int riff_parseAudioFile( struct RIFFAudioFile *RIFFAudioFile, size_t (*readerCal
       {
         struct wavFmtChunk wavFmtChunk;
 
-        bytesRead = readerCallback( (unsigned char*)&wavFmtChunk, pos, sizeof(wavFmtChunk), user1, user2 );
+        bytesRead = readerCallback( (unsigned char*)&wavFmtChunk, pos, sizeof(wavFmtChunk), user1, user2, user3 );
 
         RIFFAudioFile->channels   = wavFmtChunk.channels;
         RIFFAudioFile->sampleSize = wavFmtChunk.bits_per_sample;
@@ -212,7 +223,7 @@ int riff_parseAudioFile( struct RIFFAudioFile *RIFFAudioFile, size_t (*readerCal
       {
         struct aiffCOMMChunk aiffCOMMChunk;
 
-        bytesRead = readerCallback( (unsigned char*)&aiffCOMMChunk, pos, sizeof(aiffCOMMChunk), user1, user2 );
+        bytesRead = readerCallback( (unsigned char*)&aiffCOMMChunk, pos, sizeof(aiffCOMMChunk), user1, user2, user3 );
 
         RIFFAudioFile->channels   = BE2LE16(aiffCOMMChunk.numChannels);
         RIFFAudioFile->sampleSize = BE2LE16(aiffCOMMChunk.sampleSize);

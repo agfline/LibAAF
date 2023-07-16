@@ -120,6 +120,7 @@ set( LIBAAF_LIB_SOURCES
   ${LIB_SRC_PATH}/AAFIface/Resolve.c
 
   ${LIB_SRC_PATH}/common/utils.c
+  ${LIB_SRC_PATH}/debug.c
 )
 
 
