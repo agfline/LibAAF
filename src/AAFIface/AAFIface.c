@@ -44,6 +44,7 @@
 #include <string.h>
 #include <errno.h>
 
+#include "../common/utils.h"
 #include <libaaf/debug.h>
 #include <libaaf/AAFIface.h>
 #include <libaaf/AAFIParser.h>
@@ -160,6 +161,19 @@ void aafi_set_debug( AAF_Iface *aafi, verbosityLevel_e v ) {
 	// aafi->aafd->cfbd->verb = v;
 	aafi->dbg->verb = v;
 }
+
+
+int aafi_set_media_location( AAF_Iface *aafi, const char *path ) {
+
+	if ( aafi->ctx.options.media_location ) {
+		free( aafi->ctx.options.media_location );
+	}
+
+	aafi->ctx.options.media_location = (path) ? c99strdup( path ) : NULL;
+
+	return 0;
+}
+
 
 
 

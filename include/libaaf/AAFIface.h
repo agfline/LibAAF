@@ -979,6 +979,8 @@ void aafi_set_debug( AAF_Iface *aafi, verbosityLevel_e v );
 
 AAF_Iface * aafi_alloc( AAF_Data *aafd );
 
+int aafi_set_media_location( AAF_Iface *aafi, const char *path );
+
 void aafi_release( AAF_Iface **aafi );
 
 int aafi_load_file( AAF_Iface *aafi, const char * file );

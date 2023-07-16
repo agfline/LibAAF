@@ -22,6 +22,7 @@
 #define __utils_h__
 
 #include <stdarg.h>
+#include <stdint.h>
 
 
 #define ANSI_COLOR_RED      "\033[38;5;124m" //"\x1b[31m"
