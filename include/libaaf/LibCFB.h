@@ -801,8 +801,7 @@ typedef struct CFB_Data
 	cfbNode      **nodes;
 
 
-
-	verbosityLevel_e verb;
+  struct dbg *dbg;
 
 } CFB_Data;
 
@@ -924,7 +923,7 @@ const wchar_t * CLSIDToText( cfbCLSID_t *clsid );
  *	@{
  */
 
-CFB_Data * cfb_alloc( void );
+CFB_Data * cfb_alloc( struct dbg *dbg );
 
 /**
  *	@}

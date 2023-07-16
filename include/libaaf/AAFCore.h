@@ -615,7 +615,7 @@ typedef struct _aafData
 	aafObject  *TaggedValueDefinition;
 
 
-	verbosityLevel_e verb;
+	struct dbg *dbg;
 
 } AAF_Data;
 
@@ -705,7 +705,7 @@ typedef struct _aafData
  *	@return  A pointer to the newly allocated structure.
  */
 
-AAF_Data * aaf_alloc( void );
+AAF_Data * aaf_alloc( struct dbg *dbg );
 
 
 /**

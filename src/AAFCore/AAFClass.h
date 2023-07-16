@@ -70,7 +70,7 @@
 	Prop = malloc( sizeof(aafPropertyDef) );         \
 	if ( Prop == NULL )                              \
 	{                                                \
-		_error( "%s.\n", strerror( errno ) );        \
+		error( "%s.", strerror( errno ) );        \
 		return -1;                                   \
 	}                                                \
 	Prop->pid         = Pid;                         \

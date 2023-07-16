@@ -881,6 +881,9 @@ typedef struct AAF_Iface
 
 	aafiUserComment  *Comments;
 
+
+	struct dbg *dbg;
+
 } AAF_Iface;
 
 
@@ -972,6 +975,7 @@ typedef struct AAF_Iface
 
 
 
+void aafi_set_debug( AAF_Iface *aafi, verbosityLevel_e v );
 
 AAF_Iface * aafi_alloc( AAF_Data *aafd );
 

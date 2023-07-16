@@ -39,7 +39,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <stdarg.h>
 #include <wchar.h>
 #include <locale.h>
 
@@ -85,8 +84,17 @@
 	#define WPRIws L"ls" // wchar_t*
 #endif
 
+#define debug( ... ) \
+	_dbg( aafi->dbg, aafi, DEBUG_SRC_ID_AAF_IFACE, VERB_DEBUG, __VA_ARGS__ )
 
+#define warning( ... ) \
+	_dbg( aafi->dbg, aafi, DEBUG_SRC_ID_AAF_IFACE, VERB_WARNING, __VA_ARGS__ )
 
+#define error( ... ) \
+	_dbg( aafi->dbg, aafi, DEBUG_SRC_ID_AAF_IFACE, VERB_ERROR, __VA_ARGS__ )
+
+  // #define trace( ... )
+  // 	_dbg( aafi->dbg, aafi, LIB_AAF_IFACE_TRACE, 0, __VA_ARGS__ )
 
 
 
@@ -223,13 +231,13 @@ static void xplore_StrongObjectReferenceVector( AAF_Iface *aafi, aafObject *ObjC
 
 	// aaf_dump_ObjectProperties( aafi->aafd, ComponentAttributeList );
 
-
+  struct dbg *dbg = aafi->dbg;
 	aafObject *Obj = NULL;
 
 	aaf_foreach_ObjectInSet( &Obj, ObjCollection, NULL )
 	{
 		// aaf_dump_ObjectProperties( aafi->aafd, ObjCollection );
-
+    int offset = 0;
 		/* TODO implement retrieve_TaggedValue() */
 
 		if ( aaf_get_property( Obj, PID_TaggedValue_Name ) &&
@@ -240,17 +248,19 @@ static void xplore_StrongObjectReferenceVector( AAF_Iface *aafi, aafObject *ObjC
 			aafUID_t *type = aaf_get_propertyIndirectValueType( Obj, PID_TaggedValue_Value );
 
 			if ( aafUIDCmp( type, &AAFTypeID_Int32 ) ) {
-				printf( "Tagged     |     Name: %ls%*s      Value (%ls)  : %i\n", name, 56-(int)wcslen(name), " ", TypeIDToText(type), *(int32_t*)value );
+				offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "Tagged     |     Name: %ls%*s      Value (%ls)  : %i\n", name, 56-(int)wcslen(name), " ", TypeIDToText(type), *(int32_t*)value );
 			}
 			else
 			if ( aafUIDCmp( type, &AAFTypeID_String ) ) {
 				value = aaf_get_propertyIndirectValueWstr( Obj, PID_TaggedValue_Value );
-				printf( "Tagged     |     Name: %ls%*s      Value (%ls) : %ls\n", name, 56-(int)wcslen(name), " ", TypeIDToText(type), (wchar_t*)value );
+				offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "Tagged     |     Name: %ls%*s      Value (%ls) : %ls\n", name, 56-(int)wcslen(name), " ", TypeIDToText(type), (wchar_t*)value );
 				free( value );
 			}
 			else {
-				printf( "Tagged     |     Name: %ls%*s      Value (%s%ls%s) : %sUNKNOWN_TYPE%s\n", name, 56-(int)wcslen(name), " ", ANSI_COLOR_RED, TypeIDToText(type), ANSI_COLOR_RESET, ANSI_COLOR_RED, ANSI_COLOR_RESET );
+				offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "Tagged     |     Name: %ls%*s      Value (%s%ls%s) : %sUNKNOWN_TYPE%s\n", name, 56-(int)wcslen(name), " ", ANSI_COLOR_RED, TypeIDToText(type), ANSI_COLOR_RESET, ANSI_COLOR_RED, ANSI_COLOR_RESET );
 			}
+
+      dbg->debug_callback( (void*)aafi, DEBUG_SRC_ID_DUMP, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
 
 			free( name );
 		}
@@ -268,23 +278,25 @@ void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int st
 		return;
 
 	/* Print caller line number */
+  struct dbg *dbg = aafi->dbg;
+  int offset = 0;
 
 	if ( Obj )
 	{
 		switch ( state ) {
-			case TD_ERROR:		      printf( "%s", ANSI_COLOR_RED      );  break;
-			case TD_WARNING:	      printf( "%s", ANSI_COLOR_YELLOW   );  break;
-			case TD_NOT_SUPPORTED: printf( "%s", ANSI_COLOR_ORANGE    );  break;
-			default:            printf( "%s", ANSI_COLOR_DARKGREY );  break;
+			case TD_ERROR:		      offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_RED      );  break;
+			case TD_WARNING:	      offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_YELLOW   );  break;
+			case TD_NOT_SUPPORTED:  offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_ORANGE   );  break;
+			default:                offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_DARKGREY );  break;
 		}
-		printf( "%05i", line );
+		offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%05i", line );
 	}
 	else
 	{
-		printf("     ");
+		offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "     " );
 	}
 
-	printf( "%s%ls%s", ANSI_COLOR_DARKGREY, L"\u2502", ANSI_COLOR_RESET ); // │
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s%ls%s", ANSI_COLOR_DARKGREY, L"\u2502", ANSI_COLOR_RESET ); // │
 
 	/* Print padding and vertical lines */
 
@@ -299,21 +311,21 @@ void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int st
 				if ( i+1 == __td->lv )
 				{
 					if ( Obj ) {
-						printf( "%ls", L"\u251c\u2500\u2500\u25fb " ); // ├──◻
+						offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%ls", L"\u251c\u2500\u2500\u25fb " ); // ├──◻
 					}
 					else {
-						printf( "%ls", L"\u2502    " ); // │
+						offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%ls", L"\u2502    " ); // │
 					}
 				}
 				else {
-					printf( "%ls", L"\u2502    " ); // │
+					offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%ls", L"\u2502    " ); // │
 				}
 			}
 			else if ( i+1 == __td->lv && Obj ) {
-				printf( "%ls", L"\u2514\u2500\u2500\u25fb " ); // └──◻
+				offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%ls", L"\u2514\u2500\u2500\u25fb " ); // └──◻
 			}
 			else {
-				printf("     ");
+				offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "     " );
 			}
 		}
 	}
@@ -323,23 +335,23 @@ void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int st
 	{
 
 		switch ( state ) {
-			case TD_ERROR:		      printf( "%s", ANSI_COLOR_RED      );  break;
-			case TD_WARNING:	      printf( "%s", ANSI_COLOR_YELLOW   );  break;
-			case TD_NOT_SUPPORTED: printf( "%s", ANSI_COLOR_ORANGE    );  break;
+			case TD_ERROR:		      offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_RED      );  break;
+			case TD_WARNING:	      offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_YELLOW   );  break;
+			case TD_NOT_SUPPORTED:  offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_ORANGE   );  break;
 			case TD_INFO:
 			case TD_OK:
 				if ( __td->sub )
-					printf( "%s", ANSI_COLOR_DARKGREY );
+					offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_DARKGREY );
 				else
-					printf( "%s", ANSI_COLOR_CYAN );
+					offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_CYAN );
 
 				break;
 		}
 
 
-		printf( "%ls ", ClassIDToText(aafi->aafd, Obj->Class->ID) );
+		offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%ls ", ClassIDToText(aafi->aafd, Obj->Class->ID) );
 
-		printf( "%s", ANSI_COLOR_RESET );
+		offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_RESET );
 
 
 		if ( aafUIDCmp( Obj->Class->ID, &AAFClassID_TimelineMobSlot ) && aafUIDCmp( Obj->Parent->Class->ID, &AAFClassID_CompositionMob ) )
@@ -350,7 +362,7 @@ void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int st
       int32_t   *slotID         = aaf_get_propertyValue( Obj, PID_MobSlot_SlotID );
       int32_t   *trackNo        = aaf_get_propertyValue( Obj, PID_MobSlot_PhysicalTrackNumber );
 
-			printf("[slot:%s%i%s track:%s%i%s] (DataDef : %s%ls%s) %s%ls ",
+			offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "[slot:%s%i%s track:%s%i%s] (DataDef : %s%ls%s) %s%ls ",
 				ANSI_COLOR_BOLD,
 				(slotID) ? *slotID : -1,
 				ANSI_COLOR_RESET,
@@ -372,7 +384,7 @@ void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int st
 			aafUID_t *usageCode = aaf_get_propertyValue( Obj, PID_Mob_UsageCode );
 			wchar_t  *name      = aaf_get_propertyValueWstr( Obj, PID_Mob_Name );
 
-			printf( "(UsageCode: %s%ls%s) %s%ls",
+			offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "(UsageCode: %s%ls%s) %s%ls",
 				ANSI_COLOR_DARKGREY,
 				UsageCodeToText( usageCode ),
 				ANSI_COLOR_RESET,
@@ -385,7 +397,7 @@ void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int st
 		{
 			aafUID_t *OperationIdentification = get_OperationGroup_OperationIdentification( aafi, Obj );
 
-			printf( "(OpIdent: %s%ls%s) ",
+			offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "(OpIdent: %s%ls%s) ",
 				ANSI_COLOR_DARKGREY,
 				OperationDefToText( aafi->aafd, OperationIdentification ),
 				ANSI_COLOR_RESET
@@ -403,40 +415,65 @@ void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int st
 		// 					aafUIDCmp( Obj->Class->ID, &AAFClassID_AIFCDescriptor ) )
 		// {
 		// 	aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, Obj );
-		// 	printf( "(ContainerIdent : \x1b[38;5;242m%ls\x1b[0m)", ContainerToText(ContainerFormat) );
+		// 	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "(ContainerIdent : \x1b[38;5;242m%ls\x1b[0m)", ContainerToText(ContainerFormat) );
 		// }
 
 
 		if ( state == TD_ERROR )
 		{
-			printf( ": %s", ANSI_COLOR_RED );
+			offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, ": %s", ANSI_COLOR_RED );
 		}
 		else if ( state == TD_INFO )
 		{
-			printf( ": %s", ANSI_COLOR_CYAN );
+			offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, ": %s", ANSI_COLOR_CYAN );
 		}
 
-		va_list args;
-
-		va_start(args, fmt);
-		vprintf(fmt, args);
-		va_end(args);
+    va_list args;
+    va_start( args, fmt );
+    offset += vsnprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, fmt, &args );
+    va_end( args );
+    // va_list args;
+    // va_list args2;
+    // va_copy( args2, args );
+    //
+		// va_start( args2, fmt );
+		// // vprintf(fmt, args);
+    // // offset += vsnprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, fmt, args );
+    // int needed = vsnprintf( NULL, 0, fmt, args2 ) + 1;
+    // if ( needed >= dbg->_dbg_msg_size + offset ) {
+    //   char *p = realloc( dbg->_dbg_msg, offset+needed );
+    //   if (p) {
+    //     dbg->_dbg_msg = p;
+    //   } else {
+    //     /* TODO: realloc() faillure */
+    //     // free(*str);
+    //     // *str  = NULL;
+    //     // *size = 0;
+    //     // return -1;
+    //   }
+    // }
+		// va_end( args2 );
+    //
+    // va_start( args, fmt );
+    // // vprintf( fmt, args );
+    // offset += vsnprintf( dbg->_dbg_msg+offset, dbg->_dbg_msg_size-offset, fmt, args );
+    // va_end( args );
 
 		if ( state == TD_ERROR || state == TD_INFO )
 		{
-			printf(".");
+			offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "." );
 		}
 
 		if ( state == TD_NOT_SUPPORTED || ( aafi->ctx.options.trace_class && wcscmp( ClassIDToText(aafi->aafd, Obj->Class->ID), aafi->ctx.options.trace_class ) == 0) ) {
 
-			printf( "\n%s", ( state == TD_NOT_SUPPORTED ) ? ANSI_COLOR_ORANGE : "" );
+			offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n%s", ( state == TD_NOT_SUPPORTED ) ? ANSI_COLOR_ORANGE : "" );
 
-			// printf("CFB Object Dump : %ls\n", aaf_get_ObjectPath( Obj ) );
-			// printf("=================\n" );
+			// offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "CFB Object Dump : %ls\n", aaf_get_ObjectPath( Obj ) );
+			// offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "=================\n" );
 			// cfb_dump_node( aafi->aafd->cfbd, Obj->Node, 1 );
 
-			printf( "Properties Dump (%ls)\n", aaf_get_ObjectPath( Obj ) );
-			printf( "===============\n\n" );
+			offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "Properties Dump (%ls)\n", aaf_get_ObjectPath( Obj ) );
+			offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "===============\n\n" );
 			// aaf_dump_nodeStreamProperties( aafi->aafd, Obj->Node );
 			aaf_dump_ObjectProperties( aafi->aafd, Obj );
 		}
@@ -448,42 +485,44 @@ void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int st
 			{
 				if ( Prop->def->meta ) {
 
-					// printf("\n");
+					// offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n");
 
 					if ( aafi->ctx.options.trace_meta ) {
 						// aaf_dump_ObjectProperties( aafi->aafd, Obj );
 
 						// if ( Prop->pid == 0xffca ) {
 						if ( Prop->sf == SF_STRONG_OBJECT_REFERENCE_VECTOR ) {
-							printf("\n" );
-							printf( " >>> (0x%04x) %ls (%ls)\n", Prop->pid, PIDToText( aafi->aafd, Prop->pid ), StoredFormToText( Prop->sf ) /*AUIDToText( &Prop->def->type ),*/ /*TypeIDToText( &(Prop->def->type) )*/ );
+							offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n" );
+							offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " >>> (0x%04x) %ls (%ls)\n", Prop->pid, PIDToText( aafi->aafd, Prop->pid ), StoredFormToText( Prop->sf ) /*AUIDToText( &Prop->def->type ),*/ /*TypeIDToText( &(Prop->def->type) )*/ );
 							void *propValue = aaf_get_propertyValue( Obj, Prop->pid );
 							xplore_StrongObjectReferenceVector( aafi, propValue, __td );
 
 							// DUMP_OBJ_NO_SUPPORT( aafi, propValue, __td );
 						}
 						else {
-							printf("\n" );
+							offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n" );
 							aaf_dump_ObjectProperty( aafi->aafd, Prop );
 						}
 					}
 					else {
-						printf( "%s%s %ls[0x%04x]", ANSI_COLOR_RESET, (!hasUnknownProps) ? "  (MetaProps:" : "", PIDToText( aafi->aafd, Prop->pid ), Prop->pid );
+						offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s%s %ls[0x%04x]", ANSI_COLOR_RESET, (!hasUnknownProps) ? "  (MetaProps:" : "", PIDToText( aafi->aafd, Prop->pid ), Prop->pid );
 						// dump_hex( Prop->val, Prop->len );
 						hasUnknownProps++;
 					}
 				}
 			}
 			if ( aafi->ctx.options.trace_meta == 0 && hasUnknownProps ) {
-				printf(")");
+				offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, ")" );
 			}
 		}
 
-		printf( "%s", ANSI_COLOR_RESET );
+		offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_RESET );
 	}
 
 
-	printf("\n");
+	// offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n" );
+
+  dbg->debug_callback( (void*)aafi, DEBUG_SRC_ID_TRACE, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
 
 
 	/* if end of branch, print one line padding */
@@ -552,72 +591,6 @@ void _DUMP_OBJ_NO_SUPPORT( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *_
 
 
 
-
-
-void trace_obj( AAF_Iface *aafi, aafObject *Obj, const char *color )
-{
-	return;
-	char buf[4096];
-	char tmp[1024];
-	int  offset = sizeof(buf) - 1;
-	aafObject *lastChild = Obj;
-
-	// buf[offset] = 0x00;
-	memset( buf, 0x00, sizeof(buf) );
-	// memset( tmp, 0x00, sizeof(tmp) );
-
-	for (; aafUIDCmp( Obj->Class->ID, &AAFClassID_ContentStorage ) == 0 /*Obj != NULL*/; Obj = Obj->Parent )
-	{
-
-		if ( aafUIDCmp( Obj->Class->ID, &AAFClassID_TimelineMobSlot ) && aafUIDCmp( Obj->Parent->Class->ID, &AAFClassID_CompositionMob ) )
-		{
-			wchar_t *name = aaf_get_propertyValueWstr( Obj, PID_MobSlot_SlotName );
-			snprintf( tmp, sizeof(tmp), "%ls (%ls)", ClassIDToText( aafi->aafd, Obj->Class->ID ), name );
-			free( name );
-		}
-		else if ( aafUIDCmp( Obj->Class->ID, &AAFClassID_MasterMob ) || aafUIDCmp( Obj->Class->ID, &AAFClassID_SourceMob ) )
-		{
-			wchar_t *name  = aaf_get_propertyValueWstr( Obj, PID_Mob_Name );
-			snprintf( tmp, sizeof(tmp), "%ls (%ls)", ClassIDToText( aafi->aafd, Obj->Class->ID ), name );
-			free( name );
-		}
-		else if ( aafUIDCmp( Obj->Class->ID, &AAFClassID_CompositionMob ) )
-		{
-			wchar_t *name = aaf_get_propertyValueWstr( Obj, PID_Mob_Name );
-			const wchar_t *usage = UsageCodeToText( aaf_get_propertyValue( Obj, PID_Mob_UsageCode ) );
-			snprintf( tmp, sizeof(tmp), "%ls (%ls : %ls)", ClassIDToText( aafi->aafd, Obj->Class->ID ), usage, name );
-			free( name );
-		}
-		else if ( aafUIDCmp( Obj->Class->ID, &AAFClassID_OperationGroup ) )
-		{
-			aafUID_t *OperationIdentification = get_OperationGroup_OperationIdentification( aafi, Obj );
-
-			const wchar_t *name = OperationDefToText( aafi->aafd, OperationIdentification ) /*AUIDToText( OpIdent )*/;
-			snprintf( tmp, sizeof(tmp), "%ls (%ls)", ClassIDToText( aafi->aafd, Obj->Class->ID ), name );
-		}
-		else
-		{
-			snprintf( tmp, sizeof(tmp), "%ls", ClassIDToText( aafi->aafd, Obj->Class->ID ) );
-		}
-
-		if ( Obj != lastChild )
-		{
-			buf[--offset] = ' ';
-			buf[--offset] = '>';
-			buf[--offset] = ' ';
-		}
-
-		offset -= strlen(tmp);
-
-		memcpy( buf+offset, tmp, strlen(tmp) );
-	}
-
-	printf("%s%s%s\n", color, buf+offset, ANSI_COLOR_RESET );
-}
-
-
-
-
 static wchar_t * build_unique_audiofilename( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 {
 	/* TODO 1024 should be a macro ! */
@@ -626,11 +599,10 @@ static wchar_t * build_unique_audiofilename( AAF_Iface *aafi, aafiAudioEssence *
 
 	size_t file_name_len = wcslen( audioEssence->file_name );
 
-	// printf("%i\n", file_name_len );
 
 	memcpy( unique, audioEssence->file_name, (file_name_len + 1) * sizeof(wchar_t) );
 
-	// printf("%ls\n", unique );
+	// debug( "%ls", unique );
 
 	aafiAudioEssence *ae = NULL;
 
@@ -643,7 +615,7 @@ static wchar_t * build_unique_audiofilename( AAF_Iface *aafi, aafiAudioEssence *
 			/* if char is out of the Basic Latin range */
 			if ( unique[i] > 0xff )
 			{
-				// printf("MobID : %ls\n", MobIDToText( audioEssence->sourceMobID ) );
+				// debug( "MobID : %ls", MobIDToText( audioEssence->sourceMobID ) );
 				aafUID_t *uuid = &(audioEssence->sourceMobID->material);
 				swprintf( unique, 1024, L"%08x-%04x-%04x-%02x%02x%02x%02x%02x%02x%02x%02x",
 					uuid->Data1,
@@ -673,14 +645,14 @@ static wchar_t * build_unique_audiofilename( AAF_Iface *aafi, aafiAudioEssence *
 		if ( ae->unique_file_name != NULL && wcscmp( ae->unique_file_name, unique ) == 0 )
 		{
 			swprintf( unique+file_name_len, (1024-file_name_len), L"_%i", ++id );
-			// printf("%ls\n", unique );
+			// debug( "%ls", unique );
 			ae = aafi->Audio->Essences; // check again
 		}
 	}
 
 	audioEssence->unique_file_name = unique;
 
-	// printf("%ls\n", audioEssence->wunique_file_name );
+	// debug( "%ls", audioEssence->wunique_file_name );
 
 	return unique;
 }
@@ -696,11 +668,11 @@ static wchar_t * build_unique_videofilename( AAF_Iface *aafi, aafiVideoEssence *
 
 	size_t file_name_len = wcslen( videoEssence->file_name );
 
-	// printf("%i\n", file_name_len );
+	// debug( "%i", file_name_len );
 
 	memcpy( unique, videoEssence->file_name, (file_name_len + 1) * sizeof(wchar_t) );
 
-	// printf("%ls\n", unique );
+	// debug( "%ls", unique );
 
 	aafiVideoEssence *ve = NULL;
 
@@ -713,7 +685,7 @@ static wchar_t * build_unique_videofilename( AAF_Iface *aafi, aafiVideoEssence *
 			/* if char is out of the Basic Latin range */
 			if ( unique[i] > 0xff )
 			{
-				// printf("MobID : %ls\n", MobIDToText( videoEssence->sourceMobID ) );
+				// debug( "MobID : %ls", MobIDToText( videoEssence->sourceMobID ) );
 				aafUID_t *uuid = &(videoEssence->sourceMobID->material);
 				swprintf( unique, 1024, L"%08x-%04x-%04x-%02x%02x%02x%02x%02x%02x%02x%02x",
 					uuid->Data1,
@@ -743,14 +715,14 @@ static wchar_t * build_unique_videofilename( AAF_Iface *aafi, aafiVideoEssence *
 		if ( ve->unique_file_name != NULL && wcscmp( ve->unique_file_name, unique ) == 0 )
 		{
 			swprintf( unique+file_name_len, (1024-file_name_len), L"_%i", ++id );
-			// printf("%ls\n", unique );
+			// debug( "%ls", unique );
 			ve = aafi->Video->Essences; // check again
 		}
 	}
 
 	videoEssence->unique_file_name = unique;
 
-	// printf("%ls\n", videoEssence->wunique_file_name );
+	// debug( "%ls", videoEssence->wunique_file_name );
 
 	return unique;
 }
@@ -800,7 +772,7 @@ static aafUID_t * get_Component_DataDefinition( AAF_Iface *aafi, aafObject *Comp
 
 	if ( weakRef == NULL )
 	{
-		_warning( aafi->ctx.options.verb, "Missing Component::DataDefinition.\n" );
+		warning( "Missing Component::DataDefinition." );
 		return NULL;
 	}
 
@@ -809,7 +781,7 @@ static aafUID_t * get_Component_DataDefinition( AAF_Iface *aafi, aafObject *Comp
 
 	if ( DataDefinition == NULL )
 	{
-		_warning( aafi->ctx.options.verb, "Could not retrieve WeakRef from Dictionary::DataDefinition.\n" );
+		warning( "Could not retrieve WeakRef from Dictionary::DataDefinition." );
 		return NULL;
 	}
 
@@ -818,7 +790,7 @@ static aafUID_t * get_Component_DataDefinition( AAF_Iface *aafi, aafObject *Comp
 
 	if ( DataIdentification == NULL )
 	{
-		_warning( aafi->ctx.options.verb, "Missing DataDefinition's DefinitionObject::Identification.\n" );
+		warning( "Missing DataDefinition's DefinitionObject::Identification." );
 		return NULL;
 	}
 
@@ -835,7 +807,7 @@ static aafUID_t * get_Component_DataDefinition( AAF_Iface *aafi, aafObject *Comp
 //
 // 	if ( ContainerDefWeakRef == NULL )
 // 	{
-// 		_warning( aafi->ctx.options.verb, "Missing FileDescriptor::ContainerFormat.\n" );
+// 		warning( "Missing FileDescriptor::ContainerFormat." );
 // 		return NULL;
 // 	}
 //
@@ -843,7 +815,7 @@ static aafUID_t * get_Component_DataDefinition( AAF_Iface *aafi, aafObject *Comp
 //
 // 	if ( ContainerDefinition == NULL )
 // 	{
-// 		_warning( aafi->ctx.options.verb, "Could not retrieve WeakRef from Dictionary::ContainerDefinitions.\n" );
+// 		warning( "Could not retrieve WeakRef from Dictionary::ContainerDefinitions." );
 // 		return NULL;
 // 	}
 //
@@ -852,7 +824,7 @@ static aafUID_t * get_Component_DataDefinition( AAF_Iface *aafi, aafObject *Comp
 //
 // 	if ( ContainerIdentification == NULL )
 // 	{
-// 		_warning( aafi->ctx.options.verb, "Missing ContainerDefinition's DefinitionObject::Identification.\n" );
+// 		warning( "Missing ContainerDefinition's DefinitionObject::Identification." );
 // 		return NULL;
 // 	}
 //
@@ -869,7 +841,7 @@ static aafUID_t * get_OperationGroup_OperationIdentification( AAF_Iface *aafi, a
 
 	if ( OperationDefWeakRef == NULL )
 	{
-		_error( aafi->ctx.options.verb, "Missing OperationGroup::Operation.\n" );
+		error( "Missing OperationGroup::Operation." );
 		return NULL;
 	}
 
@@ -878,7 +850,7 @@ static aafUID_t * get_OperationGroup_OperationIdentification( AAF_Iface *aafi, a
 
 	if ( OperationDefinition == NULL )
 	{
-		_error( aafi->ctx.options.verb, "Could not retrieve OperationDefinition from dictionary.\n" );
+		error( "Could not retrieve OperationDefinition from dictionary." );
 		return NULL;
 	}
 
@@ -887,7 +859,7 @@ static aafUID_t * get_OperationGroup_OperationIdentification( AAF_Iface *aafi, a
 
 	if ( OperationIdentification == NULL )
 	{
-		_error( aafi->ctx.options.verb, "Missing DefinitionObject::Identification.\n" );
+		error( "Missing DefinitionObject::Identification." );
 		return NULL;
 	}
 
@@ -904,7 +876,7 @@ static aafUID_t * get_Parameter_InterpolationIdentification( AAF_Iface *aafi, aa
 
 	if ( InterpolationDefWeakRef == NULL )
 	{
-		_error( aafi->ctx.options.verb, "Missing Parameter::Interpolation.\n" );
+		error( "Missing Parameter::Interpolation." );
 		return NULL;
 	}
 
@@ -913,7 +885,7 @@ static aafUID_t * get_Parameter_InterpolationIdentification( AAF_Iface *aafi, aa
 
 	if ( InterpolationDefinition == NULL )
 	{
-		_error( aafi->ctx.options.verb, "Could not find InterpolationDefinition.\n" );
+		error( "Could not find InterpolationDefinition." );
 		return NULL;
 	}
 
@@ -922,7 +894,7 @@ static aafUID_t * get_Parameter_InterpolationIdentification( AAF_Iface *aafi, aa
 
 	if ( InterpolationIdentification == NULL )
 	{
-		_error( aafi->ctx.options.verb, "Missing Parameter DefinitionObject::Identification.\n" );
+		error( "Missing Parameter DefinitionObject::Identification." );
 		return NULL;
 	}
 
@@ -976,14 +948,13 @@ static aafObject * get_EssenceData_By_MobID( AAF_Iface *aafi, aafMobID_t *MobID 
 // {
 // 	aafiVideoEssence * videoEssence = NULL;
 //
-// 	// printf("%p\n", aafi->Video->tc );
-// 	printf("%p\n", aafi->Video->Essences );
-// 	printf("%ls\n", MobIDToText( sourceMobID ) );
+// 	// debug( "%p", aafi->Video->tc );
+// 	debug( "%p", aafi->Video->Essences );
+// 	debug( "%ls", MobIDToText( sourceMobID ) );
 //
 //
 // 	for ( videoEssence = aafi->Video->Essences; videoEssence != NULL; videoEssence = videoEssence->next )
 // 	{
-// 		printf("coucou\n" );
 // 		if ( aafMobIDCmp( videoEssence->masterMobID, sourceMobID ) )
 // 			break;
 // 	}
@@ -1170,7 +1141,7 @@ static int parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescripto
 		return -1;
 	}
 
-	// printf("storedHeight : %u\n", *storedHeight );
+	// debug( "storedHeight : %u", *storedHeight );
 
 
 
@@ -1182,7 +1153,7 @@ static int parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescripto
 		return -1;
 	}
 
-	// printf("storedWidth : %u\n", *storedWidth );
+	// debug( "storedWidth : %u", *storedWidth );
 
 
 
@@ -1194,7 +1165,7 @@ static int parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescripto
 		return -1;
 	}
 
-	// printf("displayHeight : %u\n", *displayHeight );
+	// debug( "displayHeight : %u", *displayHeight );
 
 
 
@@ -1206,7 +1177,7 @@ static int parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescripto
 		return -1;
 	}
 
-	// printf("displayWidth : %u\n", *displayWidth );
+	// debug( "displayWidth : %u", *displayWidth );
 
 
 
@@ -1218,7 +1189,7 @@ static int parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescripto
 		return -1;
 	}
 
-	// printf("imageAspectRatio : %i/%i\n", imageAspectRatio->numerator, imageAspectRatio->denominator );
+	// debug( "imageAspectRatio : %i/%i", imageAspectRatio->numerator, imageAspectRatio->denominator );
 
 
 
@@ -1496,7 +1467,7 @@ static int parse_Locator( AAF_Iface *aafi, aafObject *Locator, td *__ptd )
 		DUMP_OBJ_NO_SUPPORT( aafi, Locator, &__td );
 
 		// wchar_t *name = aaf_get_propertyValueWstr( Locator, PID_TextLocator_Name );
-		// _warning( aafi->ctx.options.verb, "Got an AAFClassID_TextLocator : \"%ls\"\n", name );
+		// warning( "Got an AAFClassID_TextLocator : \"%ls\"", name );
 		// free( name );
 	}
 	else
@@ -2207,7 +2178,7 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup, td *__ptd 
 	// 	aaf_foreach_ObjectInSet( &Param, Parameters, NULL )
 	// 	{
 	// 	 aafUID_t *ParamDef = aaf_get_propertyValue( Param, PID_Parameter_Definition );
-	// 	 printf("     OpDef %ls     (%ls) | %ls\n", OperationDefToText(aafi->aafd, OperationIdentification), AUIDToText( ParamDef ), ParameterToText( aafi->aafd, ParamDef ) );
+	// 	 debug( "     OpDef %ls     (%ls) | %ls", OperationDefToText(aafi->aafd, OperationIdentification), AUIDToText( ParamDef ), ParameterToText( aafi->aafd, ParamDef ) );
 	// 	}
 	// }
 
@@ -2223,7 +2194,7 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup, td *__ptd 
 	// 	 */
 	//
 	// 	trace_obj( aafi, Segment, ANSI_COLOR_RED );
-	// 	_error( aafi->ctx.options.verb, "MobSlot::Segment > OperationGroup Not implemented yet.\n" );
+	// 	error( "MobSlot::Segment > OperationGroup Not implemented yet." );
 	// 	return -1;
 	//
 	// }
@@ -2812,12 +2783,12 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 			if ( aafUIDCmp( refMob->Class->ID, &AAFClassID_CompositionMob ) )
 			{
 
-				// printf("\n\n\nREF TO SUBCLIP\n\n\n" );
+				// debug( "REF TO SUBCLIP" );
 				//
-				// printf( "SourceClip::SourceID        : %ls\n", MobIDToText( sourceID ) );
-				// printf( "CurrentMob::MobID           : %ls\n", MobIDToText( parentMobID ) );
-				// printf( "SourceClip::SourceMobSlotID : %i\n", *SourceMobSlotID );
-				// printf( "UsageCode                   : %ls\n", UsageCodeToText( UsageCode ) );
+				// debug( "SourceClip::SourceID        : %ls", MobIDToText( sourceID ) );
+				// debug( "CurrentMob::MobID           : %ls", MobIDToText( parentMobID ) );
+				// debug( "SourceClip::SourceMobSlotID : %i", *SourceMobSlotID );
+				// debug( "UsageCode                   : %ls", UsageCodeToText( UsageCode ) );
 
 				if ( refMobSlot == NULL )
 				{
@@ -2930,7 +2901,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 			//
 			// 	// aaf_dump_ObjectProperties( aafi->aafd, SourceClip );
 			//
-			// 	_warning( aafi->ctx.options.verb, "Got a 1 EU length clip, probably some NLE compatibility padding : Skipping.\n" );
+			// 	warning( "Got a 1 EU length clip, probably some NLE compatibility padding : Skipping." );
 			//
 			//
 			//
@@ -3009,9 +2980,9 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 			 */
 
 			// if ( aafMobIDCmp( aafi->ctx.current_clip->masterMobID, sourceID ) ) {
-			// 	printf("SAME_SOURCE_ID : %ls\n", AUIDToText(sourceID) );
+			// 	debug( "SAME_SOURCE_ID : %ls", AUIDToText(sourceID) );
 			// } else {
-			// 	printf("DIFFERENT_SOURCE_ID : %ls\n", AUIDToText(sourceID) );
+      // 	debug( "DIFFERENT_SOURCE_ID : %ls", AUIDToText(sourceID) );
 			// }
 
 			audioClip->masterMobID = sourceID;
@@ -3019,7 +2990,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 			// if ( audioClip->masterMobID == NULL )
 			// {
 			// 	audioClip->masterMobID = aaf_get_propertyValue( ParentMob, PID_Mob_MobID );
-			// 	_warning( aafi->ctx.options.verb, "Missing SourceReference::SourceID, retrieving from parent Mob.\n" );
+			// 	warning( "Missing SourceReference::SourceID, retrieving from parent Mob." );
 			// }
 
 
@@ -3159,7 +3130,7 @@ YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
 			// if ( videoClip->masterMobID == NULL )
 			// {
 			// 	videoClip->masterMobID = aaf_get_propertyValue( ParentMob, PID_Mob_MobID );
-			// 	_warning( aafi->ctx.options.verb, "Missing SourceReference::SourceID, retrieving from parent Mob.\n" );
+			// 	warning( "Missing SourceReference::SourceID, retrieving from parent Mob." );
 			// }
 
 
@@ -3249,9 +3220,9 @@ YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
 		// uint32_t *essenceChannelNum = (uint32_t*)aaf_get_propertyValue( ParentMobSlot, PID_MobSlot_PhysicalTrackNumber );
 		//
 		// if ( essenceChannelNum == NULL ) { /* opt */
-		// 	printf( "PhysicalTrackNumber: NOT SET\n" );
+		// 	debug( "PhysicalTrackNumber: NOT SET" );
 		// } else {
-		// 	printf( "PhysicalTrackNumber: %u\n", *essenceChannelNum );
+		// 	debug( "PhysicalTrackNumber: %u", *essenceChannelNum );
 		// }
 
 
@@ -3265,10 +3236,8 @@ YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
 
 
 			// aafObject *Obj = aaf_get_MobByID( aafi->aafd, SourceID );
-			// printf("\n\n\n\n");
-			// printf("SourceMobID : %ls\n", MobIDToText(SourceID) );
-			// printf("MasterMobID : %ls\n", MobIDToText(mobID) );
-			// printf("\n\n\n\n");
+			// debug( "SourceMobID : %ls", MobIDToText(SourceID) );
+			// debug( "MasterMobID : %ls", MobIDToText(mobID) );
 
 			if ( !aafi->ctx.current_clip )
 			{
@@ -3318,7 +3287,7 @@ YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
 			// if ( audioEssence->sourceMobID == NULL )
 			// {
 			// 	audioEssence->sourceMobID = aaf_get_propertyValue( ParentMob, PID_Mob_MobID );
-			// 	_warning( aafi->ctx.options.verb, "Could not retrieve SourceReference::SourceID, retrieving from parent Mob.\n" );
+			// 	warning( "Could not retrieve SourceReference::SourceID, retrieving from parent Mob." );
 			// }
 
 
@@ -3385,10 +3354,8 @@ YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
 
 
 			// aafObject *Obj = aaf_get_MobByID( aafi->aafd, sourceID );
-			// printf("\n\n\n\n");
-			// printf("SourceMobID : %ls\n", MobIDToText(sourceID) );
-			// printf("MasterMobID : %ls\n", MobIDToText(mobID) );
-			// printf("\n\n\n\n");
+			// debug( "SourceMobID : %ls", MobIDToText(sourceID) );
+			// debug( "MasterMobID : %ls", MobIDToText(mobID) );
 
 
 			if ( !aafi->ctx.current_video_clip )
@@ -3437,7 +3404,7 @@ YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
 			// if ( audioEssence->sourceMobID == NULL )
 			// {
 			// 	audioEssence->sourceMobID = aaf_get_propertyValue( ParentMob, PID_Mob_MobID );
-			// 	_warning( aafi->ctx.options.verb, "Could not retrieve SourceReference::SourceID, retrieving from parent Mob.\n" );
+			// 	warning( "Could not retrieve SourceReference::SourceID, retrieving from parent Mob." );
 			// }
 
 
@@ -3493,7 +3460,7 @@ YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
 
 
 
-			// printf( "\n\n\n\nMaster MOB SOURCE CLIP\n\n\n\n" );
+			// debug( "Master MOB SOURCE CLIP" );
 			//
 			// aafiVideoEssence *videoEssence = aafi_newVideoEssence( aafi );
 			//
@@ -3508,7 +3475,7 @@ YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
 			// if ( videoEssence->masterMobID == NULL )
 			// {
 			// 	trace_obj( aafi, SourceClip, ANSI_COLOR_RED );
-			// 	_error( aafi->ctx.options.verb, "Could not retrieve Mob::MobID.\n" );
+			// 	error( "Could not retrieve Mob::MobID." );
 			// 	return -1;
 			// }
 			//
@@ -3531,7 +3498,7 @@ YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
 			//
 			// 	videoEssence->sourceMobID = aaf_get_propertyValue( ParentMob, PID_Mob_MobID );
 			//
-			// 	_warning( aafi->ctx.options.verb, "Could not retrieve SourceReference::SourceID, retrieving from parent Mob.\n" );
+			// 	warning( "Could not retrieve SourceReference::SourceID, retrieving from parent Mob." );
 			// }
 			//
 			//
@@ -3541,7 +3508,7 @@ YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
 			// if ( SourceMob == NULL )
 			// {
 			// 	trace_obj( aafi, SourceClip, ANSI_COLOR_RED );
-			// 	_error( aafi->ctx.options.verb, "Could not retrieve SourceMob.\n" );
+			// 	error( "Could not retrieve SourceMob." );
 			// 	return -1;
 			// }
 			//
@@ -3559,7 +3526,7 @@ YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
 			// if ( EssenceDesc == NULL )
 			// {
 			// 	trace_obj( aafi, SourceClip, ANSI_COLOR_RED );
-			// 	_error( aafi->ctx.options.verb, "Could not retrieve EssenceDesc.\n" );
+			// 	error( "Could not retrieve EssenceDesc." );
 			// 	return -1;
 			// }
 			//
@@ -3591,7 +3558,7 @@ YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
 			//
 			// 		if ( aafMobIDCmp( videoClip->masterMobID, videoEssence->masterMobID ) )
 			// 		{
-			// 			printf("FOUND VIDEO ESSENCE CLIP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n" );
+			// 			debug( "FOUND VIDEO ESSENCE CLIP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
 			// 			videoClip->Essence = videoEssence;
 			// 		}
 			// 	}
@@ -3782,7 +3749,7 @@ static int parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue, td *_
 				DUMP_OBJ_ERROR( aafi, ConstantValue, &__td, "Clip gain was already set : +%05.1lf dB", 20 * log10( aafRationalToFloat( aafi->ctx.current_clip_gain->value[0] ) ) );
 
 				// for ( int i = 0; i < aafi->ctx.current_clip_gain->pts_cnt; i++ ) {
-				// 	printf( "   VaryingValue:  _time: %f   _value: %f\n",
+				// 	debug( "   VaryingValue:  _time: %f   _value: %f",
 				// 		aafRationalToFloat( aafi->ctx.current_clip_gain->time[i]  ),
 				// 		aafRationalToFloat( aafi->ctx.current_clip_gain->value[i] ) );
 				// }
@@ -3948,7 +3915,7 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue, td *__p
 		}
 
 		// for ( int i = 0; i < Trans->pts_cnt_a; i++ ) {
-		// 	printf("time_%i : %i/%i   value_%i : %i/%i\n", i, Trans->time_a[i].numerator, Trans->time_a[i].denominator, i, Trans->value_a[i].numerator, Trans->value_a[i].denominator  );
+		// 	debug( "time_%i : %i/%i   value_%i : %i/%i", i, Trans->time_a[i].numerator, Trans->time_a[i].denominator, i, Trans->value_a[i].numerator, Trans->value_a[i].denominator  );
 		// }
 
 		DUMP_OBJ( aafi, VaryingValue, &__td );
@@ -3971,7 +3938,7 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue, td *__p
 		}
 
 		// for ( int i = 0; i < Gain->pts_cnt; i++ ) {
-		// 	printf("time_%i : %i/%i   value_%i : %i/%i\n", i, Gain->time[i].numerator, Gain->time[i].denominator, i, Gain->value[i].numerator, Gain->value[i].denominator );
+		// 	debug( "time_%i : %i/%i   value_%i : %i/%i", i, Gain->time[i].numerator, Gain->time[i].denominator, i, Gain->value[i].numerator, Gain->value[i].denominator );
 		// }
 
 
@@ -4079,7 +4046,7 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue, td *__p
 		}
 
 		// for ( int i = 0; i < Gain->pts_cnt; i++ ) {
-		// 	printf("time_%i : %i/%i   value_%i : %i/%i\n", i, Gain->time[i].numerator, Gain->time[i].denominator, i, Gain->value[i].numerator, Gain->value[i].denominator  );
+		// 	debug( "time_%i : %i/%i   value_%i : %i/%i", i, Gain->time[i].numerator, Gain->time[i].denominator, i, Gain->value[i].numerator, Gain->value[i].denominator  );
 		// }
 
 		/* If Pan has 2 ControlPoints with both the same value, it means
@@ -4141,8 +4108,8 @@ static int retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRation
 
 		if ( time == NULL )
 		{
-			trace_obj( aafi, Points, ANSI_COLOR_RED );
-			_error( aafi->ctx.options.verb, "Missing ControlPoint::Time.\n" );
+			// trace_obj( aafi, Points, ANSI_COLOR_RED );
+			error( "Missing ControlPoint::Time." );
 
 			free( times );  *times  = NULL;
 			free( values ); *values = NULL;
@@ -4155,8 +4122,8 @@ static int retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRation
 
 		if ( value == NULL )
 		{
-			trace_obj( aafi, Points, ANSI_COLOR_RED );
-			_error( aafi->ctx.options.verb, "Missing ControlPoint::Value.\n" );
+			// trace_obj( aafi, Points, ANSI_COLOR_RED );
+			error( "Missing ControlPoint::Value." );
 
 			free( times );  *times  = NULL;
 			free( values ); *values = NULL;
@@ -4174,8 +4141,8 @@ static int retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRation
 
 	if ( Points->Header->_entryCount != i )
 	{
-		trace_obj( aafi, Points, ANSI_COLOR_YELLOW );
-		_warning( aafi->ctx.options.verb, "Points _entryCount (%i) does not match iteration (%i).\n", Points->Header->_entryCount, i );
+		// trace_obj( aafi, Points, ANSI_COLOR_YELLOW );
+		warning( "Points _entryCount (%i) does not match iteration (%i).", Points->Header->_entryCount, i );
 		return i;
 	}
 
@@ -4363,7 +4330,7 @@ static int parse_SourceMob( AAF_Iface *aafi, aafObject *SourceMob, td *__ptd )
 	//
 	// if ( DataDefinition == NULL ) /* req */
 	// {
-	// 	_error( aafi->ctx.options.verb, "Could not retrieve MobSlot::Segment DataDefinition.\n" );
+	// 	error( "Could not retrieve MobSlot::Segment DataDefinition." );
 	// 	return -1;
 	// }
 	//
@@ -4472,7 +4439,7 @@ static aafiAudioTrack * get_audio_track_by_tracknumber( AAF_Iface *aafi, int tra
 static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 {
 
-	// printf("MS : %p\n", __ptd->ll );
+	// debug( "MS : %p", __ptd->ll );
 
 	struct trace_dump __td;
 	__td_set(__td, __ptd, 1);
@@ -4605,7 +4572,7 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 				// 	{
 				// 		char *name = aaf_get_propertyValueText( TaggedValue, PID_TaggedValue_Name );
 				//
-				// 		printf("TaggedValue %s\n", name );
+				// 		debug( "TaggedValue %s", name );
 				//
 				// 		if ( strncmp( "_TRACK_FORMAT", name, 13 ) == 0 )
 				// 		{
@@ -4614,7 +4581,7 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 				// 			if ( format != NULL )
 				// 				aafi->ctx.current_track->format = *format;
 				//
-				// 			printf("Format : %u\n", aafi->ctx.current_track->format );
+				// 			debug( "Format : %u", aafi->ctx.current_track->format );
 				// 		}
 				//
 				// 		free( name );
@@ -4634,10 +4601,10 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 
         /* update session_end if needed */
 				// session_end = ( aafi->ctx.current_pos > session_end ) ? aafi->ctx.current_pos : session_end;
-				// fprintf( stderr, "AAFIParser 4286: Current pos : %lu\n", aafi->ctx.current_track->current_pos );
+				// debug( "AAFIParser 4286: Current pos : %lu\n", aafi->ctx.current_track->current_pos );
 				session_end = ( aafi->ctx.current_track->current_pos > session_end ) ? aafi->ctx.current_track->current_pos : session_end;
 
-        // printf( "SESSIon_end : %li\n", session_end );
+        // debug( "SESSIon_end : %li", session_end );
 
 			}
 			else if ( aafUIDCmp( DataDefinition, &AAFDataDef_Timecode ) ||
@@ -4651,8 +4618,7 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 			          aafUIDCmp( DataDefinition, &AAFDataDef_LegacyPicture ) )
 			{
 
-				// printf("%ls\n", ClassIDToText(aafi->aafd, Segment->Class->ID) );
-				// printf("\n\nCOUCOU VIDEO\n\n" );
+				// debug( "%ls", ClassIDToText(aafi->aafd, Segment->Class->ID) );
 
 
 				/**** ADP NESTED SCOPE ****/
@@ -4663,7 +4629,6 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 				// aaf_foreach_ObjectInSet( &NSSegment, NSSegments, NULL )
 				// {
 				// 	aaf_dump_ObjectProperties( aafi->aafd, NSSegment );
-				// 	printf("\n\n\n\n" );
 				// }
 
 
@@ -4738,7 +4703,7 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 			// else
 			// {
 			// 	trace_obj( aafi, MobSlot, ANSI_COLOR_YELLOW );
-			// 	printf( "%ls\n", DataDefToText( aafi->aafd, DataDefinition ) );
+			// 	debug( "%ls", DataDefToText( aafi->aafd, DataDefinition ) );
 			// }
 		}
 		else if ( aafUIDCmp( MobSlot->Parent->Class->ID, &AAFClassID_SourceMob ) )
@@ -4803,7 +4768,7 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 	//   if ( session_end > 0 && aafi->Video->tc )
 	//       aafi->Video->tc->end = session_end;
 	// else
-  //     _error("MISSING aafiTimecode !\n"); // TODO handle session's end more properly
+  //     error( "MISSING aafiTimecode !" );
 
 	return 0;
 }
@@ -4842,7 +4807,6 @@ int aafi_retrieveData( AAF_Iface *aafi )
 			// aaf_foreach_ObjectInSet( &MobSlot, MobSlots, NULL )
 			// {
 			// 	aaf_dump_ObjectProperties( aafi->aafd, MobSlot );
-			// 	printf("\n\n\n\n\n" );
 			// }
 
 			continue;
@@ -4878,7 +4842,7 @@ int aafi_retrieveData( AAF_Iface *aafi )
 	//
 	// 		if ( audioClip->masterMobID && !audioClip->Essence )
 	// 		{
-	// 			printf("\n\n\n\n\n\n    E m p t y   C l i p\n\n\n\n" );
+	// 			debug( "E m p t y   C l i p" );
 	//
 	// 			aafObject *Mob = NULL;
 	//
@@ -4895,11 +4859,11 @@ int aafi_retrieveData( AAF_Iface *aafi )
 	// 				}
 	//
 	// 				// aaf_dump_ObjectProperties( aafi->aafd, Mob );
-	// 				printf("Clip SourceID      : %ls\n\n", MobIDToText(MobID) );
+	// 				debug( "Clip SourceID      : %ls", MobIDToText(MobID) );
 	//
-	// 				printf("PointedMob ClassID : %ls\n", ClassIDToText(aafi->aafd, Mob->Class->ID) );
-	// 				printf("PointedMob UsageCd : %ls\n", UsageCodeToText(UsageCode) );
-	// 				printf("PointedMob Name    : %ls\n\n", aaf_get_propertyValueWstr(Mob, PID_Mob_Name) );
+	// 				debug( "PointedMob ClassID : %ls", ClassIDToText(aafi->aafd, Mob->Class->ID) );
+	// 				debug( "PointedMob UsageCd : %ls", UsageCodeToText(UsageCode) );
+	// 				debug( "PointedMob Name    : %ls", aaf_get_propertyValueWstr(Mob, PID_Mob_Name) );
 	//
 	//
 	//
@@ -4908,13 +4872,13 @@ int aafi_retrieveData( AAF_Iface *aafi )
 	// 				int SlotID = 1;
 	// 				aaf_foreach_ObjectInSet( &MobSlot, MobSlots, NULL )
 	// 				{
-	// 					printf("  SlotID %u\n", SlotID );
+	// 					debug( "  SlotID %u", SlotID );
 	//
 	// 					aafObject *Segment = aaf_get_propertyValue( MobSlot, PID_MobSlot_Segment );
 	//
 	// 					if ( Segment == NULL )
 	// 					{
-	// 						_error( aafi->ctx.options.verb, "Missing MobSlot::Segment.\n" );
+	// 						error( "Missing MobSlot::Segment." );
 	// 						return -1;
 	// 					}
 	//
@@ -4923,16 +4887,15 @@ int aafi_retrieveData( AAF_Iface *aafi )
 	//
 	// 					if ( DataDefinition == NULL )
 	// 					{
-	// 						_error( aafi->ctx.options.verb, "Could not retrieve MobSlot::Segment DataDefinition.\n" );
+	// 						error( "Could not retrieve MobSlot::Segment DataDefinition." );
 	// 						return -1;
 	// 					}
 	//
 	// 					// CURRENTPOINTER
 	//
-	// 					printf("    Segment : %ls\n", ClassIDToText( aafi->aafd, Segment->Class->ID ) );
-	// 					printf("    DataDefinition : %ls\n", DataDefToText(aafi->aafd, DataDefinition) );
+	// 					debug( "    Segment : %ls", ClassIDToText( aafi->aafd, Segment->Class->ID ) );
+	// 					debug( "    DataDefinition : %ls", DataDefToText(aafi->aafd, DataDefinition) );
 	//
-	// 					printf("\n");
 	//
 	//
 	//
@@ -4942,12 +4905,11 @@ int aafi_retrieveData( AAF_Iface *aafi )
 	// 					{
 	// 						aafMobID_t *SourceID = aaf_get_propertyValue( Segment, PID_SourceReference_SourceID );
 	//
-	// 						printf("     SourceID : %ls\n", MobIDToText(sourceID) );
+	// 						debug( "     SourceID : %ls", MobIDToText(sourceID) );
 	// 					}
 	//
 	// 					SlotID++;
 	// 				}
-	// 				printf("\n");
 	//
 	//
 	// 			}
@@ -4993,7 +4955,7 @@ int aafi_retrieveData( AAF_Iface *aafi )
 	// 		if ( audioEssence == NULL )
 	// 		{
 	// 			trace_obj( aafi, aafi->ctx.MobSlot, ANSI_COLOR_YELLOW );
-	// 			printf( "%ls\n", DataDefToText( aafi->aafd, DataDefinition ) );
+	// 			debug( "%ls", DataDefToText( aafi->aafd, DataDefinition ) );
 	// 		}
 	//
 	// 	}
@@ -5023,14 +4985,14 @@ int aafi_retrieveData( AAF_Iface *aafi )
 			aafi->Audio->samplerate = audioEssence->samplerate;
 		}
 		else {
-			// _warning( aafi->ctx.options.verb, "audioEssence '%ls' has different samplerate : %u\n", audioEssence->file_name, audioEssence->samplerate );
+			// warning( "audioEssence '%ls' has different samplerate : %u", audioEssence->file_name, audioEssence->samplerate );
 		}
 
 		if ( aafi->Audio->samplesize == 0 || aafi->Audio->samplesize == audioEssence->samplesize ) {
 			aafi->Audio->samplesize = audioEssence->samplesize;
 		}
 		else {
-			// _warning( aafi->ctx.options.verb, "audioEssence '%ls' has different samplesize : %i\n", audioEssence->file_name, audioEssence->samplesize );
+			// warning( "audioEssence '%ls' has different samplesize : %i", audioEssence->file_name, audioEssence->samplesize );
 		}
 	}
 

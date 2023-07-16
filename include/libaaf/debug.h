@@ -24,6 +24,19 @@
 #include <stdio.h>
 
 
+#define DEBUG_FUNCTION_POINTER (*debug_callback)(void *ctxdata, int lib, int type, const char *srcfile, const char *srcfunc, int lineno, const char *msg, void *user )
+
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+
+
+enum debug_source_id {
+	DEBUG_SRC_ID_LIB_CFB,
+	DEBUG_SRC_ID_AAF_CORE,
+	DEBUG_SRC_ID_AAF_IFACE,
+	DEBUG_SRC_ID_TRACE,
+	DEBUG_SRC_ID_DUMP
+};
+
 
 typedef enum verbosityLevel_e {
 	VERB_QUIET = 0,
@@ -34,75 +47,47 @@ typedef enum verbosityLevel_e {
 } verbosityLevel_e;
 
 
+struct dbg {
 
-/**
- *	Displays a warning with its associated source filename,
- *	function name, line number and a custom message.
- *
- *	The `if ( 1 )` allows to expand the macro inside an
- *	if statement with or without brackets.
- *
- *	This macro doesn't change the execution flow.
- */
+	void DEBUG_FUNCTION_POINTER;
 
-#define _warning( v, ... )                              \
-	if ( v >= VERB_WARNING )                           \
-	{                                                \
-		fprintf( stderr, "WARNING %s:%d in %s() : ", \
-			__FILE__,                                \
-			__LINE__,                                \
-			__func__ );                              \
-		fprintf( stderr, __VA_ARGS__ );              \
-	}
+	verbosityLevel_e verb;
+
+	char *_dbg_msg;
+	int   _dbg_msg_size;
+
+	void *user;
+};
 
 
 
 
-/**
- *	Displays an error with its associated source filename,
- *	function name, line number and a custom message.
- *
- *	The `if ( 1 )` allows to expand the macro inside an
- *	if statement with or without brackets.
- *
- *	This macro doesn't change the execution flow, however
- *	the user should interrupt the function right after
- *	calling _error().
- */
-
-#define _error( v, ... )                                \
-	if ( v >= VERB_ERROR )                                         \
-	{                                                \
-		fprintf( stderr, "__ERROR %s:%d in %s() : ", \
-			__FILE__,                                \
-			__LINE__,                                \
-			__func__ );                              \
-		fprintf( stderr, __VA_ARGS__ );              \
-	}
+#define _dbg( dbg, ctxdata, lib, type, ... ) \
+	{ const char *dbgfile = __FILENAME__; const char *dbgfunc = __func__; int dbgline = __LINE__; \
+	if ( dbg && dbg->verb >= type && dbg->debug_callback ) { \
+		int msgsize = snprintf( NULL, 0, __VA_ARGS__ ) + 1; \
+		if ( msgsize >= dbg->_dbg_msg_size ) { \
+			char *msgtmp = realloc( dbg->_dbg_msg, msgsize ); \
+			if ( msgtmp ) { \
+				dbg->_dbg_msg = msgtmp; \
+				dbg->_dbg_msg_size = msgsize; \
+				snprintf( dbg->_dbg_msg, dbg->_dbg_msg_size, __VA_ARGS__ ); \
+				dbg->debug_callback( (void*)ctxdata, lib, type, dbgfile, dbgfunc, dbgline, dbg->_dbg_msg, dbg->user ); \
+			} else { \
+				/* Should we print error to stderr ? */ \
+			} \
+		} else { \
+			snprintf( dbg->_dbg_msg, dbg->_dbg_msg_size, __VA_ARGS__ ); \
+			dbg->debug_callback( (void*)ctxdata, lib, type, dbgfile, dbgfunc, dbgline, dbg->_dbg_msg, dbg->user ); \
+		} \
+	}} \
 
 
+struct dbg * new_debug( void );
 
+void free_debug( struct dbg *dbg );
 
-/**
- *	Displays an error with its associated source filename,
- *	function name, line number and a custom message.
- *
- *	The `if ( 1 )` allows to expand the macro inside an
- *	if statement with or without brackets.
- *
- *	This macro interrupts the execution and exits the program.
- */
-/*
-#define _fatal( ... )                                \
-	if ( 1 )                                         \
-	{                                                \
-	 	fprintf( stderr, "__FATAL %s:%d in %s() : ", \
-			__FILE__,                                \
-			__LINE__,                                \
-			__func__ );                              \
-		fprintf( stderr, __VA_ARGS__ );              \
-		exit( 1 );                                   \
-	}
-*/
+void debug_callback( void *ctxdata, int lib, int type, const char *srcfile, const char *srcfunc, int lineno, const char *msg, void *user );
+
 
 #endif // ! __debug_h__

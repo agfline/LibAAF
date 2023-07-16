@@ -162,8 +162,7 @@ static int replace_clipfade_with_fade( AAF_Iface *aafi, aafiTimelineItem *Item )
 
 
 
-	// printf("\n\n");
-	// printf("%ls\n", audioClip->Essence->unique_file_name );
+	// debug( "%ls", audioClip->Essence->unique_file_name );
 
 	aafiAudioClip *prevClip = NULL;
 	aafiAudioClip *nextClip = NULL;
@@ -172,8 +171,8 @@ static int replace_clipfade_with_fade( AAF_Iface *aafi, aafiTimelineItem *Item )
 		if ( Item->prev->type == AAFI_AUDIO_CLIP ) {
 			prevClip = (aafiAudioClip*)Item->prev->data;
 
-			// printf("PREVIOUS POS %lu\n", prevClip->pos + prevClip->len );
-			// printf("CURENT   POS %lu\n\n", currentpos );
+			// debug( "PREVIOUS POS %lu", prevClip->pos + prevClip->len );
+			// debug( "CURENT   POS %lu", currentpos );
 
 			if ( prevClip->pos + prevClip->len < currentpos - 1 ) {
 				prevClip = NULL;
@@ -189,8 +188,8 @@ static int replace_clipfade_with_fade( AAF_Iface *aafi, aafiTimelineItem *Item )
 				if ( Item->next->next != NULL ) {
 					nextClip = (aafiAudioClip*)Item->next->next->data;
 
-					// printf("NEXT   POS %lu\n", nextClip->pos );
-					// printf("CURENT POS %lu\n\n", currentpos + currentlen );
+					// debug( "NEXT   POS %lu", nextClip->pos );
+					// debug( "CURENT POS %lu", currentpos + currentlen );
 
 					if ( nextClip->pos != currentpos + currentlen + 1 ) {
 						nextClip = NULL;
@@ -203,8 +202,8 @@ static int replace_clipfade_with_fade( AAF_Iface *aafi, aafiTimelineItem *Item )
 			else {
 				// nextClip = (aafiAudioClip*)Item->next->data;
 
-				// printf("NEXT   POS %lu\n", nextClip->pos );
-				// printf("CURENT POS %lu\n\n", currentpos + currentlen );
+				// debug( "NEXT   POS %lu", nextClip->pos );
+				// debug( "CURENT POS %lu", currentpos + currentlen );
 
 				if ( nextClip->pos != currentpos + currentlen ) {
 					nextClip = NULL;
@@ -224,7 +223,7 @@ static int replace_clipfade_with_fade( AAF_Iface *aafi, aafiTimelineItem *Item )
 	trans->time_a[1].denominator = 1;
 
 	if ( prevClip && nextClip ) {
-		// printf(":: XFADE\n");
+		// debug( ":: XFADE" );
 		trans->flags |= AAFI_TRANS_XFADE;
 
 		trans->value_a[0].numerator   = 0;
@@ -233,7 +232,7 @@ static int replace_clipfade_with_fade( AAF_Iface *aafi, aafiTimelineItem *Item )
 		trans->value_a[1].denominator = 1;
 	}
 	else if ( prevClip ) {
-		// printf(":: FADE OUT\n");
+		// debug( ":: FADE OUT" );
 		trans->flags |= AAFI_TRANS_FADE_OUT;
 
 		trans->value_a[0].numerator   = 1;
@@ -242,7 +241,7 @@ static int replace_clipfade_with_fade( AAF_Iface *aafi, aafiTimelineItem *Item )
 		trans->value_a[1].denominator = 0;
 	}
 	else if ( nextClip ) {
-		// printf(":: FADE IN\n");
+		// debug( ":: FADE IN" );
 		trans->flags |= AAFI_TRANS_FADE_IN;
 
 		trans->value_a[0].numerator   = 0;

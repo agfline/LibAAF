@@ -111,7 +111,14 @@
 #include "../common/utils.h"
 
 
+#define debug( ... ) \
+	_dbg( cfbd->dbg, cfbd, DEBUG_SRC_ID_LIB_CFB, VERB_DEBUG, __VA_ARGS__ )
 
+#define warning( ... ) \
+	_dbg( cfbd->dbg, cfbd, DEBUG_SRC_ID_LIB_CFB, VERB_WARNING, __VA_ARGS__ )
+
+#define error( ... ) \
+	_dbg( cfbd->dbg, cfbd, DEBUG_SRC_ID_LIB_CFB, VERB_ERROR, __VA_ARGS__ )
 
 
 
@@ -189,17 +196,19 @@ const wchar_t * CLSIDToText( cfbCLSID_t *clsid )
  *	@return Pointer to the newly allocated CFB_Data structure.
  */
 
-CFB_Data * cfb_alloc()
+CFB_Data * cfb_alloc( struct dbg *dbg )
 {
 	CFB_Data * cfbd = calloc( sizeof(CFB_Data), sizeof(unsigned char) );
 
 	if ( cfbd == NULL )
 	{
-		_error( cfbd->verb, "%s.\n", strerror(errno) );
+		error( "%s.", strerror(errno) );
 		return NULL;
 	}
 
-	cfbd->verb = VERB_DEBUG;
+	// cfbd->verb = VERB_QUIET;
+	// cfbd->debug_callback = &debug_callback;
+	cfbd->dbg = dbg;
 
 	return cfbd;
 }
@@ -261,6 +270,11 @@ void cfb_release( CFB_Data **cfbd )
 		(*cfbd)->hdr = NULL;
 	}
 
+	/* free once in AAFIface */
+	// if ( (*cfbd)->dbg ) {
+	// 	free_debug( (*cfbd)->dbg );
+	// }
+
 
 	free( *cfbd );
 	*cfbd = NULL;
@@ -283,62 +297,62 @@ void cfb_release( CFB_Data **cfbd )
  *	                 1 on error
  */
 
-int cfb_load_file( CFB_Data **cfbd, const char * file )
+int cfb_load_file( CFB_Data **cfbd_p, const char * file )
 {
-	snprintf( (*cfbd)->file, sizeof(((CFB_Data){0}).file), "%s", file );
+	CFB_Data *cfbd = *cfbd_p;
+	snprintf( cfbd->file, sizeof(((CFB_Data){0}).file), "%s", file );
 
 
-	if ( cfb_openFile( *cfbd ) < 0 )
+	if ( cfb_openFile( cfbd ) < 0 )
 	{
-		cfb_release( cfbd );
-		// printf("CFB %p\n", cfbd );
+		cfb_release( cfbd_p );
 		return -1;
 	}
 
-	if ( cfb_getFileSize( *cfbd ) < 0 )
+	if ( cfb_getFileSize( cfbd ) < 0 )
 	{
-		cfb_release( cfbd );
+		cfb_release( cfbd_p );
 		return -1;
 	}
 
-	if ( cfb_is_valid( *cfbd ) == 0 )
+	if ( cfb_is_valid( cfbd ) == 0 )
 	{
-		cfb_release( cfbd );
+		cfb_release( cfbd_p );
 		return -1;
 	}
 
-	if ( cfb_retrieveFileHeader( *cfbd ) < 0 )
+	if ( cfb_retrieveFileHeader( cfbd ) < 0 )
 	{
-		_error( (*cfbd)->verb, "Could not retrieve CFB header.\n" );
-		cfb_release( cfbd );
+		error( "Could not retrieve CFB header." );
+		cfb_release( cfbd_p );
 		return -1;
 	}
 
-	if ( cfb_retrieveDiFAT( *cfbd ) < 0 )
+	if ( cfb_retrieveDiFAT( cfbd ) < 0 )
 	{
-		_error( (*cfbd)->verb, "Could not retrieve CFB DiFAT.\n" );
-		cfb_release( cfbd );
+		error( "Could not retrieve CFB DiFAT." );
+		cfb_release( cfbd_p );
 		return -1;
 	}
 
-	if ( cfb_retrieveFAT( *cfbd ) < 0 )
+	if ( cfb_retrieveFAT( cfbd ) < 0 )
 	{
-		_error( (*cfbd)->verb, "Could not retrieve CFB FAT.\n" );
-		cfb_release( cfbd );
+		error( "Could not retrieve CFB FAT." );
+		cfb_release( cfbd_p );
 		return -1;
 	}
 
-	if ( cfb_retrieveMiniFAT( *cfbd ) < 0 )
+	if ( cfb_retrieveMiniFAT( cfbd ) < 0 )
 	{
-		_error( (*cfbd)->verb, "Could not retrieve CFB MiniFAT.\n" );
-		cfb_release( cfbd );
+		error( "Could not retrieve CFB MiniFAT." );
+		cfb_release( cfbd_p );
 		return -1;
 	}
 
-	if ( cfb_retrieveNodes( *cfbd ) < 0 )
+	if ( cfb_retrieveNodes( cfbd ) < 0 )
 	{
-		_error( (*cfbd)->verb, "Could not retrieve CFB Nodes.\n" );
-		cfb_release( cfbd );
+		error( "Could not retrieve CFB Nodes." );
+		cfb_release( cfbd_p );
 		return -1;
 	}
 
@@ -355,7 +369,7 @@ int cfb_new_file( CFB_Data *cfbd, const char *file, int sectSize )
 	if ( sectSize != 512 &&
 		 sectSize != 4096 )
 	{
-		_error( cfbd->verb, "Only standard sector sizes (512 and 4096 bytes) are supported.\n" );
+		error( "Only standard sector sizes (512 and 4096 bytes) are supported." );
 		return -1;
 	}
 
@@ -363,7 +377,7 @@ int cfb_new_file( CFB_Data *cfbd, const char *file, int sectSize )
 
 	if ( cfbd->hdr == NULL )
 	{
-		_error( cfbd->verb, "%s.\n", strerror( errno ) );
+		error( "%s.", strerror( errno ) );
 		return -1;
 	}
 
@@ -438,7 +452,7 @@ static int cfb_is_valid( CFB_Data *cfbd )
 
 	if ( cfbd->file_sz < sizeof(struct StructuredStorageHeader) )
 	{
-		_error( cfbd->verb, "Not a valid Compound File : File size is lower than header size.\n" );
+		error( "Not a valid Compound File : File size is lower than header size." );
 		return 0;
 	}
 
@@ -449,7 +463,7 @@ static int cfb_is_valid( CFB_Data *cfbd )
 
 	if ( signature != 0xe11ab1a1e011cfd0 )
 	{
-		_error( cfbd->verb, "Not a valid Compound File : Wrong signature.\n" );
+		error( "Not a valid Compound File : Wrong signature." );
 		return 0;
 	}
 
@@ -471,7 +485,7 @@ static int cfb_getFileSize( CFB_Data * cfbd )
 {
 	if ( fseek( cfbd->fp, 0L, SEEK_END ) < 0 )
 	{
-		_error( cfbd->verb, "fseek() failed : %s.\n", strerror(errno) );
+		error( "fseek() failed : %s.", strerror(errno) );
 		return -1;
 	}
 
@@ -479,13 +493,13 @@ static int cfb_getFileSize( CFB_Data * cfbd )
 
 	if ( (long)cfbd->file_sz < 0 )
 	{
-		_error( cfbd->verb, "ftell() failed : %s.\n", strerror(errno) );
+		error( "ftell() failed : %s.", strerror(errno) );
 		return -1;
 	}
 
 	if ( cfbd->file_sz == 0 )
 	{
-		_error( cfbd->verb, "File is empty (0 byte).\n" );
+		error( "File is empty (0 byte)." );
 		return -1;
 	}
 
@@ -508,7 +522,7 @@ static int cfb_openFile( CFB_Data *cfbd )
 
 	if ( cfbd->fp == NULL )
 	{
-		_error( cfbd->verb, "%s.\n", strerror(errno) );
+		error( "%s.", strerror(errno) );
 		return -1;
 	}
 
@@ -536,7 +550,7 @@ static uint64_t cfb_readFile( CFB_Data *cfbd, unsigned char *buf, uint64_t offse
 
 	if ( len + offset > cfbd->file_sz )
 	{
-		_error( cfbd->verb, "Requested data goes %"PRIu64" bytes beyond the EOF : offset %"PRIu64" | length %"PRIu64"\n",
+		error( "Requested data goes %"PRIu64" bytes beyond the EOF : offset %"PRIu64" | length %"PRIu64"",
 		        (len + offset) - cfbd->file_sz,
 				offset,
 				len );
@@ -548,7 +562,7 @@ static uint64_t cfb_readFile( CFB_Data *cfbd, unsigned char *buf, uint64_t offse
 
 	if ( rc < 0 )
 	{
-		_error( cfbd->verb, "%s.\n", strerror(errno) );
+		error( "%s.", strerror(errno) );
 		return 0;
 	}
 
@@ -558,8 +572,7 @@ static uint64_t cfb_readFile( CFB_Data *cfbd, unsigned char *buf, uint64_t offse
 
 	if ( byteRead < len )
 	{
-		_warning( cfbd->verb, "Could only retrieve %"PRIu64" bytes out of %"PRIu64" requested.\n",
-		          byteRead, len );
+		warning( "Could only retrieve %"PRIu64" bytes out of %"PRIu64" requested.", byteRead, len );
 	}
 
 
@@ -582,7 +595,7 @@ static void cfb_closeFile( CFB_Data *cfbd )
 
 	if ( fclose( cfbd->fp ) != 0 )
 	{
-		_error( cfbd->verb, "%s.\n", strerror(errno) );
+		error( "%s.", strerror(errno) );
 	}
 
 	cfbd->fp = NULL;
@@ -635,7 +648,7 @@ unsigned char * cfb_getSector( CFB_Data *cfbd, cfbSectorID_t id )
 
 	if ( cfbd->fat_sz > 0 && id >= cfbd->fat_sz )
 	{
-		_error( cfbd->verb, "Asking for an out of range FAT sector @ index %u (max FAT index is %u)\n", id, cfbd->fat_sz );
+		error( "Asking for an out of range FAT sector @ index %u (max FAT index is %u)", id, cfbd->fat_sz );
 		return NULL;
 	}
 
@@ -650,7 +663,7 @@ unsigned char * cfb_getSector( CFB_Data *cfbd, cfbSectorID_t id )
 
 	if ( buf == NULL )
 	{
-		_error( cfbd->verb, "%s.\n", strerror(errno) );
+		error( "%s.", strerror(errno) );
 		return NULL;
 	}
 
@@ -691,7 +704,7 @@ unsigned char * cfb_getMiniSector( CFB_Data *cfbd, cfbSectorID_t id )
 
 	if ( cfbd->fat_sz > 0 && id >= cfbd->miniFat_sz )
 	{
-		_error( cfbd->verb, "Asking for an out of range MiniFAT sector @ index %u (Maximum MiniFAT index is %u)\n", id, cfbd->miniFat_sz );
+		error( "Asking for an out of range MiniFAT sector @ index %u (Maximum MiniFAT index is %u)", id, cfbd->miniFat_sz );
 		return NULL;
 	}
 
@@ -704,7 +717,7 @@ unsigned char * cfb_getMiniSector( CFB_Data *cfbd, cfbSectorID_t id )
 
 	if ( buf == NULL )
 	{
-		_error( cfbd->verb, "%s.\n", strerror(errno) );
+		error( "%s.", strerror(errno) );
 		return NULL;
 	}
 
@@ -761,7 +774,6 @@ uint64_t cfb_getStream( CFB_Data *cfbd, cfbNode *node, unsigned char **stream, u
 
 	uint64_t stream_len = cfb_getNodeStreamLen( cfbd, node );  //node->_ulSizeLow;
 
-	// printf("%lu\n", stream_len );
 	if ( stream_len == 0 ) {
 		return 0;
 	}
@@ -770,7 +782,7 @@ uint64_t cfb_getStream( CFB_Data *cfbd, cfbNode *node, unsigned char **stream, u
 
 	if ( stream == NULL )
 	{
-		_error( cfbd->verb, "%s.\n", strerror( errno ) );
+		error( "%s.", strerror( errno ) );
 		return 0;
 	}
 
@@ -911,7 +923,7 @@ static int cfb_retrieveFileHeader( CFB_Data *cfbd )
 
 	if ( cfbd->hdr == NULL )
 	{
-		_error( cfbd->verb, "%s.\n", strerror(errno) );
+		error( "%s.", strerror(errno) );
 		return -1;
 	}
 
@@ -949,14 +961,14 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 
 	if ( csectDif != cfbd->hdr->_csectDif )
 	{
-		_warning( cfbd->verb, "cfbd->hdr->_csectDif value seems wrong (%u). Correcting from cfbd->hdr->_csectFat.\n", cfbd->hdr->_csectDif );
+		warning( "cfbd->hdr->_csectDif value seems wrong (%u). Correcting from cfbd->hdr->_csectFat.", cfbd->hdr->_csectDif );
 
 		cfbd->hdr->_csectDif = csectDif;
 	}
 
 	if ( csectDif == 0 && cfbd->hdr->_sectDifStart != CFB_END_OF_CHAIN )
 	{
-		_warning( cfbd->verb, "cfbd->hdr->_sectDifStart is 0x%08x (%u) but should be CFB_END_OF_CHAIN. Correcting.\n", cfbd->hdr->_sectDifStart, cfbd->hdr->_sectDifStart );
+		warning( "cfbd->hdr->_sectDifStart is 0x%08x (%u) but should be CFB_END_OF_CHAIN. Correcting.", cfbd->hdr->_sectDifStart, cfbd->hdr->_sectDifStart );
 
 		cfbd->hdr->_sectDifStart = CFB_END_OF_CHAIN;
 	}
@@ -975,7 +987,7 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 
 	if ( DiFAT == NULL )
 	{
-		_error( cfbd->verb, "%s.\n", strerror( errno ) );
+		error( "%s.", strerror( errno ) );
 		return -1;
 	}
 
@@ -999,7 +1011,7 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 	{
 		if ( buf == NULL )
 		{
-			_error( cfbd->verb, "Error retrieving sector %u (0x%08x) out of the DiFAT chain.\n", id, id );
+			error( "Error retrieving sector %u (0x%08x) out of the DiFAT chain.", id, id );
 			return -1;
 		}
 
@@ -1026,7 +1038,8 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 	 * So we consider it ok.
 	 */
 	if ( id != CFB_END_OF_CHAIN /*&& id != CFB_FREE_SECT*/ )
-		_warning( cfbd->verb, "Incorrect end of DiFAT Chain 0x%08x (%d)\n", id, id );
+		warning( "Incorrect end of DiFAT Chain 0x%08x (%d)", id, id );
+		// _warning2( cfbd, LIB_CFB_ID, "Incorrect end of DiFAT Chain 0x%08x (%d)\n", id, id );
 
 
 	cfbd->DiFAT    = DiFAT;
@@ -1059,7 +1072,7 @@ static int cfb_retrieveFAT( CFB_Data * cfbd )
 
 	if ( FAT == NULL )
 	{
-		_error( cfbd->verb, "%s.\n", strerror( errno ) );
+		error( "%s.", strerror( errno ) );
 		return -1;
 	}
 
@@ -1074,14 +1087,13 @@ static int cfb_retrieveFAT( CFB_Data * cfbd )
 
 	cfb_foreachFATSectorIDInDiFAT( cfbd, id )
 	{
-		// printf("cfb_foreachFATSectorIDInDiFAT\n" );
 
 		if ( cfbd->DiFAT[id] == CFB_FREE_SECT )
 			continue;
 
 		if ( cfbd->DiFAT[id] == 0x00000000 && id > 0 ) // observed in fairlight's AAFs..
 		{
-			_warning( cfbd->verb, "Got a NULL FAT index in the DiFAT @ %u, should be CFB_FREE_SECT.\n", id );
+			warning( "Got a NULL FAT index in the DiFAT @ %u, should be CFB_FREE_SECT.", id );
 			continue;
 		}
 
@@ -1089,7 +1101,7 @@ static int cfb_retrieveFAT( CFB_Data * cfbd )
 
 		if ( buf == NULL )
 		{
-			_error( cfbd->verb, "Error retrieving FAT sector %u (0x%08x).\n", id, id );
+			error( "Error retrieving FAT sector %u (0x%08x).", id, id );
 			return -1;
 		}
 
@@ -1124,7 +1136,7 @@ static int cfb_retrieveMiniFAT( CFB_Data * cfbd )
 
 	if ( miniFat == NULL )
 	{
-		_error( cfbd->verb, "%s.\n", strerror(errno) );
+		error( "%s.", strerror(errno) );
 		return -1;
 	}
 
@@ -1138,7 +1150,7 @@ static int cfb_retrieveMiniFAT( CFB_Data * cfbd )
 	{
 		if ( buf == NULL )
 		{
-			_error( cfbd->verb, "Error retrieving MiniFAT sector %u (0x%08x).\n", id, id );
+			error( "Error retrieving MiniFAT sector %u (0x%08x).", id, id );
 			return -1;
 		}
 
@@ -1189,7 +1201,7 @@ static int cfb_retrieveNodes( CFB_Data *cfbd )
 
 	if ( node == NULL )
 	{
-		_error( cfbd->verb, "%s.\n", strerror( errno ) );
+		error( "%s.", strerror( errno ) );
 		return -1;
 	}
 
@@ -1203,7 +1215,7 @@ static int cfb_retrieveNodes( CFB_Data *cfbd )
 		{
 			if ( buf == NULL )
 			{
-				_error( cfbd->verb, "Error retrieving Directory sector %u (0x%08x).\n", id, id );
+				error( "Error retrieving Directory sector %u (0x%08x).", id, id );
 				return -1;
 			}
 
@@ -1217,7 +1229,7 @@ static int cfb_retrieveNodes( CFB_Data *cfbd )
 		{
 			if ( buf == NULL )
 			{
-				_error( cfbd->verb, "Error retrieving Directory sector %u (0x%08x).\n", id, id );
+				error( "Error retrieving Directory sector %u (0x%08x).", id, id );
 				return -1;
 			}
 
@@ -1262,7 +1274,7 @@ static int cfb_retrieveNodes( CFB_Data *cfbd )
 		{
 			if ( buf == NULL )
 			{
-				_error( cfbd->verb, "Error retrieving Directory sector %u (0x%08x).\n", id, id );
+				error( "Error retrieving Directory sector %u (0x%08x).", id, id );
 				return -1;
 			}
 
@@ -1341,7 +1353,7 @@ cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const wchar_t *path, cfbSID_t id )
 
 		if ( id >= cfbd->nodes_cnt )
 		{
-			_error( cfbd->verb, "Out of range Node index %d, max %u.\n", id, cfbd->nodes_cnt );
+			error( "Out of range Node index %d, max %u.", id, cfbd->nodes_cnt );
 			return NULL;
 		}
 
@@ -1440,7 +1452,7 @@ cfbNode * cfb_getChildNode( CFB_Data *cfbd, const wchar_t *name, cfbNode *startN
 	{
 		if ( id >= cfbd->nodes_cnt )
 		{
-			_error( cfbd->verb, "Out of range Node index %u, max %u.\n", id, cfbd->nodes_cnt );
+			error( "Out of range Node index %u, max %u.", id, cfbd->nodes_cnt );
 			return NULL;
 		}
 
@@ -1534,7 +1546,7 @@ static cfbSID_t getNodeCount( CFB_Data *cfbd )
 	{
 		if ( id >= cfbd->fat_sz )
 		{
-			_error( cfbd->verb, "index (%u) > FAT size (%u).\n", id, cfbd->fat_sz );
+			error( "index (%u) > FAT size (%u).", id, cfbd->fat_sz );
 			break;
 		}
 

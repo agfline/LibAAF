@@ -338,7 +338,7 @@ int main( int argc, char *argv[] )
 
 			case 0x8f:  show_automation = 1;                     break;
 
-			case 0x90:  verb  = 1;                               break;
+			case 0x90:  verb  = atoi(optarg);                    break;
 			case 0x91:  trace = 1;                  cmd++;       break;
 			case 0x92:  trace_meta = 1;                          break;
 			case 0x93:  trace_class = atowchar( optarg, strlen(optarg) ); break;
@@ -348,7 +348,6 @@ int main( int argc, char *argv[] )
 			default:                                             break;
 		}
 	}
-
 
 
 	if ( optind == argc ) {
@@ -383,9 +382,12 @@ int main( int argc, char *argv[] )
 
 
 
-	aafd = aaf_alloc();
+	// aafd = aaf_alloc( NULL );
 
-	aafi = aafi_alloc( aafd );
+	aafi = aafi_alloc( NULL );
+	aafd = aafi->aafd;
+	
+	aafi_set_debug( aafi, verb );
 
 	aafi->ctx.options.verb = verb;
 	aafi->ctx.options.trace = trace;
