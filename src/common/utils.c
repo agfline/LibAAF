@@ -264,16 +264,16 @@ void dump_hex( const unsigned char * stream, size_t stream_sz )
 
 		for ( i=0; i < lineLen; i++ )
 		{
-			linepos += snprintf( &hex[linepos], sizeof(hex)-(linepos), "%02x%s", *(unsigned char*)(stream+count+i), (i==7) ? "  " : " " );
+			linepos += snprintf( &hex[linepos], sizeof(hex)-(linepos), "%02x%s", *(const unsigned char*)(stream+count+i), (i==7) ? "  " : " " );
 
             if ( i < 8 )
             {
-                if ( isalnum( *(stream+count+i) ) )     ascii[i] = *(unsigned char*)(stream+count+i);
+                if ( isalnum( *(stream+count+i) ) )     ascii[i] = *(const unsigned char*)(stream+count+i);
                 else                                    ascii[i] = '.';
             }
             else if ( i > 8 )
             {
-                if ( isalnum( *(stream+count+i) ) )     ascii[i+1] = *(unsigned char*)(stream+count+i);
+                if ( isalnum( *(stream+count+i) ) )     ascii[i+1] = *(const unsigned char*)(stream+count+i);
                 else                                    ascii[i+1] = '.';
             }
             else
@@ -281,7 +281,7 @@ void dump_hex( const unsigned char * stream, size_t stream_sz )
                 if ( isalnum( *(stream+count+i) ) )
                 {
                     ascii[i] = ' ';
-                    ascii[i+1] = *(unsigned char*)(stream+count+i);
+                    ascii[i+1] = *(const unsigned char*)(stream+count+i);
                 }
                 else
                 {

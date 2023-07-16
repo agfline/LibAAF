@@ -458,7 +458,7 @@ typedef struct _aafData
 		aafTimeStamp_t *LastModified;
 		aafVersionType_t *Version;
 		uint32_t ObjectModelVersion;
-		aafUID_t *OperationalPattern;
+		const aafUID_t *OperationalPattern;
 		// EssenceContainers; TODO AUIDSet_t
 		// DescriptiveSchemes: TODO AUIDSet_t
 

@@ -1167,12 +1167,12 @@ static int parse_Header( AAF_Data *aafd )
 
 
 
-	aafUID_t *OperationalPattern = aaf_get_propertyValue( Header, PID_Header_OperationalPattern );
+	const aafUID_t *OperationalPattern = aaf_get_propertyValue( Header, PID_Header_OperationalPattern );
 
 	if ( OperationalPattern == NULL )
 	{
 		_warning( aafd->verb, "Missing Header::OperationalPattern.\n" );
-		OperationalPattern = (aafUID_t*)&AUID_NULL;
+		OperationalPattern = (const aafUID_t*)&AUID_NULL;
 	}
 
 	aafd->Header.OperationalPattern = OperationalPattern;
