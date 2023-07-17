@@ -936,7 +936,7 @@ typedef struct AAF_Iface
 
 
 #define convertEditUnit( val, fromRate, toRate ) \
-	(int64_t)(val * (aafRationalToFloat((toRate)) * (1 / aafRationalToFloat((fromRate)))))
+	(int64_t)((val) * (aafRationalToFloat((toRate)) * (1 / aafRationalToFloat((fromRate)))))
 
 
 
