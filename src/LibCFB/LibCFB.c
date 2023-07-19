@@ -966,9 +966,10 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 
 	if ( csectDif != cfbd->hdr->_csectDif )
 	{
-		warning( "cfbd->hdr->_csectDif value seems wrong (%u). Correcting from cfbd->hdr->_csectFat.", cfbd->hdr->_csectDif );
+		warning( "cfbd->hdr->_csectDif value seems wrong (%u)", cfbd->hdr->_csectDif );
+		// warning( "cfbd->hdr->_csectDif value seems wrong (%u). Correcting from cfbd->hdr->_csectFat.", cfbd->hdr->_csectDif );
 
-		cfbd->hdr->_csectDif = csectDif;
+		// cfbd->hdr->_csectDif = csectDif;
 	}
 
 	if ( csectDif == 0 && cfbd->hdr->_sectDifStart != CFB_END_OF_CHAIN )
