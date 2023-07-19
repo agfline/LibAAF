@@ -704,7 +704,7 @@ unsigned char * cfb_getMiniSector( CFB_Data *cfbd, cfbSectorID_t id )
 
 	if ( cfbd->fat_sz > 0 && id >= cfbd->miniFat_sz )
 	{
-		error( "Asking for an out of range MiniFAT sector @ index %u (Maximum MiniFAT index is %u)", id, cfbd->miniFat_sz );
+		error( "Asking for an out of range MiniFAT sector @ index %u (0x%x) (Maximum MiniFAT index is %u)", id, id, cfbd->miniFat_sz );
 		return NULL;
 	}
 
