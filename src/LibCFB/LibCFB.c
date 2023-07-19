@@ -778,9 +778,9 @@ uint64_t cfb_getStream( CFB_Data *cfbd, cfbNode *node, unsigned char **stream, u
 		return 0;
 	}
 
-	*stream    = calloc( stream_len, sizeof(unsigned char) );
+	*stream = calloc( stream_len, sizeof(unsigned char) );
 
-	if ( stream == NULL )
+	if ( *stream == NULL )
 	{
 		error( "%s.", strerror( errno ) );
 		return 0;
@@ -796,6 +796,11 @@ uint64_t cfb_getStream( CFB_Data *cfbd, cfbNode *node, unsigned char **stream, u
 	if ( stream_len < cfbd->hdr->_ulMiniSectorCutoff ) // mini-stream
 		cfb_foreachMiniSectorInChain( cfbd, buf, id )
 		{
+			if ( !buf ) {
+				free( *stream );
+				*stream = NULL;
+				return 0;
+			}
 
 			cpy_sz = ( (stream_len - offset) < (uint64_t)(1<<cfbd->hdr->_uMiniSectorShift) ) ?
 			           (stream_len - offset) : (uint64_t)(1<<cfbd->hdr->_uMiniSectorShift);
