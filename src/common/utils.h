@@ -37,6 +37,7 @@
 #define ANSI_COLOR_RESET    "\x1b[0m"
 
 
+char * build_path( const char *sep, const char *first, ... );
 int snprintf_realloc( char **str, int *size, size_t offset, const char *format, ... );
 int vsnprintf_realloc( char **str, int *size, int offset, const char *fmt, va_list *args );
 

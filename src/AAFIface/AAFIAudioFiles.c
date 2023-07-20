@@ -128,7 +128,6 @@
 
 // static char * fop_get_parent_path( const char *path, char **buf, size_t *bufsz, char include_trailing_sep );
 static const char * fop_get_file( const char *filepath );
-static char * (fop_concat_paths2)( int argc, char **pconcat, int *pconcatsize, const char *fmt, ... );
 static size_t embeddedAudioDataReaderCallback( unsigned char *buf, size_t offset, size_t reqLen, void *user1, void *user2, void *user3 );
 static size_t externalAudioDataReaderCallback( unsigned char *buf, size_t offset, size_t reqLen, void *user1, void *user2, void *user3 );
 
@@ -192,160 +191,6 @@ static const char * fop_get_file( const char *filepath )
 }
 
 
-/*
- *  https://stackoverflow.com/questions/15198033/number-of-passed-arguments-in-a-va-list
- */
-#define NARGS_SEQ(_1,_2,_3,_4,_5,_6,_7,_8,_9,N,...) N
-#define NARGS(...) NARGS_SEQ(__VA_ARGS__, 9, 8, 7, 6, 5, 4, 3, 2, 1)
-#define fop_concat_paths2(pconcat, pconcatsize, ...) fop_concat_paths2(NARGS(__VA_ARGS__) - 1, pconcat, pconcatsize, __VA_ARGS__)
-
-static char * (fop_concat_paths2)( int argc, char **pconcat, int *pconcatsize, const char *fmt, ... )
-{
-  va_list   args1, args2;
-  va_start( args1, fmt );
-  va_copy(  args2, args1 );
-
-  int len = vsnprintf( NULL, 0, fmt, args1 ) + argc + 1; va_end( args1 );
-
-  char   *buf = NULL;
-  char **pbuf = &buf;
-
-  if ( pconcat ) {
-    pbuf = pconcat;
-  }
-
-  if ( pconcatsize == NULL || (pconcatsize && *pconcatsize < len) ) {
-    *pbuf = realloc( *pbuf, len );
-
-    if ( *pbuf == NULL ) {
-      // debug( "realloc() failed : %s", strerror(errno) );
-      fprintf( stderr, "realloc() failed : %s", strerror(errno) );
-      return NULL;
-    }
-
-    if ( pconcatsize ) {
-      *pconcatsize = len;
-    }
-  }
-
-
-  char *arg    = NULL;
-  int   arglen = 0;
-  int   bufpos = 0;
-
-  int modcount = 0;
-  int totalmods = 0;
-
-  for ( const char *p = fmt; *p; p++ )
-    if ( *p == '%' )
-      totalmods++;
-
-  for ( const char *p = fmt; *p; p++ ) {
-    if ( *p != '%' ) {
-      bufpos += snprintf( (*pbuf)+bufpos, (len-bufpos), "%c", *p );
-      continue;
-    }
-
-    modcount++;
-
-switchagain:
-
-    switch ( *(++p) ) {
-      case 'i':  bufpos += snprintf( (*pbuf)+bufpos, (len-bufpos), "%i", va_arg( args2, int    ) );  break;
-      case 'd':  bufpos += snprintf( (*pbuf)+bufpos, (len-bufpos), "%d", va_arg( args2, int    ) );  break;
-      case 'c':  bufpos += snprintf( (*pbuf)+bufpos, (len-bufpos), "%c", va_arg( args2, int    ) );  break;
-      case 'f':  bufpos += snprintf( (*pbuf)+bufpos, (len-bufpos), "%f", va_arg( args2, double ) );  break;
-
-      case '.':
-      case '*':
-        goto switchagain;
-
-      case 's':
-
-        if ( *(p-1) == '%' ) {
-          arg    = va_arg( args2, char* );
-          arglen = strlen( arg );
-        }
-        else if ( p-2 > fmt && *(p-1) == '*' && *(p-2) == '.' ) {
-          arglen = va_arg( args2, int );
-          arg    = va_arg( args2, char* );
-        }
-        else {
-          // debug("expected %%s or %%.*s modifier");
-          fprintf( stderr, "expected %%s or %%.*s modifier" );
-        }
-
-
-        /*
-         *  Removes all trailing '/', unless we're on the last
-         *  path element, where we keep one single '/' if any
-         */
-
-        while ( arglen > 1 && IS_DIR_SEP(*(arg+(arglen-1))) ) {
-          // debug( "%i %c %c", arglen, *(arg+(arglen-1)), *(arg+(arglen-2)) );
-          if ( modcount == totalmods && !IS_DIR_SEP(*(arg+(arglen-2))) )
-            break;
-          arglen--;
-        }
-
-        /*
-         *  Removes all leading '/', unless we're on the first
-         *  path element, where we keep one single '/' if any
-         */
-
-        while ( IS_DIR_SEP(*arg) ) {
-          if ( modcount == 1 && !IS_DIR_SEP(*(arg+1)) )
-            break;
-          arg++; arglen--;
-        }
-
-        bufpos += snprintf( (*pbuf)+bufpos, (len-bufpos), "%.*s%s", arglen, arg, (modcount==totalmods) ? "" : DIR_SEP_STR );
-        break;
-
-      default:
-        // debug("modifier not recognized '%c'", *p );
-        fprintf( stderr, "modifier not recognized '%c'", *p );
-        break;
-    }
-  }
-
-
-  // for ( int i = 0; i < argc; i++ ) {
-  //   char *arg = va_arg( args2, char* );
-  //   char arglen = strlen(arg);
-  //
-  //   debug("RAWARG: %s", arg);
-  //
-  //   while ( arglen > 1 && *(arg+(arglen-1)) == DIR_SEP ) {
-  //     debug("arglen--");
-  //     arglen--;
-  //   }
-  //
-  //   while ( *arg == DIR_SEP ) {
-  //     if ( i == 0 && *(arg+1) != DIR_SEP ) {
-  //       break; // keeps path leading '/' if any
-  //     }
-  //     debug("%c", *arg);
-  //     arg++;
-  //     arglen--;
-  //   }
-  //
-  //   debug(">>>>> %.*s", arglen, arg);
-  //
-  //
-  //   pos += snprintf( buf+pos, (len-pos), "%.*s%s", arglen, arg, (i+1==argc) ? "" : DIR_SEP_STR );
-  //   // debug("arg %s", arg);
-  // }
-
-  // vsprintf( node->str, fmt, args2 ); va_end( args2 );
-  va_end( args2 );
-
-  // debug("%s", buf);
-  return *pbuf;
-}
-
-
-
 char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_file_path, const char *search_location )
 {
   /*
@@ -371,7 +216,7 @@ char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_fi
 
   if ( search_location ) {
 
-    char *fpath = fop_concat_paths2( NULL, NULL, "%s%s", search_location, fop_get_file(filepath) );
+    char *fpath = build_path( DIR_SEP_STR, search_location, fop_get_file(filepath), NULL );
 
     // debug( "search_location : %s", fpath );
 
@@ -457,8 +302,7 @@ char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_fi
     }
 
 
-
-    char *fpath = fop_concat_paths2( NULL, NULL, "%s%s", aafPath, relativeEssencePath );
+    char *fpath = build_path( DIR_SEP_STR, aafPath, relativeEssencePath, NULL );
 
     free( aafPath );
 

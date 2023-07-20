@@ -28,6 +28,88 @@
 #include "utils.h"
 
 
+#define BUILD_PATH_DEFAULT_BUF_SIZE 1024
+
+
+
+
+char * build_path( const char *sep, const char *first, ... )
+{
+  char *str = malloc( BUILD_PATH_DEFAULT_BUF_SIZE );
+  size_t len = BUILD_PATH_DEFAULT_BUF_SIZE;
+  size_t offset = 0;
+
+  va_list args;
+
+  if ( !sep ) {
+    sep = DIR_SEP_STR;
+  }
+
+
+  int element_count = 0;
+  va_start( args, first );
+
+  const char *arg = first;
+
+  do {
+
+    int arglen = strlen(arg);
+    int argstart = 0;
+    int has_leading_sep = 0;
+
+    /* trim leading DIR_SEP */
+    for ( int i = 0; arg[i] != 0x00; i++ ) {
+      if ( IS_DIR_SEP(arg[i]) ) {
+        has_leading_sep = 1;
+        argstart++;
+      } else {
+        break;
+      }
+    }
+
+    /* trim trailing DIR_SEP */
+    for ( int i = arglen-1; i >= argstart; i-- ) {
+      if ( IS_DIR_SEP(arg[i]) ) {
+        arglen--;
+      } else {
+        break;
+      }
+    }
+
+    if ( element_count == 0 && has_leading_sep ) {
+    } else {
+    }
+
+    size_t reqlen = snprintf( NULL, 0, "%.*s", arglen-argstart, arg+argstart ) + 1;
+
+    if ( offset + reqlen >= len ) {
+      reqlen = ((offset + reqlen) > (len + BUILD_PATH_DEFAULT_BUF_SIZE)) ? (offset + reqlen) : (len + BUILD_PATH_DEFAULT_BUF_SIZE);
+      char *tmp = realloc( str, (offset + reqlen) );
+      if ( tmp ) {
+        str = tmp;
+        len = (offset + reqlen);
+      } else {
+        free( str );
+        return NULL;
+      }
+    }
+
+    offset += snprintf( str + offset, len - offset, "%s%.*s",
+      ( (element_count == 0 && has_leading_sep) || (element_count > 0) ) ? sep : "",
+      arglen-argstart,
+      arg+argstart );
+
+    element_count++;
+
+  } while ( (arg = va_arg(args, char*)) != NULL );
+
+  va_end( args );
+
+  // printf( "built path : %s\n", str );
+
+  return str;
+}
+
 
 
 int snprintf_realloc( char **str, int *size, size_t offset, const char *format, ... )
