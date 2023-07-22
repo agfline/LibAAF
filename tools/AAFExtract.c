@@ -19,6 +19,7 @@
  */
 
 #include <stdio.h>
+#include <locale.h>
 
 #ifdef _MSC_VER
 	#include "win/getopt.h"
@@ -37,6 +38,8 @@ static void usage( void ) {
 
 int main( int argc, char *argv[] )
 {
+	setlocale( LC_ALL, "" );
+
 	int rc = 0;
 
 	char *output_path = NULL;
