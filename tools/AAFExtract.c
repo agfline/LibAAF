@@ -82,6 +82,8 @@ int main( int argc, char *argv[] )
 
 	AAF_Iface *aafi = aafi_alloc( NULL );
 
+	aafi_set_debug( aafi, VERB_DEBUG );
+
 	aafi->ctx.options.verb = VERB_DEBUG;
 	aafi->ctx.options.trace = 1;
 
@@ -95,7 +97,7 @@ int main( int argc, char *argv[] )
 	foreachEssence( audioEssence, aafi->Audio->Essences ) {
 
 		if ( audioEssence->is_embedded ) {
-			if ( aafi_extract_audio_essence( aafi, audioEssence, output_path, NULL, 0 ) == 0 ) {
+			if ( aafi_extract_audio_essence( aafi, audioEssence, output_path, NULL ) == 0 ) {
 				printf( "Media file extracted @ %ls\n", audioEssence->usable_file_path );
 			}
 		}

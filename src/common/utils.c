@@ -32,6 +32,200 @@
 
 
 
+wchar_t * utoa( wchar_t *str )
+{
+  /*
+   * Unicode to ASCII
+   */
+
+  for ( size_t i = 0; str[i]; i++ ) {
+    wchar_t c = str[i];
+    // printf("0x%02x\n", c );
+
+    switch ( c ) {
+
+      case L'à':
+      case L'á':
+      case L'â':
+      case L'ã':
+      case L'ä':
+      case L'å':
+      case L'æ':
+        str[i] = 'a';
+        break;
+
+      case L'é':
+      case L'è':
+      case L'ê':
+      case L'ë':
+        str[i] = 'e';
+        break;
+
+      case L'ì':
+      case L'í':
+      case L'î':
+      case L'ï':
+        str[i] = 'i';
+        break;
+
+      case L'ò':
+      case L'ó':
+      case L'ô':
+      case L'õ':
+      case L'ö':
+      case L'ø':
+      case L'œ':
+        str[i] = 'o';
+        break;
+
+      case L'ù':
+      case L'ú':
+      case L'û':
+      case L'ü':
+        str[i] = 'u';
+        break;
+
+      case L'ý':
+      case L'ÿ':
+        str[i] = 'y';
+        break;
+
+      case L'À':
+      case L'Á':
+      case L'Â':
+      case L'Ã':
+      case L'Ä':
+      case L'Å':
+      case L'Æ':
+        str[i] = 'A';
+        break;
+
+      case L'È':
+      case L'É':
+      case L'Ê':
+      case L'Ë':
+        str[i] = 'E';
+        break;
+
+      case L'Ì':
+      case L'Í':
+      case L'Î':
+      case L'Ï':
+        str[i] = 'I';
+        break;
+
+      case L'Ò':
+      case L'Ó':
+      case L'Ô':
+      case L'Õ':
+      case L'Ö':
+      case L'Ø':
+      case L'Œ':
+        str[i] = 'O';
+        break;
+
+      case L'Ù':
+      case L'Ú':
+      case L'Û':
+      case L'Ü':
+        str[i] = 'U';
+        break;
+
+      case L'Ý':
+      case L'Ÿ':
+        str[i] = 'Y';
+        break;
+
+      case L'ç':
+        str[i] = 'c';
+        break;
+
+      case L'Ç':
+        str[i] = 'C';
+        break;
+
+      case L'ð':
+        str[i] = 'd';
+        break;
+
+      case L'Ð':
+        str[i] = 'D';
+        break;
+
+      case L'ß':
+        str[i] = 'S';
+        break;
+
+      case L'¿':
+        str[i] = '?';
+        break;
+
+      case L'¡':
+        str[i] = '!';
+        break;
+    }
+  }
+
+  return str;
+}
+
+
+
+char * clean_filename( char *fname )
+{
+  /*
+   * sanitize file/dir name
+   * https://stackoverflow.com/a/31976060
+   */
+  size_t len = strlen(fname);
+
+  for ( size_t i = 0; i < len; i++ ) {
+    char c = fname[i];
+    if ( c == '/' ||
+         c == '<' ||
+         c == '>' ||
+         c == ':' ||
+         c == '"' ||
+         c == '|' ||
+         c == '?' ||
+         c == '*' ||
+         c == '\\' ||
+         c < 0x20 )
+    {
+      fname[i] = '_';
+    }
+  }
+
+  /* windows filenames can't end with ' ' or '.' */
+  for ( int i = len-1; i > 0; i-- ) {
+    char c = fname[i];
+    if ( c != ' ' && c != '.' ) {
+      break;
+    }
+    fname[i] = '_';
+  }
+
+  return fname;
+}
+
+
+
+const char * fop_get_file( const char *filepath )
+{
+  if ( filepath == NULL ) {
+    return NULL;
+  }
+
+  const char *end = filepath + strlen(filepath);
+
+  while ( end > filepath && !IS_DIR_SEP(*end) ) {
+    --end;
+  }
+
+  return ( IS_DIR_SEP(*end) ) ? end+1 : end;
+}
+
+
 
 char * build_path( const char *sep, const char *first, ... )
 {
@@ -203,6 +397,7 @@ char * c99strdup( const char *src )
 }
 
 
+
 size_t utf16toa( char *astr, uint16_t alen, uint16_t *wstr, uint16_t wlen )
 {
      uint32_t i = 0;
@@ -305,76 +500,6 @@ wchar_t * w16tow32( wchar_t *w32buf, uint16_t *w16buf, size_t w16len )
 
 
 
-const char ASCII[] = {
-
-    /*
-     *  Basic Latin (ASCII)
-     */
-
-    '.',  '.',  '.',  '.',  '.',  '.',  '.',  '.',
-    '.',  '.',  '.',  '.',  '.',  '.',  '.',  '.',
-    '.',  '.',  '.',  '.',  '.',  '.',  '.',  '.',
-    '.',  '.',  '.',  '.',  '.',  '.',  '.',  '.',
-
-    ' ',  '!',  '"',  '#',  '$',  '%',  '&',  '\'',
-    '(',  ')',  '*',  '+',  ',',  '-',  '.',  '/',
-    '0',  '1',  '2',  '3',  '4',  '5',  '6',  '7',
-    '8',  '9',  ':',  ';',  '<',  '=',  '>',  '?',
-
-    '@',  'A',  'B',  'C',  'D',  'E',  'F',  'G',
-    'H',  'I',  'J',  'K',  'L',  'M',  'N',  'O',
-    'P',  'Q',  'R',  'S',  'T',  'U',  'V',  'W',
-    'X',  'Y',  'Z',  '[',  '\\', ']',  '^',  '_',
-
-    '`',  'a',  'b',  'c',  'd',  'e',  'f',  'g',
-    'h',  'i',  'j',  'k',  'l',  'm',  'n',  'o',
-    'p',  'q',  'r',  's',  't',  'u',  'v',  'w',
-    'x',  'y',  'z',  '{',  '|',  '}',  '~',  '.',
-
-    /*
-     *  Latin-1 Supplement
-     */
-
-    '.',  ' ',  ',',  '.',  '"',  '.',  '.',  '.',
-    '^',  '%',  'S',  '<',  'E',  ' ',  'Z',  ' ',
-    ' ',  '\'', '\'', '"',  '"',  '.',  '-',  '-',
-    '~',  '.',  'S',  '>',  'e',  ' ',  'z',  'Y',
-
-    ' ',  'i',  '.',  '.',  '.',  '.',  '|',  '.',
-    '.',  '.',  '.',  '"',  '.',  '-',  '.',  '.',
-    '.',  '.',  '2',  '3',  '\'', 'u',  '.',  '.',
-    '.',  '1',  '.',  '"',  '.',  '.',  '.',  '?',
-
-    'A',  'A',  'A',  'A',  'A',  'A',  'E',  'C',
-    'E',  'E',  'E',  'E',  'I',  'I',  'I',  'I',
-    '.',  'N',  'O',  'O',  'O',  'O',  'O',  'x',
-    'O',  'U',  'U',  'U',  'U',  'Y',  '.',  'B',
-
-    'a',  'a',  'a',  'a',  'a',  'a',  'e',  'c',
-    'e',  'e',  'e',  'e',  'i',  'i',  'i',  'i',
-    '.',  'n',  'o',  'o',  'o',  'o',  'o',  '/',
-    'o',  'u',  'u',  'u',  'u',  'y',  '.',  'y'
-};
-
-wchar_t * eascii_to_ascii( wchar_t *str )
-{
-    size_t len = wcslen( str );
-    size_t i = 0;
-
-    for ( ; i < len; i++ )
-    {
-        if ( str[i] <= 0xff )
-            str[i] = ASCII[str[i]];
-        else
-            str[i] = str[i];
-    }
-
-    return str;
-}
-
-
-
-
 int dump_hex( const unsigned char *stream, size_t stream_sz, char **buf, int *bufsz, int offset )
 {
 	if ( stream == NULL )
@@ -463,7 +588,6 @@ int dump_hex( const unsigned char *stream, size_t stream_sz, char **buf, int *bu
 
 
 
-
 char * url_decode( char *dst, char *src )
 {
  	char a, b;
@@ -504,6 +628,7 @@ char * url_decode( char *dst, char *src )
 
  	return dst;
 }
+
 
 
 wchar_t * wurl_decode( wchar_t *dst, wchar_t *src )

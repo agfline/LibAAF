@@ -166,7 +166,7 @@ int riff_parseAudioFile( struct RIFFAudioFile *RIFFAudioFile, size_t (*readerCal
 
 
 
-  debug( "%.4s %.4s (%u bytes)", riff.ckid, riff.format, riff.cksz );
+  // debug( "%.4s %.4s (%u bytes)", riff.ckid, riff.format, riff.cksz );
 
 
 
@@ -186,7 +186,7 @@ int riff_parseAudioFile( struct RIFFAudioFile *RIFFAudioFile, size_t (*readerCal
       chunk.cksz = BE2LE32(chunk.cksz);
     }
 
-    debug( "Got chunk : %.4s (%u bytes)", chunk.ckid, chunk.cksz );
+    // debug( "Got chunk : %.4s (%u bytes)", chunk.ckid, chunk.cksz );
 
     if ( !be ) { /* WAVE */
 

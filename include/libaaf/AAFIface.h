@@ -309,7 +309,7 @@ typedef struct aafiAudioEssence
 
 	aafProperty   *summary; // WAVEDescriptor AIFCDescriptor
 
-	uint32_t       format;
+	// uint32_t       format;
 	uint32_t       samplerate;
 	int16_t        samplesize;
 	int16_t        channels;
