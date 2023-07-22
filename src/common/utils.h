@@ -24,6 +24,9 @@
 #include <stdarg.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define ANSI_COLOR_RED      "\033[38;5;124m" //"\x1b[31m"
 #define ANSI_COLOR_GREEN    "\x1b[92m"
@@ -84,5 +87,9 @@ int dump_hex( const unsigned char *stream, size_t stream_sz, char **buf, int *bu
 char * url_decode( char *dst, char *src );
 
 wchar_t * wurl_decode( wchar_t *dst, wchar_t *src );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // ! __utils_h__
