@@ -33,18 +33,10 @@
 
 #include <libaaf.h>
 
-
 #include "./thirdparty/libTC.h"
 #include "../src/common/utils.h" // ANSI colors, c99strdup()
 
 
-#ifdef _WIN32
-  #define WPRIs  L"S" // char*
-	#define WPRIws L"s" // wchar_t*
-#else
-  #define WPRIs  L"s"  // char*
-	#define WPRIws L"ls" // wchar_t*
-#endif
 
 #define POS_FORMAT_BUFFER_LEN 32
 

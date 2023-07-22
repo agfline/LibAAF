@@ -947,28 +947,6 @@ typedef struct AAF_Iface
     eu2sample( audioClip->Essence->samplerate, audioClip->track->edit_rate, val )
 // 	(int64_t)(val * (audioClip->Essence->samplerate * (1 / aafRationalToFloat(audioClip->track->edit_rate))))
 
-/*
-#define eu2tc_h( edit_rate, val ) \
-	(uint16_t)((val * (1 / aafRationalToFloat(edit_rate))) / 3600)
-
-#define eu2tc_m( edit_rate, val ) \
-	(uint16_t)((int64_t)(val * (1 / aafRationalToFloat(edit_rate))) % 3600 / 60)
-
-#define eu2tc_s( edit_rate, val ) \
-	(uint16_t)((int64_t)(val * (1 / aafRationalToFloat(edit_rate))) % 3600 % 60)
-
-#define eu2tc_f( edit_rate, tc, val ) \
-	(uint16_t)(((int64_t)(val * (1 / aafRationalToFloat(edit_rate))) % tc->fps) * tc->fps)
-*/
-
-
-
-
-/*
-#define foreachAudioClip( ac, acList ) \
-	for ( ac = acList; ac != NULL; ac = ac->next )
-*/
-
 
 
 

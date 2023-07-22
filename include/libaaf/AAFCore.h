@@ -329,10 +329,6 @@ typedef struct aafObject
 
 	/**
 	 *	The name of the Node in the Compound File Tree : cfbNode._ab.
-	 *
-	 *	Note that the Compound File specifies that each string shall
-	 *	use wide char UTF-16 encoding. So the #Name here has to be
-	 *	converted to ascii, thanks to the utf16toa() function.
 	 */
 
 	wchar_t       Name[CFB_NODE_NAME_SZ];

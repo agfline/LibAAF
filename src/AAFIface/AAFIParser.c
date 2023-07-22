@@ -72,18 +72,6 @@
 
 
 
-#ifndef uint
-#define uint unsigned int // windows
-#endif
-
-#ifdef _WIN32
-  #define WPRIs  L"S" // char*
-	#define WPRIws L"s" // wchar_t*
-#else
-  #define WPRIs  L"s"  // char*
-	#define WPRIws L"ls" // wchar_t*
-#endif
-
 #define debug( ... ) \
 	_dbg( aafi->dbg, aafi, DEBUG_SRC_ID_AAF_IFACE, VERB_DEBUG, __VA_ARGS__ )
 
@@ -4099,7 +4087,7 @@ static int retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRation
 
 	aafObject *Point  = NULL;
 
-	uint i = 0;
+	unsigned int i = 0;
 
 	aaf_foreach_ObjectInSet( &Point, Points, &AAFClassID_ControlPoint )
 	{
