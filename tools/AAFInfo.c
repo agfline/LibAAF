@@ -246,7 +246,7 @@ int main( int argc, char *argv[] )
 	int trace = 0;
 	int trace_meta = 0;
 
-	wchar_t *trace_class = NULL;
+	char *trace_class = NULL;
 
 	int cmd = 0;
 
@@ -316,7 +316,7 @@ int main( int argc, char *argv[] )
 			case 0x8b:  aaf_meta       = 1;         cmd++;       break;
 			case 0x8c:  aaf_properties = 1;         cmd++;       break;
 
-			case 0x8d:  media_location = c99strdup( optarg );    break;
+			case 0x8d:  media_location = optarg;                 break;
 
 			case 0x8e:
 
@@ -341,7 +341,7 @@ int main( int argc, char *argv[] )
 			case 0x90:  verb  = atoi(optarg);                    break;
 			case 0x91:  trace = 1;                  cmd++;       break;
 			case 0x92:  trace_meta = 1;                          break;
-			case 0x93:  trace_class = atowchar( optarg, strlen(optarg) ); break;
+			case 0x93:  trace_class = optarg;                    break;
 
 			case 'h':	showHelp();        												 goto end;
 
@@ -386,16 +386,22 @@ int main( int argc, char *argv[] )
 
 	aafi = aafi_alloc( NULL );
 	aafd = aafi->aafd;
-	
+
 	aafi_set_debug( aafi, verb );
 
 	aafi->ctx.options.verb = verb;
 	aafi->ctx.options.trace = trace;
 	aafi->ctx.options.trace_meta = trace_meta;
-	aafi->ctx.options.trace_class = trace_class;
 	aafi->ctx.options.protools = PROTOOLS_ALL;
 	aafi->ctx.options.resolve = RESOLVE_ALL;
-	aafi->ctx.options.media_location = media_location;
+
+	if ( media_location ) {
+		aafi_set_media_location( aafi, media_location );
+	}
+
+	if ( trace_class ) {
+		aafi_set_trace_class( aafi, trace_class );
+	}
 
 
 	if ( aafi_load_file( aafi, argv[argc-1] ) ) {

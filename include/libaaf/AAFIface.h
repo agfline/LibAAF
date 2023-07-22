@@ -981,6 +981,8 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd );
 
 int aafi_set_media_location( AAF_Iface *aafi, const char *path );
 
+int aafi_set_trace_class( AAF_Iface *aafi, const char *className );
+
 void aafi_release( AAF_Iface **aafi );
 
 int aafi_load_file( AAF_Iface *aafi, const char * file );

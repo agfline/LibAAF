@@ -155,12 +155,14 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 }
 
 
+
 void aafi_set_debug( AAF_Iface *aafi, verbosityLevel_e v ) {
 	// aafi->verb = v;
 	// aafi->aafd->verb = v;
 	// aafi->aafd->cfbd->verb = v;
 	aafi->dbg->verb = v;
 }
+
 
 
 int aafi_set_media_location( AAF_Iface *aafi, const char *path ) {
@@ -170,6 +172,26 @@ int aafi_set_media_location( AAF_Iface *aafi, const char *path ) {
 	}
 
 	aafi->ctx.options.media_location = (path) ? c99strdup( path ) : NULL;
+
+	return 0;
+}
+
+
+
+int aafi_set_trace_class( AAF_Iface *aafi, const char *className ) {
+
+	if ( aafi->ctx.options.trace_class ) {
+		free( aafi->ctx.options.trace_class );
+		aafi->ctx.options.trace_class = NULL;
+	}
+
+	aafi->ctx.options.trace_class = malloc( (strlen(className)+1)*sizeof(wchar_t) );
+
+	if ( aafi->ctx.options.trace_class == NULL ) {
+		return -1;
+	}
+
+	swprintf( aafi->ctx.options.trace_class, strlen(className)+1, L"%s", className );
 
 	return 0;
 }
