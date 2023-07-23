@@ -33,6 +33,10 @@
 #endif
 
 
+enum RIFF_PARSER_FLAGS {
+  RIFF_PARSE_ONLY_HEADER = (1 << 0),
+};
+
 struct riffContext {
   void *user;
   void DEBUG_FUNCTION_POINTER;
@@ -132,7 +136,7 @@ PACK(struct aiffCOMMChunk {
 
 
 
-int riff_parseAudioFile( struct RIFFAudioFile *RIFFAudioFile, size_t (*readerCallback)(unsigned char *, size_t, size_t, void*, void*, void*), void *user1, void *user2, void *user3, struct dbg *dbg );
+int riff_parseAudioFile( struct RIFFAudioFile *RIFFAudioFile, enum RIFF_PARSER_FLAGS flags, size_t (*readerCallback)(unsigned char *, size_t, size_t, void*, void*, void*), void *user1, void *user2, void *user3, struct dbg *dbg );
 
 int riff_writeWavFileHeader( FILE *fp, struct wavFmtChunk *wavFmt, struct wavBextChunk *wavBext, uint32_t audioDataSize, struct dbg *dbg );
 

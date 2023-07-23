@@ -117,7 +117,7 @@ int riff_writeWavFileHeader( FILE *fp, struct wavFmtChunk *wavFmt, struct wavBex
 
 
 
-int riff_parseAudioFile( struct RIFFAudioFile *RIFFAudioFile, size_t (*readerCallback)(unsigned char *, size_t, size_t, void*, void*, void*), void *user1, void *user2, void *user3, struct dbg *dbg ) {
+int riff_parseAudioFile( struct RIFFAudioFile *RIFFAudioFile, enum RIFF_PARSER_FLAGS flags, size_t (*readerCallback)(unsigned char *, size_t, size_t, void*, void*, void*), void *user1, void *user2, void *user3, struct dbg *dbg ) {
 
   struct riffChunk chunk;
   struct riffHeaderChunk riff;
@@ -202,6 +202,10 @@ int riff_parseAudioFile( struct RIFFAudioFile *RIFFAudioFile, size_t (*readerCal
         RIFFAudioFile->channels   = wavFmtChunk.channels;
         RIFFAudioFile->sampleSize = wavFmtChunk.bits_per_sample;
         RIFFAudioFile->sampleRate = wavFmtChunk.samples_per_sec;
+
+				if ( flags & RIFF_PARSE_ONLY_HEADER ) {
+					return 0;
+				}
       }
       else
       if ( chunk.ckid[0] == 'd' &&
@@ -229,6 +233,10 @@ int riff_parseAudioFile( struct RIFFAudioFile *RIFFAudioFile, size_t (*readerCal
         RIFFAudioFile->sampleSize = BE2LE16(aiffCOMMChunk.sampleSize);
         RIFFAudioFile->sampleRate = beExtended2leUint32(aiffCOMMChunk.sampleRate);
         RIFFAudioFile->duration   = BE2LE32(aiffCOMMChunk.numSampleFrames);
+
+				if ( flags & RIFF_PARSE_ONLY_HEADER ) {
+					return 0;
+				}
       }
       // else
       // if ( chunk.ckid[0] == 'S' &&

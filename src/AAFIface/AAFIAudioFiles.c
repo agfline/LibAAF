@@ -479,7 +479,7 @@ int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
     // dump_hex( audioEssence->summary->val, audioEssence->summary->len );
 
 
-    rc = riff_parseAudioFile( &RIFFAudioFile, &embeddedAudioDataReaderCallback, audioEssence->summary->val, &audioEssence->summary->len, aafi, aafi->dbg );
+    rc = riff_parseAudioFile( &RIFFAudioFile, RIFF_PARSE_ONLY_HEADER, &embeddedAudioDataReaderCallback, audioEssence->summary->val, &audioEssence->summary->len, aafi, aafi->dbg );
 
     if ( rc < 0 ) {
       warning( "TODO: Could not parse embedded essence summary. Should try essence data stream ?" );
@@ -521,7 +521,7 @@ int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
     }
 
 
-    rc = riff_parseAudioFile( &RIFFAudioFile, &externalAudioDataReaderCallback, fp, externalFilePath, aafi, aafi->dbg );
+    rc = riff_parseAudioFile( &RIFFAudioFile, RIFF_PARSE_ONLY_HEADER, &externalAudioDataReaderCallback, fp, externalFilePath, aafi, aafi->dbg );
 
     if ( rc < 0 ) {
       error( "TODO IF MP3 ? Failed parsing external essence file : %s", externalFilePath );
