@@ -86,6 +86,7 @@
 
 
 
+static aafRational_t AAFI_DEFAULT_TC_EDIT_RATE = { 25, 1 };
 
 
 // #define OK      0
@@ -2100,9 +2101,13 @@ static int parse_Timecode( AAF_Iface *aafi, aafObject *Timecode, td *__ptd )
 	}
 
 
+  if ( aafi->Timecode ) {
+    DUMP_OBJ_WARNING( aafi, Timecode, &__td, "Timecode was already set, ignoring (%lu, %u fps)", *tc_start, *tc_fps );
+    return -1;
+  }
 	/* TODO allocate in specific function */
 
-	aafiTimecode *tc = calloc( sizeof(aafiTimecode), sizeof(unsigned char) );
+  aafiTimecode *tc = calloc( sizeof(aafiTimecode), sizeof(unsigned char) );
 
 	if ( tc == NULL )
 	{
@@ -2115,8 +2120,7 @@ static int parse_Timecode( AAF_Iface *aafi, aafObject *Timecode, td *__ptd )
 	tc->drop  = *tc_drop;
 	tc->edit_rate = tc_edit_rate;
 
-	aafi->Audio->tc = tc;
-	aafi->Video->tc = tc; // TODO do it properly !
+  aafi->Timecode = tc;
 
 
 	DUMP_OBJ( aafi, Timecode, &__td );
@@ -4756,8 +4760,11 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 
 	/* TODO implement global (audio and video) session start and end */
 	// if ( aafi->ctx.current_tree_type == AAFI_TREE_TYPE_AUDIO )
-	  if ( session_end > 0 && aafi->Audio->tc && aafi->Audio->tc->end < session_end )
-	      aafi->Audio->tc->end = session_end;
+
+  if ( session_end > 0 && aafi->Timecode && aafi->Timecode->end < session_end ) {
+    aafi->Timecode->end = session_end;
+  }
+
 	// if ( aafi->ctx.current_tree_type == AAFI_TREE_TYPE_VIDEO )
 	//   if ( session_end > 0 && aafi->Video->tc )
 	//       aafi->Video->tc->end = session_end;
@@ -4955,9 +4962,29 @@ int aafi_retrieveData( AAF_Iface *aafi )
 	// 	}
 	// }
 
+  if ( aafi->Timecode == NULL ) {
+    warning( "No timecode found in file. Setting to 00:00:00:00 @ 25fps" );
+
+    aafiTimecode *tc = calloc( sizeof(aafiTimecode), sizeof(unsigned char) );
+
+  	if ( tc == NULL )
+  	{
+  		error( "calloc() : %s", strerror( errno ) );
+  		return -1;
+  	}
+
+  	tc->start = 0;
+  	tc->fps   = 25;
+  	tc->drop  = 0;
+  	tc->edit_rate = &AAFI_DEFAULT_TC_EDIT_RATE;
+
+    aafi->Timecode = tc;
+  }
+
   /* aafi->Audio->tc->end is set to composition duration. Add tc->start to set composition end time */
-  if ( aafi->Audio->tc && aafi->Audio->tc->end ) {
-    aafi->Audio->tc->end += aafi->Audio->tc->start;
+
+  if ( aafi->Timecode && aafi->Timecode->end ) {
+    aafi->Timecode->end += aafi->Timecode->start;
   }
 
 
@@ -5040,30 +5067,9 @@ int aafi_retrieveData( AAF_Iface *aafi )
 
 
 
-	if ( aafi->Audio->tc && !aafi->Video->tc ) {
-		aafi->compositionStart = aafi->Audio->tc->start;
-		aafi->compositionStart_editRate.numerator   = aafi->Audio->tc->edit_rate->numerator;
-		aafi->compositionStart_editRate.denominator = aafi->Audio->tc->edit_rate->denominator;
-	}
-	else
-	if ( !aafi->Audio->tc && aafi->Video->tc ) {
-		aafi->compositionStart = aafi->Video->tc->start;
-		aafi->compositionStart_editRate.numerator   = aafi->Video->tc->edit_rate->numerator;
-		aafi->compositionStart_editRate.denominator = aafi->Video->tc->edit_rate->denominator;
-	}
-	else
-	if ( aafi->Audio->tc && aafi->Video->tc ) {
-		if ( aafi->Audio->tc->start > aafi->Video->tc->start ) {
-			aafi->compositionStart = aafi->Audio->tc->start;
-			aafi->compositionStart_editRate.numerator   = aafi->Audio->tc->edit_rate->numerator;
-			aafi->compositionStart_editRate.denominator = aafi->Audio->tc->edit_rate->denominator;
-		}
-		else {
-			aafi->compositionStart = aafi->Video->tc->start;
-			aafi->compositionStart_editRate.numerator   = aafi->Video->tc->edit_rate->numerator;
-			aafi->compositionStart_editRate.denominator = aafi->Video->tc->edit_rate->denominator;
-		}
-	}
+  aafi->compositionStart = aafi->Timecode->start;
+  aafi->compositionStart_editRate.numerator   = aafi->Timecode->edit_rate->numerator;
+  aafi->compositionStart_editRate.denominator = aafi->Timecode->edit_rate->denominator;
 
 
 	if ( protools_AAF( aafi ) ) {

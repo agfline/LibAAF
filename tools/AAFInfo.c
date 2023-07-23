@@ -469,13 +469,12 @@ int main( int argc, char *argv[] )
 
 	enum TC_FORMAT tcFormat;
 
-	if ( aafi->Audio->tc->fps == 30 && aafi->Audio->tc->drop ) {
+	if ( aafi->Timecode->fps == 30 && aafi->Timecode->drop ) {
 		tcFormat = TC_29_97_DF;
 	}
 	else {
-		tcFormat = tc_fps2format( (float)(aafi->Audio->tc->fps ), aafi->Audio->tc->drop );
+		tcFormat = tc_fps2format( (float)(aafi->Timecode->fps ), aafi->Timecode->drop );
 	}
-
 
 
 	if ( aaf_summary ) {
@@ -487,31 +486,32 @@ int main( int argc, char *argv[] )
 
 		printf( "\n" );
 
-		printf( " TC EditRrate         : %i/%i\n", aafi->Audio->tc->edit_rate->numerator, aafi->Audio->tc->edit_rate->denominator );
-		printf( " TC FPS               : %u %s\n", aafi->Audio->tc->fps, (aafi->Audio->tc->drop) ? "DF" : "NDF" );
-    printf( " TC Start (EU)        : %"PRIi64"\n", aafi->Audio->tc->start );
-    printf( " TC End (EU)          : %"PRIi64"\n", aafi->Audio->tc->end );
+		printf( " TC EditRrate         : %i/%i\n", aafi->Timecode->edit_rate->numerator, aafi->Timecode->edit_rate->denominator );
+		printf( " TC FPS               : %u %s\n", aafi->Timecode->fps, (aafi->Timecode->drop) ? "DF" : "NDF" );
+		printf( " TC Start (EU)        : %"PRIi64"\n", aafi->Timecode->start );
+		printf( " TC End (EU)          : %"PRIi64"\n", aafi->Timecode->end );
 
-    printf( " TC Start (samples)   : %"PRIi64"\n", eu2sample( aafi->Audio->samplerate, aafi->Audio->tc->edit_rate, aafi->Audio->tc->start ) );
-    printf( " TC End (samples)     : %"PRIi64"\n", eu2sample( aafi->Audio->samplerate, aafi->Audio->tc->edit_rate, aafi->Audio->tc->end ) );
+		printf( " TC Start (samples)   : %"PRIi64"\n", eu2sample( aafi->Audio->samplerate, aafi->Timecode->edit_rate, aafi->Timecode->start ) );
+		printf( " TC End (samples)     : %"PRIi64"\n", eu2sample( aafi->Audio->samplerate, aafi->Timecode->edit_rate, aafi->Timecode->end ) );
 
 		struct timecode tc_start;
 		struct timecode tc_end;
 
-		tc_set_by_unitValue( &tc_start, aafi->Audio->tc->start, (rational_t*)aafi->Audio->tc->edit_rate, tcFormat );
-		tc_set_by_unitValue( &tc_end, aafi->Audio->tc->end, (rational_t*)aafi->Audio->tc->edit_rate, tcFormat );
+		tc_set_by_unitValue( &tc_start, aafi->Timecode->start, (rational_t*)aafi->Timecode->edit_rate, tcFormat );
+		tc_set_by_unitValue( &tc_end, aafi->Timecode->end, (rational_t*)aafi->Timecode->edit_rate, tcFormat );
 
 		printf( " TC Start             : %s (%u fps %s)\n",
 			tc_start.string,
-			aafi->Audio->tc->fps,
-			(aafi->Audio->tc->drop) ? "DF" : "NDF"
+			aafi->Timecode->fps,
+			(aafi->Timecode->drop) ? "DF" : "NDF"
 		);
 
 		printf( " TC End               : %s (%u fps %s)\n",
 			tc_end.string,
-			aafi->Audio->tc->fps,
-			(aafi->Audio->tc->drop) ? "DF" : "NDF"
+			aafi->Timecode->fps,
+			(aafi->Timecode->drop) ? "DF" : "NDF"
 		);
+
 
 		printf( "\n" );
 
@@ -642,7 +642,7 @@ int main( int argc, char *argv[] )
 				 memset(&tc_out, 0x00, sizeof(struct timecode));
 				 memset(&tc_len, 0x00, sizeof(struct timecode));
 
-				 aafPosition_t sessionStart = convertEditUnit( videoClip->track->Video->tc->start, *aafi->Video->tc->edit_rate, *videoClip->track->edit_rate );
+				 aafPosition_t sessionStart = convertEditUnit( aafi->Timecode->start, *aafi->Timecode->edit_rate, *videoClip->track->edit_rate );
 
 				 tc_set_by_unitValue( &tc_in,  (videoClip->pos + sessionStart),                  (rational_t*)videoClip->track->edit_rate, tcFormat );
 				 tc_set_by_unitValue( &tc_len,  videoClip->len,                                  (rational_t*)videoClip->track->edit_rate, tcFormat );
@@ -790,7 +790,7 @@ int main( int argc, char *argv[] )
 			 *  For exemple, if TC is 30000/1001 and markers are 48000/1, then TC->start has to be converted from FPS to samples.
 			 */
 
-			aafPosition_t sessionStart = convertEditUnit( audioClip->track->Audio->tc->start, *aafi->Audio->tc->edit_rate, *marker->edit_rate );
+			aafPosition_t sessionStart = convertEditUnit( aafi->Timecode->start, *aafi->Timecode->edit_rate, *marker->edit_rate );
 
 			char posFormatBuf1[POS_FORMAT_BUFFER_LEN];
 			char posFormatBuf2[POS_FORMAT_BUFFER_LEN];

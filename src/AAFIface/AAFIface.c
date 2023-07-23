@@ -88,7 +88,7 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 	}
 
 
-	aafi->Audio = malloc( sizeof(aafiAudio) );
+	aafi->Audio = calloc( sizeof(aafiAudio), sizeof(unsigned char) );
 
 	if ( aafi->Audio == NULL )
 	{
@@ -97,7 +97,6 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 	}
 
 	aafi->Audio->Essences = NULL;
-	aafi->Audio->tc = NULL;
 	aafi->Audio->samplerate = 0;
 	aafi->Audio->samplesize = 0;
 	aafi->Audio->Tracks = NULL;
@@ -105,7 +104,7 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 	aafi->Audio->length = 0;
 
 
-	aafi->Video = malloc( sizeof(aafiVideo) );
+	aafi->Video = calloc( sizeof(aafiVideo), sizeof(unsigned char) );
 
 	if ( aafi->Video == NULL )
 	{
@@ -114,7 +113,6 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 	}
 
 	aafi->Video->Essences = NULL;
-	aafi->Video->tc = NULL;
 	aafi->Video->Tracks = NULL;
 	aafi->Video->length = 0;
 
@@ -232,11 +230,6 @@ void aafi_release( AAF_Iface **aafi )
 			aafi_freeAudioEssences( &(*aafi)->Audio->Essences );
 		}
 
-		if ( (*aafi)->Audio->tc != NULL )
-		{
-			free( (*aafi)->Audio->tc );
-		}
-
 		free( (*aafi)->Audio );
 	}
 
@@ -254,11 +247,6 @@ void aafi_release( AAF_Iface **aafi )
 			aafi_freeVideoEssences( &(*aafi)->Video->Essences );
 		}
 
-		if ( (*aafi)->Video->tc != NULL )
-		{
-			// free( (*aafi)->Video->tc );
-		}
-
 		free( (*aafi)->Video );
 	}
 
@@ -274,6 +262,10 @@ void aafi_release( AAF_Iface **aafi )
 		free( (*aafi)->ctx.options.media_location );
 	}
 
+
+	if ( (*aafi)->Timecode != NULL ) {
+		free( (*aafi)->Timecode );
+	}
 
 	if ( (*aafi)->dbg ) {
 		free_debug( (*aafi)->dbg );

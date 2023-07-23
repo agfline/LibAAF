@@ -477,7 +477,7 @@ typedef struct aafiTimelineItem
 
 
 /**
- *	Used by aafiAudio.tc and aafiAudioTrack.tc.
+ * 
  */
 
 typedef struct aafiTimecode
@@ -672,8 +672,6 @@ typedef struct aafiAudio
 	 *	Holds the sequence start timecode.
 	 */
 
-	aafiTimecode     *tc;
-
 	aafPosition_t     start;
 	aafPosition_t     length;
 	aafRational_t     length_editRate;
@@ -703,8 +701,6 @@ typedef struct aafiVideo
 	/**
 	 *	Holds the sequence start timecode.
 	 */
-
-	aafiTimecode     *tc;
 
 	aafPosition_t     start;
 	aafPosition_t     length;
@@ -861,18 +857,21 @@ typedef struct AAF_Iface
 	 *	Keeps track of the AAF_Data structure.
 	 */
 
-	AAF_Data   *aafd;
+	AAF_Data     *aafd;
 
-	aafiAudio  *Audio;
 
-	aafiVideo  *Video;
+	aafiAudio    *Audio;
 
-	aafiMarker *Markers;
+	aafiVideo    *Video;
+
+	aafiTimecode *Timecode;
+
+	aafiMarker   *Markers;
 
 
 	wchar_t          *compositionName;
 
-	aafPosition_t     compositionStart; // aafi->Audio->tc->start  OR IF UNDEFINED  aafi->Video->tc->start
+	aafPosition_t     compositionStart; // set from aafi->Timecode->start
 	aafRational_t     compositionStart_editRate;
 
 	aafPosition_t     compositionLength;
