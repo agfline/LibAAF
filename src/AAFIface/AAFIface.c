@@ -191,7 +191,7 @@ int aafi_set_trace_class( AAF_Iface *aafi, const char *className ) {
 		return -1;
 	}
 
-	swprintf( aafi->ctx.options.trace_class, strlen(className)+1, L"%s", className );
+	swprintf( aafi->ctx.options.trace_class, strlen(className)+1, L"%" WPRIs, className );
 
 	return 0;
 }
