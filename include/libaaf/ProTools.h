@@ -32,6 +32,6 @@ enum protools_options {
 
 
 int protools_AAF( struct AAF_Iface *aafi );
-int protools_post_processing( AAF_Iface *aafi /*, enum protools_options flags*/ );
+int protools_post_processing( AAF_Iface *aafi );
 
 #endif // ! __ProTools_h__

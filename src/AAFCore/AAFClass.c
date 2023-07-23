@@ -55,14 +55,13 @@
 
 
 #define attachNewProperty( aafd, Class, Prop, Pid, IsReq ) \
-	Prop = calloc( sizeof(aafPropertyDef), sizeof(unsigned char) );         \
-	if ( Prop == NULL )                              \
-	{                                                \
-		error( "%s.", strerror( errno ) );        \
-		return -1;                                   \
+	Prop = calloc( sizeof(aafPropertyDef), sizeof(unsigned char) ); \
+	if ( Prop == NULL ) {                            \
+		error( "%s.", strerror( errno ) );             \
+		return -1;                                     \
 	}                                                \
 	Prop->pid         = Pid;                         \
-	Prop->name        = NULL;                         \
+	Prop->name        = NULL;                        \
 	Prop->isReq       = IsReq;                       \
 	Prop->meta        = 0;                           \
 	Prop->next        = Class->Properties;           \

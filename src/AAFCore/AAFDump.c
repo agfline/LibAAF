@@ -25,9 +25,8 @@
 #include <libaaf/AAFToText.h>
 #include <libaaf/AAFDump.h>
 
-#include "../common/utils.h"
-
 #include "AAFClass.h"
+#include "../common/utils.h"
 
 
 

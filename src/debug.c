@@ -21,14 +21,15 @@ struct dbg * new_debug( void )
 
 
 
-void free_debug( struct dbg *dbg ) {
-
+void free_debug( struct dbg *dbg )
+{
   if ( dbg->_dbg_msg ) {
     free( dbg->_dbg_msg );
   }
 
   free( dbg );
 }
+
 
 
 void debug_callback( void *ctxdata, int libid, int type, const char *srcfile, const char *srcfunc, int lineno, const char *msg, void *user )
@@ -58,7 +59,6 @@ void debug_callback( void *ctxdata, int libid, int type, const char *srcfile, co
   if ( libid != DEBUG_SRC_ID_TRACE && libid != DEBUG_SRC_ID_DUMP ) {
     printf( "[%s%s%s] ", color, typestr, ANSI_COLOR_RESET );
     printf( "%s%s:%i in %s()%s : ", ANSI_COLOR_DARKGREY, srcfile, lineno, srcfunc, ANSI_COLOR_RESET );
-    // printf( "%s%s:%i%s : ", ANSI_COLOR_DARKGREY, srcfile, lineno, ANSI_COLOR_RESET );
   }
 
   printf( "%s\n", msg );
