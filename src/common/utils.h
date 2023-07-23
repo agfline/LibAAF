@@ -64,7 +64,7 @@ extern "C" {
   ( (c) == DIR_SEP || (c) == '/' )
 
 
-wchar_t * utoa( wchar_t *str );
+// wchar_t * utoa( wchar_t *str );
 char * clean_filename( char *filename );
 char * build_path( const char *sep, const char *first, ... );
 const char * fop_get_file( const char *filepath );

@@ -32,142 +32,142 @@
 
 
 
-wchar_t * utoa( wchar_t *str )
-{
-  /*
-   * Unicode to ASCII
-   */
-
-  for ( size_t i = 0; str[i]; i++ ) {
-    wchar_t c = str[i];
-    // printf("0x%02x\n", c );
-
-    switch ( c ) {
-
-      case L'à':
-      case L'á':
-      case L'â':
-      case L'ã':
-      case L'ä':
-      case L'å':
-      case L'æ':
-        str[i] = 'a';
-        break;
-
-      case L'é':
-      case L'è':
-      case L'ê':
-      case L'ë':
-        str[i] = 'e';
-        break;
-
-      case L'ì':
-      case L'í':
-      case L'î':
-      case L'ï':
-        str[i] = 'i';
-        break;
-
-      case L'ò':
-      case L'ó':
-      case L'ô':
-      case L'õ':
-      case L'ö':
-      case L'ø':
-      case L'œ':
-        str[i] = 'o';
-        break;
-
-      case L'ù':
-      case L'ú':
-      case L'û':
-      case L'ü':
-        str[i] = 'u';
-        break;
-
-      case L'ý':
-      case L'ÿ':
-        str[i] = 'y';
-        break;
-
-      case L'À':
-      case L'Á':
-      case L'Â':
-      case L'Ã':
-      case L'Ä':
-      case L'Å':
-      case L'Æ':
-        str[i] = 'A';
-        break;
-
-      case L'È':
-      case L'É':
-      case L'Ê':
-      case L'Ë':
-        str[i] = 'E';
-        break;
-
-      case L'Ì':
-      case L'Í':
-      case L'Î':
-      case L'Ï':
-        str[i] = 'I';
-        break;
-
-      case L'Ò':
-      case L'Ó':
-      case L'Ô':
-      case L'Õ':
-      case L'Ö':
-      case L'Ø':
-      case L'Œ':
-        str[i] = 'O';
-        break;
-
-      case L'Ù':
-      case L'Ú':
-      case L'Û':
-      case L'Ü':
-        str[i] = 'U';
-        break;
-
-      case L'Ý':
-      case L'Ÿ':
-        str[i] = 'Y';
-        break;
-
-      case L'ç':
-        str[i] = 'c';
-        break;
-
-      case L'Ç':
-        str[i] = 'C';
-        break;
-
-      case L'ð':
-        str[i] = 'd';
-        break;
-
-      case L'Ð':
-        str[i] = 'D';
-        break;
-
-      case L'ß':
-        str[i] = 'S';
-        break;
-
-      case L'¿':
-        str[i] = '?';
-        break;
-
-      case L'¡':
-        str[i] = '!';
-        break;
-    }
-  }
-
-  return str;
-}
+// wchar_t * utoa( wchar_t *str )
+// {
+//   /*
+//    * Unicode to ASCII
+//    */
+//
+//   for ( size_t i = 0; str[i]; i++ ) {
+//     wchar_t c = str[i];
+//     // printf("0x%02x\n", c );
+//
+//     switch ( c ) {
+//
+//       case L'à':
+//       case L'á':
+//       case L'â':
+//       case L'ã':
+//       case L'ä':
+//       case L'å':
+//       case L'æ':
+//         str[i] = 'a';
+//         break;
+//
+//       case L'é':
+//       case L'è':
+//       case L'ê':
+//       case L'ë':
+//         str[i] = 'e';
+//         break;
+//
+//       case L'ì':
+//       case L'í':
+//       case L'î':
+//       case L'ï':
+//         str[i] = 'i';
+//         break;
+//
+//       case L'ò':
+//       case L'ó':
+//       case L'ô':
+//       case L'õ':
+//       case L'ö':
+//       case L'ø':
+//       case L'œ':
+//         str[i] = 'o';
+//         break;
+//
+//       case L'ù':
+//       case L'ú':
+//       case L'û':
+//       case L'ü':
+//         str[i] = 'u';
+//         break;
+//
+//       case L'ý':
+//       case L'ÿ':
+//         str[i] = 'y';
+//         break;
+//
+//       case L'À':
+//       case L'Á':
+//       case L'Â':
+//       case L'Ã':
+//       case L'Ä':
+//       case L'Å':
+//       case L'Æ':
+//         str[i] = 'A';
+//         break;
+//
+//       case L'È':
+//       case L'É':
+//       case L'Ê':
+//       case L'Ë':
+//         str[i] = 'E';
+//         break;
+//
+//       case L'Ì':
+//       case L'Í':
+//       case L'Î':
+//       case L'Ï':
+//         str[i] = 'I';
+//         break;
+//
+//       case L'Ò':
+//       case L'Ó':
+//       case L'Ô':
+//       case L'Õ':
+//       case L'Ö':
+//       case L'Ø':
+//       case L'Œ':
+//         str[i] = 'O';
+//         break;
+//
+//       case L'Ù':
+//       case L'Ú':
+//       case L'Û':
+//       case L'Ü':
+//         str[i] = 'U';
+//         break;
+//
+//       case L'Ý':
+//       case L'Ÿ':
+//         str[i] = 'Y';
+//         break;
+//
+//       case L'ç':
+//         str[i] = 'c';
+//         break;
+//
+//       case L'Ç':
+//         str[i] = 'C';
+//         break;
+//
+//       case L'ð':
+//         str[i] = 'd';
+//         break;
+//
+//       case L'Ð':
+//         str[i] = 'D';
+//         break;
+//
+//       case L'ß':
+//         str[i] = 'S';
+//         break;
+//
+//       case L'¿':
+//         str[i] = '?';
+//         break;
+//
+//       case L'¡':
+//         str[i] = '!';
+//         break;
+//     }
+//   }
+//
+//   return str;
+// }
 
 
 
