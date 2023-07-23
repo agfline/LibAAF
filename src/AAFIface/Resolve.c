@@ -24,6 +24,7 @@
 #include <libaaf/AAFIParser.h>
 #include <libaaf/AAFToText.h>
 #include <libaaf/AAFDefs/AAFPropertyIDs.h>
+#include <libaaf/AAFDefs/AAFTypeDefUIDs.h>
 
 #include <libaaf.h>
 
@@ -132,11 +133,11 @@ int resolve_parse_aafObject_Selector( struct AAF_Iface *aafi, aafObject *Selecto
 		}
 
 
-		void *value = aaf_get_propertyIndirectValue( ComponentAttribute, PID_TaggedValue_Value );
+		uint32_t *value = aaf_get_propertyIndirectValue( ComponentAttribute, PID_TaggedValue_Value, &AAFTypeID_UInt32 );
 
 		if ( value == NULL ) /* req */
 		{
-			DUMP_OBJ_ERROR( aafi, ComponentAttribute, &__td, "Missing PID_TaggedValue_Value" );
+			DUMP_OBJ_ERROR( aafi, ComponentAttribute, &__td, "Missing PID_TaggedValue_Value or wrong AAFTypeID" );
       free( name );
 			continue;
 		}
@@ -145,7 +146,7 @@ int resolve_parse_aafObject_Selector( struct AAF_Iface *aafi, aafObject *Selecto
 		// debug( "Tagged | Name: %ls    Value : %u", name, *value );
 
     if ( aafi->ctx.options.resolve & RESOLVE_INCLUDE_DISABLED_CLIPS ) {
-      if ( wcsncmp( name, L"_DISABLE_CLIP_FLAG", wcslen( L"_DISABLE_CLIP_FLAG" ) ) == 0  &&  *(uint32_t*)value == 1 ) {
+      if ( wcsncmp( name, L"_DISABLE_CLIP_FLAG", wcslen( L"_DISABLE_CLIP_FLAG" ) ) == 0  &&  *value == 1 ) {
 
         ismuted = 1;
         aafi->ctx.current_clip_is_muted = 1;

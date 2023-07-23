@@ -232,20 +232,19 @@ static void xplore_StrongObjectReferenceVector( AAF_Iface *aafi, aafObject *ObjC
 		     aaf_get_property( Obj, PID_TaggedValue_Value ) )
 		{
 			wchar_t  *name = aaf_get_propertyValueWstr( Obj, PID_TaggedValue_Name );
-			void    *value = aaf_get_propertyIndirectValue( Obj, PID_TaggedValue_Value );
-			aafUID_t *type = aaf_get_propertyIndirectValueType( Obj, PID_TaggedValue_Value );
+      aafIndirect_t *indirect = aaf_get_propertyIndirect( Obj, PID_TaggedValue_Value, &AUID_NULL );
 
-			if ( aafUIDCmp( type, &AAFTypeID_Int32 ) ) {
-				offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "Tagged     |     Name: %ls%*s      Value (%ls)  : %i\n", name, 56-(int)wcslen(name), " ", TypeIDToText(type), *(int32_t*)value );
+			if ( aafUIDCmp( &indirect->TypeDef, &AAFTypeID_Int32 ) ) {
+				offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "Tagged     |     Name: %ls%*s      Value (%ls)  : %i\n", name, 56-(int)wcslen(name), " ", TypeIDToText(&indirect->TypeDef), *(int32_t*)indirect->Value );
 			}
 			else
-			if ( aafUIDCmp( type, &AAFTypeID_String ) ) {
-				value = aaf_get_propertyIndirectValueWstr( Obj, PID_TaggedValue_Value );
-				offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "Tagged     |     Name: %ls%*s      Value (%ls) : %ls\n", name, 56-(int)wcslen(name), " ", TypeIDToText(type), (wchar_t*)value );
-				free( value );
+			if ( aafUIDCmp( &indirect->TypeDef, &AAFTypeID_String ) ) {
+				wchar_t *wstr = cfb_w16towchar( NULL, (uint16_t*)indirect->Value, CFB_W16TOWCHAR_STRLEN );
+				offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "Tagged     |     Name: %ls%*s      Value (%ls) : %ls\n", name, 56-(int)wcslen(name), " ", TypeIDToText(&indirect->TypeDef), wstr );
+				free( wstr );
 			}
 			else {
-				offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "Tagged     |     Name: %ls%*s      Value (%s%ls%s) : %sUNKNOWN_TYPE%s\n", name, 56-(int)wcslen(name), " ", ANSI_COLOR_RED, TypeIDToText(type), ANSI_COLOR_RESET, ANSI_COLOR_RED, ANSI_COLOR_RESET );
+				offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "Tagged     |     Name: %ls%*s      Value (%s%ls%s) : %sUNKNOWN_TYPE%s\n", name, 56-(int)wcslen(name), " ", ANSI_COLOR_RED, TypeIDToText(&indirect->TypeDef), ANSI_COLOR_RESET, ANSI_COLOR_RED, ANSI_COLOR_RESET );
 			}
 
       dbg->debug_callback( (void*)aafi, DEBUG_SRC_ID_DUMP, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
@@ -594,36 +593,36 @@ static wchar_t * build_unique_audiofilename( AAF_Iface *aafi, aafiAudioEssence *
 
 	aafiAudioEssence *ae = NULL;
 
-	if ( 1 )
-	{
-		size_t i = 0;
-
-		for ( ; i < file_name_len; i++ )
-		{
-			/* if char is out of the Basic Latin range */
-			if ( unique[i] > 0xff )
-			{
-				// debug( "MobID : %ls", MobIDToText( audioEssence->sourceMobID ) );
-				aafUID_t *uuid = &(audioEssence->sourceMobID->material);
-				swprintf( unique, 1024, L"%08x-%04x-%04x-%02x%02x%02x%02x%02x%02x%02x%02x",
-					uuid->Data1,
-					uuid->Data2,
-					uuid->Data3,
-					uuid->Data4[0],
-				 	uuid->Data4[1],
-					uuid->Data4[2],
-					uuid->Data4[3],
-					uuid->Data4[4],
-					uuid->Data4[5],
-					uuid->Data4[6],
-					uuid->Data4[7] );
-
-				audioEssence->unique_file_name = unique;
-
-				return unique;
-			}
-		}
-	}
+	// if ( 1 )
+	// {
+	// 	size_t i = 0;
+  //
+	// 	for ( ; i < file_name_len; i++ )
+	// 	{
+	// 		/* if char is out of the Basic Latin range */
+	// 		if ( unique[i] > 0xff )
+	// 		{
+	// 			// debug( "MobID : %ls", MobIDToText( audioEssence->sourceMobID ) );
+	// 			aafUID_t *uuid = &(audioEssence->sourceMobID->material);
+	// 			swprintf( unique, 1024, L"%08x-%04x-%04x-%02x%02x%02x%02x%02x%02x%02x%02x",
+	// 				uuid->Data1,
+	// 				uuid->Data2,
+	// 				uuid->Data3,
+	// 				uuid->Data4[0],
+	// 			 	uuid->Data4[1],
+	// 				uuid->Data4[2],
+	// 				uuid->Data4[3],
+	// 				uuid->Data4[4],
+	// 				uuid->Data4[5],
+	// 				uuid->Data4[6],
+	// 				uuid->Data4[7] );
+  //
+	// 			audioEssence->unique_file_name = unique;
+  //
+	// 			return unique;
+	// 		}
+	// 	}
+	// }
 
 
 	int id = 0;
@@ -3686,11 +3685,11 @@ static int parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue, td *_
        aafUIDCmp( ParamDef, &AAFParameterDef_Amplitude ) )
 	{
 
-		aafRational_t *multiplier = aaf_get_propertyIndirectValue( ConstantValue, PID_ConstantValue_Value );
+		aafRational_t *multiplier = aaf_get_propertyIndirectValue( ConstantValue, PID_ConstantValue_Value, &AAFTypeID_Rational );
 
 		if ( multiplier == NULL )
 		{
-			DUMP_OBJ_ERROR( aafi, ConstantValue, &__td, "Missing PID_ConstantValue_Value" );
+			DUMP_OBJ_ERROR( aafi, ConstantValue, &__td, "Missing PID_ConstantValue_Value or wrong AAFTypeID" );
 			return -1;
 		}
 
@@ -3765,11 +3764,11 @@ static int parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue, td *_
 		 *	from its native representation when exporting and importing the composition.
 		 */
 
-		aafRational_t *multiplier = aaf_get_propertyIndirectValue( ConstantValue, PID_ConstantValue_Value );
+		aafRational_t *multiplier = aaf_get_propertyIndirectValue( ConstantValue, PID_ConstantValue_Value, &AAFTypeID_Rational );
 
  		if ( multiplier == NULL )
  		{
- 			DUMP_OBJ_ERROR( aafi, ConstantValue, &__td, "Missing PID_ConstantValue_Value" );
+ 			DUMP_OBJ_ERROR( aafi, ConstantValue, &__td, "Missing PID_ConstantValue_Value or wrong AAFTypeID" );
  			return -1;
  		}
 
@@ -4106,12 +4105,12 @@ static int retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRation
 		}
 
 
-		aafRational_t *value = aaf_get_propertyIndirectValue( Point, PID_ControlPoint_Value );
+		aafRational_t *value = aaf_get_propertyIndirectValue( Point, PID_ControlPoint_Value,&AAFTypeID_Rational );
 
 		if ( value == NULL )
 		{
 			// trace_obj( aafi, Points, ANSI_COLOR_RED );
-			error( "Missing ControlPoint::Value." );
+			error( "Missing ControlPoint::Value or wrong AAFTypeID" );
 
 			free( times );  *times  = NULL;
 			free( values ); *values = NULL;
@@ -4267,7 +4266,7 @@ static int parse_CompositionMob( AAF_Iface *aafi, aafObject *CompoMob, td *__ptd
 		}
 
 
-		wchar_t *text = aaf_get_propertyIndirectValueWstr( UserComment, PID_TaggedValue_Value );
+		wchar_t *text = aaf_get_propertyIndirectValue( UserComment, PID_TaggedValue_Value, &AAFTypeID_String );
 
 		if ( text == NULL ) /* req */
 		{

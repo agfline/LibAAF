@@ -852,6 +852,10 @@ aafPID_t aaf_get_PropertyIDByName( AAF_Data      *aafd,
                                    const wchar_t *name );
 
 
+
+
+aafIndirect_t * aaf_get_propertyIndirect( aafObject *Obj, aafPID_t pid, const aafUID_t *typeDef );
+
 /**
  *	Retrieves a Property by its ID out of an Object, and returns its value.
  *
@@ -887,9 +891,6 @@ wchar_t * aaf_get_propertyValueWstr( aafObject *Obj, aafPID_t pid );
 
 
 
-
-aafUID_t * aaf_get_propertyIndirectValueType( aafObject *Obj, aafPID_t pid );
-
 /**
  *	Retrieves a Property by its ID out of an Object, interprets it as an aafIndirect_t and
  *	returns the Indirect value.
@@ -901,13 +902,9 @@ aafUID_t * aaf_get_propertyIndirectValueType( aafObject *Obj, aafPID_t pid );
  *	             NULL otherwise.
  */
 
-void * aaf_get_propertyIndirectValue( aafObject *Obj,
-                                      aafPID_t   pid );
+void * aaf_get_propertyIndirectValue( aafObject *Obj, aafPID_t pid, const aafUID_t *typeDef );
 
 
-
-
-wchar_t * aaf_get_propertyIndirectValueWstr( aafObject *Obj, aafPID_t pid );
 
 
 /**

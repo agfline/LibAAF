@@ -100,8 +100,9 @@ typedef enum _eAAFTypeCategory_e
 #define AAF_HEADER_BYTEORDER_LE			0x4949	// II
 #define AAF_HEADER_BYTEORDER_BE			0x4D4D	// MM
 
-#define AAF_PROPERTIES_BYTEORDER_LE		0x4c	// L
-#define AAF_PROPERTIES_BYTEORDER_BE		0x42	// B
+#define AAF_PROPERTIES_BYTEORDER_LE           0x4c	// L
+#define AAF_PROPERTIES_BYTEORDER_BE           0x42	// B
+#define AAF_PROPERTIES_BYTEORDER_UNSPECIFIED  0x55	// U
 
 
 
@@ -268,8 +269,11 @@ typedef struct _AAF_List
 
 typedef struct _aafIndirect_t
 {
-	/* unknown first was disabled for memory alignement and to avoid -Waddress-of-packed-member */
-	// uint8_t           unknownByte; // TODO what's that ? 0x55? (U) in EssenceData, 0x4C (L) in Parameter Gain
+	/*
+	 * byteOrder disabled for memory alignement and to avoid -Waddress-of-packed-member
+	 * It is always little-endian (0x4c), or unspecified (0x55) but LE, anyway.
+	 */
+	// uint8_t           byteOrder; // 0x4c, 0x42, 0x55
 	aafUID_t          TypeDef;
 	aafByte_t         Value[];
 
