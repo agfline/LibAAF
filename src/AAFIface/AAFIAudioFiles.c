@@ -582,14 +582,14 @@ static size_t externalAudioDataReaderCallback( unsigned char *buf, size_t offset
   AAF_Iface *aafi = (AAF_Iface*)user3;
 
   if ( fseek( fp, offset, SEEK_SET ) < 0 ) {
-    error( "Could not seek to %lu in file '%s' : %s", offset, filename, strerror(errno) );
+    error( "Could not seek to %zu in file '%s' : %s", offset, filename, strerror(errno) );
     return -1;
   }
 
   size_t read = fread( buf, sizeof(unsigned char), reqLen, fp );
 
   if ( read < reqLen ) {
-    error( "File read failed at %lu (expected %lu, read %lu) in file '%s' : %s", offset, reqLen, read, filename, strerror(errno) );
+    error( "File read failed at %zu (expected %zu, read %zu) in file '%s' : %s", offset, reqLen, read, filename, strerror(errno) );
     return -1;
   }
 
