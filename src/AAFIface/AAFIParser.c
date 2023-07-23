@@ -252,6 +252,9 @@ static void xplore_StrongObjectReferenceVector( AAF_Iface *aafi, aafObject *ObjC
 			free( name );
 		}
 		else {
+      dbg->debug_callback( (void*)aafi, DEBUG_SRC_ID_DUMP, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
+
+      offset = 0;
 			aaf_dump_ObjectProperties( aafi->aafd, Obj );
 		}
 	}
@@ -462,6 +465,10 @@ void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int st
 			offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "Properties Dump (%ls)\n", aaf_get_ObjectPath( Obj ) );
 			offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "===============\n\n" );
 			// aaf_dump_nodeStreamProperties( aafi->aafd, Obj->Node );
+
+      dbg->debug_callback( (void*)aafi, DEBUG_SRC_ID_TRACE, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
+
+      offset = 0;
 			aaf_dump_ObjectProperties( aafi->aafd, Obj );
 		}
 		else {
