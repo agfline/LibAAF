@@ -1216,7 +1216,7 @@ static int cfb_retrieveNodes( CFB_Data *cfbd )
 	cfbSID_t       i   = 0;
 
 
-	if ( cfbd->hdr->_uSectorShift == 9 ) // 512 bytes sectors
+	if ( cfbd->hdr->_uSectorShift == 9 ) { // 512 bytes sectors
 		cfb_foreachSectorInChain( cfbd, buf, id )
 		{
 			if ( buf == NULL )
@@ -1230,7 +1230,8 @@ static int cfb_retrieveNodes( CFB_Data *cfbd )
 			node[i++] = (cfbNode*)(buf+256);
 			node[i++] = (cfbNode*)(buf+384);
 		}
-	else if ( cfbd->hdr->_uSectorShift == 12 ) // 4096 bytes sectors
+	}
+	else if ( cfbd->hdr->_uSectorShift == 12 ) { // 4096 bytes sectors
 		cfb_foreachSectorInChain( cfbd, buf, id )
 		{
 			if ( buf == NULL )
@@ -1272,8 +1273,10 @@ static int cfb_retrieveNodes( CFB_Data *cfbd )
 			node[i++] = (cfbNode*)(buf+3840);
 			node[i++] = (cfbNode*)(buf+3968);
 		}
+	}
 	else    /* handle non-standard sector size, that is different than 512B or 4kB */
 	{       /* TODO has not been tested yet, should not even exist anyway */
+		warning( "Parsing non-standard sector size !!! (%u bytes)", (1<<cfbd->hdr->_uSectorShift) )
 		uint32_t nodesPerSect = (1 << cfbd->hdr->_uMiniSectorShift) / sizeof(cfbNode);
 
 		cfb_foreachSectorInChain( cfbd, buf, id )
