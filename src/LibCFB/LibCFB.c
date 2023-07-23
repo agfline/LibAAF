@@ -1300,6 +1300,46 @@ static int cfb_retrieveNodes( CFB_Data *cfbd )
 
 
 /**
+ *	Converts 16-bits MS/CFB wchar_t to system wchar_t.
+ *
+ *	@param buf      Pointer to wchar_t output buffer. If NULL, then function will allocate a new buffer.
+ *	@param w16buf   Pointer to a 16-bits MS/CFB "wchar_t" array.
+ *	@param w16blen  Size of the w16buf array in bytes, including the NULL. If it is set to
+ *                  CFB_W16TOWCHAR_STRLEN, then function will parse w16buf up to NULL to retrieve w16buf byte size
+ *
+ *	@return          Pointer to buf,\n
+ *	                 NULL on failure.
+ */
+
+wchar_t * cfb_w16towchar( wchar_t *buf, uint16_t *w16buf, size_t w16blen )
+{
+	if ( w16buf == NULL )
+		return NULL;
+
+	if ( w16blen == CFB_W16TOWCHAR_STRLEN ) {
+		w16blen = 0;
+		while ( w16buf[w16blen>>1] != 0x0000 ) {
+			w16blen += sizeof(uint16_t);
+		}
+		w16blen += sizeof(uint16_t); // NULL terminating
+	}
+
+	if ( buf == NULL ) {
+		buf = malloc( w16blen * sizeof(wchar_t) );
+		if ( buf == NULL )
+			return NULL;
+	}
+
+  for ( size_t i = 0; i < w16blen>>1; i++ ) {
+    buf[i] = ((uint16_t*)w16buf)[i];
+  }
+
+  return buf;
+}
+
+
+
+/**
  *	Retrieves a Node in the Compound File Tree by path.
  *
  *	@param cfbd      Pointer to the CFB_Data structure.
@@ -1354,6 +1394,8 @@ cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const wchar_t *path, cfbSID_t id )
 	}
 
 
+	wchar_t ab[CFB_NODE_NAME_SZ];
+
 	while ( 1 )
 	{
 
@@ -1365,15 +1407,7 @@ cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const wchar_t *path, cfbSID_t id )
 
 		// dump_hex( cfbd->nodes[id]->_ab, cfbd->nodes[id]->_cb );
 
-		// char   *ab = cfb_utf16toa( cfbd->nodes[id]->_ab, cfbd->nodes[id]->_cb );
-
-		wchar_t *ab = calloc((cfbd->nodes[id]->_cb >> 1) * sizeof(wchar_t), sizeof(wchar_t));
-
-#ifdef _WIN32
-		memcpy( ab, cfbd->nodes[id]->_ab, cfbd->nodes[id]->_cb );
-#else
-		w16tow32( ab, cfbd->nodes[id]->_ab, cfbd->nodes[id]->_cb );
-#endif
+		cfb_w16towchar( ab, cfbd->nodes[id]->_ab, cfbd->nodes[id]->_cb );
 
 		int32_t rc = 0;
 
@@ -1381,10 +1415,6 @@ cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const wchar_t *path, cfbSID_t id )
 			rc = wcsncmp( path, ab, l );
 		else
 			rc = l - wcslen(ab);
-
-		free( ab );
-
-
 
 		/*
 		 *	Some node in the path was found.
@@ -1445,12 +1475,9 @@ cfbNode * cfb_getChildNode( CFB_Data *cfbd, const wchar_t *name, cfbNode *startN
 	int32_t   rc = 0;
 
 	/** @TODO : cfb_getIDByNode should be quiker (macro ?) */
-	cfbSID_t  id = cfb_getIDByNode( cfbd, cfbd->nodes[startNode->_sidChild] );
+	cfbSID_t id = cfb_getIDByNode( cfbd, cfbd->nodes[startNode->_sidChild] );
 
-	uint32_t  nameUTF16Len = ((wcslen( name )+1) << 1);
-
-	// uint16_t *utf16name = cfb_atoutf16( name, nameLen );
-	// uint16_t  utf16len  = ((nameLen + 1) << 1);  /* includes NULL Unicode */
+	uint32_t nameUTF16Len = ((wcslen( name )+1) << 1);
 
 	wchar_t nodename[CFB_NODE_NAME_SZ];
 
@@ -1462,17 +1489,12 @@ cfbNode * cfb_getChildNode( CFB_Data *cfbd, const wchar_t *name, cfbNode *startN
 			return NULL;
 		}
 
-#ifdef _WIN32
-		memcpy( nodename, cfbd->nodes[id]->_ab, cfbd->nodes[id]->_cb );
-#else
-		w16tow32( nodename, cfbd->nodes[id]->_ab, cfbd->nodes[id]->_cb );
-#endif
+		cfb_w16towchar( nodename, cfbd->nodes[id]->_ab, cfbd->nodes[id]->_cb );
 
 		if ( cfbd->nodes[id]->_cb == nameUTF16Len )
 			rc = memcmp( name, nodename, ((cfbd->nodes[id]->_cb >> 1) * sizeof(wchar_t)) );
 		else
 			rc = nameUTF16Len - cfbd->nodes[id]->_cb;
-
 
 		/*
 		 *	Node found
@@ -1562,70 +1584,6 @@ static cfbSID_t getNodeCount( CFB_Data *cfbd )
 	}
 
 	return cnt / sizeof(cfbNode);
-}
-
-
-
-
-
-
-
-
-
-/**
- *	Converts a Compound File String (UTF-16 wide char array)
- *	to an ASCII NULL terminated char array.
- *
- *	@param  wstr Pointer to a 2 * wlen bytes long uint16_t array.
- *	@param  wlen Length of the wstr uint16_t array, including the NULL terminated byte.
- *
- *	@return      Pointer to the NULL terminated ASCII string.
- */
-
-char * cfb_utf16toa( uint16_t *wstr, uint16_t wlen )
-{
-	uint16_t i = 0;
-
-
-	uint16_t len  = (wlen >> 1);
-
-	char    *astr = malloc( len + 1 );
-
-
-	for ( i = 0; i < len; i++ )
-		astr[i] = (char)wstr[i];
-
-
-	return astr;
-}
-
-
-
-
-/**
- *	Converts a Compound File String (UTF-16 wide char array)
- *	to an ASCII NULL terminated char array.
- *
- *	@param  astr Pointer to a NULL terminated const char array.
- *	@param  alen Length of the astr char array, including or excluding the NULL terminated
- *	             byte.
- *
- *	@return      Pointer to the NULL terminated ASCII string.
- */
-
-uint16_t * cfb_atoutf16( const char *astr, uint16_t alen )
-{
-	uint16_t i = 0;
-
-	uint16_t *wstr = calloc( alen+1, sizeof(uint16_t) );
-
-	for ( i = 0; i < alen; i++ )
-		wstr[i] = (uint16_t)astr[i];
-
-
-//	wstr[--i] = 0x0000;
-
-	return wstr;
 }
 
 

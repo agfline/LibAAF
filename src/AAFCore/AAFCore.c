@@ -646,64 +646,25 @@ void aaf_release( AAF_Data **aafd )
 
 wchar_t * aaf_get_ObjectPath( aafObject *Obj )
 {
-	// char *path = calloc( CFB_PATH_NAME_SZ, sizeof(char) );
-    //
-	// if ( path == NULL )
-	// {
-	// 	error( "%s.", strerror( errno ) );
-	// 	return NULL;
-	// }
-
 	static wchar_t path[CFB_PATH_NAME_SZ];
 
-	// memset( path, 0x00, CFB_PATH_NAME_SZ );
-
-	// path[CFB_PATH_NAME_SZ-1] = 0x0000;
-
-	// path[0] = '\0';
-	// memset( path, 0x00, CFB_PATH_NAME_SZ );
-
-
-	uint32_t offset  = CFB_PATH_NAME_SZ;
-	// uint32_t pathLen = 0;
+	uint32_t offset = CFB_PATH_NAME_SZ;
+  path[--offset] = 0x0000; // NULL terminating byte
 
 	while ( Obj != NULL )
 	{
-		offset -= wcslen(Obj->Name)+1;	// +1 = room for '/'
-		memcpy( ((unsigned char*)path)+(offset * sizeof(wchar_t)), (unsigned char*)Obj->Name, (wcslen(Obj->Name)) * sizeof(wchar_t) );
+    for ( int i = wcslen(Obj->Name)-1; i >= 0 && offset > 0; i-- ) {
+      path[--offset] = Obj->Name[i];
+    }
 
-		path[offset+wcslen(Obj->Name)] = '/';
-		// memcpy(void *restrict __dest, const void *restrict __src, size_t __n)
+    if ( offset == 0 )
+      break;
 
-	// 	offset  = wcslen( Obj->Name );
-	// 	pathLen = wcslen(    path   );
-    //
-	// 	if ( offset + pathLen + 1 > CFB_PATH_NAME_SZ )
-	// 	{
-	// 		error( "Retrieved path length is bigger than CFB_PATH_NAME_SZ." );
-	// 		return NULL;
-	// 	}
-    //
-	// 	// if ( pathLen > 0 )
-	// 	memcpy( path+(++offset), path, pathLen+1 ); // +1 for \0
-    //
-	// 	memcpy( path, Obj->Name, offset );
-    //
-	// 	if ( pathLen > 0 )
-	// 		path[offset-1] = '/';
-    //
-    //
+    path[--offset] = '/';
+
 		Obj = Obj->Parent;
 	}
 
-	path[CFB_PATH_NAME_SZ-1] = 0x0000; // NULL terminating byte
-
-	path[--offset] = '/'; // path string leading slash
-
-	// path[pathLen+offset] = '\0';
-
-	// dump_hex( path, CFB_PATH_NAME_SZ * 4 );
-	// exit(1);
 	return path + offset;
 }
 
@@ -1060,14 +1021,7 @@ static aafObject * newObject( AAF_Data *aafd, cfbNode *Node, aafClass *Class, aa
 		return NULL;
 	}
 
-
-	// utf16toa( Obj->Name, CFB_NODE_NAME_SZ, Node->_ab, Node->_cb );
-
-#ifdef _WIN32
-	memcpy( Obj->Name, Node->_ab, Node->_cb );
-#else
-	w16tow32( Obj->Name, Node->_ab, Node->_cb );
-#endif
+  cfb_w16towchar( Obj->Name, Node->_ab, Node->_cb );
 
 	Obj->aafd       = aafd;
 	Obj->Class      = Class;
@@ -1753,13 +1707,7 @@ static int retrieveStrongReference( AAF_Data *aafd, aafProperty *Prop, aafObject
 {
 	wchar_t name[CFB_NODE_NAME_SZ];
 
-	// utf16toa( name, CFB_NODE_NAME_SZ, Prop->val, Prop->len );
-
-#ifdef _WIN32
-	memcpy( name, Prop->val, Prop->len );
-#else
-	w16tow32( name, Prop->val, Prop->len );
-#endif
+  cfb_w16towchar( name, Prop->val, Prop->len );
 
 	free( Prop->val );
 	Prop->val = NULL;
@@ -1807,13 +1755,7 @@ static int retrieveStrongReferenceSet( AAF_Data *aafd, aafProperty *Prop, aafObj
 {
 	wchar_t refName[CFB_NODE_NAME_SZ];
 
-	// utf16toa( refName, CFB_NODE_NAME_SZ, Prop->val, Prop->len );
-
-#ifdef _WIN32
-	memcpy( refName, Prop->val, Prop->len );
-#else
-	w16tow32( refName, Prop->val, Prop->len );
-#endif
+  cfb_w16towchar( refName, Prop->val, Prop->len );
 
 	free( Prop->val );
 	Prop->val = NULL;
@@ -1897,13 +1839,7 @@ static int retrieveStrongReferenceVector( AAF_Data *aafd, aafProperty *Prop, aaf
 {
 	wchar_t refName[CFB_NODE_NAME_SZ];
 
-	// utf16toa( refName, CFB_NODE_NAME_SZ, Prop->val, Prop->len );
-
-#ifdef _WIN32
-	memcpy( refName, Prop->val, Prop->len );
-#else
-	w16tow32( refName, Prop->val, Prop->len );
-#endif
+  cfb_w16towchar( refName, Prop->val, Prop->len );
 
 	free( Prop->val );
 	Prop->val = NULL;
@@ -2211,13 +2147,7 @@ static aafStrongRefSetHeader_t * getStrongRefSetList( AAF_Data *aafd, cfbNode *N
 	{
 		wchar_t refName[CFB_NODE_NAME_SZ];
 
-		// utf16toa( refName, CFB_NODE_NAME_SZ, Node->_ab, Node->_cb );
-
-#ifdef _WIN32
-		memcpy( refName, Node->_ab, Node->_cb );
-#else
-		w16tow32( refName, Node->_ab, Node->_cb );
-#endif
+    cfb_w16towchar( refName, Node->_ab, Node->_cb );
 
 		error( "Could not retrieve StrongReferenceSet Index Stream @ \"%ls/%ls index\".", aaf_get_ObjectPath( Parent ), refName );
 
@@ -2242,12 +2172,11 @@ static aafStrongRefVectorHeader_t * getStrongRefVectorList( AAF_Data *aafd, cfbN
 
 	if ( stream == NULL )
 	{
-		char refName[CFB_NODE_NAME_SZ];
+		wchar_t refName[CFB_NODE_NAME_SZ];
 
-		utf16toa( refName, CFB_NODE_NAME_SZ, Node->_ab, Node->_cb );
+    cfb_w16towchar( refName, Node->_ab, Node->_cb );
 
-		error( "Could not retrieve StrongReferenceVector Index Stream \"%ls/%s index\"", aaf_get_ObjectPath( Parent ), refName );
-
+    error( "Could not retrieve StrongReferenceVector Index Stream \"%ls/%ls index\"", aaf_get_ObjectPath( Parent ), refName );
 		return NULL;
 	}
 

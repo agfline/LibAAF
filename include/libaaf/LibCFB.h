@@ -23,6 +23,7 @@
 
 
 #include <stdint.h>
+#include <wchar.h>
 
 #if defined(__linux__)
   #include <linux/limits.h>
@@ -37,7 +38,6 @@
   #include <limits.h>
 #endif
 
-#include <wchar.h>
 
 // #include "CFBTypes.h"
 #include <libaaf/debug.h>
@@ -56,6 +56,7 @@
  */
 
 
+#define CFB_W16TOWCHAR_STRLEN SIZE_MAX
 
 
 /*
@@ -378,9 +379,6 @@ typedef enum cfbByteOrder_e {
 /**
  *	The length of the cfbNode._ab uint16_t array holding the node's UTF-16 name, including
  *	the NULL terminating Unicode.
- *
- *	This length is equal to the corresponding ASCII char array length in bytes, when
- *	converting.
  */
 
 #define	CFB_NODE_NAME_SZ	32
@@ -594,6 +592,9 @@ typedef struct StructuredStorageDirectoryEntry
 	 *
 	 *	A 64-byte array, for a maximum of 32 Unicode characters including a terminating
 	 *	Unicode NULL character. The string shall be padded with zeros to fill the array.
+   *
+   *  Should be wchar_t, but on linux wchar_t is 32 bits wide as opposed to windows
+   *  (and thus CFB) defining wchar_t to 16 bits. Conversion is done by cfb_w16towchar()
 	 */
 
 	uint16_t      _ab[CFB_NODE_NAME_SZ];
@@ -917,6 +918,9 @@ const wchar_t * CLSIDToText( cfbCLSID_t *clsid );
 
 
 
+wchar_t * cfb_w16towchar( wchar_t *buf, uint16_t *w16buf, size_t w16blen );
+
+
 /**
  *	@name Constructor function
  *	The first function to be called when using LibCFB.
@@ -986,9 +990,10 @@ cfbNode * cfb_getChildNode( CFB_Data *cfbd, const wchar_t *name, cfbNode *startN
  */
 
 
-char * cfb_utf16toa( uint16_t *wstr, uint16_t wlen );
+// char * cfb_utf16toa( uint16_t *wstr, uint16_t wlen );
+// char * cfb_utf16toa( /*uint16_t *wstr*/wchar_t *wstr, uint16_t wlen );
 
-uint16_t * cfb_atoutf16( const char *astr, uint16_t alen );
+// uint16_t * cfb_atoutf16( const char *astr, uint16_t alen );
 
 
 /**

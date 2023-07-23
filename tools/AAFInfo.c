@@ -422,11 +422,11 @@ int main( int argc, char *argv[] )
 		else {
 			cfb_dump_node( aafd->cfbd, node, 0 );
 
-			char name[CFB_NODE_NAME_SZ];
+			wchar_t name[CFB_NODE_NAME_SZ];
 
-			utf16toa( name, CFB_NODE_NAME_SZ, node->_ab, node->_cb );
+			cfb_w16towchar( name, node->_ab, node->_cb );
 
-			if ( strncmp( name, "properties", 10 ) == 0 ) {
+			if ( wcsncmp( name, L"properties", 10 ) == 0 ) {
 				aaf_dump_nodeStreamProperties( aafd, node );
 			}
 			else if ( node->_mse == STGTY_STREAM ) {

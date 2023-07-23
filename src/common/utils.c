@@ -338,6 +338,7 @@ int snprintf_realloc( char **str, int *size, size_t offset, const char *format, 
 }
 
 
+
 int vsnprintf_realloc( char **str, int *size, int offset, const char *fmt, va_list *args )
 {
   va_list args2, args3;
@@ -398,53 +399,6 @@ char * c99strdup( const char *src )
 
 
 
-size_t utf16toa( char *astr, uint16_t alen, uint16_t *wstr, uint16_t wlen )
-{
-     uint32_t i = 0;
-
-     /*
-      *  Remove the leading byte in SF_DATA_STREAM if strlen is odd
-      *  -> /Header-2/EssenceData-1902/properties -> PID_EssenceData_Data : Data-2702
-      *
-      *  TODO What is that leading byte doing here ???? -> 0x55 (U)
-      */
-
-     if ( wlen % 2 )
-     {
-         wstr = (uint16_t*)((char*)wstr + 1);
-         wlen--;
-     }
-
-     uint16_t len = (wlen >> 1);
-
-     for ( i = 0; (i < len && i < alen); i++ )
-         astr[i] = (char)wstr[i];
-
-
-     astr[--i] = 0x00;
-
-     return i;
-}
-
-
-
-wchar_t * atowchar( const char *astr, uint16_t alen )
-{
-	uint16_t i = 0;
-
-	wchar_t *wstr = calloc( alen+1, sizeof(wchar_t) );
-
-	for ( i = 0; i < alen; i++ )
-		wstr[i] = (wchar_t)astr[i];
-
-
-//	wstr[--i] = 0x0000;
-
-	return wstr;
-}
-
-
-
 /* https://stackoverflow.com/questions/2736753/how-to-remove-extension-from-file-name */
 char *remove_file_ext (char* myStr, char extSep, char pathSep)
 {
@@ -482,20 +436,6 @@ char *remove_file_ext (char* myStr, char extSep, char pathSep)
     // Return the modified string.
 
     return retStr;
-}
-
-
-
-wchar_t * w16tow32( wchar_t *w32buf, uint16_t *w16buf, size_t w16len )
-{
-    size_t i = 0;
-
-    for ( i = 0; i < w16len/2; i++ )
-    {
-        w32buf[i] = ((uint16_t*)w16buf)[i];
-    }
-
-    return w32buf;
 }
 
 

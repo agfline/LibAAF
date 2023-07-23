@@ -50,14 +50,17 @@ void cfb_dump_node( CFB_Data *cfbd, cfbNode *node, int print_stream )
 	if ( node->_mse == STGTY_INVALID )
 		return;
 
-	char * asciiName = cfb_utf16toa( node->_ab, node->_cb );
+	wchar_t nodeName[CFB_NODE_NAME_SZ];
+
+	cfb_w16towchar( nodeName, node->_ab, node->_cb );
+
 
 	int offset = 0;
   struct dbg *dbg = cfbd->dbg;
 
   offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n" );
 
-	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " _ab          : %s\n", asciiName );
+	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " _ab          : %ls\n", nodeName );
 
 	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " _cb          : %u\n", node->_cb );
 
@@ -106,16 +109,10 @@ void cfb_dump_node( CFB_Data *cfbd, cfbNode *node, int print_stream )
 
 	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n\n" );
 
-	if ( asciiName )
-    {
-		free( asciiName );
-    }
 
-
-    if ( print_stream == 1 )
-    {
-        cfb_dump_nodeStream( cfbd, node );
-    }
+  if ( print_stream == 1 ) {
+    cfb_dump_nodeStream( cfbd, node );
+  }
 
 }
 
@@ -202,9 +199,11 @@ void cfb_dump_nodePaths( CFB_Data *cfbd, uint32_t prevPath, char *strArray[], ui
 
 	uint32_t thisPath = (*str_i);
 
-	char *name = cfb_utf16toa( node->_ab, node->_cb );
+	wchar_t nodeName[CFB_NODE_NAME_SZ];
 
-	int pathlen = snprintf( NULL, 0, "%s/%s", strArray[prevPath], name );
+	cfb_w16towchar( nodeName, node->_ab, node->_cb );
+
+	int pathlen = snprintf( NULL, 0, "%s/%ls", strArray[prevPath], nodeName );
 
 	if ( pathlen < 0 ) {
 		// TODO error
@@ -215,9 +214,7 @@ void cfb_dump_nodePaths( CFB_Data *cfbd, uint32_t prevPath, char *strArray[], ui
 
 	strArray[thisPath] = malloc( pathlen );
 
-	snprintf( strArray[thisPath], pathlen, "%s/%s", strArray[prevPath], name );
-
-	free( name );
+	snprintf( strArray[thisPath], pathlen, "%s/%ls", strArray[prevPath], nodeName );
 
 	(*str_i)++;
 
