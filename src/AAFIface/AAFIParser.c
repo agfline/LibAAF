@@ -232,8 +232,8 @@ static void xplore_StrongObjectReferenceVector( AAF_Iface *aafi, aafObject *ObjC
 		if ( aaf_get_property( Obj, PID_TaggedValue_Name ) &&
 		     aaf_get_property( Obj, PID_TaggedValue_Value ) )
 		{
-			wchar_t  *name = aaf_get_propertyValueWstr( Obj, PID_TaggedValue_Name );
-      aafIndirect_t *indirect = aaf_get_propertyIndirect( Obj, PID_TaggedValue_Value, &AUID_NULL );
+			wchar_t *name = aaf_get_propertyValue( Obj, PID_TaggedValue_Name, &AAFTypeID_String );
+      aafIndirect_t *indirect = aaf_get_propertyValue( Obj, PID_TaggedValue_Value, &AAFTypeID_Indirect );
 
 			if ( aafUIDCmp( &indirect->TypeDef, &AAFTypeID_Int32 ) ) {
 				offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "Tagged     |     Name: %ls%*s      Value (%ls)  : %i\n", name, 56-(int)wcslen(name), " ", TypeIDToText(&indirect->TypeDef), *(int32_t*)indirect->Value );
@@ -347,11 +347,11 @@ void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int st
 
 		if ( aafUIDCmp( Obj->Class->ID, &AAFClassID_TimelineMobSlot ) && aafUIDCmp( Obj->Parent->Class->ID, &AAFClassID_CompositionMob ) )
 		{
-			aafObject *Segment        = aaf_get_propertyValue( Obj, PID_MobSlot_Segment );
+			aafObject *Segment        = aaf_get_propertyValue( Obj, PID_MobSlot_Segment, &AAFTypeID_SegmentStrongReference );
 			aafUID_t  *DataDefinition = get_Component_DataDefinition( aafi, Segment );
-			wchar_t   *name           = aaf_get_propertyValueWstr( Obj, PID_MobSlot_SlotName );
-      int32_t   *slotID         = aaf_get_propertyValue( Obj, PID_MobSlot_SlotID );
-      int32_t   *trackNo        = aaf_get_propertyValue( Obj, PID_MobSlot_PhysicalTrackNumber );
+			wchar_t   *name           = aaf_get_propertyValue( Obj, PID_MobSlot_SlotName, &AAFTypeID_String );
+      uint32_t  *slotID         = aaf_get_propertyValue( Obj, PID_MobSlot_SlotID, &AAFTypeID_UInt32 );
+      uint32_t  *trackNo        = aaf_get_propertyValue( Obj, PID_MobSlot_PhysicalTrackNumber, &AAFTypeID_UInt32 );
 
 			offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "[slot:%s%i%s track:%s%i%s] (DataDef : %s%ls%s) %s%ls ",
 				ANSI_COLOR_BOLD,
@@ -372,8 +372,8 @@ void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int st
 		          aafUIDCmp( Obj->Class->ID, &AAFClassID_MasterMob ) ||
 		          aafUIDCmp( Obj->Class->ID, &AAFClassID_SourceMob ) )
 		{
-			aafUID_t *usageCode = aaf_get_propertyValue( Obj, PID_Mob_UsageCode );
-			wchar_t  *name      = aaf_get_propertyValueWstr( Obj, PID_Mob_Name );
+			aafUID_t *usageCode = aaf_get_propertyValue( Obj, PID_Mob_UsageCode, &AAFTypeID_UsageType );
+			wchar_t  *name      = aaf_get_propertyValue( Obj, PID_Mob_Name, &AAFTypeID_String );
 
 			offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "(UsageCode: %s%ls%s) %s%ls",
 				ANSI_COLOR_DARKGREY,
@@ -489,7 +489,7 @@ void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int st
 						if ( Prop->sf == SF_STRONG_OBJECT_REFERENCE_VECTOR ) {
 							offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n" );
 							offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " >>> (0x%04x) %ls (%ls)\n", Prop->pid, PIDToText( aafi->aafd, Prop->pid ), StoredFormToText( Prop->sf ) /*AUIDToText( &Prop->def->type ),*/ /*TypeIDToText( &(Prop->def->type) )*/ );
-							void *propValue = aaf_get_propertyValue( Obj, Prop->pid );
+							void *propValue = aaf_get_propertyValue( Obj, Prop->pid, &AAFUID_NULL );
 							xplore_StrongObjectReferenceVector( aafi, propValue, __td );
 
 							// DUMP_OBJ_NO_SUPPORT( aafi, propValue, __td );
@@ -537,7 +537,7 @@ void _DUMP_OBJ_NO_SUPPORT( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *_
 		/* this part is handled by _DUMP_OBJ() already. */
 		_DUMP_OBJ( aafi, Obj, __td, TD_NOT_SUPPORTED, line, "" );
 		return;
-	// 	aafObject *Segment = aaf_get_propertyValue( Obj, PID_MobSlot_Segment );
+	// 	aafObject *Segment = aaf_get_propertyValue( Obj, PID_MobSlot_Segment, &AAFTypeID_SegmentStrongReference );
 	//
 	// 	if ( Segment != NULL ) /* req */
 	// 	{
@@ -763,7 +763,7 @@ static aafObject * get_Object_Ancestor( AAF_Iface *aafi, aafObject *Obj, const a
 
 static aafUID_t * get_Component_DataDefinition( AAF_Iface *aafi, aafObject *Component )
 {
-	aafWeakRef_t *weakRef = aaf_get_propertyValue( Component, PID_Component_DataDefinition );
+	aafWeakRef_t *weakRef = aaf_get_propertyValue( Component, PID_Component_DataDefinition, &AAFTypeID_DataDefinitionWeakReference );
 
 	if ( weakRef == NULL )
 	{
@@ -781,7 +781,7 @@ static aafUID_t * get_Component_DataDefinition( AAF_Iface *aafi, aafObject *Comp
 	}
 
 
-	aafUID_t  *DataIdentification = aaf_get_propertyValue( DataDefinition, PID_DefinitionObject_Identification );
+	aafUID_t  *DataIdentification = aaf_get_propertyValue( DataDefinition, PID_DefinitionObject_Identification, &AAFTypeID_AUID );
 
 	if ( DataIdentification == NULL )
 	{
@@ -832,7 +832,7 @@ static aafUID_t * get_Component_DataDefinition( AAF_Iface *aafi, aafObject *Comp
 
 static aafUID_t * get_OperationGroup_OperationIdentification( AAF_Iface *aafi, aafObject *OperationGroup )
 {
-	aafWeakRef_t *OperationDefWeakRef = aaf_get_propertyValue( OperationGroup, PID_OperationGroup_Operation );
+	aafWeakRef_t *OperationDefWeakRef = aaf_get_propertyValue( OperationGroup, PID_OperationGroup_Operation, &AAFTypeID_OperationDefinitionWeakReference );
 
 	if ( OperationDefWeakRef == NULL )
 	{
@@ -850,7 +850,7 @@ static aafUID_t * get_OperationGroup_OperationIdentification( AAF_Iface *aafi, a
 	}
 
 
-	aafUID_t *OperationIdentification = aaf_get_propertyValue( OperationDefinition, PID_DefinitionObject_Identification );
+	aafUID_t *OperationIdentification = aaf_get_propertyValue( OperationDefinition, PID_DefinitionObject_Identification, &AAFTypeID_AUID );
 
 	if ( OperationIdentification == NULL )
 	{
@@ -867,7 +867,7 @@ static aafUID_t * get_OperationGroup_OperationIdentification( AAF_Iface *aafi, a
 /* TODO not parameter ? VaryingValue ? */
 static aafUID_t * get_Parameter_InterpolationIdentification( AAF_Iface *aafi, aafObject *Parameter )
 {
-	aafWeakRef_t *InterpolationDefWeakRef = aaf_get_propertyValue( Parameter, PID_VaryingValue_Interpolation );
+	aafWeakRef_t *InterpolationDefWeakRef = aaf_get_propertyValue( Parameter, PID_VaryingValue_Interpolation, &AAFTypeID_InterpolationDefinitionWeakReference );
 
 	if ( InterpolationDefWeakRef == NULL )
 	{
@@ -885,7 +885,7 @@ static aafUID_t * get_Parameter_InterpolationIdentification( AAF_Iface *aafi, aa
 	}
 
 
-	aafUID_t  *InterpolationIdentification  = aaf_get_propertyValue( InterpolationDefinition, PID_DefinitionObject_Identification );
+	aafUID_t  *InterpolationIdentification  = aaf_get_propertyValue( InterpolationDefinition, PID_DefinitionObject_Identification, &AAFTypeID_AUID );
 
 	if ( InterpolationIdentification == NULL )
 	{
@@ -911,7 +911,7 @@ static aafObject * get_EssenceData_By_MobID( AAF_Iface *aafi, aafMobID_t *MobID 
 
 	for ( EssenceData = aafi->aafd->EssenceData; EssenceData != NULL; EssenceData = EssenceData->next )
 	{
-		DataMobID = aaf_get_propertyValue( EssenceData, PID_EssenceData_MobID );
+		DataMobID = aaf_get_propertyValue( EssenceData, PID_EssenceData_MobID, &AAFTypeID_MobIDType );
 
 		if ( aafMobIDCmp( DataMobID, MobID ) )
 			break;
@@ -1079,7 +1079,7 @@ static int parse_EssenceDescriptor( AAF_Iface *aafi, aafObject *EssenceDesc, td 
 	 */
 
 	aafObject *Locator  = NULL;
-	aafObject *Locators = aaf_get_propertyValue( EssenceDesc, PID_EssenceDescriptor_Locator ); /* opt */
+	aafObject *Locators = aaf_get_propertyValue( EssenceDesc, PID_EssenceDescriptor_Locator, &AAFTypeID_LocatorStrongReferenceVector ); /* opt */
 
 	__td.lv++;
 	int i = 0;
@@ -1116,7 +1116,7 @@ static int parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescripto
 	}
 
 
-	aafRational_t *framerate = (aafRational_t*)aaf_get_propertyValue( DIDescriptor, PID_FileDescriptor_SampleRate );
+	aafRational_t *framerate = aaf_get_propertyValue( DIDescriptor, PID_FileDescriptor_SampleRate, &AAFTypeID_Rational );
 
 	if ( framerate == NULL )
 	{
@@ -1128,7 +1128,7 @@ static int parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescripto
 
 
 
-	uint32_t *storedHeight = (uint32_t*)aaf_get_propertyValue( DIDescriptor, PID_DigitalImageDescriptor_StoredHeight );
+	uint32_t *storedHeight = aaf_get_propertyValue( DIDescriptor, PID_DigitalImageDescriptor_StoredHeight, &AAFTypeID_UInt32 );
 
 	if ( storedHeight == NULL )
 	{
@@ -1140,7 +1140,7 @@ static int parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescripto
 
 
 
-	uint32_t *storedWidth = (uint32_t*)aaf_get_propertyValue( DIDescriptor, PID_DigitalImageDescriptor_StoredWidth );
+	uint32_t *storedWidth = aaf_get_propertyValue( DIDescriptor, PID_DigitalImageDescriptor_StoredWidth, &AAFTypeID_UInt32 );
 
 	if ( storedWidth == NULL )
 	{
@@ -1152,7 +1152,7 @@ static int parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescripto
 
 
 
-	uint32_t *displayHeight = (uint32_t*)aaf_get_propertyValue( DIDescriptor, PID_DigitalImageDescriptor_DisplayHeight );
+	uint32_t *displayHeight = aaf_get_propertyValue( DIDescriptor, PID_DigitalImageDescriptor_DisplayHeight, &AAFTypeID_UInt32 );
 
 	if ( displayHeight == NULL )
 	{
@@ -1164,7 +1164,7 @@ static int parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescripto
 
 
 
-	uint32_t *displayWidth = (uint32_t*)aaf_get_propertyValue( DIDescriptor, PID_DigitalImageDescriptor_DisplayWidth );
+	uint32_t *displayWidth = aaf_get_propertyValue( DIDescriptor, PID_DigitalImageDescriptor_DisplayWidth, &AAFTypeID_UInt32 );
 
 	if ( displayWidth == NULL )
 	{
@@ -1176,7 +1176,7 @@ static int parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescripto
 
 
 
-	aafRational_t *imageAspectRatio = (aafRational_t*)aaf_get_propertyValue( DIDescriptor, PID_DigitalImageDescriptor_ImageAspectRatio );
+	aafRational_t *imageAspectRatio = aaf_get_propertyValue( DIDescriptor, PID_DigitalImageDescriptor_ImageAspectRatio, &AAFTypeID_Rational );
 
 	if ( imageAspectRatio == NULL )
 	{
@@ -1200,7 +1200,7 @@ static int parse_CDCIDescriptor( AAF_Iface *aafi, aafObject *CDCIDescriptor, td 
 	struct trace_dump __td;
 	__td_set(__td, __ptd, 1);
 
-	if ( !aaf_get_propertyValue( CDCIDescriptor, PID_EssenceDescriptor_Locator ) )
+	if ( !aaf_get_property( CDCIDescriptor, PID_EssenceDescriptor_Locator ) )
 		__td.eob = 1;
 
 
@@ -1226,7 +1226,7 @@ static int parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor, td *_
 	struct trace_dump __td;
 	__td_set(__td, __ptd, 1);
 
-	if ( !aaf_get_propertyValue( PCMDescriptor, PID_EssenceDescriptor_Locator ) )
+	if ( !aaf_get_property( PCMDescriptor, PID_EssenceDescriptor_Locator ) )
 		__td.eob = 1;
 
 
@@ -1245,7 +1245,7 @@ static int parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor, td *_
 
 
 	/* Duration of the essence in sample units (not edit units !) */
-	aafPosition_t *length = (aafPosition_t*)aaf_get_propertyValue( PCMDescriptor, PID_FileDescriptor_Length );
+	aafPosition_t *length = aaf_get_propertyValue( PCMDescriptor, PID_FileDescriptor_Length, &AAFTypeID_PositionType );
 
 	if ( length == NULL ) /* req */
 	{
@@ -1257,7 +1257,7 @@ static int parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor, td *_
 
 
 
-	uint32_t *channels = (uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_SoundDescriptor_Channels );
+	uint32_t *channels = aaf_get_propertyValue( PCMDescriptor, PID_SoundDescriptor_Channels, &AAFTypeID_UInt32 );
 
 	if ( channels == NULL ) /* req */
 	{
@@ -1269,7 +1269,7 @@ static int parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor, td *_
 
 
 
-	uint32_t *samplerate = (uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_FileDescriptor_SampleRate );
+	aafRational_t *samplerate = aaf_get_propertyValue( PCMDescriptor, PID_FileDescriptor_SampleRate, &AAFTypeID_Rational );
 
 	if ( samplerate == NULL ) /* req */
 	{
@@ -1277,7 +1277,12 @@ static int parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor, td *_
 		return -1;
 	}
 
-	audioEssence->samplerate = *samplerate;
+	if ( samplerate->denominator != 1 ) {
+		DUMP_OBJ_ERROR( aafi, PCMDescriptor, &__td, "PID_FileDescriptor_SampleRate should be integer but is %i/%i", samplerate->numerator, samplerate->denominator );
+		return -1;
+	}
+
+	audioEssence->samplerate = samplerate->numerator;
 
 	// if ( aafi->Audio->samplerate >= 0 )
 	// {
@@ -1287,7 +1292,7 @@ static int parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor, td *_
 
 
 
-	uint32_t *samplesize = (uint32_t*)aaf_get_propertyValue( PCMDescriptor, PID_SoundDescriptor_QuantizationBits ); // uint32_t in AAF std
+	uint32_t *samplesize = aaf_get_propertyValue( PCMDescriptor, PID_SoundDescriptor_QuantizationBits, &AAFTypeID_UInt32 ); // uint32_t in AAF std
 
 	if ( samplesize == NULL ) /* req */
 	{
@@ -1327,7 +1332,7 @@ static int parse_WAVEDescriptor( AAF_Iface *aafi, aafObject *WAVEDescriptor, td 
 	struct trace_dump __td;
 	__td_set(__td, __ptd, 1);
 
-	if ( !aaf_get_propertyValue( WAVEDescriptor, PID_EssenceDescriptor_Locator ) )
+	if ( !aaf_get_property( WAVEDescriptor, PID_EssenceDescriptor_Locator ) )
 		__td.eob = 1;
 
 
@@ -1378,7 +1383,7 @@ static int parse_AIFCDescriptor( AAF_Iface *aafi, aafObject *AIFCDescriptor, td 
 	struct trace_dump __td;
 	__td_set(__td, __ptd, 1);
 
-	if ( !aaf_get_propertyValue( AIFCDescriptor, PID_EssenceDescriptor_Locator ) )
+	if ( !aaf_get_property( AIFCDescriptor, PID_EssenceDescriptor_Locator ) )
 		__td.eob = 1;
 
 
@@ -1461,7 +1466,7 @@ static int parse_Locator( AAF_Iface *aafi, aafObject *Locator, td *__ptd )
 		__td.lv++;
 		DUMP_OBJ_NO_SUPPORT( aafi, Locator, &__td );
 
-		// wchar_t *name = aaf_get_propertyValueWstr( Locator, PID_TextLocator_Name );
+		// wchar_t *name = aaf_get_propertyValue( Locator, PID_TextLocator_Name, &AAFTypeID_String );
 		// warning( "Got an AAFClassID_TextLocator : \"%ls\"", name );
 		// free( name );
 	}
@@ -1493,7 +1498,7 @@ static int parse_NetworkLocator( AAF_Iface *aafi, aafObject *NetworkLocator, td 
 	 *	embedded so it is not a valid way to test if essence is embedded or not.
 	 */
 
-	wchar_t *original_file_path = aaf_get_propertyValueWstr( NetworkLocator, PID_NetworkLocator_URLString );
+	wchar_t *original_file_path = aaf_get_propertyValue( NetworkLocator, PID_NetworkLocator_URLString, &AAFTypeID_String );
 
 	if ( original_file_path == NULL ) /* req */
 	{
@@ -1554,7 +1559,7 @@ static int parse_EssenceData( AAF_Iface *aafi, aafObject *EssenceData, td *__ptd
 	 *	/Path/To/EssenceData/DataStream
 	 */
 
-	wchar_t *StreamName = aaf_get_propertyValueWstr( EssenceData, PID_EssenceData_Data );
+	wchar_t *StreamName = aaf_get_propertyValue( EssenceData, PID_EssenceData_Data, &AAFTypeID_String );
 
 	if ( StreamName == NULL )
 	{
@@ -1697,7 +1702,7 @@ static int parse_Transition( AAF_Iface *aafi, aafObject *Transition, td *__ptd )
 
 
 
-	int64_t *length = aaf_get_propertyValue( Transition, PID_Component_Length );
+	int64_t *length = aaf_get_propertyValue( Transition, PID_Component_Length, &AAFTypeID_LengthType );
 
 	if ( length == NULL )
 	{
@@ -1742,7 +1747,7 @@ static int parse_Transition( AAF_Iface *aafi, aafObject *Transition, td *__ptd )
 
 	int missing_cutpt = 0;
 
-	aafPosition_t *cut_point = aaf_get_propertyValue( Transition, PID_Transition_CutPoint );
+	aafPosition_t *cut_point = aaf_get_propertyValue( Transition, PID_Transition_CutPoint, &AAFTypeID_PositionType );
 
 	if ( cut_point == NULL ) /* req */
 	{
@@ -1756,7 +1761,7 @@ static int parse_Transition( AAF_Iface *aafi, aafObject *Transition, td *__ptd )
 	}
 
 
-	aafObject * OpGroup = aaf_get_propertyValue( Transition, PID_Transition_OperationGroup );
+	aafObject * OpGroup = aaf_get_propertyValue( Transition, PID_Transition_OperationGroup, &AAFTypeID_OperationGroupStrongReference );
 
 	if ( OpGroup != NULL ) /* req */
 	{
@@ -1832,7 +1837,7 @@ static int parse_NestedScope( AAF_Iface *aafi, aafObject *NestedScope, td *__ptd
 
 
 	aafObject *Slot  = NULL;
-	aafObject *Slots = aaf_get_propertyValue( NestedScope, PID_NestedScope_Slots );
+	aafObject *Slots = aaf_get_propertyValue( NestedScope, PID_NestedScope_Slots, &AAFUID_NULL );
 
 	if ( Slots == NULL )
 	{
@@ -1972,7 +1977,7 @@ static int parse_Filler( AAF_Iface *aafi, aafObject *Filler, td *__ptd )
 		 *	which is Component::Length long.
 		 */
 
-		int64_t *length = (int64_t*)aaf_get_propertyValue( Filler, PID_Component_Length );
+		int64_t *length = aaf_get_propertyValue( Filler, PID_Component_Length, &AAFTypeID_LengthType );
 
 		if ( length == NULL ) /* probably req for Filler */
 		{
@@ -2018,7 +2023,7 @@ static int parse_Sequence( AAF_Iface *aafi, aafObject *Sequence, td *__ptd )
 
 
 	aafObject * Component  = NULL;
-	aafObject * Components = aaf_get_propertyValue( Sequence, PID_Sequence_Components );
+	aafObject * Components = aaf_get_propertyValue( Sequence, PID_Sequence_Components, &AAFTypeID_ComponentStrongReferenceVector );
 
 	if ( Components == NULL ) /* req */
 	{
@@ -2055,7 +2060,7 @@ static int parse_Timecode( AAF_Iface *aafi, aafObject *Timecode, td *__ptd )
 
 
 
-	aafPosition_t *tc_start = (int64_t *)aaf_get_propertyValue( Timecode, PID_Timecode_Start );
+	aafPosition_t *tc_start = aaf_get_propertyValue( Timecode, PID_Timecode_Start, &AAFTypeID_PositionType );
 
 	if ( tc_start == NULL )
 	{
@@ -2064,7 +2069,7 @@ static int parse_Timecode( AAF_Iface *aafi, aafObject *Timecode, td *__ptd )
 	}
 
 
-	uint16_t *tc_fps   = (uint16_t*)aaf_get_propertyValue( Timecode, PID_Timecode_FPS   );
+	uint16_t *tc_fps = aaf_get_propertyValue( Timecode, PID_Timecode_FPS, &AAFTypeID_UInt16 );
 
 	if ( tc_fps == NULL )
 	{
@@ -2073,7 +2078,7 @@ static int parse_Timecode( AAF_Iface *aafi, aafObject *Timecode, td *__ptd )
 	}
 
 
-	uint8_t  *tc_drop  = (uint8_t *)aaf_get_propertyValue( Timecode, PID_Timecode_Drop  );
+	uint8_t *tc_drop = aaf_get_propertyValue( Timecode, PID_Timecode_Drop, &AAFTypeID_UInt8 );
 
 	if ( tc_drop == NULL )
 	{
@@ -2092,7 +2097,7 @@ static int parse_Timecode( AAF_Iface *aafi, aafObject *Timecode, td *__ptd )
 		return -1;
 	}
 
-	aafRational_t *tc_edit_rate = (aafRational_t*)aaf_get_propertyValue( /*aafi->ctx.*/ParentMobSlot, PID_TimelineMobSlot_EditRate );
+	aafRational_t *tc_edit_rate = aaf_get_propertyValue( ParentMobSlot, PID_TimelineMobSlot_EditRate, &AAFTypeID_Rational );
 
 	if ( tc_edit_rate == NULL )
 	{
@@ -2175,7 +2180,7 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup, td *__ptd 
 	//
 	// 	aaf_foreach_ObjectInSet( &Param, Parameters, NULL )
 	// 	{
-	// 	 aafUID_t *ParamDef = aaf_get_propertyValue( Param, PID_Parameter_Definition );
+	// 	 aafUID_t *ParamDef = aaf_get_propertyValue( Param, PID_Parameter_Definition, &AAFTypeID_AUID );
 	// 	 debug( "     OpDef %ls     (%ls) | %ls", OperationDefToText(aafi->aafd, OperationIdentification), AUIDToText( ParamDef ), ParameterToText( aafi->aafd, ParamDef ) );
 	// 	}
 	// }
@@ -2227,7 +2232,7 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup, td *__ptd 
 
 
 			aafObject * Param = NULL;
-			aafObject * Parameters = aaf_get_propertyValue( OpGroup, PID_OperationGroup_Parameters ); /* opt */
+			aafObject * Parameters = aaf_get_propertyValue( OpGroup, PID_OperationGroup_Parameters, &AAFTypeID_ParameterStrongReferenceVector ); /* opt */
 
 			if ( Parameters )
 			{
@@ -2235,7 +2240,7 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup, td *__ptd 
 
 				aaf_foreach_ObjectInSet( &Param, Parameters, NULL )
 				{
-					aafUID_t *ParamDef = aaf_get_propertyValue( Param, PID_Parameter_Definition );
+					aafUID_t *ParamDef = aaf_get_propertyValue( Param, PID_Parameter_Definition, &AAFTypeID_AUID );
 
 					if ( aafUIDCmp( ParamDef, &AAFParameterDef_Level ) )
 						break;
@@ -2251,7 +2256,7 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup, td *__ptd 
 			{
 				DUMP_OBJ( aafi, OpGroup, &__td );
 
-				if ( aaf_get_propertyValue( OpGroup, PID_OperationGroup_InputSegments ) ) {
+				if ( aaf_get_property( OpGroup, PID_OperationGroup_InputSegments ) ) {
 					__td.ll[__td.lv] = 2;
 				}
 
@@ -2344,7 +2349,7 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup, td *__ptd 
 
 
 		aafObject *InputSegment  = NULL;
-		aafObject *InputSegments = aaf_get_propertyValue( OpGroup, PID_OperationGroup_InputSegments );
+		aafObject *InputSegments = aaf_get_propertyValue( OpGroup, PID_OperationGroup_InputSegments, &AAFTypeID_SegmentStrongReferenceVector );
 
 
 		__td.ll[__td.lv] = InputSegments->Header->_entryCount;
@@ -2435,7 +2440,7 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup, td *__ptd 
 	{
 
 		aafObject * Param = NULL;
-		aafObject * Parameters = aaf_get_propertyValue( OpGroup, PID_OperationGroup_Parameters );
+		aafObject * Parameters = aaf_get_propertyValue( OpGroup, PID_OperationGroup_Parameters, &AAFTypeID_ParameterStrongReferenceVector );
 
 		if ( Parameters == NULL )
 		{
@@ -2448,7 +2453,7 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup, td *__ptd 
 
 		aaf_foreach_ObjectInSet( &Param, Parameters, NULL )
 		{
-			aafUID_t *ParamDef = aaf_get_propertyValue( Param, PID_Parameter_Definition );
+			aafUID_t *ParamDef = aaf_get_propertyValue( Param, PID_Parameter_Definition, &AAFTypeID_AUID );
 
 			if ( aafUIDCmp( ParamDef, &AAFParameterDef_Amplitude ) )
 				break;
@@ -2490,7 +2495,7 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup, td *__ptd 
 		 */
 
 		 aafObject * Param = NULL;
-		 aafObject * Parameters = aaf_get_propertyValue( OpGroup, PID_OperationGroup_Parameters );
+		 aafObject * Parameters = aaf_get_propertyValue( OpGroup, PID_OperationGroup_Parameters, &AAFTypeID_ParameterStrongReferenceVector );
 
 		 if ( Parameters == NULL )
 		 {
@@ -2503,7 +2508,7 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup, td *__ptd 
 
 		 aaf_foreach_ObjectInSet( &Param, Parameters, NULL )
 		 {
-		 	aafUID_t *ParamDef = aaf_get_propertyValue( Param, PID_Parameter_Definition );
+		 	aafUID_t *ParamDef = aaf_get_propertyValue( Param, PID_Parameter_Definition, &AAFTypeID_AUID );
 
 		 	if ( aafUIDCmp( ParamDef, &AAFParameterDef_Pan ) )
 		 		break;
@@ -2554,7 +2559,7 @@ end:
 	     aafUIDCmp( OperationIdentification, &AAFOperationDef_AudioChannelCombiner ) == 0 )
 	{
 		aafObject *InputSegment  = NULL;
-		aafObject *InputSegments = aaf_get_propertyValue( OpGroup, PID_OperationGroup_InputSegments );
+		aafObject *InputSegments = aaf_get_propertyValue( OpGroup, PID_OperationGroup_InputSegments, &AAFTypeID_SegmentStrongReferenceVector );
 
 		int i = 0;
 		__td.ll[__td.lv] = (InputSegments) ? InputSegments->Header->_entryCount : 0;
@@ -2633,7 +2638,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 		return -1;
 	}
 
-	aafMobID_t *parentMobID = (aafMobID_t*)aaf_get_propertyValue( ParentMob, PID_Mob_MobID );
+	aafMobID_t *parentMobID = aaf_get_propertyValue( ParentMob, PID_Mob_MobID, &AAFTypeID_MobIDType );
 
 	if ( parentMobID == NULL ) /* req */
 	{
@@ -2643,7 +2648,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 
 
 
-	aafMobID_t *sourceID = (aafMobID_t*)aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceID );
+	aafMobID_t *sourceID = aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceID, &AAFTypeID_MobIDType );
 
 	if ( sourceID == NULL ) /* opt */
 	{
@@ -2652,7 +2657,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 		// return -1;
 	}
 
-	uint32_t *SourceMobSlotID = (uint32_t*)aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceMobSlotID );
+	uint32_t *SourceMobSlotID = aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceMobSlotID, &AAFTypeID_UInt32 );
 
 	if ( SourceMobSlotID == NULL ) /* req */
 	{
@@ -2695,7 +2700,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 			return -1;
 		}
 
-		aafObject *refMobSlots = aaf_get_propertyValue( refMob, PID_Mob_Slots );
+		aafObject *refMobSlots = aaf_get_propertyValue( refMob, PID_Mob_Slots, &AAFTypeID_MobSlotStrongReferenceVector );
 
 		if ( refMobSlots == NULL )
 		{
@@ -2727,7 +2732,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 		// DUMP_OBJ( aafi, SourceClip, &__td );
 
 
-		int64_t *length = (int64_t*)aaf_get_propertyValue( SourceClip, PID_Component_Length );
+		int64_t *length = aaf_get_propertyValue( SourceClip, PID_Component_Length, &AAFTypeID_LengthType );
 
 		if ( length == NULL )
 		{
@@ -2736,7 +2741,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 		}
 
 
-		int64_t *startTime = (int64_t*)aaf_get_propertyValue( SourceClip, PID_SourceClip_StartTime );
+		int64_t *startTime = aaf_get_propertyValue( SourceClip, PID_SourceClip_StartTime, &AAFTypeID_PositionType );
 
 		if ( startTime == NULL )
 		{
@@ -2750,7 +2755,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 		struct aafiContext ctxBackup;
 
 
-		aafUID_t *CurrentUsageCode = (aafUID_t*)aaf_get_propertyValue( ParentMob, PID_Mob_UsageCode );
+		aafUID_t *CurrentUsageCode = aaf_get_propertyValue( ParentMob, PID_Mob_UsageCode, &AAFTypeID_UsageType );
 
 		if ( CurrentUsageCode == NULL )
 		{
@@ -2987,7 +2992,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 
 			// if ( audioClip->masterMobID == NULL )
 			// {
-			// 	audioClip->masterMobID = aaf_get_propertyValue( ParentMob, PID_Mob_MobID );
+			// 	audioClip->masterMobID = aaf_get_propertyValue( ParentMob, PID_Mob_MobID, &AAFTypeID_MobIDType );
 			// 	warning( "Missing SourceReference::SourceID, retrieving from parent Mob." );
 			// }
 
@@ -3127,7 +3132,7 @@ YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
 
 			// if ( videoClip->masterMobID == NULL )
 			// {
-			// 	videoClip->masterMobID = aaf_get_propertyValue( ParentMob, PID_Mob_MobID );
+			// 	videoClip->masterMobID = aaf_get_propertyValue( ParentMob, PID_Mob_MobID, &AAFTypeID_MobIDType );
 			// 	warning( "Missing SourceReference::SourceID, retrieving from parent Mob." );
 			// }
 
@@ -3196,7 +3201,7 @@ YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
 		// __td.lv += 2;
 
 
-		aafMobID_t *masterMobID = aaf_get_propertyValue( ParentMob, PID_Mob_MobID );
+		aafMobID_t *masterMobID = aaf_get_propertyValue( ParentMob, PID_Mob_MobID, &AAFTypeID_MobIDType );
 
 		if ( masterMobID == NULL )
 		{
@@ -3212,10 +3217,10 @@ YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
 			return -1;
 		}
 
-		uint32_t *masterMobSlotID = aaf_get_propertyValue( ParentMobSlot, PID_MobSlot_SlotID );
+		uint32_t *masterMobSlotID = aaf_get_propertyValue( ParentMobSlot, PID_MobSlot_SlotID, &AAFTypeID_UInt32 );
 
 
-		// uint32_t *essenceChannelNum = (uint32_t*)aaf_get_propertyValue( ParentMobSlot, PID_MobSlot_PhysicalTrackNumber );
+		// uint32_t *essenceChannelNum = aaf_get_propertyValue( ParentMobSlot, PID_MobSlot_PhysicalTrackNumber, &AAFTypeID_UInt32 );
 		//
 		// if ( essenceChannelNum == NULL ) { /* opt */
 		// 	debug( "PhysicalTrackNumber: NOT SET" );
@@ -3271,7 +3276,7 @@ YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
 			audioEssence->masterMobID = masterMobID;
 
 
-			audioEssence->file_name = aaf_get_propertyValueWstr( ParentMob, PID_Mob_Name );
+			audioEssence->file_name = aaf_get_propertyValue( ParentMob, PID_Mob_Name, &AAFTypeID_String );
 
 
 			/*
@@ -3284,7 +3289,7 @@ YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
 
 			// if ( audioEssence->sourceMobID == NULL )
 			// {
-			// 	audioEssence->sourceMobID = aaf_get_propertyValue( ParentMob, PID_Mob_MobID );
+			// 	audioEssence->sourceMobID = aaf_get_propertyValue( ParentMob, PID_Mob_MobID, &AAFTypeID_MobIDType );
 			// 	warning( "Could not retrieve SourceReference::SourceID, retrieving from parent Mob." );
 			// }
 
@@ -3388,7 +3393,7 @@ YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
 			videoEssence->masterMobID = masterMobID;
 
 
-			videoEssence->file_name = aaf_get_propertyValueWstr( ParentMob, PID_Mob_Name );
+			videoEssence->file_name = aaf_get_propertyValue( ParentMob, PID_Mob_Name, &AAFTypeID_String );
 
 
 			/*
@@ -3401,7 +3406,7 @@ YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
 
 			// if ( audioEssence->sourceMobID == NULL )
 			// {
-			// 	audioEssence->sourceMobID = aaf_get_propertyValue( ParentMob, PID_Mob_MobID );
+			// 	audioEssence->sourceMobID = aaf_get_propertyValue( ParentMob, PID_Mob_MobID, &AAFTypeID_MobIDType );
 			// 	warning( "Could not retrieve SourceReference::SourceID, retrieving from parent Mob." );
 			// }
 
@@ -3465,10 +3470,10 @@ YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
 			// aafi->ctx.current_essence = (aafiVideoEssence*)videoEssence;
 			//
 			//
-			// videoEssence->file_name = aaf_get_propertyValueWstr( /*aafi->ctx.*/ParentMob, PID_Mob_Name );
+			// videoEssence->file_name = aaf_get_propertyValue( /*aafi->ctx.*/ParentMob, PID_Mob_Name, &AAFTypeID_String );
 			//
 			//
-			// videoEssence->masterMobID = aaf_get_propertyValue( /*aafi->ctx.*/ParentMob, PID_Mob_MobID );
+			// videoEssence->masterMobID = aaf_get_propertyValue( /*aafi->ctx.*/ParentMob, PID_Mob_MobID, &AAFTypeID_MobIDType );
 			//
 			// if ( videoEssence->masterMobID == NULL )
 			// {
@@ -3482,7 +3487,7 @@ YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
 			//  *	the same Mob as the SourceReference, omit the SourceID property.
 			//  */
 			//
-			// videoEssence->sourceMobID = SourceID; //aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceID );
+			// videoEssence->sourceMobID = SourceID; //aaf_get_propertyValue( SourceClip, PID_SourceReference_SourceID, &AAFTypeID_MobIDType );
 			//
 			// if ( videoEssence->sourceMobID == NULL )
 			// {
@@ -3494,7 +3499,7 @@ YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
 			// 	// 		break;
 			// 	// }
 			//
-			// 	videoEssence->sourceMobID = aaf_get_propertyValue( ParentMob, PID_Mob_MobID );
+			// 	videoEssence->sourceMobID = aaf_get_propertyValue( ParentMob, PID_Mob_MobID, &AAFTypeID_MobIDType );
 			//
 			// 	warning( "Could not retrieve SourceReference::SourceID, retrieving from parent Mob." );
 			// }
@@ -3519,7 +3524,7 @@ YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
 			//
 			// /* TODO the following must be moved to parse_SourceMob() !!! */
 			//
-			// aafObject *EssenceDesc = aaf_get_propertyValue( SourceMob, PID_SourceMob_EssenceDescription );
+			// aafObject *EssenceDesc = aaf_get_propertyValue( SourceMob, PID_SourceMob_EssenceDescription, &AAFTypeID_EssenceDescriptorStrongReference );
 			//
 			// if ( EssenceDesc == NULL )
 			// {
@@ -3596,7 +3601,7 @@ static int parse_Selector( AAF_Iface *aafi, aafObject *Selector, td *__ptd )
 	}
 
 
-	aafObject *Selected = aaf_get_propertyValue( Selector, PID_Selector_Selected );
+	aafObject *Selected = aaf_get_propertyValue( Selector, PID_Selector_Selected, &AAFTypeID_SegmentStrongReference );
 
 	if ( Selected == NULL ) /* req */
 	{
@@ -3605,7 +3610,7 @@ static int parse_Selector( AAF_Iface *aafi, aafObject *Selector, td *__ptd )
 	}
 
 	// aafObject *Alternate = NULL;
-	aafObject *Alternates = aaf_get_propertyValue( Selector, PID_Selector_Alternates );
+	aafObject *Alternates = aaf_get_propertyValue( Selector, PID_Selector_Alternates, &AAFTypeID_SegmentStrongReferenceVector );
 
 	if ( Alternates == NULL ) /* opt */
 	{
@@ -3669,12 +3674,12 @@ static int parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue, td *_
 
 	// __td.sub = 1;
 
-	if ( !aaf_get_propertyValue( ConstantValue->Parent, PID_OperationGroup_InputSegments ) ) {
+	if ( !aaf_get_propertyValue( ConstantValue->Parent, PID_OperationGroup_InputSegments, &AAFTypeID_SegmentStrongReferenceVector ) ) {
 		__td.eob = 1;
 	}
 
 
-	aafUID_t *ParamDef = aaf_get_propertyValue( ConstantValue, PID_Parameter_Definition );
+	aafUID_t *ParamDef = aaf_get_propertyValue( ConstantValue, PID_Parameter_Definition, &AAFTypeID_AUID );
 
 	if ( ParamDef == NULL )	/* req */
 	{
@@ -3696,11 +3701,18 @@ static int parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue, td *_
        aafUIDCmp( ParamDef, &AAFParameterDef_Amplitude ) )
 	{
 
-		aafRational_t *multiplier = aaf_get_propertyIndirectValue( ConstantValue, PID_ConstantValue_Value, &AAFTypeID_Rational );
+		// aafRational_t *multiplier = aaf_get_propertyIndirectValue( ConstantValue, PID_ConstantValue_Value, &AAFTypeID_Rational );
+		aafIndirect_t *Indirect = aaf_get_propertyValue( ConstantValue, PID_ConstantValue_Value, &AAFTypeID_Indirect );
 
-		if ( multiplier == NULL )
-		{
+		if ( Indirect == NULL ) {
 			DUMP_OBJ_ERROR( aafi, ConstantValue, &__td, "Missing PID_ConstantValue_Value or wrong AAFTypeID" );
+			return -1;
+		}
+
+		aafRational_t *multiplier = aaf_get_indirectValue( aafi->aafd, Indirect, &AAFTypeID_Rational );
+
+		if ( multiplier == NULL ) {
+			DUMP_OBJ_ERROR( aafi, ConstantValue, &__td, "Could not retrieve Indirect value for PID_ConstantValue_Value" );
 			return -1;
 		}
 
@@ -3775,13 +3787,27 @@ static int parse_ConstantValue( AAF_Iface *aafi, aafObject *ConstantValue, td *_
 		 *	from its native representation when exporting and importing the composition.
 		 */
 
-		aafRational_t *multiplier = aaf_get_propertyIndirectValue( ConstantValue, PID_ConstantValue_Value, &AAFTypeID_Rational );
+		// aafRational_t *multiplier = aaf_get_propertyIndirectValue( ConstantValue, PID_ConstantValue_Value, &AAFTypeID_Rational );
 
- 		if ( multiplier == NULL )
- 		{
- 			DUMP_OBJ_ERROR( aafi, ConstantValue, &__td, "Missing PID_ConstantValue_Value or wrong AAFTypeID" );
- 			return -1;
- 		}
+		aafIndirect_t *Indirect = aaf_get_propertyValue( ConstantValue, PID_ConstantValue_Value, &AAFTypeID_Indirect );
+
+		if ( Indirect == NULL ) {
+			DUMP_OBJ_ERROR( aafi, ConstantValue, &__td, "Missing PID_ConstantValue_Value or wrong AAFTypeID" );
+			return -1;
+		}
+
+		aafRational_t *multiplier = aaf_get_indirectValue( aafi->aafd, Indirect, &AAFTypeID_Rational );
+
+		if ( multiplier == NULL ) {
+			DUMP_OBJ_ERROR( aafi, ConstantValue, &__td, "Could not retrieve Indirect value for PID_ConstantValue_Value" );
+			return -1;
+		}
+
+ 		// if ( multiplier == NULL )
+ 		// {
+ 		// 	DUMP_OBJ_ERROR( aafi, ConstantValue, &__td, "Missing PID_ConstantValue_Value or wrong AAFTypeID" );
+ 		// 	return -1;
+ 		// }
 
 
 		aafiAudioPan *Pan = calloc( sizeof(aafiAudioPan), sizeof(unsigned char) );
@@ -3818,12 +3844,12 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue, td *__p
 
 	// __td.sub = 1;
 
-	if ( !aaf_get_propertyValue( VaryingValue->Parent, PID_OperationGroup_InputSegments ) ) {
+	if ( !aaf_get_propertyValue( VaryingValue->Parent, PID_OperationGroup_InputSegments, &AAFTypeID_SegmentStrongReferenceVector ) ) {
 		__td.eob = 1;
 	}
 
 
-	aafUID_t *ParamDef = aaf_get_propertyValue( VaryingValue, PID_Parameter_Definition );
+	aafUID_t *ParamDef = aaf_get_propertyValue( VaryingValue, PID_Parameter_Definition, &AAFTypeID_AUID );
 
 	if ( ParamDef == NULL )	/* req */
 	{
@@ -3880,7 +3906,7 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue, td *__p
 
 
 
-	aafObject *Points = aaf_get_propertyValue( VaryingValue, PID_VaryingValue_PointList );
+	aafObject *Points = aaf_get_propertyValue( VaryingValue, PID_VaryingValue_PointList, &AAFTypeID_ControlPointStrongReferenceVector );
 
 	if ( Points == NULL )
 	{
@@ -3889,7 +3915,7 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue, td *__p
 		 *	PointList entry for AAFOperationDef_MonoAudioGain.
 		 */
 
-		DUMP_OBJ_ERROR( aafi, VaryingValue, &__td, "Missing PID_VaryingValue_PointList" );
+		DUMP_OBJ_WARNING( aafi, VaryingValue, &__td, "Missing PID_VaryingValue_PointList or list is empty" );
 		return -1;
 	}
 
@@ -4102,29 +4128,42 @@ static int retrieve_ControlPoints( AAF_Iface *aafi, aafObject *Points, aafRation
 	aaf_foreach_ObjectInSet( &Point, Points, &AAFClassID_ControlPoint )
 	{
 
-		aafRational_t *time  = aaf_get_propertyValue( Point, PID_ControlPoint_Time );
+		aafRational_t *time = aaf_get_propertyValue( Point, PID_ControlPoint_Time, &AAFTypeID_Rational );
 
 		if ( time == NULL )
 		{
 			// trace_obj( aafi, Points, ANSI_COLOR_RED );
 			error( "Missing ControlPoint::Time." );
 
-			free( times );  *times  = NULL;
-			free( values ); *values = NULL;
+			free( *times );  *times  = NULL;
+			free( *values ); *values = NULL;
 
 			return -1;
 		}
 
 
-		aafRational_t *value = aaf_get_propertyIndirectValue( Point, PID_ControlPoint_Value,&AAFTypeID_Rational );
+		// aafRational_t *value = aaf_get_propertyIndirectValue( Point, PID_ControlPoint_Value, &AAFTypeID_Rational );
 
-		if ( value == NULL )
-		{
-			// trace_obj( aafi, Points, ANSI_COLOR_RED );
+		aafIndirect_t *Indirect = aaf_get_propertyValue( Point, PID_ControlPoint_Value, &AAFTypeID_Indirect );
+
+		if ( Indirect == NULL ) {
+			// DUMP_OBJ_ERROR( aafi, ConstantValue, &__td, "Missing PID_ConstantValue_Value or wrong AAFTypeID" );
 			error( "Missing ControlPoint::Value or wrong AAFTypeID" );
 
-			free( times );  *times  = NULL;
-			free( values ); *values = NULL;
+			free( *times );  *times  = NULL;
+			free( *values ); *values = NULL;
+
+			return -1;
+		}
+
+		aafRational_t *value = aaf_get_indirectValue( aafi->aafd, Indirect, &AAFTypeID_Rational );
+
+		if ( value == NULL ) {
+			// trace_obj( aafi, Points, ANSI_COLOR_RED );
+			error( "Could not retrieve Indirect value for PID_ControlPoint_Value" );
+
+			free( *times );  *times  = NULL;
+			free( *values ); *values = NULL;
 
 			return -1;
 		}
@@ -4184,7 +4223,7 @@ static int parse_Mob( AAF_Iface *aafi, aafObject *Mob )
 
 
 
-	aafObject *MobSlots = aaf_get_propertyValue( Mob, PID_Mob_Slots );
+	aafObject *MobSlots = aaf_get_propertyValue( Mob, PID_Mob_Slots, &AAFTypeID_MobSlotStrongReferenceVector );
 
 	if ( MobSlots == NULL ) /* req */
 	{
@@ -4196,7 +4235,7 @@ static int parse_Mob( AAF_Iface *aafi, aafObject *Mob )
 
 	if ( aafUIDCmp( Mob->Class->ID, &AAFClassID_CompositionMob ) )
 	{
-    aafUID_t *UsageCode = (aafUID_t*)aaf_get_propertyValue( Mob, PID_Mob_UsageCode );
+    aafUID_t *UsageCode = aaf_get_propertyValue( Mob, PID_Mob_UsageCode, &AAFTypeID_UsageType );
 
     if ( aafUIDCmp( UsageCode, &AAFUsage_AdjustedClip ) ) {
       DUMP_OBJ_ERROR( aafi, Mob, &__td, "Skipping AAFUsage_AdjustedClip" );
@@ -4221,7 +4260,7 @@ static int parse_Mob( AAF_Iface *aafi, aafObject *Mob )
 	 */
 
 	aafObject *MobSlot = NULL;
-	// aafObject *MobSlots = aaf_get_propertyValue( Mob, PID_Mob_Slots );
+	// aafObject *MobSlots = aaf_get_propertyValue( Mob, PID_Mob_Slots, &AAFTypeID_MobSlotStrongReferenceVector );
 	//
 	// if ( MobSlots != NULL ) /* req */
 	// {
@@ -4256,19 +4295,19 @@ static int parse_CompositionMob( AAF_Iface *aafi, aafObject *CompoMob, td *__ptd
 
 
 
-	aafi->compositionName = aaf_get_propertyValueWstr( CompoMob, PID_Mob_Name ); /* opt */
+	aafi->compositionName = aaf_get_propertyValue( CompoMob, PID_Mob_Name, &AAFTypeID_String ); /* opt */
 
 
 
 
 	aafObject *UserComment  = NULL;
-	aafObject *UserComments = aaf_get_propertyValue( CompoMob, PID_Mob_UserComments ); /* opt */
+	aafObject *UserComments = aaf_get_propertyValue( CompoMob, PID_Mob_UserComments, &AAFTypeID_TaggedValueStrongReferenceVector ); /* opt */
 
 	aaf_foreach_ObjectInSet( &UserComment, UserComments, NULL )
 	{
 		/* TODO implement retrieve_TaggedValue() */
 
-		wchar_t *name = aaf_get_propertyValueWstr( UserComment, PID_TaggedValue_Name );
+		wchar_t *name = aaf_get_propertyValue( UserComment, PID_TaggedValue_Name, &AAFTypeID_String );
 
 		if ( name == NULL ) /* req */
 		{
@@ -4277,11 +4316,25 @@ static int parse_CompositionMob( AAF_Iface *aafi, aafObject *CompoMob, td *__ptd
 		}
 
 
-		wchar_t *text = aaf_get_propertyIndirectValue( UserComment, PID_TaggedValue_Value, &AAFTypeID_String );
+		// wchar_t *text = aaf_get_propertyIndirectValue( UserComment, PID_TaggedValue_Value, &AAFTypeID_String );
+		//
+		// if ( text == NULL ) /* req */
+		// {
+		// 	DUMP_OBJ_ERROR( aafi, UserComment, &__td, "Missing PID_TaggedValue_Value" );
+		// 	continue;
+		// }
 
-		if ( text == NULL ) /* req */
-		{
+		aafIndirect_t *Indirect = aaf_get_propertyValue( UserComment, PID_TaggedValue_Value, &AAFTypeID_Indirect );
+
+		if ( Indirect == NULL ) {
 			DUMP_OBJ_ERROR( aafi, UserComment, &__td, "Missing PID_TaggedValue_Value" );
+			continue;
+		}
+
+		wchar_t *text = aaf_get_indirectValue( aafi->aafd, Indirect, &AAFTypeID_String );
+
+		if ( text == NULL ) {
+			DUMP_OBJ_ERROR( aafi, UserComment, &__td, "Could not retrieve Indirect value for PID_TaggedValue_Value" );
 			continue;
 		}
 
@@ -4352,7 +4405,7 @@ static int parse_SourceMob( AAF_Iface *aafi, aafObject *SourceMob, td *__ptd )
 
 
 
-		aafMobID_t *MobID = aaf_get_propertyValue( SourceMob, PID_Mob_MobID );
+		aafMobID_t *MobID = aaf_get_propertyValue( SourceMob, PID_Mob_MobID, &AAFTypeID_MobIDType );
 
 		if ( MobID == NULL )
 		{
@@ -4364,7 +4417,7 @@ static int parse_SourceMob( AAF_Iface *aafi, aafObject *SourceMob, td *__ptd )
 
 
 
-		aafTimeStamp_t *CreationTime = aaf_get_propertyValue( SourceMob, PID_Mob_CreationTime );
+		aafTimeStamp_t *CreationTime = aaf_get_propertyValue( SourceMob, PID_Mob_CreationTime, &AAFTypeID_TimeStamp );
 
 		if ( CreationTime == NULL )
 		{
@@ -4386,7 +4439,7 @@ static int parse_SourceMob( AAF_Iface *aafi, aafObject *SourceMob, td *__ptd )
 
 
 
-	aafObject *EssenceDesc = aaf_get_propertyValue( SourceMob, PID_SourceMob_EssenceDescription );
+	aafObject *EssenceDesc = aaf_get_propertyValue( SourceMob, PID_SourceMob_EssenceDescription, &AAFTypeID_EssenceDescriptorStrongReference );
 
 	if ( EssenceDesc == NULL )
 	{
@@ -4446,7 +4499,7 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 
 
 
-	aafObject *Segment = aaf_get_propertyValue( MobSlot, PID_MobSlot_Segment );
+	aafObject *Segment = aaf_get_propertyValue( MobSlot, PID_MobSlot_Segment, &AAFTypeID_SegmentStrongReference );
 
 	if ( Segment == NULL ) /* req */
 	{
@@ -4481,7 +4534,7 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 		 *	CompositionMob can have TimelineMobSlots, StaticMobSlots, EventMobSlots
 		 */
 
-		aafRational_t *edit_rate = (aafRational_t*)aaf_get_propertyValue( MobSlot, PID_TimelineMobSlot_EditRate );
+		aafRational_t *edit_rate = aaf_get_propertyValue( MobSlot, PID_TimelineMobSlot_EditRate, &AAFTypeID_Rational );
 
 		if ( edit_rate == NULL ) /* req */
 		{
@@ -4517,7 +4570,7 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 				if ( !aafi->ctx.is_inside_derivation_chain )
 				{
 					uint32_t tracknumber = 0;
-					uint32_t *track_num  = (uint32_t*)aaf_get_propertyValue( MobSlot, PID_MobSlot_PhysicalTrackNumber );
+					uint32_t *track_num  = aaf_get_propertyValue( MobSlot, PID_MobSlot_PhysicalTrackNumber, &AAFTypeID_UInt32 );
 
 					if ( track_num == NULL ) { /* opt */
 						tracknumber = aafi->Audio->track_count + 1;
@@ -4541,7 +4594,7 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 
 
 
-					track->name = aaf_get_propertyValueWstr( MobSlot, PID_MobSlot_SlotName );
+					track->name = aaf_get_propertyValue( MobSlot, PID_MobSlot_SlotName, &AAFTypeID_String );
 
 					track->edit_rate = edit_rate;
 				}
@@ -4644,7 +4697,7 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 				 */
 
 				uint32_t tracknumber = 0;
-				uint32_t *track_num = (uint32_t*)aaf_get_propertyValue( MobSlot, PID_MobSlot_PhysicalTrackNumber );
+				uint32_t *track_num = aaf_get_propertyValue( MobSlot, PID_MobSlot_PhysicalTrackNumber, &AAFTypeID_UInt32 );
 
 				if ( track_num == NULL ) { /* opt */
 					tracknumber = 1;       /* Current implementation supports only one video track. */
@@ -4658,7 +4711,7 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 
 				track->number = tracknumber;
 
-				track->name = aaf_get_propertyValueWstr( MobSlot, PID_MobSlot_SlotName );
+				track->name = aaf_get_propertyValue( MobSlot, PID_MobSlot_SlotName, &AAFTypeID_String );
 
 				track->edit_rate = edit_rate;
 
@@ -4711,7 +4764,7 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 			{
 				aafiAudioEssence *audioEssence = (aafiAudioEssence*)aafi->ctx.current_essence;
 
-				aafPosition_t *Origin = aaf_get_propertyValue( MobSlot, PID_TimelineMobSlot_Origin );
+				aafPosition_t *Origin = aaf_get_propertyValue( MobSlot, PID_TimelineMobSlot_Origin, &AAFTypeID_PositionType );
 
 				if ( Origin == NULL ) /* req */
 				{
@@ -4738,7 +4791,7 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 	}
 	else if ( aafUIDCmp( MobSlot->Class->ID, &AAFClassID_EventMobSlot ) ) {
 
-		aafRational_t *edit_rate = (aafRational_t*)aaf_get_propertyValue( MobSlot, PID_EventMobSlot_EditRate );
+		aafRational_t *edit_rate = aaf_get_propertyValue( MobSlot, PID_EventMobSlot_EditRate, &AAFTypeID_Rational );
 
 		if ( edit_rate == NULL ) /* req */
 		{
@@ -4785,7 +4838,7 @@ int aafi_retrieveData( AAF_Iface *aafi )
 	aaf_foreach_ObjectInSet( &Mob, aafi->aafd->Mobs, &AAFClassID_CompositionMob )
 	{
 
-		aafUID_t *UsageCode = (aafUID_t*)aaf_get_propertyValue( Mob, PID_Mob_UsageCode );
+		aafUID_t *UsageCode = aaf_get_propertyValue( Mob, PID_Mob_UsageCode, &AAFTypeID_UsageType );
 
 		if ( aafUIDCmp( aafi->aafd->Header.OperationalPattern, &AAFOPDef_EditProtocol ) && !aafUIDCmp( UsageCode, &AAFUsage_TopLevel ) )
 		{
@@ -4801,7 +4854,7 @@ int aafi_retrieveData( AAF_Iface *aafi )
 
 			// // aaf_dump_ObjectProperties( aafi->aafd, aafi->ctx.Mob );
 			//
-			// aafObject *MobSlots = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_Slots );
+			// aafObject *MobSlots = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_Slots, &AAFTypeID_MobSlotStrongReferenceVector );
 			// aafObject *MobSlot = NULL;
 			// uint32_t SlotID = 0;
 			//
@@ -4850,9 +4903,9 @@ int aafi_retrieveData( AAF_Iface *aafi )
 	// 			aaf_foreach_ObjectInSet( &Mob, aafi->aafd->Mobs, NULL )
 	// 			{
 	// 				/* loops through Mobs */
-	// 				aafUID_t *UsageCode = (aafUID_t*)aaf_get_propertyValue( Mob, PID_Mob_UsageCode );
+	// 				aafUID_t *UsageCode = aaf_get_propertyValue( Mob, PID_Mob_UsageCode, &AAFTypeID_ );
 	//
-	// 				aafMobID_t *MobID = (aafMobID_t*)aaf_get_propertyValue( Mob, PID_Mob_MobID );
+	// 				aafMobID_t *MobID = aaf_get_propertyValue( Mob, PID_Mob_MobID, &AAFTypeID_MobIDType );
 	//
 	// 				if ( !aafMobIDCmp( MobID, audioClip->masterMobID ) )
 	// 				{
@@ -4864,18 +4917,18 @@ int aafi_retrieveData( AAF_Iface *aafi )
 	//
 	// 				debug( "PointedMob ClassID : %ls", ClassIDToText(aafi->aafd, Mob->Class->ID) );
 	// 				debug( "PointedMob UsageCd : %ls", UsageCodeToText(UsageCode) );
-	// 				debug( "PointedMob Name    : %ls", aaf_get_propertyValueWstr(Mob, PID_Mob_Name) );
+	// 				debug( "PointedMob Name    : %ls", aaf_get_propertyValue(Mob, PID_Mob_Name, &AAFTypeID_String) );
 	//
 	//
 	//
-	// 				aafObject *MobSlots = aaf_get_propertyValue( Mob, PID_Mob_Slots );
+	// 				aafObject *MobSlots = aaf_get_propertyValue( Mob, PID_Mob_Slots, &AAFTypeID_MobSlotStrongReferenceVector );
 	// 				aafObject *MobSlot = NULL;
 	// 				int SlotID = 1;
 	// 				aaf_foreach_ObjectInSet( &MobSlot, MobSlots, NULL )
 	// 				{
 	// 					debug( "  SlotID %u", SlotID );
 	//
-	// 					aafObject *Segment = aaf_get_propertyValue( MobSlot, PID_MobSlot_Segment );
+	// 					aafObject *Segment = aaf_get_propertyValue( MobSlot, PID_MobSlot_Segment, &AAFTypeID_SegmentStrongReference );
 	//
 	// 					if ( Segment == NULL )
 	// 					{
@@ -4904,7 +4957,7 @@ int aafi_retrieveData( AAF_Iface *aafi )
 	//
 	// 					if ( aafUIDCmp( Segment->Class->ID, &AAFClassID_SourceClip ) )
 	// 					{
-	// 						aafMobID_t *SourceID = aaf_get_propertyValue( Segment, PID_SourceReference_SourceID );
+	// 						aafMobID_t *SourceID = aaf_get_propertyValue( Segment, PID_SourceReference_SourceID, &AAFTypeID_MobIDType );
 	//
 	// 						debug( "     SourceID : %ls", MobIDToText(sourceID) );
 	// 					}
@@ -4927,7 +4980,7 @@ int aafi_retrieveData( AAF_Iface *aafi )
 	// aaf_foreach_ObjectInSet( &(aafi->ctx.Mob), aafi->aafd->Mobs, &AAFClassID_SourceMob )
 	// {
 	//
-	// 	aafObject *MobSlots = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_Slots );
+	// 	aafObject *MobSlots = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_Slots, &AAFTypeID_MobSlotStrongReferenceVector );
 	//
 	// 	aaf_foreach_ObjectInSet( &(aafi->ctx.MobSlot), MobSlots, NULL )
 	// 	{
@@ -4939,11 +4992,11 @@ int aafi_retrieveData( AAF_Iface *aafi )
 	// 		 *	NOTE We do it after the main loop, so we make sure all MasterMobs was parsed.
 	// 		 */
 	//
-	// 		aafObject *Segment = aaf_get_propertyValue( aafi->ctx.MobSlot, PID_MobSlot_Segment );
+	// 		aafObject *Segment = aaf_get_propertyValue( aafi->ctx.MobSlot, PID_MobSlot_Segment, &AAFTypeID_SegmentStrongReference );
 	//
  	// 		aafUID_t  *DataDefinition = get_Component_DataDefinition( aafi, Segment );
 	//
-	// 		aafMobID_t *MobID = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_MobID );
+	// 		aafMobID_t *MobID = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_MobID, &AAFTypeID_MobIDType );
 	//
 	// 		aafiAudioEssence *audioEssence = NULL;
 	//

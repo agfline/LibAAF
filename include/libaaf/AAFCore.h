@@ -825,7 +825,7 @@ int aaf__foreach_ObjectInSet( aafObject     **Obj,
 
 
 /**
- *	Retrieves a Property by its ID, out of an Object.
+ *	Retrieves an Object property by ID.
  *
  *	@param  Obj  Pointer to the Object to get the property from.
  *	@param  pid  Index of the requested property.
@@ -848,16 +848,20 @@ aafProperty * aaf_get_property( aafObject *Obj,
  *	             0 otherwise.
  */
 
-aafPID_t aaf_get_PropertyIDByName( AAF_Data      *aafd,
-                                   const wchar_t *name );
+aafPID_t aaf_get_PropertyIDByName( AAF_Data *aafd, const wchar_t *name );
 
 
-
-
-aafIndirect_t * aaf_get_propertyIndirect( aafObject *Obj, aafPID_t pid, const aafUID_t *typeDef );
 
 /**
- *	Retrieves a Property by its ID out of an Object, and returns its value.
+ *	Retrieves an Object property by ID, and returns its value.
+ *
+ *	Special case is the StrongReference, where the function returns
+ *	the Object directly, instead of its reference.
+ *
+ *	Function performs a type check before it returns.
+ *
+ *	Caller must free the returned value, only if property is of type
+ *	AAFTypeID_String.
  *
  *	@param  Obj  Pointer to the Object to get the property from.
  *	@param  pid  Index of the requested property.
@@ -866,43 +870,27 @@ aafIndirect_t * aaf_get_propertyIndirect( aafObject *Obj, aafPID_t pid, const aa
  *	             NULL otherwise.
  */
 
-void * aaf_get_propertyValue( aafObject *Obj,
-                              aafPID_t   pid );
-
-
-/**
- *	Retrieves a "text" Property by its ID out of an Object, handles the conversion from
- *	UTF-16 to ascii of the value and returns it.
- *
- *	@note It is the caller responsability to free the returned pointer.
- *
- *	@param  Obj  Pointer to the Object to get the property from.
- *	@param  pid  Index of the requested property.
- *
- *	@return      A pointer to the property's text value if found,\n
- *	             NULL otherwise.
- */
-
-// char * aaf_get_propertyValueText( aafObject *Obj,
-//                                   aafPID_t   pid );
-
-
-wchar_t * aaf_get_propertyValueWstr( aafObject *Obj, aafPID_t pid );
+void * aaf_get_propertyValue( aafObject *Obj, aafPID_t pid, const aafUID_t *typeID );
 
 
 
 /**
- *	Retrieves a Property by its ID out of an Object, interprets it as an aafIndirect_t and
- *	returns the Indirect value.
+ *	Safely get an Indirect value, after it was retrieved using aaf_get_propertyValue().
+ *	Function checks value type and in case of AAFTypeID_String, performs allocation
+ *	and conversion to system wchar_t*.
  *
- *	@param  Obj  Pointer to the Object to get the property from.
- *	@param  pid  Index of the requested property.
+ *	Caller must free the returned value, only if Indirect is of type
+ *	AAFTypeID_String.
  *
- *	@return      A pointer to the property's Indirect value if found,\n
- *	             NULL otherwise.
+ *	@param  aafd       Pointer to the AAF_Data structure.
+ *	@param  Indirect   Pointer to the Indirect structure.
+ *	@param  typeDef    Type definition expected from the Indirect.
+ *
+ *	@return            A pointer to the Indirect value, or a pointer to an allocated wchar_t if Indirect is AAFTypeID_String\n
+ *	                   NULL in case of error.
  */
 
-void * aaf_get_propertyIndirectValue( aafObject *Obj, aafPID_t pid, const aafUID_t *typeDef );
+void * aaf_get_indirectValue( AAF_Data *aafd, aafIndirect_t *Indirect, const aafUID_t *typeDef );
 
 
 

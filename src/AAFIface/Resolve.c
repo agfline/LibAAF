@@ -27,6 +27,19 @@
 #include <libaaf/AAFDefs/AAFTypeDefUIDs.h>
 
 #include <libaaf.h>
+#include <libaaf/debug.h>
+
+
+#define debug( ... ) \
+	_dbg( aafi->dbg, aafi, DEBUG_SRC_ID_AAF_IFACE, VERB_DEBUG, __VA_ARGS__ )
+
+#define warning( ... ) \
+	_dbg( aafi->dbg, aafi, DEBUG_SRC_ID_AAF_IFACE, VERB_WARNING, __VA_ARGS__ )
+
+#define error( ... ) \
+	_dbg( aafi->dbg, aafi, DEBUG_SRC_ID_AAF_IFACE, VERB_ERROR, __VA_ARGS__ )
+
+
 
 
 int resolve_AAF( struct AAF_Iface *aafi )
@@ -80,7 +93,7 @@ int resolve_parse_aafObject_Selector( struct AAF_Iface *aafi, aafObject *Selecto
 
 
 
-  aafObject *Selected = aaf_get_propertyValue( Selector, PID_Selector_Selected );
+  aafObject *Selected = aaf_get_propertyValue( Selector, PID_Selector_Selected, &AAFTypeID_SegmentStrongReference );
 
 	if ( Selected == NULL ) /* req */
 	{
@@ -88,7 +101,7 @@ int resolve_parse_aafObject_Selector( struct AAF_Iface *aafi, aafObject *Selecto
 		return -1;
 	}
 
-	aafObject *Alternates = aaf_get_propertyValue( Selector, PID_Selector_Alternates );
+	aafObject *Alternates = aaf_get_propertyValue( Selector, PID_Selector_Alternates, &AAFTypeID_SegmentStrongReferenceVector );
 
 	if ( Alternates == NULL ) /* opt */
 	{
@@ -99,7 +112,7 @@ int resolve_parse_aafObject_Selector( struct AAF_Iface *aafi, aafObject *Selecto
 
 
 
-  void *ComponentAttributeList = aaf_get_propertyValue( Selector, aaf_get_PropertyIDByName( aafi->aafd, L"ComponentAttributeList" ) );
+  void *ComponentAttributeList = aaf_get_propertyValue( Selector, aaf_get_PropertyIDByName( aafi->aafd, L"ComponentAttributeList" ), &AAFUID_NULL );
 
 	if ( ComponentAttributeList == NULL )
 	{
@@ -124,7 +137,7 @@ int resolve_parse_aafObject_Selector( struct AAF_Iface *aafi, aafObject *Selecto
 	{
 		/* TODO implement retrieve_TaggedValue() */
 
-		wchar_t *name = aaf_get_propertyValueWstr( ComponentAttribute, PID_TaggedValue_Name );
+		wchar_t *name = aaf_get_propertyValue( ComponentAttribute, PID_TaggedValue_Name, &AAFTypeID_String );
 
 		if ( name == NULL ) /* req */
 		{
@@ -133,14 +146,30 @@ int resolve_parse_aafObject_Selector( struct AAF_Iface *aafi, aafObject *Selecto
 		}
 
 
-		uint32_t *value = aaf_get_propertyIndirectValue( ComponentAttribute, PID_TaggedValue_Value, &AAFTypeID_UInt32 );
+		// uint32_t *value = aaf_get_propertyIndirectValue( ComponentAttribute, PID_TaggedValue_Value, &AAFTypeID_UInt32 );
+    //
+		// if ( value == NULL ) /* req */
+		// {
+		// 	DUMP_OBJ_ERROR( aafi, ComponentAttribute, &__td, "Missing PID_TaggedValue_Value or wrong AAFTypeID" );
+    //   free( name );
+		// 	continue;
+		// }
 
-		if ( value == NULL ) /* req */
-		{
-			DUMP_OBJ_ERROR( aafi, ComponentAttribute, &__td, "Missing PID_TaggedValue_Value or wrong AAFTypeID" );
+    aafIndirect_t *Indirect = aaf_get_propertyValue( ComponentAttribute, PID_TaggedValue_Value, &AAFTypeID_Indirect );
+
+    if ( Indirect == NULL ) {
+      DUMP_OBJ_ERROR( aafi, ComponentAttribute, &__td, "Missing PID_TaggedValue_Value" );
       free( name );
-			continue;
-		}
+      continue;
+    }
+
+    int32_t *value = aaf_get_indirectValue( aafi->aafd, Indirect, &AAFTypeID_Int32 );
+
+    if ( value == NULL ) {
+      DUMP_OBJ_ERROR( aafi, ComponentAttribute, &__td, "Could not retrieve Indirect value for PID_TaggedValue_Value" );
+      free( name );
+      continue;
+    }
 
 
 		// debug( "Tagged | Name: %ls    Value : %u", name, *value );
@@ -189,7 +218,7 @@ int resolve_parse_aafObject_DescriptiveMarker( struct AAF_Iface *aafi, aafObject
   __td_set(__td, __ptd, 1);
 
 
-  aafPosition_t *start = (int64_t *)aaf_get_propertyValue( DescriptiveMarker, PID_Event_Position );
+  aafPosition_t *start = aaf_get_propertyValue( DescriptiveMarker, PID_Event_Position, &AAFTypeID_PositionType );
 
   if ( start == NULL ) /* req (TODO: conditional) */
   {
@@ -198,7 +227,7 @@ int resolve_parse_aafObject_DescriptiveMarker( struct AAF_Iface *aafi, aafObject
   }
 
 
-  aafPosition_t *length = (int64_t *)aaf_get_propertyValue( DescriptiveMarker, PID_Component_Length );
+  aafPosition_t *length = aaf_get_propertyValue( DescriptiveMarker, PID_Component_Length, &AAFTypeID_PositionType );
 
   if ( length == NULL ) /* opt */
   {
@@ -207,32 +236,32 @@ int resolve_parse_aafObject_DescriptiveMarker( struct AAF_Iface *aafi, aafObject
   }
 
 
-  wchar_t *comment = aaf_get_propertyValueWstr( DescriptiveMarker, PID_Event_Comment );
+  wchar_t *comment = aaf_get_propertyValue( DescriptiveMarker, PID_Event_Comment, &AAFTypeID_String );
 
-  wchar_t *name = aaf_get_propertyValueWstr( DescriptiveMarker, aaf_get_PropertyIDByName( aafi->aafd, L"CommentMarkerUser" ) );
+  wchar_t *name = aaf_get_propertyValue( DescriptiveMarker, aaf_get_PropertyIDByName( aafi->aafd, L"CommentMarkerUser" ), &AAFTypeID_String );
 
-  uint16_t *RVBColor = (uint16_t*)aaf_get_propertyValue( DescriptiveMarker, aaf_get_PropertyIDByName( aafi->aafd, L"CommentMarkerColor" ) );
+  uint16_t *RGBColor = NULL;
 
+  aafProperty *RGBColorProp = aaf_get_property( DescriptiveMarker, aaf_get_PropertyIDByName( aafi->aafd, L"CommentMarkerColor" ) );
 
-  if ( RVBColor ) {
-    /* big endian to little endian */
+  if ( RGBColorProp ) {
 
-    RVBColor[0] = (RVBColor[0]>>8) | (RVBColor[0]<<8);
-    RVBColor[1] = (RVBColor[1]>>8) | (RVBColor[1]<<8);
-    RVBColor[2] = (RVBColor[2]>>8) | (RVBColor[2]<<8);
+    if ( RGBColorProp->len != sizeof(uint16_t)*3 ) {
+      error( "CommentMarkerColor has wrong size of %u", RGBColorProp->len );
+    }
+    else {
 
-    // RVBColor[0] = (RVBColor[0]>>8 != 0) ? (RVBColor[0]>>8) : RVBColor[0];
-    // RVBColor[1] = (RVBColor[1]>>8 != 0) ? (RVBColor[1]>>8) : RVBColor[1];
-    // RVBColor[2] = (RVBColor[2]>>8 != 0) ? (RVBColor[2]>>8) : RVBColor[2];
+      RGBColor = RGBColorProp->val;
 
-    // debug("%02x", RVBColor[0] );
-    // debug("%02x", RVBColor[1] );
-    // debug("%02x", RVBColor[2] );
+      /* big endian to little endian */
 
-    // DUMP_OBJ_NO_SUPPORT( aafi, DescriptiveMarker, &__td );
+      RGBColor[0] = (RGBColor[0]>>8) | (RGBColor[0]<<8);
+      RGBColor[1] = (RGBColor[1]>>8) | (RGBColor[1]<<8);
+      RGBColor[2] = (RGBColor[2]>>8) | (RGBColor[2]<<8);
+    }
   }
 
-  aafi_newMarker( aafi, aafi->ctx.current_markers_edit_rate, *start, ((length) ? *length : 0), name, comment, &RVBColor );
+  aafi_newMarker( aafi, aafi->ctx.current_markers_edit_rate, *start, ((length) ? *length : 0), name, comment, &RGBColor );
 
   DUMP_OBJ( aafi, DescriptiveMarker, &__td );
 

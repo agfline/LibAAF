@@ -1081,16 +1081,16 @@ const wchar_t * DataDefToText( AAF_Data *aafd, const aafUID_t *auid )
 
 	static wchar_t TEXTDataDef[1024];
 
-	aafObject *DataDefinitions = aaf_get_propertyValue( aafd->Dictionary, PID_Dictionary_DataDefinitions );
+	aafObject *DataDefinitions = aaf_get_propertyValue( aafd->Dictionary, PID_Dictionary_DataDefinitions, &AAFTypeID_DataDefinitionStrongReferenceSet );
 	aafObject *DataDefinition  = NULL;
 
 	aaf_foreach_ObjectInSet( &DataDefinition, DataDefinitions, NULL )
 	{
-		aafUID_t *DataDefIdent = aaf_get_propertyValue( DataDefinition, PID_DefinitionObject_Identification );
+		aafUID_t *DataDefIdent = aaf_get_propertyValue( DataDefinition, PID_DefinitionObject_Identification, &AAFTypeID_AUID );
 
 		if ( DataDefIdent && aafUIDCmp( DataDefIdent, auid ) )
 		{
-			wchar_t *name = aaf_get_propertyValueWstr( DataDefinition, PID_DefinitionObject_Name );
+			wchar_t *name = aaf_get_propertyValue( DataDefinition, PID_DefinitionObject_Name, &AAFTypeID_String );
 			swprintf( TEXTDataDef, 1024, L"%" WPRIws, name );
 			free( name );
 
@@ -1210,16 +1210,16 @@ const wchar_t * OperationDefToText( AAF_Data *aafd, const aafUID_t *auid )
 
 	static wchar_t TEXTOperationDef[1024];
 
-	aafObject *OperationDefinitions = aaf_get_propertyValue( aafd->Dictionary, PID_Dictionary_OperationDefinitions );
+	aafObject *OperationDefinitions = aaf_get_propertyValue( aafd->Dictionary, PID_Dictionary_OperationDefinitions, &AAFTypeID_OperationDefinitionStrongReferenceSet );
 	aafObject *OperationDefinition  = NULL;
 
 	aaf_foreach_ObjectInSet( &OperationDefinition, OperationDefinitions, NULL )
 	{
-		aafUID_t *OpDefIdent = aaf_get_propertyValue( OperationDefinition, PID_DefinitionObject_Identification );
+		aafUID_t *OpDefIdent = aaf_get_propertyValue( OperationDefinition, PID_DefinitionObject_Identification, &AAFTypeID_AUID );
 
 		if ( OpDefIdent && aafUIDCmp( OpDefIdent, auid ) )
 		{
-			wchar_t *name = aaf_get_propertyValueWstr( OperationDefinition, PID_DefinitionObject_Name );
+			wchar_t *name = aaf_get_propertyValue( OperationDefinition, PID_DefinitionObject_Name, &AAFTypeID_String );
 			swprintf( TEXTOperationDef, 1024, L"%" WPRIws, name );
 			free( name );
 
@@ -1472,20 +1472,20 @@ const wchar_t * ParameterToText( AAF_Data *aafd, const aafUID_t *auid )
 
 	static wchar_t TEXTParameterDef[1024];
 
-	aafObject *ParameterDefinitions = aaf_get_propertyValue( aafd->Dictionary, PID_Dictionary_ParameterDefinitions );
+	aafObject *ParameterDefinitions = aaf_get_propertyValue( aafd->Dictionary, PID_Dictionary_ParameterDefinitions, &AAFTypeID_ParameterDefinitionStrongReferenceSet );
 	aafObject *ParameterDefinition  = NULL;
 
 	aaf_foreach_ObjectInSet( &ParameterDefinition, ParameterDefinitions, NULL )
 	{
-		aafUID_t *ParamDefIdent = aaf_get_propertyValue( ParameterDefinition, PID_DefinitionObject_Identification );
+		aafUID_t *ParamDefIdent = aaf_get_propertyValue( ParameterDefinition, PID_DefinitionObject_Identification, &AAFTypeID_AUID );
 
 		if ( ParamDefIdent && aafUIDCmp( ParamDefIdent, auid ) )
 		{
-			wchar_t *name = aaf_get_propertyValueWstr( ParameterDefinition, PID_DefinitionObject_Name );
+			wchar_t *name = aaf_get_propertyValue( ParameterDefinition, PID_DefinitionObject_Name, &AAFTypeID_String );
 			swprintf( TEXTParameterDef, 1024, L"%" WPRIws, name );
 			free( name );
 
-			// debug("Description : %ls\n", aaf_get_propertyValueText( ParameterDefinition, PID_DefinitionObject_Description ) );
+			// debug("Description : %ls\n", aaf_get_propertyValue( ParameterDefinition, PID_DefinitionObject_Description, &AAFTypeID_String ) );
 
 			return TEXTParameterDef;
 		}
