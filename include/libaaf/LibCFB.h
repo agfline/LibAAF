@@ -914,7 +914,7 @@ typedef struct CFB_Data
 
 
 
-const wchar_t * CLSIDToText( cfbCLSID_t *clsid );
+const wchar_t * CLSIDToText( const cfbCLSID_t *clsid );
 
 
 

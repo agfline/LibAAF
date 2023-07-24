@@ -30,7 +30,7 @@
 
 
 #define AUIDToText( auid ) \
-    CLSIDToText( (cfbCLSID_t*)auid )
+    CLSIDToText( (const cfbCLSID_t*)auid )
 
 
 const wchar_t * MobIDToText( aafMobID_t *mobid );

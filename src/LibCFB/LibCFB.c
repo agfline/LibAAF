@@ -157,7 +157,7 @@ static cfbSID_t cfb_getIDByNode( CFB_Data *cfbd, cfbNode *node );
 
 
 
-const wchar_t * CLSIDToText( cfbCLSID_t *clsid )
+const wchar_t * CLSIDToText( const cfbCLSID_t *clsid )
 {
 	static wchar_t str[96];
 
