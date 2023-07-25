@@ -31,7 +31,17 @@
 #define BUILD_PATH_DEFAULT_BUF_SIZE 1024
 
 
+int wstr_contains_nonlatin( const wchar_t *str )
+{
+	for ( size_t i = 0; str[i] != 0x0000; i++ ) {
+		/* if char is out of the Basic Latin range */
+		if ( str[i] > 0xff ) {
+      return 1;
+		}
+	}
 
+  return 0;
+}
 // wchar_t * utoa( wchar_t *str )
 // {
 //   /*
@@ -180,7 +190,9 @@ char * clean_filename( char *fname )
   size_t len = strlen(fname);
 
   for ( size_t i = 0; i < len; i++ ) {
-    char c = fname[i];
+
+    unsigned char c = fname[i];
+
     if ( c == '/' ||
          c == '<' ||
          c == '>' ||
@@ -190,7 +202,8 @@ char * clean_filename( char *fname )
          c == '?' ||
          c == '*' ||
          c == '\\' ||
-         c < 0x20 )
+        (c > 0 && c < 0x20)
+       )
     {
       fname[i] = '_';
     }

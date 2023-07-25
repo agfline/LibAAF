@@ -834,6 +834,7 @@ typedef struct aafiContext
 		int              trace_meta;
 		wchar_t         *trace_class;
 		char            *media_location;
+		char             forbid_nonlatin_filenames;
 		/* vendor specific */
 		uint32_t         resolve;
 		uint32_t         protools;

@@ -134,6 +134,7 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 
 	aafi->ctx.options.verb = VERB_QUIET;
 	aafi->ctx.options.trace = 0;
+	aafi->ctx.options.forbid_nonlatin_filenames = 0;
 	// aafi->ctx.trace_leveloop = NULL;
 
 	// aafi->verb = VERB_QUIET;

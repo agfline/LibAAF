@@ -239,6 +239,7 @@ typedef struct _aafUID_t
 
 } aafUID_t;
 
+#define AAFUID_PRINTED_LEN 35 // excluding NULL terminating char
 static const aafUID_t AUID_NULL =
 {0x00000000, 0x0000, 0x0000, {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
 

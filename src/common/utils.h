@@ -68,6 +68,8 @@ extern "C" {
 
 // wchar_t * utoa( wchar_t *str );
 
+int wstr_contains_nonlatin( const wchar_t *str );
+
 char * clean_filename( char *filename );
 
 char * build_path( const char *sep, const char *first, ... );

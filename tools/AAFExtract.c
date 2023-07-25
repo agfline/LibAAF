@@ -41,20 +41,21 @@ int main( int argc, char *argv[] )
 	setlocale( LC_ALL, "" );
 
 	int rc = 0;
-
+	int no_nonlatin = 0;
 	char *output_path = NULL;
 	char *aaf_file = NULL;
 
 	printf( "\nAAFExtract\nlibAAF %s\n\n", LIBAAF_VERSION );
 
 
-	const char* optstring = "hp:f:";
+	const char* optstring = "hnp:f:";
 
 	const struct option longopts[] = {
 
     { "help",            no_argument,       0, 'h' },
 
     { "output-path",     required_argument, 0, 'p' },
+		{ "no-nonlatin",     required_argument, 0, 'n' },
     { "file",            required_argument, 0, 'f' },
 	};
 
@@ -71,6 +72,10 @@ int main( int argc, char *argv[] )
       case 'p':
         output_path = c99strdup(optarg);
         break;
+
+			case 'n':
+				no_nonlatin = 1;
+				break;
 
       case 'f':
 				aaf_file = c99strdup(optarg);
@@ -89,6 +94,7 @@ int main( int argc, char *argv[] )
 
 	aafi->ctx.options.verb = VERB_DEBUG;
 	aafi->ctx.options.trace = 1;
+	aafi->ctx.options.forbid_nonlatin_filenames = no_nonlatin;
 
 	if ( aafi_load_file( aafi, aaf_file ) ) {
 		goto err;

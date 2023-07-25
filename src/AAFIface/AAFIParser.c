@@ -596,6 +596,9 @@ static wchar_t * build_unique_audiofilename( AAF_Iface *aafi, aafiAudioEssence *
 
 		file_name_len = wcslen( audioEssence->file_name );
 		unique_size = file_name_len +1 +4; // +4 = "_001"
+		unique_size = (unique_size < AAFUID_PRINTED_LEN+1) ? AAFUID_PRINTED_LEN+1 : unique_size;
+
+		// debug("%lu, %lu", file_name_len, unique_size);
 
 		unique = malloc( sizeof(wchar_t) * unique_size );
 
@@ -604,7 +607,7 @@ static wchar_t * build_unique_audiofilename( AAF_Iface *aafi, aafiAudioEssence *
 			return NULL;
 		}
 
-		if ( swprintf( unique, unique_size, L"%" WPRIws, audioEssence->file_name ) ) {
+		if ( swprintf( unique, unique_size, L"%" WPRIws, audioEssence->file_name ) < 0 ) {
 			error( "Could not prepare unique filename" );
 			return NULL;
 		}
@@ -613,6 +616,7 @@ static wchar_t * build_unique_audiofilename( AAF_Iface *aafi, aafiAudioEssence *
 
 		file_name_len = strlen("unknown");
 		unique_size = file_name_len +1 +4; // +4 = "_001"
+		unique_size = (unique_size < AAFUID_PRINTED_LEN+1) ? AAFUID_PRINTED_LEN+1 : unique_size;
 
 		unique = malloc( sizeof(wchar_t) * unique_size );
 
@@ -631,36 +635,33 @@ static wchar_t * build_unique_audiofilename( AAF_Iface *aafi, aafiAudioEssence *
 
 	aafiAudioEssence *ae = NULL;
 
-	// if ( 1 )
-	// {
-	// 	size_t i = 0;
-  //
-	// 	for ( ; i < file_name_len; i++ )
-	// 	{
-	// 		/* if char is out of the Basic Latin range */
-	// 		if ( unique[i] > 0xff )
-	// 		{
-	// 			// debug( "MobID : %ls", MobIDToText( audioEssence->sourceMobID ) );
-	// 			aafUID_t *uuid = &(audioEssence->sourceMobID->material);
-	// 			swprintf( unique, 1024, L"%08x-%04x-%04x-%02x%02x%02x%02x%02x%02x%02x%02x",
-	// 				uuid->Data1,
-	// 				uuid->Data2,
-	// 				uuid->Data3,
-	// 				uuid->Data4[0],
-	// 			 	uuid->Data4[1],
-	// 				uuid->Data4[2],
-	// 				uuid->Data4[3],
-	// 				uuid->Data4[4],
-	// 				uuid->Data4[5],
-	// 				uuid->Data4[6],
-	// 				uuid->Data4[7] );
-  //
-	// 			audioEssence->unique_file_name = unique;
-  //
-	// 			return unique;
-	// 		}
-	// 	}
-	// }
+	if ( aafi->ctx.options.forbid_nonlatin_filenames && wstr_contains_nonlatin( unique ) ) {
+
+		aafUID_t *uuid = &(audioEssence->sourceMobID->material);
+
+		int rc = swprintf( unique, unique_size, L"%08x-%04x-%04x-%02x%02x%02x%02x%02x%02x%02x%02x",
+			uuid->Data1,
+			uuid->Data2,
+			uuid->Data3,
+			uuid->Data4[0],
+		 	uuid->Data4[1],
+			uuid->Data4[2],
+			uuid->Data4[3],
+			uuid->Data4[4],
+			uuid->Data4[5],
+			uuid->Data4[6],
+			uuid->Data4[7] );
+
+		if ( rc < 0 ) {
+			error( "Failed to set unique filename with SourceMobID UID" );
+			free( unique );
+			return NULL;
+		}
+
+		audioEssence->unique_file_name = unique;
+
+		return unique;
+	}
 
 
 	int index = 0;
@@ -669,7 +670,7 @@ static wchar_t * build_unique_audiofilename( AAF_Iface *aafi, aafiAudioEssence *
 
 		if ( ae->unique_file_name != NULL && wcscmp( ae->unique_file_name, unique ) == 0 ) {
 
-			if ( swprintf( unique+file_name_len, (unique_size-file_name_len), L"_%i", ++index ) ) {
+			if ( swprintf( unique+file_name_len, (unique_size-file_name_len), L"_%i", ++index ) < 0 ) {
 				error( "Failed to increment unique filename" );
 				free( unique );
 				return NULL;
