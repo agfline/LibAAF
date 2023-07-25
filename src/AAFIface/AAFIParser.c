@@ -588,14 +588,44 @@ void _DUMP_OBJ_NO_SUPPORT( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *_
 
 static wchar_t * build_unique_audiofilename( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 {
-	/* TODO 1024 should be a macro ! */
+	wchar_t *unique = NULL;
+	size_t unique_size = 0;
+	size_t file_name_len = 0;
 
-	wchar_t *unique = calloc( sizeof(wchar_t), 1024 );
+	if ( audioEssence->file_name ) {
 
-	size_t file_name_len = wcslen( audioEssence->file_name );
+		file_name_len = wcslen( audioEssence->file_name );
+		unique_size = file_name_len +1 +4; // +4 = "_001"
 
+		unique = malloc( sizeof(wchar_t) * unique_size );
 
-	memcpy( unique, audioEssence->file_name, (file_name_len + 1) * sizeof(wchar_t) );
+		if ( unique == NULL ) {
+			error( "Could not allocate memory : %s", strerror(errno) );
+			return NULL;
+		}
+
+		if ( swprintf( unique, unique_size, L"%" WPRIws, audioEssence->file_name ) ) {
+			error( "Could not prepare unique filename" );
+			return NULL;
+		}
+	}
+	else {
+
+		file_name_len = strlen("unknown");
+		unique_size = file_name_len +1 +4; // +4 = "_001"
+
+		unique = malloc( sizeof(wchar_t) * unique_size );
+
+		if ( unique == NULL ) {
+			error( "Could not allocate memory : %s", strerror(errno) );
+			return NULL;
+		}
+
+		if ( swprintf( unique, unique_size, L"unknown" ) < 0 ) {
+			error( "Could not prepare unique filename" );
+			return NULL;
+		}
+	}
 
 	// debug( "%ls", unique );
 
@@ -633,15 +663,20 @@ static wchar_t * build_unique_audiofilename( AAF_Iface *aafi, aafiAudioEssence *
 	// }
 
 
-	int id = 0;
+	int index = 0;
 
-	foreachEssence( ae, aafi->Audio->Essences )
-	{
-		if ( ae->unique_file_name != NULL && wcscmp( ae->unique_file_name, unique ) == 0 )
-		{
-			swprintf( unique+file_name_len, (1024-file_name_len), L"_%i", ++id );
-			// debug( "%ls", unique );
+	foreachEssence( ae, aafi->Audio->Essences ) {
+
+		if ( ae->unique_file_name != NULL && wcscmp( ae->unique_file_name, unique ) == 0 ) {
+
+			if ( swprintf( unique+file_name_len, (unique_size-file_name_len), L"_%i", ++index ) ) {
+				error( "Failed to increment unique filename" );
+				free( unique );
+				return NULL;
+			}
+
 			ae = aafi->Audio->Essences; // check again
+			// debug( "%ls", unique );
 		}
 	}
 
@@ -3278,6 +3313,9 @@ YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
 
 			audioEssence->file_name = aaf_get_propertyValue( ParentMob, PID_Mob_Name, &AAFTypeID_String );
 
+			if ( audioEssence->file_name == NULL ) {
+				debug( "Missing MasterMob::PID_Mob_Name (essence file name)" );
+			}
 
 			/*
 			 *	p.49 : To create a SourceReference that refers to a MobSlot within
