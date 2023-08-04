@@ -64,35 +64,21 @@ enum aafiEssenceType {
 
 
 
-
-
-/**
- *	Flags for aafiTransition.flags and aafiAudioGain.flags
- */
-
-typedef enum aafiInterpolation_e
-{
-	AAFI_INTERPOL_NONE     = 0x0400,
-	AAFI_INTERPOL_LINEAR   = 0x0800,
-	AAFI_INTERPOL_LOG      = 0x1000,
-	AAFI_INTERPOL_CONSTANT = 0x2000,
-	AAFI_INTERPOL_POWER    = 0x4000,
-	AAFI_INTERPOL_BSPLINE  = 0x8000,
-
-} aafiInterpolation_e;
-
-
 /**
  *	Flags for aafiAudioGain.flags.
  */
 
 typedef enum aafiAudioGain_e
 {
-
-	AAFI_AUDIO_GAIN_CONSTANT = 0x0001,
-	AAFI_AUDIO_GAIN_VARIABLE = 0x0002,
+	AAFI_AUDIO_GAIN_CONSTANT = 1<<0, //0x0001
+	AAFI_AUDIO_GAIN_VARIABLE = 1<<1, //0x0002
 
 } aafiAudioGain_e;
+
+#define AAFI_AUDIO_GAIN_MASK ( \
+	  AAFI_AUDIO_GAIN_CONSTANT   \
+	| AAFI_AUDIO_GAIN_VARIABLE   \
+)
 
 
 
@@ -102,16 +88,51 @@ typedef enum aafiAudioGain_e
 
 typedef enum aafiTransition_e
 {
-	AAFI_TRANS_SINGLE_CURVE = 0x0010,
-	AAFI_TRANS_TWO_CURVE    = 0x0020,
+	AAFI_TRANS_SINGLE_CURVE = 1<<4, //0x0010
+	AAFI_TRANS_TWO_CURVE    = 1<<5, //0x0020
 
-	AAFI_TRANS_FADE_IN      = 0x0040,
-	AAFI_TRANS_FADE_OUT     = 0x0080,
-	AAFI_TRANS_XFADE        = 0x0100,
+	AAFI_TRANS_FADE_IN      = 1<<6, //0x0040
+	AAFI_TRANS_FADE_OUT     = 1<<7, //0x0080
+	AAFI_TRANS_XFADE        = 1<<8, //0x0100
 
 } aafiTransition_e;
 
+#define AAFI_TRANS_CURVE_COUNT_MASK ( \
+	  AAFI_TRANS_SINGLE_CURVE           \
+	| AAFI_TRANS_TWO_CURVE              \
+)
 
+#define AAFI_TRANS_FADE_MASK ( \
+	  AAFI_TRANS_FADE_IN         \
+	| AAFI_TRANS_FADE_OUT        \
+	| AAFI_TRANS_XFADE           \
+)
+
+
+
+/**
+ *	Flags for aafiTransition.flags and aafiAudioGain.flags
+ */
+
+typedef enum aafiInterpolation_e
+{
+	AAFI_INTERPOL_NONE     = 1<<10, //0x0400
+	AAFI_INTERPOL_LINEAR   = 1<<11, //0x0800
+	AAFI_INTERPOL_LOG      = 1<<12, //0x1000
+	AAFI_INTERPOL_CONSTANT = 1<<13, //0x2000
+	AAFI_INTERPOL_POWER    = 1<<14, //0x4000
+	AAFI_INTERPOL_BSPLINE  = 1<<15, //0x8000
+
+} aafiInterpolation_e;
+
+#define AAFI_INTERPOL_MASK ( \
+	  AAFI_INTERPOL_NONE       \
+	| AAFI_INTERPOL_LINEAR     \
+	| AAFI_INTERPOL_LOG        \
+	| AAFI_INTERPOL_CONSTANT   \
+	| AAFI_INTERPOL_POWER      \
+	| AAFI_INTERPOL_BSPLINE    \
+)
 
 
 
@@ -477,7 +498,7 @@ typedef struct aafiTimelineItem
 
 
 /**
- * 
+ *
  */
 
 typedef struct aafiTimecode
