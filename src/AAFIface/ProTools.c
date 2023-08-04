@@ -158,7 +158,7 @@ static int replace_clipfade_with_fade( AAF_Iface *aafi, aafiTimelineItem *Item )
 	transItem->prev = NULL;
 
 	trans->len = audioClip->len;
-	trans->flags = AAFI_INTERPOL_CONSTANT;
+	trans->flags = AAFI_INTERPOL_NONE;
 
 
 
