@@ -970,7 +970,7 @@ typedef struct AAF_Iface
 
 
 
-void aafi_set_debug( AAF_Iface *aafi, verbosityLevel_e v );
+void aafi_set_debug( AAF_Iface *aafi, verbosityLevel_e v, FILE *fp, void (*callback)(struct dbg *dbg, void *ctxdata, int lib, int type, const char *srcfile, const char *srcfunc, int lineno, const char *msg, void *user), void *user );
 
 AAF_Iface * aafi_alloc( AAF_Data *aafd );
 

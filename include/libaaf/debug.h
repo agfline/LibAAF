@@ -24,8 +24,6 @@
 #include <stdio.h>
 
 
-#define DEBUG_FUNCTION_POINTER (*debug_callback)(void *ctxdata, int lib, int type, const char *srcfile, const char *srcfunc, int lineno, const char *msg, void *user )
-
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 
 
@@ -49,8 +47,9 @@ typedef enum verbosityLevel_e {
 
 struct dbg {
 
-	void DEBUG_FUNCTION_POINTER;
+	void (*debug_callback)( struct dbg *dbg, void *ctxdata, int lib, int type, const char *srcfile, const char *srcfunc, int lineno, const char *msg, void *user );
 
+	FILE *fp;
 	verbosityLevel_e verb;
 
 	char *_dbg_msg;
@@ -72,13 +71,13 @@ struct dbg {
 				dbg->_dbg_msg = msgtmp; \
 				dbg->_dbg_msg_size = msgsize; \
 				snprintf( dbg->_dbg_msg, dbg->_dbg_msg_size, __VA_ARGS__ ); \
-				dbg->debug_callback( (void*)ctxdata, lib, type, dbgfile, dbgfunc, dbgline, dbg->_dbg_msg, dbg->user ); \
+				dbg->debug_callback( dbg, (void*)ctxdata, lib, type, dbgfile, dbgfunc, dbgline, dbg->_dbg_msg, dbg->user ); \
 			} else { \
 				/* Should we print error to stderr ? */ \
 			} \
 		} else { \
 			snprintf( dbg->_dbg_msg, dbg->_dbg_msg_size, __VA_ARGS__ ); \
-			dbg->debug_callback( (void*)ctxdata, lib, type, dbgfile, dbgfunc, dbgline, dbg->_dbg_msg, dbg->user ); \
+			dbg->debug_callback( dbg, (void*)ctxdata, lib, type, dbgfile, dbgfunc, dbgline, dbg->_dbg_msg, dbg->user ); \
 		} \
 	}} \
 
@@ -87,7 +86,7 @@ struct dbg * new_debug( void );
 
 void free_debug( struct dbg *dbg );
 
-void debug_callback( void *ctxdata, int lib, int type, const char *srcfile, const char *srcfunc, int lineno, const char *msg, void *user );
+void debug_callback( struct dbg *dbg, void *ctxdata, int lib, int type, const char *srcfile, const char *srcfunc, int lineno, const char *msg, void *user );
 
 
 #endif // ! __debug_h__

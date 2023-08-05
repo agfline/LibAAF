@@ -37,13 +37,13 @@ enum RIFF_PARSER_FLAGS {
   RIFF_PARSE_ONLY_HEADER = (1 << 0),
 };
 
-struct riffContext {
-  void *user;
-  void DEBUG_FUNCTION_POINTER;
-  char *_dbg_msg;
-  int   _dbg_msg_size;
-  verbosityLevel_e verb;
-};
+// struct riffContext {
+//   void *user;
+//   void DEBUG_FUNCTION_POINTER;
+//   char *_dbg_msg;
+//   int   _dbg_msg_size;
+//   verbosityLevel_e verb;
+// };
 
 struct RIFFAudioFile {
   /* common to wave/aiff */

@@ -43,7 +43,7 @@ void aaf_dump_Header( AAF_Data *aafd )
 
   offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n\n" );
 
-  dbg->debug_callback( (void*)aafd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
+  dbg->debug_callback( dbg, (void*)aafd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
 }
 
 
@@ -65,7 +65,7 @@ void aaf_dump_Identification( AAF_Data *aafd )
 
   offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n\n" );
 
-  dbg->debug_callback( (void*)aafd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
+  dbg->debug_callback( dbg, (void*)aafd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
 }
 
 
@@ -80,7 +80,7 @@ void aaf_dump_ObjectProperty( AAF_Data *aafd, aafProperty *Prop )
 	// WARNING : Wont print strong references (set/vector) corectly.
 	offset += dump_hex( Prop->val, Prop->len, &aafd->dbg->_dbg_msg, &aafd->dbg->_dbg_msg_size, offset );
 
-  dbg->debug_callback( (void*)aafd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
+  dbg->debug_callback( dbg, (void*)aafd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
 }
 
 
@@ -173,7 +173,7 @@ void aaf_dump_rawProperties( AAF_Data *aafd, aafPropertyIndexHeader_t *PropHeade
 		offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n\n" );
 	}
 
-  dbg->debug_callback( (void*)aafd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
+  dbg->debug_callback( dbg, (void*)aafd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
 }
 
 
@@ -296,7 +296,7 @@ void aaf_dump_MetaDictionary( AAF_Data *aafd )
 
   offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n\n" );
 
-  dbg->debug_callback( (void*)aafd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
+  dbg->debug_callback( dbg, (void*)aafd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
 }
 
 
@@ -329,5 +329,5 @@ void aaf_dump_Classes( AAF_Data *aafd )
 
   offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n\n" );
 
-  dbg->debug_callback( (void*)aafd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
+  dbg->debug_callback( dbg, (void*)aafd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
 }

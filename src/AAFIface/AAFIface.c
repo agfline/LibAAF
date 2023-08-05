@@ -155,11 +155,18 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 
 
 
-void aafi_set_debug( AAF_Iface *aafi, verbosityLevel_e v ) {
-	// aafi->verb = v;
-	// aafi->aafd->verb = v;
-	// aafi->aafd->cfbd->verb = v;
+void aafi_set_debug( AAF_Iface *aafi, verbosityLevel_e v, FILE *fp, void (*callback)(struct dbg *dbg, void *ctxdata, int lib, int type, const char *srcfile, const char *srcfunc, int lineno, const char *msg, void *user), void *user )
+{
 	aafi->dbg->verb = v;
+	aafi->dbg->fp = fp;
+
+	if ( callback ) {
+		aafi->dbg->debug_callback = callback;
+	}
+
+	if ( user ) {
+		aafi->dbg->user = user;
+	}
 }
 
 

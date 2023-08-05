@@ -15,6 +15,7 @@ struct dbg * new_debug( void )
   struct dbg *dbg = calloc( sizeof(struct dbg), sizeof(char) );
 
   dbg->debug_callback = &debug_callback;
+  dbg->fp = stdout;
 
   return dbg;
 }
@@ -32,7 +33,7 @@ void free_debug( struct dbg *dbg )
 
 
 
-void debug_callback( void *ctxdata, int libid, int type, const char *srcfile, const char *srcfunc, int lineno, const char *msg, void *user )
+void debug_callback( struct dbg *dbg, void *ctxdata, int libid, int type, const char *srcfile, const char *srcfunc, int lineno, const char *msg, void *user )
 {
   AAF_Iface *aafi = NULL;
   AAF_Data  *aafd = NULL;
@@ -41,6 +42,10 @@ void debug_callback( void *ctxdata, int libid, int type, const char *srcfile, co
   const char *lib = "";
   const char *typestr = "";
   const char *color = "";
+
+  if ( dbg->fp == NULL ) {
+    return;
+  }
 
   switch ( libid ) {
     case DEBUG_SRC_ID_LIB_CFB:    lib = "libCFB";    aafi = (AAF_Iface*)ctxdata;  break;
@@ -57,11 +62,11 @@ void debug_callback( void *ctxdata, int libid, int type, const char *srcfile, co
   }
 
   if ( libid != DEBUG_SRC_ID_TRACE && libid != DEBUG_SRC_ID_DUMP ) {
-    printf( "[%s%s%s] ", color, typestr, ANSI_COLOR_RESET );
-    printf( "%s%s:%i in %s()%s : ", ANSI_COLOR_DARKGREY, srcfile, lineno, srcfunc, ANSI_COLOR_RESET );
+    fprintf( dbg->fp, "[%s%s%s] ", color, typestr, ANSI_COLOR_RESET );
+    fprintf( dbg->fp, "%s%s:%i in %s()%s : ", ANSI_COLOR_DARKGREY, srcfile, lineno, srcfunc, ANSI_COLOR_RESET );
   }
 
-  printf( "%s\n", msg );
+  fprintf( dbg->fp, "%s\n", msg );
 
   /* avoids -Wunused-parameter -Wunused-but-set-variable */
   (void)aafi;

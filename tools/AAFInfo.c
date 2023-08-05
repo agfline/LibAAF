@@ -379,7 +379,7 @@ int main( int argc, char *argv[] )
 	aafi = aafi_alloc( NULL );
 	aafd = aafi->aafd;
 
-	aafi_set_debug( aafi, verb );
+	aafi_set_debug( aafi, verb, stdout, NULL, NULL );
 
 	aafi->ctx.options.verb = verb;
 	aafi->ctx.options.trace = trace;

@@ -90,7 +90,7 @@ int main( int argc, char *argv[] )
 
 	AAF_Iface *aafi = aafi_alloc( NULL );
 
-	aafi_set_debug( aafi, VERB_DEBUG );
+	aafi_set_debug( aafi, VERB_DEBUG, stdout, NULL, NULL );
 
 	aafi->ctx.options.verb = VERB_DEBUG;
 	aafi->ctx.options.trace = 1;
