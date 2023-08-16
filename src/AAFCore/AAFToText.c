@@ -66,7 +66,11 @@ const wchar_t * MobIDToText( aafMobID_t *mobid )
 		}
 	}
 
-	offset += swprintf( str+offset, 127, L"%" WPRIws, AUIDToText((aafUID_t*)((unsigned char*)mobid+i) ) );
+	aafUID_t material;
+
+	memcpy( &material, ((unsigned char*)mobid)+i, sizeof(aafUID_t) );
+
+	offset += swprintf( str+offset, 127, L"%" WPRIws, AUIDToText(&material) );
 
 	return str;
 }

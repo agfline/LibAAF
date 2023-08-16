@@ -491,8 +491,7 @@ typedef struct aafiTimelineItem
 	struct aafiTimelineItem *next;
 	struct aafiTimelineItem *prev;
 
-	// is to be casted as aafiTransition or aafiAudioClip struct.
-	unsigned char data[];
+	void *data; /* aafiTransition or aafiAudioClip or aafiVideoClip */
 
 } aafiTimelineItem;
 

@@ -108,18 +108,12 @@ void aaf_dump_ObjectProperties( AAF_Data *aafd, aafObject *Obj )
 
 
 
-void aaf_dump_rawProperties( AAF_Data *aafd, aafPropertyIndexHeader_t *PropHeader )
+void aaf_dump_rawProperties( AAF_Data *aafd, aafByte_t *propStream )
 {
   int offset = 0;
   struct dbg *dbg = aafd->dbg;
 
-  aafPropertyIndexHeader_t *Header = PropHeader;
-  aafPropertyIndexEntry_t  *Prop   = NULL;
-  aafByte_t                *value  = NULL;
-
-  uint32_t i = 0;
-
-  if ( Header == NULL ) {
+  if ( propStream == NULL ) {
     offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset,
       " ## Property_Header____________________________________________________\n\n"
       " aafPropertyIndexHeader_t is NULL\n"
@@ -128,6 +122,15 @@ void aaf_dump_rawProperties( AAF_Data *aafd, aafPropertyIndexHeader_t *PropHeade
     return;
   }
 
+  aafPropertyIndexHeader_t Header;
+  aafPropertyIndexEntry_t  Prop;
+  aafByte_t                *value  = NULL;
+
+  memcpy( &Header, propStream, sizeof(aafPropertyIndexHeader_t) );
+
+  uint32_t i = 0;
+  uint32_t valueOffset = 0;
+
 
 	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset,
 		" ## Property_Header____________________________________________________\n\n"
@@ -135,9 +138,9 @@ void aaf_dump_rawProperties( AAF_Data *aafd, aafPropertyIndexHeader_t *PropHeade
 		" _formatVersion : 0x%02x\n"
 		" _entryCount    : %u\n\n"
         " ======================================================================\n\n",
-		Header->_byteOrder,
-		Header->_formatVersion,
-		Header->_entryCount
+		Header._byteOrder,
+		Header._formatVersion,
+		Header._entryCount
 	);
 
 	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n\n" );
@@ -148,13 +151,13 @@ void aaf_dump_rawProperties( AAF_Data *aafd, aafPropertyIndexHeader_t *PropHeade
 	 */
 
 	// foreachPropertyEntry( Header, Prop, value, i )
-	for ( Prop = (aafPropertyIndexEntry_t*)(((char*)Header) + sizeof(aafPropertyIndexHeader_t)),    \
-	      value = ((unsigned char*)Prop) + (Header->_entryCount * sizeof(aafPropertyIndexEntry_t)), \
-	      i = 0;                                                                                    \
-	      i < Header->_entryCount;                                                                  \
-	      value += Prop->_length,                                                                   \
-	      Prop++,                                                                                   \
-	      i++ )
+  for ( valueOffset = sizeof(aafPropertyIndexHeader_t) + (Header._entryCount * sizeof(aafPropertyIndexEntry_t)), \
+        i = 0;                                                                                                   \
+        i < Header._entryCount &&                                                                                \
+        memcpy( &Prop, (propStream + ((sizeof(aafPropertyIndexHeader_t)) + (sizeof(aafPropertyIndexEntry_t) * i))), sizeof(aafPropertyIndexEntry_t) ) && \
+        (value = propStream + valueOffset);                                                                      \
+        valueOffset += Prop._length,                                                                            \
+        i++ )
 	{
 
 		offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset,
@@ -163,12 +166,12 @@ void aaf_dump_rawProperties( AAF_Data *aafd, aafPropertyIndexHeader_t *PropHeade
 			" _storedForm : %ls\n"
 			" _length     : %u bytes\n",
 			i,
-			Prop->_pid, PIDToText( aafd, Prop->_pid ),
-			StoredFormToText( Prop->_storedForm ),
-			Prop->_length
+			Prop._pid, PIDToText( aafd, Prop._pid ),
+			StoredFormToText( Prop._storedForm ),
+			Prop._length
 		);
 
-		offset += dump_hex( value, Prop->_length, &aafd->dbg->_dbg_msg, &aafd->dbg->_dbg_msg_size, offset );
+		offset += dump_hex( value, Prop._length, &aafd->dbg->_dbg_msg, &aafd->dbg->_dbg_msg_size, offset );
 
 		offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n\n" );
 	}
@@ -180,67 +183,17 @@ void aaf_dump_rawProperties( AAF_Data *aafd, aafPropertyIndexHeader_t *PropHeade
 
 void aaf_dump_nodeStreamProperties( AAF_Data *aafd, cfbNode *node )
 {
-  /*
-   *  List the raw properties directly from a CFB Node's stream.
-   */
+	/*
+	 *  List the raw properties directly from a CFB Node's stream.
+	 */
 
-  // int offset = 0;
-  // struct dbg *dbg = aafd->dbg;
+	aafByte_t *propStream = NULL;
 
-	aafPropertyIndexHeader_t *Header = NULL;
-	// aafPropertyIndexEntry_t  *Prop   = NULL;
-	// aafByte_t                *value  = NULL;
+	cfb_getStream( aafd->cfbd, node, &propStream, NULL );
 
-	cfb_getStream( aafd->cfbd, node, (unsigned char**)&Header, NULL );
+	aaf_dump_rawProperties( aafd, propStream );
 
-  aaf_dump_rawProperties( aafd, Header );
-
-/*
-	uint32_t i = 0;
-
-
-	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset,
-		" ## Property_Header____________________________________________________\n\n"
-		" _byteOrder     : 0x%02x\n"
-		" _formatVersion : 0x%02x\n"
-		" _entryCount    : %u\n\n"
-        " ======================================================================\n\n",
-		Header->_byteOrder,
-		Header->_formatVersion,
-		Header->_entryCount
-	);
-
-	offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n\n" );
-
-
-	// foreachPropertyEntry( Header, Prop, value, i )
-	for ( Prop = (aafPropertyIndexEntry_t*)(((char*)Header) + sizeof(aafPropertyIndexHeader_t)),    \
-	      value = ((unsigned char*)Prop) + (Header->_entryCount * sizeof(aafPropertyIndexEntry_t)), \
-	      i = 0;                                                                                    \
-	      i < Header->_entryCount;                                                                  \
-	      value += Prop->_length,                                                                   \
-	      Prop++,                                                                                   \
-	      i++ )
-	{
-
-		offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset,
-			" #%u Property_Entry_____________________________________________________\n"
-			" _pid        : 0x%04x (%ls)\n"
-			" _storedForm : %ls\n"
-			" _length     : %u bytes\n",
-			i,
-			Prop->_pid, PIDToText( aafd, Prop->_pid ),
-			StoredFormToText( Prop->_storedForm ),
-			Prop->_length
-		);
-
-		dump_hex( value, Prop->_length, &aafd->dbg->_dbg_msg, &aafd->dbg->_dbg_msg_size );
-
-		offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n\n" );
-	}
-*/
-
-	free( Header );
+	free( propStream );
 }
 
 

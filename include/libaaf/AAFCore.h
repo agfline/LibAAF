@@ -643,17 +643,15 @@ typedef struct _aafData
 		(auid1)->Data4[5] == (auid2)->Data4[5] && \
 		(auid1)->Data4[6] == (auid2)->Data4[6] && \
 		(auid1)->Data4[7] == (auid2)->Data4[7] )
-	// uint32_t Data1;
-	// uint16_t Data2;
-	// uint16_t Data3;
-	// uint8_t  Data4[8];
+
+
 
 /**
  *	Compares two aafMobID_t, returns 1 if equal or 0 otherwise.
  */
 
 #define aafMobIDCmp( mobID1, mobID2 ) \
-	( mobID1 != NULL && mobID2 != NULL && memcmp( mobID1, mobID2, sizeof(aafMobID_t) ) == 0 )
+	( (mobID1) != NULL && (mobID2) != NULL && memcmp( (mobID1), (mobID2), sizeof(aafMobID_t) ) == 0 )
 
 
 
@@ -663,7 +661,7 @@ typedef struct _aafData
  */
 
 #define aafSlotIDCmp( slotID1, slotID2 ) \
-	( slotID1 == slotID2 )
+	( (slotID1) == (slotID2) )
 
 
 
@@ -802,7 +800,7 @@ aafObject * aaf_get_MobSlotBySlotID( aafObject *MobSlots,
  *	This function should be used as the conditional expression of a while loop. The
  *	aaf_foreach_ObjectInSet() is an implementation of this.
  *
- *	@param  Obj    Pointer to pointer to the aafObject structure that will receive each
+ *	@param  Obj    Pointer to pointer to an aafObject structure that will receive each
  *	               Object of the list.
  *	@param  head   Pointer to the first Object of the list.
  *	@param  filter Pointer to a ClassID to use as a filter, shall be NULL if unused.
