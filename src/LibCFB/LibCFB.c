@@ -249,15 +249,6 @@ void cfb_release( CFB_Data **cfbd )
 
 	if ( (*cfbd)->nodes != NULL )
 	{
-		cfbSID_t i = 0;
-
-		/* TODO foreachNodeInFile() ? */
-		while ( i < (*cfbd)->nodes_cnt )
-		{
-			free( (*cfbd)->nodes[i]);
-			i += ( 1 << (*cfbd)->hdr->_uSectorShift ) / sizeof(cfbNode);
-		}
-
 		free( (*cfbd)->nodes );
 		(*cfbd)->nodes = NULL;
 	}
@@ -724,7 +715,7 @@ unsigned char * cfb_getMiniSector( CFB_Data *cfbd, cfbSectorID_t id )
 
 
 	/* *** Retrieve the MiniSector file offset *** */
-	cfbSectorID_t fatId  = cfbd->nodes[0]->_sectStart;
+	cfbSectorID_t fatId  = cfbd->nodes[0]._sectStart;
 	uint64_t      offset = 0;
 	uint32_t      i      = 0;
 
@@ -985,8 +976,8 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 	 */
 
 	uint32_t DiFAT_sz = ( cfbd->hdr->_csectDif )
-					    * (((1<<cfbd->hdr->_uSectorShift) / sizeof(cfbSectorID_t)) - 1)
-						+ 109;
+		* (((1<<cfbd->hdr->_uSectorShift) / sizeof(cfbSectorID_t)) - 1)
+		+ 109;
 
 
 	DiFAT = calloc( DiFAT_sz, sizeof(cfbSectorID_t) );
@@ -1013,10 +1004,9 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 
 	uint64_t cnt = 0;
 
-	cfb_foreachSectorInDiFATChain( cfbd, buf, id )
-	{
-		if ( buf == NULL )
-		{
+	cfb_foreachSectorInDiFATChain( cfbd, buf, id ) {
+
+		if ( buf == NULL ) {
 			error( "Error retrieving sector %u (0x%08x) out of the DiFAT chain.", id, id );
 			return -1;
 		}
@@ -1026,6 +1016,8 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 		offset += (1 << cfbd->hdr->_uSectorShift) - 4;
 		cnt++;
 
+		free( buf );
+		
 		/*
 		 *	If we count more DiFAT sector when parsing than
 		 *	there should be, it means the sector list does
@@ -1035,8 +1027,6 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 		if ( cnt >= cfbd->hdr->_csectDif )
 			break;
 	}
-
-	free( buf );
 
 	/*
 	 * Standard says DIFAT should end with a CFB_END_OF_CHAIN index,
@@ -1199,14 +1189,11 @@ static int cfb_retrieveMiniFAT( CFB_Data * cfbd )
 
 static int cfb_retrieveNodes( CFB_Data *cfbd )
 {
-
 	cfbd->nodes_cnt = getNodeCount( cfbd );
 
+	cfbNode *node  = calloc( cfbd->nodes_cnt, sizeof(cfbNode) );
 
-	cfbNode **node  = calloc( cfbd->nodes_cnt, sizeof(cfbNode*) );
-
-	if ( node == NULL )
-	{
+	if ( node == NULL ) {
 		error( "%s.", strerror( errno ) );
 		return -1;
 	}
@@ -1217,80 +1204,86 @@ static int cfb_retrieveNodes( CFB_Data *cfbd )
 
 
 	if ( cfbd->hdr->_uSectorShift == 9 ) { // 512 bytes sectors
-		cfb_foreachSectorInChain( cfbd, buf, id )
-		{
-			if ( buf == NULL )
-			{
+
+		cfb_foreachSectorInChain( cfbd, buf, id ) {
+
+			if ( buf == NULL ) {
 				error( "Error retrieving Directory sector %u (0x%08x).", id, id );
 				return -1;
 			}
 
-			node[i++] = (cfbNode*)buf;
-			node[i++] = (cfbNode*)(buf+128);
-			node[i++] = (cfbNode*)(buf+256);
-			node[i++] = (cfbNode*)(buf+384);
+			memcpy( &node[i++], buf,     CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+128, CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+256, CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+384, CFB_NODE_SIZE );
+
+			free( buf );
 		}
 	}
 	else if ( cfbd->hdr->_uSectorShift == 12 ) { // 4096 bytes sectors
-		cfb_foreachSectorInChain( cfbd, buf, id )
-		{
-			if ( buf == NULL )
-			{
+
+		cfb_foreachSectorInChain( cfbd, buf, id ) {
+
+			if ( buf == NULL ) {
 				error( "Error retrieving Directory sector %u (0x%08x).", id, id );
 				return -1;
 			}
 
-			node[i++] = (cfbNode*)buf;
-			node[i++] = (cfbNode*)(buf+128);
-			node[i++] = (cfbNode*)(buf+256);
-			node[i++] = (cfbNode*)(buf+384);
-			node[i++] = (cfbNode*)(buf+512);
-			node[i++] = (cfbNode*)(buf+640);
-			node[i++] = (cfbNode*)(buf+768);
-			node[i++] = (cfbNode*)(buf+896);
-			node[i++] = (cfbNode*)(buf+1024);
-			node[i++] = (cfbNode*)(buf+1152);
-			node[i++] = (cfbNode*)(buf+1280);
-			node[i++] = (cfbNode*)(buf+1408);
-			node[i++] = (cfbNode*)(buf+1536);
-			node[i++] = (cfbNode*)(buf+1664);
-			node[i++] = (cfbNode*)(buf+1792);
-			node[i++] = (cfbNode*)(buf+1920);
-			node[i++] = (cfbNode*)(buf+2048);
-			node[i++] = (cfbNode*)(buf+2176);
-			node[i++] = (cfbNode*)(buf+2304);
-			node[i++] = (cfbNode*)(buf+2432);
-			node[i++] = (cfbNode*)(buf+2560);
-			node[i++] = (cfbNode*)(buf+2688);
-			node[i++] = (cfbNode*)(buf+2816);
-			node[i++] = (cfbNode*)(buf+2944);
-			node[i++] = (cfbNode*)(buf+3072);
-			node[i++] = (cfbNode*)(buf+3200);
-			node[i++] = (cfbNode*)(buf+3328);
-			node[i++] = (cfbNode*)(buf+3456);
-			node[i++] = (cfbNode*)(buf+3584);
-			node[i++] = (cfbNode*)(buf+3712);
-			node[i++] = (cfbNode*)(buf+3840);
-			node[i++] = (cfbNode*)(buf+3968);
+			memcpy( &node[i++], buf,      CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+128,  CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+256,  CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+384,  CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+512,  CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+640,  CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+768,  CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+896,  CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+1024, CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+1152, CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+1280, CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+1408, CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+1536, CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+1664, CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+1792, CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+1920, CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+2048, CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+2176, CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+2304, CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+2432, CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+2560, CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+2688, CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+2816, CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+2944, CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+3072, CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+3200, CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+3328, CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+3456, CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+3584, CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+3712, CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+3840, CFB_NODE_SIZE );
+			memcpy( &node[i++], buf+3968, CFB_NODE_SIZE );
+
+			free( buf );
 		}
 	}
-	else    /* handle non-standard sector size, that is different than 512B or 4kB */
-	{       /* TODO has not been tested yet, should not even exist anyway */
+	else {
+
+		/* handle non-standard sector size, that is different than 512B or 4kB */
+		/* TODO has not been tested yet, should not even exist anyway */
+
 		warning( "Parsing non-standard sector size !!! (%u bytes)", (1<<cfbd->hdr->_uSectorShift) )
 		uint32_t nodesPerSect = (1 << cfbd->hdr->_uMiniSectorShift) / sizeof(cfbNode);
 
-		cfb_foreachSectorInChain( cfbd, buf, id )
-		{
-			if ( buf == NULL )
-			{
+		cfb_foreachSectorInChain( cfbd, buf, id ) {
+			if ( buf == NULL ) {
 				error( "Error retrieving Directory sector %u (0x%08x).", id, id );
 				return -1;
 			}
 
-			for ( i = 0; i < nodesPerSect; i++ )
-			{
-				node[i] = (cfbNode*)(buf + (i * 128));
+			for ( i = 0; i < nodesPerSect; i++ ) {
+				memcpy( &node[i], buf+(i * CFB_NODE_SIZE), CFB_NODE_SIZE );
 			}
+
+			free( buf );
 		}
 	}
 
@@ -1364,14 +1357,14 @@ cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const wchar_t *path, cfbSID_t id )
 	if ( id == 0 )
 	{
 		if ( path[0] == '/' && path[1] == 0x0000 )
-			return cfbd->nodes[0];
+			return &cfbd->nodes[0];
 
 		/*
 		 *	work either with or without "/Root Entry"
 		 */
 
 		if ( wcsncmp( path, L"/Root Entry", 11 ) != 0 )
-			id = cfbd->nodes[0]->_sidChild;
+			id = cfbd->nodes[0]._sidChild;
 	}
 
 
@@ -1410,7 +1403,7 @@ cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const wchar_t *path, cfbSID_t id )
 
 		// dump_hex( cfbd->nodes[id]->_ab, cfbd->nodes[id]->_cb );
 
-		cfb_w16towchar( ab, cfbd->nodes[id]->_ab, cfbd->nodes[id]->_cb );
+		cfb_w16towchar( ab, cfbd->nodes[id]._ab, cfbd->nodes[id]._cb );
 
 		int32_t rc = 0;
 
@@ -1441,12 +1434,12 @@ cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const wchar_t *path, cfbSID_t id )
 			 */
 
 			if ( pathLen == l )
-				return cfbd->nodes[id];
+				return &cfbd->nodes[id];
 			else
-				return cfb_getNodeByPath( cfbd, path+l, cfbd->nodes[id]->_sidChild );
+				return cfb_getNodeByPath( cfbd, path+l, cfbd->nodes[id]._sidChild );
 		}
-		else if ( rc > 0 )	id = cfbd->nodes[id]->_sidRightSib;
-		else if ( rc < 0 )	id = cfbd->nodes[id]->_sidLeftSib;
+		else if ( rc > 0 )	id = cfbd->nodes[id]._sidRightSib;
+		else if ( rc < 0 )	id = cfbd->nodes[id]._sidLeftSib;
 
 
 		if ( (int32_t)id < 0 )
@@ -1478,7 +1471,7 @@ cfbNode * cfb_getChildNode( CFB_Data *cfbd, const wchar_t *name, cfbNode *startN
 	int32_t   rc = 0;
 
 	/** @TODO : cfb_getIDByNode should be quiker (macro ?) */
-	cfbSID_t id = cfb_getIDByNode( cfbd, cfbd->nodes[startNode->_sidChild] );
+	cfbSID_t id = cfb_getIDByNode( cfbd, &cfbd->nodes[startNode->_sidChild] );
 
 	uint32_t nameUTF16Len = ((wcslen( name )+1) << 1);
 
@@ -1492,12 +1485,12 @@ cfbNode * cfb_getChildNode( CFB_Data *cfbd, const wchar_t *name, cfbNode *startN
 			return NULL;
 		}
 
-		cfb_w16towchar( nodename, cfbd->nodes[id]->_ab, cfbd->nodes[id]->_cb );
+		cfb_w16towchar( nodename, cfbd->nodes[id]._ab, cfbd->nodes[id]._cb );
 
-		if ( cfbd->nodes[id]->_cb == nameUTF16Len )
-			rc = memcmp( name, nodename, ((cfbd->nodes[id]->_cb >> 1) * sizeof(wchar_t)) );
+		if ( cfbd->nodes[id]._cb == nameUTF16Len )
+			rc = wcscmp( name, nodename );
 		else
-			rc = nameUTF16Len - cfbd->nodes[id]->_cb;
+			rc = nameUTF16Len - cfbd->nodes[id]._cb;
 
 		/*
 		 *	Node found
@@ -1511,14 +1504,14 @@ cfbNode * cfb_getChildNode( CFB_Data *cfbd, const wchar_t *name, cfbNode *startN
 		 */
 
 		else if ( rc > 0 )
-			id = cfbd->nodes[id]->_sidRightSib;
+			id = cfbd->nodes[id]._sidRightSib;
 
 		/*
 		 *	Not found, go left
 		 */
 
 		else if ( rc < 0 )
-			id = cfbd->nodes[id]->_sidLeftSib;
+			id = cfbd->nodes[id]._sidLeftSib;
 
 
 
@@ -1534,7 +1527,7 @@ cfbNode * cfb_getChildNode( CFB_Data *cfbd, const wchar_t *name, cfbNode *startN
 
 	if ( rc == 0 )
 	{
-		return cfbd->nodes[id];
+		return &cfbd->nodes[id];
 	}
 
 	return NULL;
@@ -1549,7 +1542,7 @@ static cfbSID_t cfb_getIDByNode( CFB_Data *cfbd, cfbNode *node )
 	cfbSID_t id = 0;
 
 	for ( ; id < cfbd->nodes_cnt; id++ )
-		if ( node == cfbd->nodes[id] )
+		if ( node == &cfbd->nodes[id] )
 			return id;
 
 	return -1;

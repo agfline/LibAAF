@@ -707,7 +707,8 @@ typedef struct StructuredStorageDirectoryEntry
 
 } cfbNode; // __attribute__((packed)) cfbNode;
 
-
+/* Node size matching CFB file */
+#define CFB_NODE_SIZE 128
 
 
 
@@ -799,7 +800,7 @@ typedef struct CFB_Data
 	 *	Array of pointers to cfbNodes.
 	 */
 
-	cfbNode      **nodes;
+	cfbNode      *nodes;
 
 
   struct dbg *dbg;
@@ -827,11 +828,11 @@ typedef struct CFB_Data
  */
 
 #define cfb_foreachSectorInChain( cfbd, buf, id ) \
-	for ( buf = cfb_getSector( cfbd, id );    \
-	      id  < CFB_MAX_REG_SECT &&             \
-	      buf != NULL; \
-	      id  = cfbd->fat[id],                \
-	      buf = cfb_getSector( cfbd, id ) )   \
+	for ( buf = cfb_getSector( cfbd, id );          \
+	      id  < CFB_MAX_REG_SECT &&                 \
+	      buf != NULL;                              \
+	      id  = cfbd->fat[id],                      \
+	      buf = cfb_getSector( cfbd, id ) )         \
 
 
 
@@ -846,10 +847,10 @@ typedef struct CFB_Data
  */
 
 #define cfb_foreachMiniSectorInChain( cfbd, buf, id ) \
-	for ( buf = cfb_getMiniSector( cfbd, id );    \
-	      id  < CFB_MAX_REG_SECT;                 \
-	      id  = cfbd->miniFat[id],                \
-	      buf = cfb_getMiniSector( cfbd, id ) )   \
+	for ( buf = cfb_getMiniSector( cfbd, id );          \
+	      id  < CFB_MAX_REG_SECT;                       \
+	      id  = cfbd->miniFat[id],                      \
+	      buf = cfb_getMiniSector( cfbd, id ) )         \
 
 
 
@@ -865,12 +866,11 @@ typedef struct CFB_Data
  *	            sector data.
  */
 
-#define cfb_foreachSectorInDiFATChain( cfbd, buf, id )                 \
-	for ( id  = cfbd->hdr->_sectDifStart,                              \
-	      buf = cfb_getSector( cfbd, id );                             \
-	      id  < CFB_MAX_REG_SECT;                                      \
-	      id  = *(unsigned int*)(buf+(1<<cfbd->hdr->_uSectorShift)-4), \
-		  free( buf ),                                                 \
+#define cfb_foreachSectorInDiFATChain( cfbd, buf, id )                          \
+	for ( id  = cfbd->hdr->_sectDifStart,                                         \
+	      buf = cfb_getSector( cfbd, id );                                        \
+	      id  < CFB_MAX_REG_SECT;                                                 \
+	      memcpy( &id, (buf+(1<<cfbd->hdr->_uSectorShift)-4), sizeof(uint32_t) ), \
 	      buf = cfb_getSector( cfbd, id ) )
 
 
@@ -883,8 +883,11 @@ typedef struct CFB_Data
  *	@param id   Index of each FAT sector.
  */
 
-#define cfb_foreachFATSectorIDInDiFAT( cfbd, id ) \
-	for ( id = 0; (id < cfbd->DiFAT_sz && id < cfbd->hdr->_csectFat); id++ )
+#define cfb_foreachFATSectorIDInDiFAT( cfbd, id )          \
+	for ( id = 0;                                            \
+        id < cfbd->DiFAT_sz &&                             \
+        id < cfbd->hdr->_csectFat;                         \
+        id++ )
 
 
 
