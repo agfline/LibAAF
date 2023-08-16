@@ -236,13 +236,14 @@ static void xplore_StrongObjectReferenceVector( AAF_Iface *aafi, aafObject *ObjC
       aafIndirect_t *indirect = aaf_get_propertyValue( Obj, PID_TaggedValue_Value, &AAFTypeID_Indirect );
 
 			if ( aafUIDCmp( &indirect->TypeDef, &AAFTypeID_Int32 ) ) {
-				offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "Tagged     |     Name: %ls%*s      Value (%ls)  : %i\n", name, 56-(int)wcslen(name), " ", TypeIDToText(&indirect->TypeDef), *(int32_t*)indirect->Value );
+				int32_t *indirectValue = aaf_get_indirectValue( aafi->aafd, indirect, &AAFTypeID_Int32 );
+				offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "Tagged     |     Name: %ls%*s      Value (%ls)  : %i\n", name, 56-(int)wcslen(name), " ", TypeIDToText(&indirect->TypeDef), *indirectValue );
 			}
 			else
 			if ( aafUIDCmp( &indirect->TypeDef, &AAFTypeID_String ) ) {
-				wchar_t *wstr = cfb_w16towchar( NULL, (uint16_t*)indirect->Value, CFB_W16TOWCHAR_STRLEN );
-				offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "Tagged     |     Name: %ls%*s      Value (%ls) : %ls\n", name, 56-(int)wcslen(name), " ", TypeIDToText(&indirect->TypeDef), wstr );
-				free( wstr );
+				wchar_t *indirectValue = aaf_get_indirectValue( aafi->aafd, indirect, &AAFTypeID_String );
+				offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "Tagged     |     Name: %ls%*s      Value (%ls) : %ls\n", name, 56-(int)wcslen(name), " ", TypeIDToText(&indirect->TypeDef), indirectValue );
+				free( indirectValue );
 			}
 			else {
 				offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "Tagged     |     Name: %ls%*s      Value (%s%ls%s) : %sUNKNOWN_TYPE%s\n", name, 56-(int)wcslen(name), " ", ANSI_COLOR_RED, TypeIDToText(&indirect->TypeDef), ANSI_COLOR_RESET, ANSI_COLOR_RED, ANSI_COLOR_RESET );
@@ -1771,9 +1772,9 @@ static int parse_Transition( AAF_Iface *aafi, aafObject *Transition, td *__ptd )
 
 
 
-	aafiTimelineItem *Item  = aafi_newTimelineItem( aafi, aafi->ctx.current_track, AAFI_TRANS );
+	aafiTimelineItem *Item = aafi_newTimelineItem( aafi, aafi->ctx.current_track, AAFI_TRANS );
 
-	aafiTransition   *Trans = (aafiTransition*)&Item->data;
+	aafiTransition *Trans = Item->data;//(aafiTransition*)&Item->data;
 
 
 
@@ -2993,7 +2994,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 
 			aafiTimelineItem *item = aafi_newTimelineItem( aafi, aafi->ctx.current_track, AAFI_AUDIO_CLIP );
 
-			aafiAudioClip *audioClip = (aafiAudioClip*)&item->data;
+			aafiAudioClip *audioClip = item->data;//(aafiAudioClip*)&item->data;
 
 			aafi->ctx.clips_using_gain++;
 			aafi->ctx.clips_using_automation++;
@@ -3148,7 +3149,7 @@ YOU ARE HERE --------------------------> └──◻ AAFClassID_SourceClip
 
 			aafiTimelineItem *item = aafi_newTimelineItem( aafi, aafi->Video->Tracks, AAFI_VIDEO_CLIP );
 
-			aafiVideoClip    *videoClip = (aafiVideoClip*)&item->data;
+			aafiVideoClip *videoClip = item->data; //(aafiVideoClip*)&item->data;
 
 			videoClip->pos  = aafi->Video->Tracks->current_pos;
 			videoClip->len  = *length;
@@ -4382,7 +4383,6 @@ static int parse_CompositionMob( AAF_Iface *aafi, aafObject *CompoMob, td *__ptd
 
 		Comment->name = name;
 		Comment->text = text;
-
 	}
 
 

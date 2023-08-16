@@ -311,10 +311,20 @@ aafiTransition * get_fadein( aafiTimelineItem *audioItem )
 	if ( audioItem->prev != NULL &&
 			 audioItem->prev->type == AAFI_TRANS )
 	{
-		aafiTransition *Trans = (aafiTransition*)(audioItem->prev->data);
+		// aafiTransition *Trans = malloc( sizeof(aafiTransition) );
+		//
+		// if ( Trans == NULL ) {
+		// 	return NULL;
+		// }
+		//
+		// memcpy( Trans, audioItem->prev->data, sizeof(aafiTransition) );
+
+		aafiTransition *Trans = audioItem->prev->data;
 
 		if ( Trans->flags & AAFI_TRANS_FADE_IN )
-			return (aafiTransition*)(audioItem->prev->data);
+			return Trans;
+
+		// free( Trans );
 	}
 
 	return NULL;
@@ -329,10 +339,19 @@ aafiTransition * get_fadeout( aafiTimelineItem *audioItem )
 	if ( audioItem->next != NULL &&
 			 audioItem->next->type == AAFI_TRANS )
 	{
-		aafiTransition *Trans = (aafiTransition*)(audioItem->next->data);
+		// aafiTransition *Trans = malloc( sizeof(aafiTransition) );
+		//
+		// if ( Trans == NULL ) {
+		// 	return NULL;
+		// }
+		//
+		// memcpy( Trans, audioItem->next->data, sizeof(aafiTransition) );
+		aafiTransition *Trans = audioItem->next->data;
 
 		if ( Trans->flags & AAFI_TRANS_FADE_OUT )
-			return (aafiTransition*)(audioItem->next->data);
+			return Trans;
+
+		// free( Trans );
 	}
 
 	return NULL;
@@ -357,10 +376,20 @@ aafiTransition * get_xfade( aafiTimelineItem *audioItem )
   if ( audioItem->prev != NULL &&
 			 audioItem->prev->type == AAFI_TRANS )
 	{
-		aafiTransition *Trans = (aafiTransition*)(audioItem->prev->data);
+		// aafiTransition *Trans = malloc( sizeof(aafiTransition) );
+		//
+		// if ( Trans == NULL ) {
+		// 	return NULL;
+		// }
+		//
+		// memcpy( Trans, audioItem->prev->data, sizeof(aafiTransition) );
+
+		aafiTransition *Trans = audioItem->prev->data;
 
 		if ( Trans->flags & AAFI_TRANS_XFADE )
-			return (aafiTransition*)(audioItem->prev->data);
+			return Trans;
+
+		// free( Trans );
 	}
 
 	return NULL;
@@ -445,12 +474,11 @@ aafiTimelineItem * aafi_newTimelineItem( AAF_Iface *aafi, void *track, int itemT
 
 	aafiTimelineItem *item = NULL;
 
-	if ( itemType == AAFI_AUDIO_CLIP )
-	{
-		item = calloc( sizeof(aafiTimelineItem) + sizeof(aafiAudioClip),  1 );
+	if ( itemType == AAFI_AUDIO_CLIP ) {
 
-		if ( item == NULL )
-		{
+		item = calloc( sizeof(aafiTimelineItem), sizeof(char) );
+
+		if ( item == NULL ) {
 			error( "%s.", strerror( errno ) );
 			return NULL;
 		}
@@ -458,17 +486,18 @@ aafiTimelineItem * aafi_newTimelineItem( AAF_Iface *aafi, void *track, int itemT
 
 		item->type = AAFI_AUDIO_CLIP;
 
-		aafiAudioClip *audioClip = (aafiAudioClip*)&item->data;
+		item->data = calloc( sizeof(aafiAudioClip), sizeof(char) );
+
+		aafiAudioClip *audioClip = item->data;
 
 		audioClip->track = (aafiAudioTrack*)track;
 		audioClip->Item = item;
 	}
-	else if ( itemType == AAFI_VIDEO_CLIP )
-	{
-		item = calloc( sizeof(aafiTimelineItem) + sizeof(aafiVideoClip),  1 );
+	else if ( itemType == AAFI_VIDEO_CLIP ) {
 
-		if ( item == NULL )
-		{
+		item = calloc( sizeof(aafiTimelineItem), sizeof(char) );
+
+		if ( item == NULL ) {
 			error( "%s.", strerror( errno ) );
 			return NULL;
 		}
@@ -476,34 +505,35 @@ aafiTimelineItem * aafi_newTimelineItem( AAF_Iface *aafi, void *track, int itemT
 
 		item->type = AAFI_VIDEO_CLIP;
 
-		aafiVideoClip *videoClip = (aafiVideoClip*)&item->data;
+		item->data = calloc( sizeof(aafiVideoClip), sizeof(char) );
+
+		aafiVideoClip *videoClip = item->data;
 
 		videoClip->track = (aafiVideoTrack*)track;
 	}
-	else if ( itemType == AAFI_TRANS )
-	{
-		item = calloc( sizeof(aafiTimelineItem) + sizeof(aafiTransition), 1 );
+	else if ( itemType == AAFI_TRANS ) {
 
-		if ( item == NULL )
-		{
+		item = calloc( sizeof(aafiTimelineItem), sizeof(char) );
+
+		if ( item == NULL ) {
 			error( "%s.", strerror( errno ) );
 			return NULL;
 		}
 
 		item->type = AAFI_TRANS;
+
+		item->data = calloc( sizeof(aafiTransition), sizeof(char) );
 	}
 
 
-	if ( itemType == AAFI_AUDIO_CLIP || itemType == AAFI_TRANS )
-	{
-		if ( track != NULL )
-		{
+	if ( itemType == AAFI_AUDIO_CLIP || itemType == AAFI_TRANS ) {
+
+		if ( track != NULL ) {
 			/*
 			 *	Add to track's item list
 			 */
 
-			if ( ((aafiAudioTrack*)track)->Items != NULL )
-			{
+			if ( ((aafiAudioTrack*)track)->Items != NULL ) {
 				aafiTimelineItem *tmp = ((aafiAudioTrack*)track)->Items;
 
 				for (; tmp != NULL; tmp = tmp->next )
@@ -513,23 +543,20 @@ aafiTimelineItem * aafi_newTimelineItem( AAF_Iface *aafi, void *track, int itemT
 				tmp->next  = item;
 				item->prev = tmp;
 			}
-			else
-			{
+			else {
 				((aafiAudioTrack*)track)->Items = item;
 				item->prev = NULL;
 			}
 		}
 	}
-	else if ( itemType == AAFI_VIDEO_CLIP )
-	{
-		if ( track != NULL )
-		{
+	else if ( itemType == AAFI_VIDEO_CLIP ) {
+
+		if ( track != NULL ) {
 			/*
 			 *	Add to track's item list
 			 */
 
-			if ( ((aafiVideoTrack*)track)->Items != NULL )
-			{
+			if ( ((aafiVideoTrack*)track)->Items != NULL ) {
 				aafiTimelineItem *tmp = ((aafiVideoTrack*)track)->Items;
 
 				for (; tmp != NULL; tmp = tmp->next )
@@ -539,8 +566,7 @@ aafiTimelineItem * aafi_newTimelineItem( AAF_Iface *aafi, void *track, int itemT
 				tmp->next  = item;
 				item->prev = tmp;
 			}
-			else
-			{
+			else {
 				((aafiVideoTrack*)track)->Items = item;
 				item->prev = NULL;
 			}
@@ -645,18 +671,16 @@ void aafi_freeAudioClip( aafiAudioClip *audioClip )
 
 void aafi_freeTimelineItem( aafiTimelineItem **item )
 {
-
-	if ( (*item)->type == AAFI_TRANS )
-	{
-		aafi_freeTransition( (aafiTransition*)&((*item)->data) );
+	if ( (*item)->type == AAFI_TRANS ) {
+		aafi_freeTransition( (aafiTransition*)((*item)->data) );
+		free( (*item)->data );
 	}
-	else if ( (*item)->type == AAFI_AUDIO_CLIP )
-	{
-		aafi_freeAudioClip( (aafiAudioClip*)(*item)->data );
+	else if ( (*item)->type == AAFI_AUDIO_CLIP ) {
+		aafi_freeAudioClip( (aafiAudioClip*)((*item)->data) );
+		free( (*item)->data );
 	}
-	else if ( (*item)->type == AAFI_VIDEO_CLIP )
-	{
-		// aafi_freeAudioClip( (aafiVideoClip*)(*item)->data );
+	else if ( (*item)->type == AAFI_VIDEO_CLIP ) {
+		free( (*item)->data );
 	}
 
 	free( *item );
@@ -672,10 +696,8 @@ void aafi_freeTimelineItems( aafiTimelineItem **items )
 	aafiTimelineItem *item = NULL;
 	aafiTimelineItem *nextItem = NULL;
 
-	for ( item = (*items); item != NULL; item = nextItem )
-	{
+	for ( item = (*items); item != NULL; item = nextItem ) {
 		nextItem = item->next;
-
 		aafi_freeTimelineItem( &item );
 	}
 

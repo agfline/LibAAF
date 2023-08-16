@@ -630,7 +630,7 @@ int main( int argc, char *argv[] )
 			 if ( videoTrack->Items ) {
 
 				 videoItem = videoTrack->Items;
-				 videoClip = (aafiVideoClip*)&(videoItem->data);
+				 videoClip = (aafiVideoClip*)videoItem->data;
 
 				 // locate_external_essence_file( aafi, videoClip->Essence->original_file_path );
 
@@ -713,7 +713,7 @@ int main( int argc, char *argv[] )
 
 				if ( audioItem->type == AAFI_TRANS ) {
 
-					aafiTransition *Trans = (aafiTransition*)&audioItem->data;
+					aafiTransition *Trans = (aafiTransition*)audioItem->data;
 
 					if ( ! ( Trans->flags & AAFI_TRANS_XFADE ) )
 						continue;
@@ -723,7 +723,7 @@ int main( int argc, char *argv[] )
 				}
 				else if ( audioItem->type == AAFI_AUDIO_CLIP ) {
 
-					audioClip = (aafiAudioClip*)&audioItem->data;
+					audioClip = (aafiAudioClip*)audioItem->data;
 
 					// /*
 					//  *  Composition Timecode does not always share the same edit rate as tracks and clips.
@@ -764,6 +764,12 @@ int main( int argc, char *argv[] )
 						printf( "CLIP GAIN AUTOMATION : \n" );
 						dumpVaryingValues( audioClip->automation );
 					}
+
+					// if ( fadein )
+					// 	free( fadein );
+					//
+					// if ( fadeout )
+					// 	free( fadeout );
 
 					clipCount++;
 				}

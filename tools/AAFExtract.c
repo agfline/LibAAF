@@ -32,8 +32,44 @@
 #include "../src/common/utils.h" // ANSI colors, c99strdup()
 
 
-static void usage( void ) {
-
+static void showHelp( void ) {
+	printf(
+		"\n"
+		" CFB Analysis :\n"
+		"\n"
+		"   --cfb-header                   Displays the CFB Header.\n"
+		"   --cfb-fat                      Displays the CFB FAT.\n"
+		"   --cfb-minifat                  Displays the CFB MiniFAT.\n"
+		"   --cfb-difat                    Displays the CFB DiFAT.\n"
+		"   --cfb-nodes                    Displays the CFB node Tree.\n"
+		"\n"
+		"   --get-node             <path>  Retrieves and displays the node located at the given <path>.\n"
+		"\n"
+		"\n"
+		" AAF Analysis :\n"
+		"\n"
+		"   --aaf-summary                  Displays AAF informations from both header and identification objects.\n"
+		"   --aaf-essences                 Lists AAF essences.\n"
+		"   --aaf-clips                    Lists AAF clips.\n"
+		"   --aaf-classes                  Lists AAF Classes. The ones from MetaDictionary are shown in yellow.\n"
+		"   --aaf-meta                     Lists Classes and Properties from the MetaDictionary.\n"
+		"   --aaf-properties               Displays all Properties.\n"
+		"\n"
+		"   --trace                        Dumps trace of AAF parsing.\n"
+		"   --trace-meta                   Prints MetaProperties in the trace.\n"
+		"   --trace-class    <AAFClassID>  Prints properties of a specific AAFClass in the trace.\n"
+		"\n"
+		"\n"
+		" Options :\n"
+		"\n"
+		"   --media-location       <path>  Where to find external essence files.\n"
+		"\n"
+		"   --pos-format <tc|hms|samples>  Position and length display format.\n"
+		"   --show-automation              Shows track and clip automation values.\n"
+		"\n"
+		"   --verbose               <num>  0=quiet 1=error 2=warning 3=debug.\n"
+		"\n\n"
+	);
 }
 
 int main( int argc, char *argv[] )
@@ -54,7 +90,7 @@ int main( int argc, char *argv[] )
 
     { "help",            no_argument,       0, 'h' },
 
-    { "output-path",     required_argument, 0, 'p' },
+		{ "output-path",     required_argument, 0, 'p' },
 		{ "no-nonlatin",     required_argument, 0, 'n' },
     { "file",            required_argument, 0, 'f' },
 	};
@@ -66,7 +102,7 @@ int main( int argc, char *argv[] )
 		switch (c) {
 
       case 'h':
-        usage();
+        showHelp();
         break;
 
       case 'p':
