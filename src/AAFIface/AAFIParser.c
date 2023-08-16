@@ -356,10 +356,10 @@ void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int st
 
 			offset += snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "[slot:%s%i%s track:%s%i%s] (DataDef : %s%ls%s) %s%ls ",
 				ANSI_COLOR_BOLD,
-				(slotID) ? *slotID : -1,
+				(slotID) ? (int)(*slotID) : -1,
 				ANSI_COLOR_RESET,
         ANSI_COLOR_BOLD,
-        (trackNo) ? *trackNo : -1,
+        (trackNo) ? (int)(*trackNo) : -1,
         ANSI_COLOR_RESET,
 				ANSI_COLOR_DARKGREY,
 				DataDefToText( aafi->aafd, DataDefinition ),
