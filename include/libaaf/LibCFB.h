@@ -871,6 +871,7 @@ typedef struct CFB_Data
 	      buf = cfb_getSector( cfbd, id );                                        \
 	      id  < CFB_MAX_REG_SECT;                                                 \
 	      memcpy( &id, (buf+(1<<cfbd->hdr->_uSectorShift)-4), sizeof(uint32_t) ), \
+        free( buf ),                                                            \
 	      buf = cfb_getSector( cfbd, id ) )
 
 

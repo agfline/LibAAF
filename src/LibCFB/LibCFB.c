@@ -1016,8 +1016,6 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 		offset += (1 << cfbd->hdr->_uSectorShift) - 4;
 		cnt++;
 
-		free( buf );
-		
 		/*
 		 *	If we count more DiFAT sector when parsing than
 		 *	there should be, it means the sector list does
@@ -1027,6 +1025,8 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 		if ( cnt >= cfbd->hdr->_csectDif )
 			break;
 	}
+
+	free( buf );
 
 	/*
 	 * Standard says DIFAT should end with a CFB_END_OF_CHAIN index,

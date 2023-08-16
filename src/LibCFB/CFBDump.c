@@ -191,7 +191,7 @@ void cfb_dump_nodePaths( CFB_Data *cfbd, uint32_t prevPath, char *strArray[], ui
 		 *	the begining of the first function call.
 		 */
 
-		node     = cfbd->nodes[0];
+		node     = &cfbd->nodes[0];
 		strArray = calloc( cfbd->nodes_cnt, sizeof(char*) );
 	}
 
@@ -221,13 +221,13 @@ void cfb_dump_nodePaths( CFB_Data *cfbd, uint32_t prevPath, char *strArray[], ui
 
 
 	if ( (int32_t)node->_sidChild > 0 )
-		cfb_dump_nodePaths( cfbd, thisPath, strArray, str_i, cfbd->nodes[node->_sidChild] );
+		cfb_dump_nodePaths( cfbd, thisPath, strArray, str_i, &cfbd->nodes[node->_sidChild] );
 
 	if ( (int32_t)node->_sidLeftSib > 0 )
-		cfb_dump_nodePaths( cfbd, prevPath, strArray, str_i, cfbd->nodes[node->_sidLeftSib] );
+		cfb_dump_nodePaths( cfbd, prevPath, strArray, str_i, &cfbd->nodes[node->_sidLeftSib] );
 
 	if ( (int32_t)node->_sidRightSib > 0 )
-		cfb_dump_nodePaths( cfbd, prevPath, strArray, str_i, cfbd->nodes[node->_sidRightSib] );
+		cfb_dump_nodePaths( cfbd, prevPath, strArray, str_i, &cfbd->nodes[node->_sidRightSib] );
 
 
 
@@ -236,7 +236,7 @@ void cfb_dump_nodePaths( CFB_Data *cfbd, uint32_t prevPath, char *strArray[], ui
 	 *	recursion is over.
 	 */
 
-	if ( node == cfbd->nodes[0] )
+	if ( node == &cfbd->nodes[0] )
 	{
 		int offset = 0;
 		struct dbg *dbg = cfbd->dbg;
