@@ -35,6 +35,7 @@ if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
     -W -Wstrict-prototypes -Wmissing-prototypes
     -Wall -Wcast-qual -Wcast-align -Wextra -Wwrite-strings -Wunsafe-loop-optimizations -Wlogical-op -std=c99 -pedantic -Wshadow # = Ardour's Waf --strict --c-strict
     # -Wconversion
+    -Wcast-align=strict
     -O3
     -g
     -fdebug-prefix-map=${SRC_PATH}=.
