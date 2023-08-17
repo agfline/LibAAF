@@ -148,14 +148,17 @@ static int replace_clipfade_with_fade( AAF_Iface *aafi, aafiTimelineItem *Item )
 
 
 
-	aafiTimelineItem *transItem = malloc( sizeof(aafiTimelineItem) + sizeof(aafiTransition) );
-	aafiTransition   *trans = (aafiTransition*)transItem->data;
+	aafiTimelineItem *transItem = calloc( sizeof(aafiTimelineItem) + sizeof(aafiTransition), sizeof(char) );
 
 	memset( transItem, 0x00, sizeof(aafiTimelineItem) + sizeof(aafiTransition) );
 
 	transItem->type = AAFI_TRANS;
 	transItem->next = NULL;
 	transItem->prev = NULL;
+
+  transItem->data = calloc( sizeof(aafiTransition), sizeof(char) );
+
+  aafiTransition *trans = transItem->data;
 
 	trans->len = audioClip->len;
 	trans->flags = AAFI_INTERPOL_NONE;
