@@ -29,28 +29,28 @@ extern "C" {
 #endif
 
 #ifdef _WIN32
-  #define DIR_SEP '\\'
-  #define DIR_SEP_STR "\\"
-  /*
-   * swprintf() specific string format identifiers
-   * https://learn.microsoft.com/en-us/cpp/c-runtime-library/format-specification-syntax-printf-and-wprintf-functions?view=msvc-170#type
-   */
-  #define WPRIs  L"S" // char*
-  #define WPRIws L"s" // wchar_t*
+	#define DIR_SEP '\\'
+	#define DIR_SEP_STR "\\"
+	/*
+	 * swprintf() specific string format identifiers
+	 * https://learn.microsoft.com/en-us/cpp/c-runtime-library/format-specification-syntax-printf-and-wprintf-functions?view=msvc-170#type
+	 */
+	#define WPRIs  L"S" // char*
+	#define WPRIws L"s" // wchar_t*
 #else
-  #define DIR_SEP '/'
-  #define DIR_SEP_STR "/"
-  /*
-   * swprintf() specific string format identifiers
-   * https://learn.microsoft.com/en-us/cpp/c-runtime-library/format-specification-syntax-printf-and-wprintf-functions?view=msvc-170#type
-   */
-  #define WPRIs  L"s"  // char*
-  #define WPRIws L"ls" // wchar_t*
+	#define DIR_SEP '/'
+	#define DIR_SEP_STR "/"
+	/*
+	 * swprintf() specific string format identifiers
+	 * https://learn.microsoft.com/en-us/cpp/c-runtime-library/format-specification-syntax-printf-and-wprintf-functions?view=msvc-170#type
+	 */
+	#define WPRIs  L"s"  // char*
+	#define WPRIws L"ls" // wchar_t*
 #endif
 
 
 #define IS_DIR_SEP(c) \
-  ( (c) == DIR_SEP || (c) == '/' )
+	( (c) == DIR_SEP || (c) == '/' )
 
 
 #define ANSI_COLOR_RED      "\033[38;5;124m" //"\x1b[31m"
@@ -66,15 +66,13 @@ extern "C" {
 
 
 
-// wchar_t * utoa( wchar_t *str );
-
 int wstr_contains_nonlatin( const wchar_t *str );
 
 char * clean_filename( char *filename );
 
-char * build_path( const char *sep, const char *first, ... );
-
 const char * fop_get_file( const char *filepath );
+
+char * build_path( const char *sep, const char *first, ... );
 
 int snprintf_realloc( char **str, int *size, size_t offset, const char *format, ... );
 
@@ -82,13 +80,7 @@ int vsnprintf_realloc( char **str, int *size, int offset, const char *fmt, va_li
 
 char * c99strdup( const char *src );
 
-char *remove_file_ext (char* myStr, char extSep, char pathSep);
-
 int dump_hex( const unsigned char *stream, size_t stream_sz, char **buf, int *bufsz, int offset );
-
-char * url_decode( char *dst, char *src );
-
-wchar_t * wurl_decode( wchar_t *dst, wchar_t *src );
 
 
 #ifdef __cplusplus

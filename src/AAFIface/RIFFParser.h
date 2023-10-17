@@ -21,15 +21,16 @@
 #ifndef __RIFFParser__
 #define __RIFFParser__
 
-#include <libaaf/AAFIface.h> //  LIB_AAF_IFACE_ID
 #include <libaaf/debug.h>
 
+
+
 #ifdef __GNUC__
-#define PACK( __Declaration__ ) __Declaration__ __attribute__((__packed__))
+  #define PACK( __Declaration__ ) __Declaration__ __attribute__((__packed__))
 #endif
 
 #ifdef _MSC_VER
-#define PACK( __Declaration__ ) __pragma( pack(push, 1) ) __Declaration__ __pragma( pack(pop))
+  #define PACK( __Declaration__ ) __pragma( pack(push, 1) ) __Declaration__ __pragma( pack(pop))
 #endif
 
 
@@ -37,13 +38,7 @@ enum RIFF_PARSER_FLAGS {
   RIFF_PARSE_ONLY_HEADER = (1 << 0),
 };
 
-// struct riffContext {
-//   void *user;
-//   void DEBUG_FUNCTION_POINTER;
-//   char *_dbg_msg;
-//   int   _dbg_msg_size;
-//   verbosityLevel_e verb;
-// };
+
 
 struct RIFFAudioFile {
   /* common to wave/aiff */
@@ -54,6 +49,7 @@ struct RIFFAudioFile {
 };
 
 
+
 PACK(struct riffHeaderChunk {
   char ckid[4];
   uint32_t cksz;
@@ -62,12 +58,16 @@ PACK(struct riffHeaderChunk {
   unsigned char data[];
 });
 
+
+
 PACK(struct riffChunk {
   char ckid[4];
   uint32_t cksz;
 
   unsigned char data[];
 });
+
+
 
 PACK(struct wavFmtChunk {
 	char ckid[4]; //'fmt '
@@ -80,6 +80,8 @@ PACK(struct wavFmtChunk {
 	uint16_t block_align;
 	uint16_t bits_per_sample;
 });
+
+
 
 PACK(struct wavBextChunk {
 	char     ckid[4]; //'bext'
@@ -99,7 +101,7 @@ PACK(struct wavBextChunk {
 	/* 	since bext v1 (2001) 	*/
 	unsigned char umid[64];
 
-	/*	since bext v2 (2011)
+	/* since bext v2 (2011)
    *
 	 * If any loudness parameter is not
 	 * being used,  its  value shall be
@@ -121,8 +123,9 @@ PACK(struct wavBextChunk {
 		we know  it  starts at  the end
 		of bext structure when parsing.
 	*/
-
 });
+
+
 
 PACK(struct aiffCOMMChunk {
   char ckid[4]; //'COMM'
@@ -139,5 +142,6 @@ PACK(struct aiffCOMMChunk {
 int riff_parseAudioFile( struct RIFFAudioFile *RIFFAudioFile, enum RIFF_PARSER_FLAGS flags, size_t (*readerCallback)(unsigned char *, size_t, size_t, void*, void*, void*), void *user1, void *user2, void *user3, struct dbg *dbg );
 
 int riff_writeWavFileHeader( FILE *fp, struct wavFmtChunk *wavFmt, struct wavBextChunk *wavBext, uint32_t audioDataSize, struct dbg *dbg );
+
 
 #endif // ! __RIFFParser__

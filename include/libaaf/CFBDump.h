@@ -38,9 +38,7 @@ void cfb_dump_nodePathStream( CFB_Data *cfbd, const wchar_t *path );
 
 void cfb_dump_nodePaths( CFB_Data *cfbd, uint32_t prevPath, char *strArray[], uint32_t *str_i, cfbNode *node );
 
-
 void cfb_dump_header( CFB_Data *cfbd );
-
 
 void cfb_dump_FAT( CFB_Data *cfbd );
 
@@ -49,5 +47,4 @@ void cfb_dump_MiniFAT( CFB_Data *cfbd );
 void cfb_dump_DiFAT( CFB_Data *cfbd );
 
 
-
-#endif // ! __CFBDump_h__
+#endif // !__CFBDump_h__

@@ -21,77 +21,77 @@
 
 
 /**
- *	@file LibCFB/LibCFB.c
- *	@brief Compound File Binary Library
- *	@author Adrien Gesta-Fline
- *	@version 0.1
- *	@date 04 october 2017
+ * @file LibCFB/LibCFB.c
+ * @brief Compound File Binary Library
+ * @author Adrien Gesta-Fline
+ * @version 0.1
+ * @date 04 october 2017
  *
- *	@ingroup LibCFB
- *	@addtogroup LibCFB
- *	@{
- *	@brief LibCFB is a library that allows to parse any Compound File Binary File Format
- *	(a.k.a *Structured Storage File Format*).
+ * @ingroup LibCFB
+ * @addtogroup LibCFB
+ * @{
+ * @brief LibCFB is a library that allows to parse any Compound File Binary File Format
+ * (a.k.a *Structured Storage File Format*).
  *
- *	The specifications of the CFB can be found at https://www.amwa.tv/projects/MS-03.shtml
+ * The specifications of the CFB can be found at https://www.amwa.tv/projects/MS-03.shtml
  *
- *	@note When using LibAAF, you should not have to talk to LibCFB directly.\n
- *	All the following steps are handled by LibAAF.
+ * @note When using LibAAF, you should not have to talk to LibCFB directly.\n
+ * All the following steps are handled by LibAAF.
  *
- *	Interaction with LibCFB is done through the CFB_Data structure, which is allocated
- *	with cfb_alloc().
+ * Interaction with LibCFB is done through the CFB_Data structure, which is allocated
+ * with cfb_alloc().
  *
- *	The first thing you will need to do in order to parse any CFB file is to allocate
- *	CFB_Data with cfb_alloc(). Then, you can "load" a file by calling cfb_load_file().
- *	It will open the file for reading, check if it is a regular CFB file, then retrieve
- *	all the CFB components (Header, DiFAT, FAT, MiniFAT) needed to later parse the file's
- *	directories (nodes) and streams.
+ * The first thing you will need to do in order to parse any CFB file is to allocate
+ * CFB_Data with cfb_alloc(). Then, you can "load" a file by calling cfb_load_file().
+ * It will open the file for reading, check if it is a regular CFB file, then retrieve
+ * all the CFB components (Header, DiFAT, FAT, MiniFAT) needed to later parse the file's
+ * directories (nodes) and streams.
  *
- *	**Example:**
- *	@code
- *	CFB_Data *cfbd = cfb_alloc();
- *	cfb_load_file( cfbd, "/path/to/file" );
- *	@endcode
+ * **Example:**
+ * @code
+ * CFB_Data *cfbd = cfb_alloc();
+ * cfb_load_file( cfbd, "/path/to/file" );
+ * @endcode
  *
- *	Once the file is loaded, you can access the nodes with the functions
- *	cfb_getNodeByPath() and cfb_getChildNode(), and access a node's stream with the
- *	functions cfb_getStream() or cfb_foreachSectorInStream(). The former is prefered
- *	for small-size streams, since it allocates the entire stream to memory, while the
- *	later loops through each sector that composes a stream, better for the big ones.
+ * Once the file is loaded, you can access the nodes with the functions
+ * cfb_getNodeByPath() and cfb_getChildNode(), and access a node's stream with the
+ * functions cfb_getStream() or cfb_foreachSectorInStream(). The former is prefered
+ * for small-size streams, since it allocates the entire stream to memory, while the
+ * later loops through each sector that composes a stream, better for the big ones.
  *
- *	**Example:**
- *	@code
- *	// Get the root "directory" (node, SID 0) "directly"
- *	cfbNode *root = cfbd->nodes[0];
- *
- *
- *	// Get a "file" (stream node) called "properties" inside the "Header" directory
- *	cfbNode *properties = cfb_getNodeByPath( cfbd, "/Header/properties", 0 );
+ * **Example:**
+ * @code
+ * // Get the root "directory" (node, SID 0) "directly"
+ * cfbNode *root = cfbd->nodes[0];
  *
  *
- *	// Get the "properties" node stream
- *	unsigned char *stream    = NULL;
- *	uint64_t       stream_sz = 0;
- *
- *	cfb_getStream( cfbd, properties, &stream, &stream_sz );
+ * // Get a "file" (stream node) called "properties" inside the "Header" directory
+ * cfbNode *properties = cfb_getNodeByPath( cfbd, "/Header/properties", 0 );
  *
  *
- *	// Loop through each sector that composes the "properties" stream
- *	cfbSectorID_t sectorID = 0;
+ * // Get the "properties" node stream
+ * unsigned char *stream    = NULL;
+ * uint64_t       stream_sz = 0;
  *
- *	cfb_foreachSectorInStream( cfbd, properties, &stream, &stream_sz, &sectorID )
- *	{
- *		// do stuff..
- *	}
+ * cfb_getStream( cfbd, properties, &stream, &stream_sz );
+ *
+ *
+ * // Loop through each sector that composes the "properties" stream
+ * cfbSectorID_t sectorID = 0;
+ *
+ * cfb_foreachSectorInStream( cfbd, properties, &stream, &stream_sz, &sectorID )
+ * {
+ * 	// do stuff..
+ * }
  * 	@endcode
  *
- *	Finaly, once you are done working with the file, you can close the file and free
- *	the CFB_Data and its content by simply calling cfb_release().
+ * Finaly, once you are done working with the file, you can close the file and free
+ * the CFB_Data and its content by simply calling cfb_release().
  *
- *	**Example:**
- *	@code
- *	cfb_release( &cfbd );
- *	@endcode
+ * **Example:**
+ * @code
+ * cfb_release( &cfbd );
+ * @endcode
  */
 
 
@@ -104,8 +104,6 @@
 #include <inttypes.h>
 
 #include <libaaf/LibCFB.h>
-// #include "CFBTypes.h"
-// #include "CFBDump.h"
 #include <libaaf/debug.h>
 
 #include "../common/utils.h"
@@ -161,16 +159,13 @@ const wchar_t * CLSIDToText( const cfbCLSID_t *clsid )
 {
 	static wchar_t str[96];
 
-	if ( clsid == NULL )
-	{
+	if ( clsid == NULL ) {
 		str[0] = 'n';
 		str[1] = '/';
 		str[2] = 'a';
 		str[3] = '\0';
 	}
-	else
-	{
-		// snprintf( str, sizeof(str), "0x%08x-0x%04x-0x%04x-0x%02x-0x%02x-0x%02x-0x%02x-0x%02x-0x%02x-0x%02x-0x%02x",
+	else {
 		swprintf( str, sizeof(str), L"{ 0x%08x 0x%04x 0x%04x { 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x } }",
 			clsid->Data1,
 			clsid->Data2,
@@ -191,23 +186,20 @@ const wchar_t * CLSIDToText( const cfbCLSID_t *clsid )
 
 
 /**
- *	Allocates a new CFB_Data structure.
+ * Allocates a new CFB_Data structure.
  *
- *	@return Pointer to the newly allocated CFB_Data structure.
+ * @return Pointer to the newly allocated CFB_Data structure.
  */
 
 CFB_Data * cfb_alloc( struct dbg *dbg )
 {
 	CFB_Data * cfbd = calloc( sizeof(CFB_Data), sizeof(unsigned char) );
 
-	if ( cfbd == NULL )
-	{
+	if ( cfbd == NULL ) {
 		error( "%s.", strerror(errno) );
 		return NULL;
 	}
 
-	// cfbd->verb = VERB_QUIET;
-	// cfbd->debug_callback = &debug_callback;
 	cfbd->dbg = dbg;
 
 	return cfbd;
@@ -215,13 +207,11 @@ CFB_Data * cfb_alloc( struct dbg *dbg )
 
 
 
-
-
 /**
- *	fclose() the file pointer then frees all the components of
- *	the CFB_Data structure, including the structure itself.
+ * fclose() the file pointer then frees all the components of
+ * the CFB_Data structure, including the structure itself.
  *
- *	@param cfbd Pointer to Pointer to the CFB_Data structure.
+ * @param cfbd Pointer to Pointer to the CFB_Data structure.
  */
 
 void cfb_release( CFB_Data **cfbd )
@@ -231,8 +221,7 @@ void cfb_release( CFB_Data **cfbd )
 
 	cfb_closeFile( *cfbd );
 
-	if ( (*cfbd)->DiFAT != NULL )
-	{
+	if ( (*cfbd)->DiFAT != NULL ) {
 		free( (*cfbd)->DiFAT );
 		(*cfbd)->DiFAT = NULL;
 	}
@@ -247,25 +236,15 @@ void cfb_release( CFB_Data **cfbd )
 		(*cfbd)->miniFat = NULL;
 	}
 
-	if ( (*cfbd)->nodes != NULL )
-	{
+	if ( (*cfbd)->nodes != NULL ) {
 		free( (*cfbd)->nodes );
 		(*cfbd)->nodes = NULL;
 	}
-
-	// if ( (*cfbd)->nodes != NULL )
-	// 	free( (*cfbd)->nodes );
 
 	if ( (*cfbd)->hdr != NULL ) {
 		free( (*cfbd)->hdr );
 		(*cfbd)->hdr = NULL;
 	}
-
-	/* free once in AAFIface */
-	// if ( (*cfbd)->dbg ) {
-	// 	free_debug( (*cfbd)->dbg );
-	// }
-
 
 	free( *cfbd );
 	*cfbd = NULL;
@@ -273,19 +252,17 @@ void cfb_release( CFB_Data **cfbd )
 
 
 
-
-
 /**
- *	Loads a Compound File Binary File, retrieves its Header, FAT,
- *	MiniFAT and Nodes. then sets the CFB_Data structure so it is
- *	ready for parsing the file. The user should call cfb_release()
- *	once he's done using the file.
+ * Loads a Compound File Binary File, retrieves its Header, FAT,
+ * MiniFAT and Nodes. then sets the CFB_Data structure so it is
+ * ready for parsing the file. The user should call cfb_release()
+ * once he's done using the file.
  *
- *	@param  cfbd     Pointer to the CFB_Data structure.
- *	@param  file     Pointer to a NULL terminated string holding the file path.
+ * @param  cfbd     Pointer to the CFB_Data structure.
+ * @param  file     Pointer to a NULL terminated string holding the file path.
  *
- *	@return          0 on success\n
- *	                 1 on error
+ * @return          0 on success\n
+ *                  1 on error
  */
 
 int cfb_load_file( CFB_Data **cfbd_p, const char * file )
@@ -294,54 +271,46 @@ int cfb_load_file( CFB_Data **cfbd_p, const char * file )
 	snprintf( cfbd->file, sizeof(((CFB_Data){0}).file), "%s", file );
 
 
-	if ( cfb_openFile( cfbd ) < 0 )
-	{
+	if ( cfb_openFile( cfbd ) < 0 ) {
 		cfb_release( cfbd_p );
 		return -1;
 	}
 
-	if ( cfb_getFileSize( cfbd ) < 0 )
-	{
+	if ( cfb_getFileSize( cfbd ) < 0 ) {
 		cfb_release( cfbd_p );
 		return -1;
 	}
 
-	if ( cfb_is_valid( cfbd ) == 0 )
-	{
+	if ( cfb_is_valid( cfbd ) == 0 ) {
 		cfb_release( cfbd_p );
 		return -1;
 	}
 
-	if ( cfb_retrieveFileHeader( cfbd ) < 0 )
-	{
+	if ( cfb_retrieveFileHeader( cfbd ) < 0 ) {
 		error( "Could not retrieve CFB header." );
 		cfb_release( cfbd_p );
 		return -1;
 	}
 
-	if ( cfb_retrieveDiFAT( cfbd ) < 0 )
-	{
+	if ( cfb_retrieveDiFAT( cfbd ) < 0 ) {
 		error( "Could not retrieve CFB DiFAT." );
 		cfb_release( cfbd_p );
 		return -1;
 	}
 
-	if ( cfb_retrieveFAT( cfbd ) < 0 )
-	{
+	if ( cfb_retrieveFAT( cfbd ) < 0 ) {
 		error( "Could not retrieve CFB FAT." );
 		cfb_release( cfbd_p );
 		return -1;
 	}
 
-	if ( cfb_retrieveMiniFAT( cfbd ) < 0 )
-	{
+	if ( cfb_retrieveMiniFAT( cfbd ) < 0 ) {
 		error( "Could not retrieve CFB MiniFAT." );
 		cfb_release( cfbd_p );
 		return -1;
 	}
 
-	if ( cfb_retrieveNodes( cfbd ) < 0 )
-	{
+	if ( cfb_retrieveNodes( cfbd ) < 0 ) {
 		error( "Could not retrieve CFB Nodes." );
 		cfb_release( cfbd_p );
 		return -1;
@@ -354,11 +323,10 @@ int cfb_load_file( CFB_Data **cfbd_p, const char * file )
 
 int cfb_new_file( CFB_Data *cfbd, const char *file, int sectSize )
 {
-	// calm GCC
-	file = (file == NULL) ? NULL : NULL;
+	(void)file;
 
 	if ( sectSize != 512 &&
-		 sectSize != 4096 )
+	     sectSize != 4096 )
 	{
 		error( "Only standard sector sizes (512 and 4096 bytes) are supported." );
 		return -1;
@@ -366,16 +334,18 @@ int cfb_new_file( CFB_Data *cfbd, const char *file, int sectSize )
 
 	cfbHeader *hdr = malloc( sizeof(cfbHeader) );
 
-	if ( cfbd->hdr == NULL )
-	{
+	if ( cfbd->hdr == NULL ) {
 		error( "%s.", strerror( errno ) );
 		return -1;
 	}
 
 	hdr->_abSig = 0xe11ab1a1e011cfd0;
 
-								// 33 is written by reference implementation.
-	hdr->_uMinorVersion = 0x3e;	// 0x3e was seen in all AAF files
+	/*
+	 * _uMinorVersion is set to 33 reference implementation.
+	 * _uMinorVersion is set to 0x3e in all AAF files
+	 */
+	hdr->_uMinorVersion = 0x3e;
 
 	hdr->_uDllVersion   = ( sectSize == 512 ) ? 3 : 4;
 	hdr->_uByteOrder    = 0xfffe;
@@ -406,54 +376,29 @@ int cfb_new_file( CFB_Data *cfbd, const char *file, int sectSize )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /**
- *	Ensures the file is a valid Compound File Binary File.
+ * Ensures the file is a valid Compound File Binary File.
  *
- *	@param  cfbd Pointer to the CFB_Data structure.
+ * @param  cfbd Pointer to the CFB_Data structure.
  *
- *	@return      1 if the file is valid,\n
- *	             0 otherwise.
+ * @return      1 if the file is valid,\n
+ *              0 otherwise.
  */
 
 static int cfb_is_valid( CFB_Data *cfbd )
 {
 	uint64_t signature = 0;
 
-	if ( cfbd->file_sz < sizeof(struct StructuredStorageHeader) )
-	{
+	if ( cfbd->file_sz < sizeof(struct StructuredStorageHeader) ) {
 		error( "Not a valid Compound File : File size is lower than header size." );
 		return 0;
 	}
 
-	if ( cfb_readFile( cfbd, (unsigned char*)&signature, 0, sizeof(uint64_t) ) != sizeof(uint64_t) )
-	{
+	if ( cfb_readFile( cfbd, (unsigned char*)&signature, 0, sizeof(uint64_t) ) != sizeof(uint64_t) ) {
 		return 0;
 	}
 
-	if ( signature != 0xe11ab1a1e011cfd0 )
-	{
+	if ( signature != 0xe11ab1a1e011cfd0 ) {
 		error( "Not a valid Compound File : Wrong signature." );
 		return 0;
 	}
@@ -463,33 +408,28 @@ static int cfb_is_valid( CFB_Data *cfbd )
 
 
 
-
-
 /**
- *	Retrieves the Compound File Binary File size.
+ * Retrieves the Compound File Binary File size.
  *
- *	@param  cfbd Pointer to the CFB_Data structure.
- *	@return      0.
+ * @param  cfbd Pointer to the CFB_Data structure.
+ * @return      0.
  */
 
 static int cfb_getFileSize( CFB_Data * cfbd )
 {
-	if ( fseek( cfbd->fp, 0L, SEEK_END ) < 0 )
-	{
+	if ( fseek( cfbd->fp, 0L, SEEK_END ) < 0 ) {
 		error( "fseek() failed : %s.", strerror(errno) );
 		return -1;
 	}
 
 	cfbd->file_sz = ftell( cfbd->fp );
 
-	if ( (long)cfbd->file_sz < 0 )
-	{
+	if ( (long)cfbd->file_sz < 0 ) {
 		error( "ftell() failed : %s.", strerror(errno) );
 		return -1;
 	}
 
-	if ( cfbd->file_sz == 0 )
-	{
+	if ( cfbd->file_sz == 0 ) {
 		error( "File is empty (0 byte)." );
 		return -1;
 	}
@@ -499,20 +439,18 @@ static int cfb_getFileSize( CFB_Data * cfbd )
 
 
 
-
 /**
- *	Opens a given Compound File Binary File for reading.
+ * Opens a given Compound File Binary File for reading.
  *
- *	@param  cfbd Pointer to the CFB_Data structure.
- *	@return      O.
+ * @param  cfbd Pointer to the CFB_Data structure.
+ * @return      O.
  */
 
 static int cfb_openFile( CFB_Data *cfbd )
 {
 	cfbd->fp = fopen( cfbd->file, "rb" );
 
-	if ( cfbd->fp == NULL )
-	{
+	if ( cfbd->fp == NULL ) {
 		error( "%s.", strerror(errno) );
 		return -1;
 	}
@@ -522,16 +460,15 @@ static int cfb_openFile( CFB_Data *cfbd )
 
 
 
-
 /**
- *	Reads a bytes block from the file. This function is
- *	called by cfb_getSector() and cfb_getMiniSector()
- *	that will do the sector index to file offset conversion.
+ * Reads a bytes block from the file. This function is
+ * called by cfb_getSector() and cfb_getMiniSector()
+ * that will do the sector index to file offset conversion.
  *
- *	@param cfbd   Pointer to the CFB_Data structure.
- *	@param buf    Pointer to the buffer that will hold the len bytes read.
- *	@param offset Position in the file the read should start.
- *	@param len    Number of bytes to read from the offset position.
+ * @param cfbd   Pointer to the CFB_Data structure.
+ * @param buf    Pointer to the buffer that will hold the len bytes read.
+ * @param offset Position in the file the read should start.
+ * @param len    Number of bytes to read from the offset position.
  */
 
 static uint64_t cfb_readFile( CFB_Data *cfbd, unsigned char *buf, uint64_t offset, uint64_t len )
@@ -539,30 +476,23 @@ static uint64_t cfb_readFile( CFB_Data *cfbd, unsigned char *buf, uint64_t offse
 	FILE *fp = cfbd->fp;
 
 
-	if ( len + offset > cfbd->file_sz )
-	{
-		error( "Requested data goes %"PRIu64" bytes beyond the EOF : offset %"PRIu64" | length %"PRIu64"",
-		        (len + offset) - cfbd->file_sz,
-				offset,
-				len );
+	if ( len + offset > cfbd->file_sz ) {
+		error( "Requested data goes %"PRIu64" bytes beyond the EOF : offset %"PRIu64" | length %"PRIu64"", (len + offset) - cfbd->file_sz, offset, len );
 		return 0;
 	}
 
 
 	int rc = fseek( fp, offset, SEEK_SET );
 
-	if ( rc < 0 )
-	{
+	if ( rc < 0 ) {
 		error( "%s.", strerror(errno) );
 		return 0;
 	}
 
 
-
 	uint64_t byteRead = fread( buf, sizeof(unsigned char), len, fp );
 
-	if ( byteRead < len )
-	{
+	if ( byteRead < len ) {
 		warning( "Could only retrieve %"PRIu64" bytes out of %"PRIu64" requested.", byteRead, len );
 	}
 
@@ -572,11 +502,10 @@ static uint64_t cfb_readFile( CFB_Data *cfbd, unsigned char *buf, uint64_t offse
 
 
 
-
 /**
- *	Closes the file pointer hold by the CFB_Data.fp.
+ * Closes the file pointer hold by the CFB_Data.fp.
  *
- *	@param cfbd Pointer to the CFB_Data structure.
+ * @param cfbd Pointer to the CFB_Data structure.
  */
 
 static void cfb_closeFile( CFB_Data *cfbd )
@@ -584,8 +513,7 @@ static void cfb_closeFile( CFB_Data *cfbd )
 	if ( cfbd == NULL || cfbd->fp == NULL )
 		return;
 
-	if ( fclose( cfbd->fp ) != 0 )
-	{
+	if ( fclose( cfbd->fp ) != 0 ) {
 		error( "%s.", strerror(errno) );
 	}
 
@@ -594,35 +522,12 @@ static void cfb_closeFile( CFB_Data *cfbd )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /**
- *	Retrieves a sector content from the FAT.
+ * Retrieves a sector content from the FAT.
  *
- *	@param id   Index of the sector to retrieve in the FAT.
- *	@param cfbd Pointer to the CFB_Data structure.
- *	@return     Pointer to the sector's data bytes.
+ * @param id   Index of the sector to retrieve in the FAT.
+ * @param cfbd Pointer to the CFB_Data structure.
+ * @return     Pointer to the sector's data bytes.
  */
 
 unsigned char * cfb_getSector( CFB_Data *cfbd, cfbSectorID_t id )
@@ -637,8 +542,7 @@ unsigned char * cfb_getSector( CFB_Data *cfbd, cfbSectorID_t id )
 		return NULL;
 
 
-	if ( cfbd->fat_sz > 0 && id >= cfbd->fat_sz )
-	{
+	if ( cfbd->fat_sz > 0 && id >= cfbd->fat_sz ) {
 		error( "Asking for an out of range FAT sector @ index %u (max FAT index is %u)", id, cfbd->fat_sz );
 		return NULL;
 	}
@@ -652,16 +556,14 @@ unsigned char * cfb_getSector( CFB_Data *cfbd, cfbSectorID_t id )
 
 	unsigned char *buf = calloc( sectorSize, sizeof(unsigned char) );
 
-	if ( buf == NULL )
-	{
+	if ( buf == NULL ) {
 		error( "%s.", strerror(errno) );
 		return NULL;
 	}
 
 
 
-	if ( cfb_readFile( cfbd, buf, fileOffset, sectorSize ) == 0 )
-	{
+	if ( cfb_readFile( cfbd, buf, fileOffset, sectorSize ) == 0 ) {
 		free( buf );
 		return NULL;
 	}
@@ -672,13 +574,12 @@ unsigned char * cfb_getSector( CFB_Data *cfbd, cfbSectorID_t id )
 
 
 
-
 /**
- *	Retrieves a mini-sector content from the MiniFAT.
+ * Retrieves a mini-sector content from the MiniFAT.
  *
- *	@param id   Index of the mini-sector to retrieve in the MiniFAT.
- *	@param cfbd Pointer to the CFB_Data structure.
- *	@return     Pointer to the mini-sector's data bytes.
+ * @param id   Index of the mini-sector to retrieve in the MiniFAT.
+ * @param cfbd Pointer to the CFB_Data structure.
+ * @return     Pointer to the mini-sector's data bytes.
  */
 
 unsigned char * cfb_getMiniSector( CFB_Data *cfbd, cfbSectorID_t id )
@@ -693,8 +594,7 @@ unsigned char * cfb_getMiniSector( CFB_Data *cfbd, cfbSectorID_t id )
 		return NULL;
 
 
-	if ( cfbd->fat_sz > 0 && id >= cfbd->miniFat_sz )
-	{
+	if ( cfbd->fat_sz > 0 && id >= cfbd->miniFat_sz ) {
 		error( "Asking for an out of range MiniFAT sector @ index %u (0x%x) (Maximum MiniFAT index is %u)", id, id, cfbd->miniFat_sz );
 		return NULL;
 	}
@@ -706,15 +606,14 @@ unsigned char * cfb_getMiniSector( CFB_Data *cfbd, cfbSectorID_t id )
 
 	unsigned char * buf = calloc( MiniSectorSize, sizeof(unsigned char) );
 
-	if ( buf == NULL )
-	{
+	if ( buf == NULL ) {
 		error( "%s.", strerror(errno) );
 		return NULL;
 	}
 
 
 
-	/* *** Retrieve the MiniSector file offset *** */
+	/* Retrieve the MiniSector file offset */
 	cfbSectorID_t fatId  = cfbd->nodes[0]._sectStart;
 	uint64_t      offset = 0;
 	uint32_t      i      = 0;
@@ -730,8 +629,7 @@ unsigned char * cfb_getMiniSector( CFB_Data *cfbd, cfbSectorID_t id )
 
 
 
-	if ( cfb_readFile( cfbd, buf, offset, MiniSectorSize ) == 0 )
-	{
+	if ( cfb_readFile( cfbd, buf, offset, MiniSectorSize ) == 0 ) {
 		free( buf );
 		return NULL;
 	}
@@ -742,15 +640,14 @@ unsigned char * cfb_getMiniSector( CFB_Data *cfbd, cfbSectorID_t id )
 
 
 
-
 /**
- *	Retrieves a stream from a stream Node.
+ * Retrieves a stream from a stream Node.
  *
- *	@param cfbd      Pointer to the CFB_Data structure.
- *	@param node      Pointer to the node to retrieve the stream from.
- *	@param stream    Pointer to the pointer where the stream data will be saved.
- *	@param stream_sz Pointer to an uint64_t where the stream size will be saved.
- *	@return          The retrieved stream size.
+ * @param cfbd      Pointer to the CFB_Data structure.
+ * @param node      Pointer to the node to retrieve the stream from.
+ * @param stream    Pointer to the pointer where the stream data will be saved.
+ * @param stream_sz Pointer to an uint64_t where the stream size will be saved.
+ * @return          The retrieved stream size.
  */
 
 uint64_t cfb_getStream( CFB_Data *cfbd, cfbNode *node, unsigned char **stream, uint64_t *stream_sz )
@@ -771,12 +668,10 @@ uint64_t cfb_getStream( CFB_Data *cfbd, cfbNode *node, unsigned char **stream, u
 
 	*stream = calloc( stream_len, sizeof(unsigned char) );
 
-	if ( *stream == NULL )
-	{
+	if ( *stream == NULL ) {
 		error( "%s.", strerror( errno ) );
 		return 0;
 	}
-
 
 
 	unsigned char *buf    = NULL;
@@ -784,9 +679,10 @@ uint64_t cfb_getStream( CFB_Data *cfbd, cfbNode *node, unsigned char **stream, u
 	uint64_t       offset = 0;
 	uint64_t       cpy_sz = 0;
 
-	if ( stream_len < cfbd->hdr->_ulMiniSectorCutoff ) // mini-stream
-		cfb_foreachMiniSectorInChain( cfbd, buf, id )
-		{
+	if ( stream_len < cfbd->hdr->_ulMiniSectorCutoff ) { /* mini-stream */
+
+		cfb_foreachMiniSectorInChain( cfbd, buf, id ) {
+
 			if ( !buf ) {
 				free( *stream );
 				*stream = NULL;
@@ -797,20 +693,15 @@ uint64_t cfb_getStream( CFB_Data *cfbd, cfbNode *node, unsigned char **stream, u
 			           (stream_len - offset) : (uint64_t)(1<<cfbd->hdr->_uMiniSectorShift);
 
 			memcpy( *stream+offset, buf, cpy_sz );
-/*
-			if ( ((stream_len) - offset) > (uint32_t)(1 << cfbd->hdr->_uMiniSectorShift) )
-				memcpy( *(stream)+offset, buf, (1<<cfbd->hdr->_uMiniSectorShift) );
-			else
-				memcpy( *(stream)+offset, buf, stream_len - offset );
-*/
 
 			free( buf );
 
 			offset += (1<<cfbd->hdr->_uMiniSectorShift);
 		}
-	else //
-		cfb_foreachSectorInChain( cfbd, buf, id )
-		{
+	}
+	else {
+
+		cfb_foreachSectorInChain( cfbd, buf, id ) {
 
 			cpy_sz = ( (stream_len - offset) < (uint64_t)(1<<cfbd->hdr->_uSectorShift) ) ?
 			           (stream_len - offset) : (uint64_t)(1<<cfbd->hdr->_uSectorShift);
@@ -821,6 +712,7 @@ uint64_t cfb_getStream( CFB_Data *cfbd, cfbNode *node, unsigned char **stream, u
 
 			offset += (1<<cfbd->hdr->_uSectorShift);
 		}
+	}
 
 	if ( stream_sz != NULL )
 		*stream_sz = stream_len;
@@ -830,28 +722,26 @@ uint64_t cfb_getStream( CFB_Data *cfbd, cfbNode *node, unsigned char **stream, u
 
 
 
-
 /**
- *	Loops through all the sectors that compose a stream
- *	and retrieve their content.
+ * Loops through all the sectors that compose a stream
+ * and retrieve their content.
  *
- *	This function should be called through the macro cfb_foreachSectorInStream().
+ * This function should be called through the macro cfb_foreachSectorInStream().
  *
- *	@param  cfbd      Pointer to the CFB_Data structure.
- *	@param  node      Pointer to the Node that hold the stream.
- *	@param  buf       Pointer to pointer to the buffer that will receive the sector's
- *	                  content.
- *	@param  bytesRead Pointer to a size_t that will receive the number of bytes retreived.
- *	                  This should be equal to the sectorSize, except for the last sector
- *	                  in which the stream might end before the end of the sector.
- *	@param  sectID    Pointer to the Node index.
- *	@return           1 if we have retrieved a sector with some data, \n
- *	                  0 if we have reached the #CFB_END_OF_CHAIN.
+ * @param  cfbd      Pointer to the CFB_Data structure.
+ * @param  node      Pointer to the Node that hold the stream.
+ * @param  buf       Pointer to pointer to the buffer that will receive the sector's
+ *                   content.
+ * @param  bytesRead Pointer to a size_t that will receive the number of bytes retreived.
+ *                   This should be equal to the sectorSize, except for the last sector
+ *                   in which the stream might end before the end of the sector.
+ * @param  sectID    Pointer to the Node index.
+ * @return           1 if we have retrieved a sector with some data, \n
+ *                   0 if we have reached the #CFB_END_OF_CHAIN.
  */
 
 int cfb__foreachSectorInStream( CFB_Data *cfbd, cfbNode *node, unsigned char **buf, size_t *bytesRead, cfbSectorID_t *sectID )
 {
-
 	if ( node == NULL )
 		return 0;
 
@@ -863,8 +753,7 @@ int cfb__foreachSectorInStream( CFB_Data *cfbd, cfbNode *node, unsigned char **b
 //		return 0;
 
 	/* free the previously allocated buf, if any */
-	if ( *buf != NULL )
-	{
+	if ( *buf != NULL ) {
 		free( *buf );
 		*buf = NULL;
 	}
@@ -876,17 +765,17 @@ int cfb__foreachSectorInStream( CFB_Data *cfbd, cfbNode *node, unsigned char **b
 
 	size_t stream_sz = cfb_getNodeStreamLen( cfbd, node );
 
-	if ( stream_sz < cfbd->hdr->_ulMiniSectorCutoff )
-	{		/* Mini-Stream */
-			*buf       = cfb_getMiniSector( cfbd, *sectID );
-			*bytesRead = (1<<cfbd->hdr->_uMiniSectorShift);
-			*sectID    = cfbd->miniFat[*sectID];
+	if ( stream_sz < cfbd->hdr->_ulMiniSectorCutoff ) {
+		/* Mini-Stream */
+		*buf       = cfb_getMiniSector( cfbd, *sectID );
+		*bytesRead = (1<<cfbd->hdr->_uMiniSectorShift);
+		*sectID    = cfbd->miniFat[*sectID];
 	}
-	else
-	{		/* Stream */
-			*buf       = cfb_getSector( cfbd, *sectID );
-			*bytesRead = (1<<cfbd->hdr->_uSectorShift);
-			*sectID    = cfbd->fat[*sectID];
+	else {
+		/* Stream */
+		*buf       = cfb_getSector( cfbd, *sectID );
+		*bytesRead = (1<<cfbd->hdr->_uSectorShift);
+		*sectID    = cfbd->fat[*sectID];
 	}
 
 
@@ -903,38 +792,32 @@ int cfb__foreachSectorInStream( CFB_Data *cfbd, cfbNode *node, unsigned char **b
 
 
 /**
- *	Retrieves the Header of the Compound File Binary.
- *	The Header begins at offset 0 and is 512 bytes long,
- *	regardless of the file's sector size.
+ * Retrieves the Header of the Compound File Binary.
+ * The Header begins at offset 0 and is 512 bytes long,
+ * regardless of the file's sector size.
  *
- *	@param  cfbd Pointer to the CFB_Data structure.
- *	@return      0 on success\n
- *	             1 on failure
+ * @param  cfbd Pointer to the CFB_Data structure.
+ * @return      0 on success\n
+ *              1 on failure
  */
 
 static int cfb_retrieveFileHeader( CFB_Data *cfbd )
 {
-
 	cfbd->hdr = calloc( sizeof(cfbHeader), sizeof(unsigned char) );
 
-	if ( cfbd->hdr == NULL )
-	{
+	if ( cfbd->hdr == NULL ) {
 		error( "%s.", strerror(errno) );
 		return -1;
 	}
 
-
-	if ( cfb_readFile( cfbd, (unsigned char*)cfbd->hdr, 0, sizeof(cfbHeader) ) == 0 )
-	{
+	if ( cfb_readFile( cfbd, (unsigned char*)cfbd->hdr, 0, sizeof(cfbHeader) ) == 0 ) {
 		free( cfbd->hdr );
 		cfbd->hdr = NULL;
 		return -1;
 	}
 
-
 	return 0;
 }
-
 
 
 
@@ -942,37 +825,31 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 {
 	cfbSectorID_t * DiFAT = NULL;
 
-
 	/*
-	 *	Check DiFAT properties in header.
-	 *	(Exemple AMWA aaf files.)
+	 * Check DiFAT properties in header.
+	 * (Exemple AMWA aaf files.)
 	 */
 
 	cfbSectorID_t csectDif = 0;
 
-	if ( cfbd->hdr->_csectFat > 109 )
-	{
+	if ( cfbd->hdr->_csectFat > 109 ) {
 		csectDif = ceil( (float)((cfbd->hdr->_csectFat - 109) * 4) / (1<<cfbd->hdr->_uSectorShift) );
 	}
 
-	if ( csectDif != cfbd->hdr->_csectDif )
-	{
+	if ( csectDif != cfbd->hdr->_csectDif ) {
 		warning( "cfbd->hdr->_csectDif value seems wrong (%u)", cfbd->hdr->_csectDif );
 		// warning( "cfbd->hdr->_csectDif value seems wrong (%u). Correcting from cfbd->hdr->_csectFat.", cfbd->hdr->_csectDif );
-
 		// cfbd->hdr->_csectDif = csectDif;
 	}
 
-	if ( csectDif == 0 && cfbd->hdr->_sectDifStart != CFB_END_OF_CHAIN )
-	{
+	if ( csectDif == 0 && cfbd->hdr->_sectDifStart != CFB_END_OF_CHAIN ) {
 		warning( "cfbd->hdr->_sectDifStart is 0x%08x (%u) but should be CFB_END_OF_CHAIN. Correcting.", cfbd->hdr->_sectDifStart, cfbd->hdr->_sectDifStart );
-
 		cfbd->hdr->_sectDifStart = CFB_END_OF_CHAIN;
 	}
 
 
 	/*
-	 *	DiFAT size is the number of FAT sector entries in the DiFAT chain.
+	 * DiFAT size is the number of FAT sector entries in the DiFAT chain.
 	 */
 
 	uint32_t DiFAT_sz = ( cfbd->hdr->_csectDif )
@@ -982,17 +859,15 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 
 	DiFAT = calloc( DiFAT_sz, sizeof(cfbSectorID_t) );
 
-	if ( DiFAT == NULL )
-	{
+	if ( DiFAT == NULL ) {
 		error( "%s.", strerror( errno ) );
 		return -1;
 	}
 
 
-
 	/*
-	 *	Retrieves the 109 first DiFAT entries, from the last bytes of
-	 *	the cfbHeader structure.
+	 * Retrieves the 109 first DiFAT entries, from the last bytes of
+	 * the cfbHeader structure.
 	 */
 
 	memcpy( DiFAT, cfbd->hdr->_sectFat, 109 * sizeof(cfbSectorID_t) );
@@ -1017,9 +892,9 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 		cnt++;
 
 		/*
-		 *	If we count more DiFAT sector when parsing than
-		 *	there should be, it means the sector list does
-		 *	not end by a proper CFB_END_OF_CHAIN.
+		 * If we count more DiFAT sector when parsing than
+		 * there should be, it means the sector list does
+		 * not end by a proper CFB_END_OF_CHAIN.
 		 */
 
 		if ( cnt >= cfbd->hdr->_csectDif )
@@ -1035,8 +910,6 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 	 */
 	if ( id != CFB_END_OF_CHAIN /*&& id != CFB_FREE_SECT*/ )
 		warning( "Incorrect end of DiFAT Chain 0x%08x (%d)", id, id );
-		// _warning2( cfbd, LIB_CFB_ID, "Incorrect end of DiFAT Chain 0x%08x (%d)\n", id, id );
-
 
 	cfbd->DiFAT    = DiFAT;
 	cfbd->DiFAT_sz = DiFAT_sz;
@@ -1046,14 +919,12 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 
 
 
-
-
 /**
- *	Retrieves the FAT (File Allocation Table). Requires
- *	the DiFAT to be retrieved first.
+ * Retrieves the FAT (File Allocation Table). Requires
+ * the DiFAT to be retrieved first.
  *
- *	@param  cfbd Pointer to the CFB_Data structure.
- *	@return      0.
+ * @param  cfbd Pointer to the CFB_Data structure.
+ * @return      0.
  */
 
 static int cfb_retrieveFAT( CFB_Data * cfbd )
@@ -1066,8 +937,7 @@ static int cfb_retrieveFAT( CFB_Data * cfbd )
 
 	FAT = calloc( FAT_sz, sizeof(cfbSectorID_t) );
 
-	if ( FAT == NULL )
-	{
+	if ( FAT == NULL ) {
 		error( "%s.", strerror( errno ) );
 		return -1;
 	}
@@ -1081,22 +951,20 @@ static int cfb_retrieveFAT( CFB_Data * cfbd )
 	cfbSectorID_t  id     = 0;
 	uint64_t       offset = 0;
 
-	cfb_foreachFATSectorIDInDiFAT( cfbd, id )
-	{
+	cfb_foreachFATSectorIDInDiFAT( cfbd, id ) {
 
 		if ( cfbd->DiFAT[id] == CFB_FREE_SECT )
 			continue;
 
-		if ( cfbd->DiFAT[id] == 0x00000000 && id > 0 ) // observed in fairlight's AAFs..
-		{
+		/* observed in fairlight's AAFs.. */
+		if ( cfbd->DiFAT[id] == 0x00000000 && id > 0 ) {
 			warning( "Got a NULL FAT index in the DiFAT @ %u, should be CFB_FREE_SECT.", id );
 			continue;
 		}
 
 		buf = cfb_getSector( cfbd, cfbd->DiFAT[id] );
 
-		if ( buf == NULL )
-		{
+		if ( buf == NULL ) {
 			error( "Error retrieving FAT sector %u (0x%08x).", id, id );
 			return -1;
 		}
@@ -1114,12 +982,11 @@ static int cfb_retrieveFAT( CFB_Data * cfbd )
 
 
 
-
 /**
- *	Retrieves the MiniFAT (Mini File Allocation Table).
+ * Retrieves the MiniFAT (Mini File Allocation Table).
  *
- *	@param  cfbd Pointer to the CFB_Data structure.
- *	@return      0.
+ * @param  cfbd Pointer to the CFB_Data structure.
+ * @return      0.
  */
 
 static int cfb_retrieveMiniFAT( CFB_Data * cfbd )
@@ -1130,22 +997,18 @@ static int cfb_retrieveMiniFAT( CFB_Data * cfbd )
 
 	cfbSectorID_t *miniFat = calloc( miniFat_sz, sizeof(cfbSectorID_t) );
 
-	if ( miniFat == NULL )
-	{
+	if ( miniFat == NULL ) {
 		error( "%s.", strerror(errno) );
 		return -1;
 	}
-
 
 
 	unsigned char *buf    = NULL;
 	cfbSectorID_t  id     = cfbd->hdr->_sectMiniFatStart;
 	uint64_t       offset = 0;
 
-	cfb_foreachSectorInChain( cfbd, buf, id )
-	{
-		if ( buf == NULL )
-		{
+	cfb_foreachSectorInChain( cfbd, buf, id ) {
+		if ( buf == NULL ) {
 			error( "Error retrieving MiniFAT sector %u (0x%08x).", id, id );
 			return -1;
 		}
@@ -1168,23 +1031,23 @@ static int cfb_retrieveMiniFAT( CFB_Data * cfbd )
 
 
 /**
- *	Retrieves the nodes (directories and files) of the
- *	Compound File Tree, as an array of cfbNodes.
+ * Retrieves the nodes (directories and files) of the
+ * Compound File Tree, as an array of cfbNodes.
  *
- *	Each node correspond to a cfbNode struct of 128 bytes
- *	length. The nodes are stored in a dedicated FAT chain,
- *	starting at the FAT sector[cfbHeader._sectDirStart].
+ * Each node correspond to a cfbNode struct of 128 bytes
+ * length. The nodes are stored in a dedicated FAT chain,
+ * starting at the FAT sector[cfbHeader._sectDirStart].
  *
- *	Once retrieved, the nodes are accessible through the
- *	CFB_Data.nodes pointer. Each Node is then accessible by
- *	its ID (a.k.a SID) :
+ * Once retrieved, the nodes are accessible through the
+ * CFB_Data.nodes pointer. Each Node is then accessible by
+ * its ID (a.k.a SID) :
  *
- *	```
+ * ```
 	cfbNode *node = CFB_Data.nodes[ID];
- *	```
+ * ```
  *
- *	@param cfbd Pointer to the CFB_Data structure.
- *	@return     0.
+ * @param cfbd Pointer to the CFB_Data structure.
+ * @return     0.
  */
 
 static int cfb_retrieveNodes( CFB_Data *cfbd )
@@ -1203,7 +1066,7 @@ static int cfb_retrieveNodes( CFB_Data *cfbd )
 	cfbSID_t       i   = 0;
 
 
-	if ( cfbd->hdr->_uSectorShift == 9 ) { // 512 bytes sectors
+	if ( cfbd->hdr->_uSectorShift == 9 ) { /* 512 bytes sectors */
 
 		cfb_foreachSectorInChain( cfbd, buf, id ) {
 
@@ -1220,7 +1083,7 @@ static int cfb_retrieveNodes( CFB_Data *cfbd )
 			free( buf );
 		}
 	}
-	else if ( cfbd->hdr->_uSectorShift == 12 ) { // 4096 bytes sectors
+	else if ( cfbd->hdr->_uSectorShift == 12 ) { /* 4096 bytes sectors */
 
 		cfb_foreachSectorInChain( cfbd, buf, id ) {
 
@@ -1296,15 +1159,15 @@ static int cfb_retrieveNodes( CFB_Data *cfbd )
 
 
 /**
- *	Converts 16-bits MS/CFB wchar_t to system wchar_t.
+ * Converts 16-bits MS/CFB wchar_t to system wchar_t.
  *
- *	@param buf      Pointer to wchar_t output buffer. If NULL, then function will allocate a new buffer.
- *	@param w16buf   Pointer to a 16-bits MS/CFB "wchar_t" array.
- *	@param w16blen  Size of the w16buf array in bytes, including the NULL. If it is set to
+ * @param buf      Pointer to wchar_t output buffer. If NULL, then function will allocate a new buffer.
+ * @param w16buf   Pointer to a 16-bits MS/CFB "wchar_t" array.
+ * @param w16blen  Size of the w16buf array in bytes, including the NULL. If it is set to
  *                  CFB_W16TOWCHAR_STRLEN, then function will parse w16buf up to NULL to retrieve w16buf byte size
  *
- *	@return          Pointer to buf,\n
- *	                 NULL on failure.
+ * @return          Pointer to buf,\n
+ *                  NULL on failure.
  */
 
 wchar_t * cfb_w16towchar( wchar_t *buf, uint16_t *w16buf, size_t w16blen )
@@ -1317,7 +1180,7 @@ wchar_t * cfb_w16towchar( wchar_t *buf, uint16_t *w16buf, size_t w16blen )
 		while ( w16buf[w16blen>>1] != 0x0000 ) {
 			w16blen += sizeof(uint16_t);
 		}
-		w16blen += sizeof(uint16_t); // NULL terminating
+		w16blen += sizeof(uint16_t); /* NULL termination */
 	}
 
 	if ( buf == NULL ) {
@@ -1326,53 +1189,54 @@ wchar_t * cfb_w16towchar( wchar_t *buf, uint16_t *w16buf, size_t w16blen )
 			return NULL;
 	}
 
-  for ( size_t i = 0; i < w16blen>>1; i++ ) {
-    buf[i] = ((uint16_t*)w16buf)[i];
-  }
+	for ( size_t i = 0; i < w16blen>>1; i++ ) {
+		buf[i] = ((uint16_t*)w16buf)[i];
+	}
 
-  return buf;
+	return buf;
 }
 
 
 
 /**
- *	Retrieves a Node in the Compound File Tree by path.
+ * Retrieves a Node in the Compound File Tree by path.
  *
- *	@param cfbd      Pointer to the CFB_Data structure.
- *	@param path      Pointer to a NULL terminated char array, holding the Node path.
- *	@param id        Next node index. This is used internaly by the function and should
- *	                 be set to 0 when called by the user.
+ * @param cfbd      Pointer to the CFB_Data structure.
+ * @param path      Pointer to a NULL terminated char array, holding the Node path.
+ * @param id        Next node index. This is used internaly by the function and should
+ *                  be set to 0 when called by the user.
  *
- *	@return          Pointer to the retrieved Node,\n
- *	                 NULL on failure.
+ * @return          Pointer to the retrieved Node,\n
+ *                  NULL on failure.
  */
 
 cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const wchar_t *path, cfbSID_t id )
 {
 
 	/*
-	 *	begining of the first function call.
+	 * begining of the first function call.
 	 */
 
-	if ( id == 0 )
-	{
-		if ( path[0] == '/' && path[1] == 0x0000 )
+	if ( id == 0 ) {
+
+		if ( path[0] == '/' && path[1] == 0x0000 ) {
 			return &cfbd->nodes[0];
+		}
 
 		/*
-		 *	work either with or without "/Root Entry"
+		 * work either with or without "/Root Entry"
 		 */
 
-		if ( wcsncmp( path, L"/Root Entry", 11 ) != 0 )
+		if ( wcsncmp( path, L"/Root Entry", 11 ) != 0 ) {
 			id = cfbd->nodes[0]._sidChild;
+		}
 	}
-
 
 
 	uint32_t l = 0;
 
 	/*
-	 *	retrieves the first node's name from path
+	 * retrieves the first node's name from path
 	 */
 
 	for( l = 0; l < wcslen(path); l++ )
@@ -1380,11 +1244,10 @@ cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const wchar_t *path, cfbSID_t id )
 			break;
 
 	/*
-	 *	removes any leading '/'
+	 * removes any leading '/'
 	 */
 
-	if ( path[0] == '/' )
-	{
+	if ( path[0] == '/' ) {
 		path++;
 		l--;
 	}
@@ -1392,11 +1255,9 @@ cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const wchar_t *path, cfbSID_t id )
 
 	wchar_t ab[CFB_NODE_NAME_SZ];
 
-	while ( 1 )
-	{
+	while ( 1 ) {
 
-		if ( id >= cfbd->nodes_cnt )
-		{
+		if ( id >= cfbd->nodes_cnt ) {
 			error( "Out of range Node index %d, max %u.", id, cfbd->nodes_cnt );
 			return NULL;
 		}
@@ -1413,13 +1274,12 @@ cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const wchar_t *path, cfbSID_t id )
 			rc = l - wcslen(ab);
 
 		/*
-		 *	Some node in the path was found.
+		 * Some node in the path was found.
 		 */
 
-		if ( rc == 0 )
-		{
+		if ( rc == 0 ) {
 			/*
-			 *	get full path length minus any terminating '/'
+			 * get full path length minus any terminating '/'
 			 */
 
 			uint32_t pathLen = wcslen(path);
@@ -1428,9 +1288,9 @@ cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const wchar_t *path, cfbSID_t id )
 				pathLen--;
 
 			/*
-			 *	If pathLen equals node name length, then
-			 *	we got the target node. Else, move forward
-			 *	to next node in the path.
+			 * If pathLen equals node name length, then
+			 * we got the target node. Else, move forward
+			 * to next node in the path.
 			 */
 
 			if ( pathLen == l )
@@ -1449,20 +1309,16 @@ cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const wchar_t *path, cfbSID_t id )
 
 
 
-
-
-
-
 /**
- *	Retrieves a child node of a parent startNode.
+ * Retrieves a child node of a parent startNode.
  *
- *	@param cfbd      Pointer to the CFB_Data structure.
- *	@param name      Pointer to a NULL terminated string, holding the name of the
- *	                 searched node.
- *	@param startNode Pointer to the parent Node of the searched node.
+ * @param cfbd      Pointer to the CFB_Data structure.
+ * @param name      Pointer to a NULL terminated string, holding the name of the
+ *                  searched node.
+ * @param startNode Pointer to the parent Node of the searched node.
  *
- *	@return          Pointer to the retrieved node,\n
- *	                 NULL if not found.
+ * @return          Pointer to the retrieved node,\n
+ *                  NULL if not found.
  */
 
 cfbNode * cfb_getChildNode( CFB_Data *cfbd, const wchar_t *name, cfbNode *startNode )
@@ -1477,10 +1333,9 @@ cfbNode * cfb_getChildNode( CFB_Data *cfbd, const wchar_t *name, cfbNode *startN
 
 	wchar_t nodename[CFB_NODE_NAME_SZ];
 
-	while ( 1 )
-	{
-		if ( id >= cfbd->nodes_cnt )
-		{
+	while ( 1 ) {
+
+		if ( id >= cfbd->nodes_cnt ) {
 			error( "Out of range Node index %u, max %u.", id, cfbd->nodes_cnt );
 			return NULL;
 		}
@@ -1493,21 +1348,21 @@ cfbNode * cfb_getChildNode( CFB_Data *cfbd, const wchar_t *name, cfbNode *startN
 			rc = nameUTF16Len - cfbd->nodes[id]._cb;
 
 		/*
-		 *	Node found
+		 * Node found
 		 */
 
 		if ( rc == 0 )
 			break;
 
 		/*
-		 *	Not found, go right
+		 * Not found, go right
 		 */
 
 		else if ( rc > 0 )
 			id = cfbd->nodes[id]._sidRightSib;
 
 		/*
-		 *	Not found, go left
+		 * Not found, go left
 		 */
 
 		else if ( rc < 0 )
@@ -1516,17 +1371,14 @@ cfbNode * cfb_getChildNode( CFB_Data *cfbd, const wchar_t *name, cfbNode *startN
 
 
 		/*
-		 *	Not found
+		 * Not found
 		 */
 
 		if ( id >= CFB_MAX_REG_SID )
 			break;
-
 	}
 
-
-	if ( rc == 0 )
-	{
+	if ( rc == 0 ) {
 		return &cfbd->nodes[id];
 	}
 
@@ -1535,30 +1387,27 @@ cfbNode * cfb_getChildNode( CFB_Data *cfbd, const wchar_t *name, cfbNode *startN
 
 
 
-
-
 static cfbSID_t cfb_getIDByNode( CFB_Data *cfbd, cfbNode *node )
 {
 	cfbSID_t id = 0;
 
-	for ( ; id < cfbd->nodes_cnt; id++ )
-		if ( node == &cfbd->nodes[id] )
+	for ( ; id < cfbd->nodes_cnt; id++ ) {
+		if ( node == &cfbd->nodes[id] ) {
 			return id;
+		}
+	}
 
 	return -1;
 }
 
 
 
-
-
-
 /**
- *	Loops through each FAT sector in the Directory chain
- *	to retrieve the total number of Directories (Nodes)
+ * Loops through each FAT sector in the Directory chain
+ * to retrieve the total number of Directories (Nodes)
  *
- *	@param cfbd Pointer to the CFB_Data structure.
- *	@return     The retrieved Nodes count.
+ * @param cfbd Pointer to the CFB_Data structure.
+ * @return     The retrieved Nodes count.
  */
 
 static cfbSID_t getNodeCount( CFB_Data *cfbd )
@@ -1566,10 +1415,9 @@ static cfbSID_t getNodeCount( CFB_Data *cfbd )
 	uint64_t      cnt = ( 1<<cfbd->hdr->_uSectorShift );
 	cfbSectorID_t id  = cfbd->hdr->_sectDirStart;
 
-	while ( id < CFB_MAX_REG_SID )
-	{
-		if ( id >= cfbd->fat_sz )
-		{
+	while ( id < CFB_MAX_REG_SID ) {
+
+		if ( id >= cfbd->fat_sz ) {
 			error( "index (%u) > FAT size (%u).", id, cfbd->fat_sz );
 			break;
 		}
@@ -1584,5 +1432,5 @@ static cfbSID_t getNodeCount( CFB_Data *cfbd )
 
 
 /**
- *	@}
+ * @}
  */

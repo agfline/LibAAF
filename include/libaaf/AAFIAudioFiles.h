@@ -33,4 +33,5 @@ int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence,
 
 int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence );
 
-#endif
+
+#endif // !__AAFIAudioFiles_h__

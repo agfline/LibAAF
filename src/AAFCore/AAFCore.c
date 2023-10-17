@@ -50,14 +50,15 @@
 	_dbg( aafd->dbg, aafd, DEBUG_SRC_ID_AAF_CORE, VERB_ERROR, __VA_ARGS__ )
 
 
+
 /**
- *	Loops through each aafPropertyIndexEntry_t of a "properties" node stream.
+ * Loops through each aafPropertyIndexEntry_t of a "properties" node stream.
  *
- *	@param Header Pointer to the stream's aafPropertyIndexHeader_t struct.
- *	@param Entry  Pointer that will receive each aafPropertyIndexEntry_t struct.
- *	@param Value  Pointer to each property's data value, of aafPropertyIndexEntry_t._length
- *	              bytes length.
- *	@param i      uint32_t iterator.
+ * @param Header Pointer to the stream's aafPropertyIndexHeader_t struct.
+ * @param Entry  Pointer that will receive each aafPropertyIndexEntry_t struct.
+ * @param Value  Pointer to each property's data value, of aafPropertyIndexEntry_t._length
+ *               bytes length.
+ * @param i      uint32_t iterator.
  */
 
 #define foreachPropertyEntry( propStream, Header, Entry, Value, valueOffset, i )                                 \
@@ -71,13 +72,12 @@
 
 
 
-
 /**
- *	Loops through each aafStrongRefSetEntry_t of a StrongRefSet Index node stream.
+ * Loops through each aafStrongRefSetEntry_t of a StrongRefSet Index node stream.
  *
- *	@param Header Pointer to the stream's aafStrongRefSetHeader_t struct.
- *	@param Entry  Pointer that will receive each aafStrongRefSetEntry_t struct.
- *	@param i      uint32_t iterator.
+ * @param Header Pointer to the stream's aafStrongRefSetHeader_t struct.
+ * @param Entry  Pointer that will receive each aafStrongRefSetEntry_t struct.
+ * @param i      uint32_t iterator.
  */
 
 #define foreachStrongRefSetEntry( Header, Entry, i ) \
@@ -88,20 +88,18 @@
 
 
 
-
 /**
- *	Loops through each aafStrongRefVectorEntry_t of a StrongRefVector Index node stream.
+ * Loops through each aafStrongRefVectorEntry_t of a StrongRefVector Index node stream.
  *
- *	@param Header Pointer to the stream's aafStrongRefVectorHeader_t struct.
- *	@param Entry  Pointer that will receive each aafStrongRefVectorEntry_t struct.
- *	@param i      uint32_t iterator.
+ * @param Header Pointer to the stream's aafStrongRefVectorHeader_t struct.
+ * @param Entry  Pointer that will receive each aafStrongRefVectorEntry_t struct.
+ * @param i      uint32_t iterator.
  */
 #define foreachStrongRefVectorEntry( vectorStream, Header, Entry, i ) \
 	for( i = 0;                                                         \
 	     i < Header._entryCount &&                                      \
 	     memcpy( &Entry, (vectorStream + (sizeof(aafStrongRefVectorHeader_t) + (sizeof(aafStrongRefVectorEntry_t) * i))), sizeof(aafStrongRefVectorEntry_t) ); \
 	     i++ )
-
 
 
 
@@ -120,17 +118,13 @@
 
 
 
-
-
-
-
 /*
- *	Retrieves useful file informations out of Header Object.
+ * Retrieves useful file informations out of Header Object.
  *
- *	@param  aafd  Pointer to the AAF_Data structure.
+ * @param  aafd  Pointer to the AAF_Data structure.
  *
- *	@return        0 on success\n
- *	              -1 on error.
+ * @return        0 on success\n
+ *               -1 on error.
  */
 
 static int parse_Header( AAF_Data *aafd );
@@ -138,12 +132,12 @@ static int parse_Header( AAF_Data *aafd );
 
 
 /*
- *	Retrieves useful file informations out of Identification Object.
+ * Retrieves useful file informations out of Identification Object.
  *
- *	@param  aafd  Pointer to the AAF_Data structure.
+ * @param  aafd  Pointer to the AAF_Data structure.
  *
- *	@return        0 on success\n
- *	              -1 on error.
+ * @return        0 on success\n
+ *               -1 on error.
  */
 
 static int parse_Identification( AAF_Data *aafd );
@@ -151,22 +145,22 @@ static int parse_Identification( AAF_Data *aafd );
 
 
 /*
- *	Tests the CFB_Data.hdr._clsid field for a valid AAF file.
+ * Tests the CFB_Data.hdr._clsid field for a valid AAF file.
  *
- *	@note The spec says that the AAFFileKind signature should be retrieved from the CLSID
- *	of the Root IStorage. In practice, this CLSID holds the #AAFClassID_Root value, and
- *	the AAFFileKind is (sometimes) found in the CLSID of the CFB_Header, which according
- *	to the CFB spec should be zero. All of this has been observed in AAF files built with
- *	the official AAFSDK.
+ * @note The spec says that the AAFFileKind signature should be retrieved from the CLSID
+ * of the Root IStorage. In practice, this CLSID holds the #AAFClassID_Root value, and
+ * the AAFFileKind is (sometimes) found in the CLSID of the CFB_Header, which according
+ * to the CFB spec should be zero. All of this has been observed in AAF files built with
+ * the official AAFSDK.
  *
- *	As a conclusion, the way to test for a valid AAF file is not a valid test itself.. or
- *	not sufficiently documented. Thus, this function shall not be trusted until further
- *	knowledge improvement.
+ * As a conclusion, the way to test for a valid AAF file is not a valid test itself.. or
+ * not sufficiently documented. Thus, this function shall not be trusted until further
+ * knowledge improvement.
  *
- *	@param  aafd  Pointer to the AAF_Data structure.
+ * @param  aafd  Pointer to the AAF_Data structure.
  *
- *	@return       1 if the file *looks like* a valid AAF\n
- *	              0 otherwise.
+ * @return       1 if the file *looks like* a valid AAF\n
+ *               0 otherwise.
  */
 
 // static int isValidAAF( AAF_Data *aafd );
@@ -174,10 +168,10 @@ static int parse_Identification( AAF_Data *aafd );
 
 
 /**
- *	Sets the AAF_Data structure's pointers to the main AAF Tree objects. These pointers
- *	can then be used for quick conveniant objects access.
+ * Sets the AAF_Data structure's pointers to the main AAF Tree objects. These pointers
+ * can then be used for quick conveniant objects access.
  *
- *	@param  aafd   Pointer to the AAF_Data structure.
+ * @param  aafd   Pointer to the AAF_Data structure.
  */
 
 static void setObjectShortcuts( AAF_Data *aafd );
@@ -185,16 +179,16 @@ static void setObjectShortcuts( AAF_Data *aafd );
 
 
 /**
- *	Parses the entire Compound File Binary Tree and retrieves Objets and Properties.
+ * Parses the entire Compound File Binary Tree and retrieves Objets and Properties.
  *
- *	This function first parses the Root Object, then follows the Root::MetaDictionary to
- *	retrieve potential custom Classes and Properties with retrieveMetaDictionaryClass(),
- *	and then parses the rest of the Tree starting at Root::Header.
+ * This function first parses the Root Object, then follows the Root::MetaDictionary to
+ * retrieve potential custom Classes and Properties with retrieveMetaDictionaryClass(),
+ * and then parses the rest of the Tree starting at Root::Header.
  *
- *	This function should be called after the AAF Classes has been defined by
- *	#setDefaultClasses(). This function is called by aaf_load_file().
+ * This function should be called after the AAF Classes has been defined by
+ * #setDefaultClasses(). This function is called by aaf_load_file().
  *
- *	@param  aafd   Pointer to the AAF_Data structure.
+ * @param  aafd   Pointer to the AAF_Data structure.
  */
 
 static int retrieveObjectTree( AAF_Data *aafd );
@@ -202,15 +196,15 @@ static int retrieveObjectTree( AAF_Data *aafd );
 
 
 /**
- *	Parses the entire MetaDictionary, retrieving potential custom classes and properties.
- *	This function is to be called within a loop that iterates through the
- *	MetaDictionary::ClassDefinitions Objects, and by itself when looking for parent
- *	Classes.
+ * Parses the entire MetaDictionary, retrieving potential custom classes and properties.
+ * This function is to be called within a loop that iterates through the
+ * MetaDictionary::ClassDefinitions Objects, and by itself when looking for parent
+ * Classes.
  *
- *	@param  aafd           Pointer to the AAF_Data structure.
- *	@param  TargetClassDef Pointer to the current ClassDefinition Object.
+ * @param  aafd           Pointer to the AAF_Data structure.
+ * @param  TargetClassDef Pointer to the current ClassDefinition Object.
  *
- *	@return                A pointer to the retrieved Class.
+ * @return                A pointer to the retrieved Class.
  */
 
 static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *TargetClassDef );
@@ -218,15 +212,15 @@ static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *Target
 
 
 /**
- *	Allocates a new aafObject structure, and adds it to the AAF_Data.Objects list.
+ * Allocates a new aafObject structure, and adds it to the AAF_Data.Objects list.
  *
- *	@param  aafd   Pointer to the AAF_Data structure.
- *	@param  node   Pointer to the corresponding cfbNode structure.
- *	@param  Class  Pointer to the corresponding class definition aafClass structure.
- *	@param  parent Pointer to the new Object's parent object, that is the one that has an
- *	               ownership reference (Strong Ref Set/Vector) to the new Object.
+ * @param  aafd   Pointer to the AAF_Data structure.
+ * @param  node   Pointer to the corresponding cfbNode structure.
+ * @param  Class  Pointer to the corresponding class definition aafClass structure.
+ * @param  parent Pointer to the new Object's parent object, that is the one that has an
+ *                ownership reference (Strong Ref Set/Vector) to the new Object.
  *
- *	@return        A pointer to the newly created aafObject.
+ * @return        A pointer to the newly created aafObject.
  */
 
 static aafObject * newObject( AAF_Data *aafd, cfbNode *node, aafClass *Class, aafObject *parent );
@@ -234,11 +228,11 @@ static aafObject * newObject( AAF_Data *aafd, cfbNode *node, aafClass *Class, aa
 
 
 /**
- *	Allocates a new aafProperty structure.
+ * Allocates a new aafProperty structure.
  *
- *	@param  Def  Pointer to the corresponding property definition aafPropertyDef structure.
+ * @param  Def  Pointer to the corresponding property definition aafPropertyDef structure.
  *
- *	@return      A pointer to the newly created aafProperty.
+ * @return      A pointer to the newly created aafProperty.
  */
 
 static aafProperty * newProperty( AAF_Data *aafd, aafPropertyDef *Def );
@@ -246,12 +240,12 @@ static aafProperty * newProperty( AAF_Data *aafd, aafPropertyDef *Def );
 
 
 /**
- *	Test whether or not, a property ID (property definition) was already retrieved for a given Class.
+ * Test whether or not, a property ID (property definition) was already retrieved for a given Class.
  *
- *	@param  Class  Pointer to the aafClass.
- *	@param  Pid    Property ID.
+ * @param  Class  Pointer to the aafClass.
+ * @param  Pid    Property ID.
  *
- *	@return        A pointer to the retrieved property definition\n
+ * @return        A pointer to the retrieved property definition\n
  *                 NULL otherwise.
  */
 
@@ -260,13 +254,13 @@ static aafPropertyDef * propertyIdExistsInClass( aafClass *Class, aafPID_t Pid )
 
 
 /**
- *	Sets the aafStrongRefSetHeader_t Obj->Header and aafStrongRefSetEntry_t Obj->Entry,
- *	when parsing an Object from a StrongReferenceSet. This function is called by the
- *	#retrieveStrongReferenceSet() function.
+ * Sets the aafStrongRefSetHeader_t Obj->Header and aafStrongRefSetEntry_t Obj->Entry,
+ * when parsing an Object from a StrongReferenceSet. This function is called by the
+ * #retrieveStrongReferenceSet() function.
  *
- *	@param  Obj    Pointer to an aafObject structure.
- *	@param  Header Pointer to an aafStrongRefSetHeader_t structure.
- *	@param  Entry  Pointer to an aafStrongRefSetEntry_t structure.
+ * @param  Obj    Pointer to an aafObject structure.
+ * @param  Header Pointer to an aafStrongRefSetHeader_t structure.
+ * @param  Entry  Pointer to an aafStrongRefSetEntry_t structure.
  */
 
 static int setObjectStrongRefSet( aafObject *Obj, aafStrongRefSetHeader_t *Header, aafStrongRefSetEntry_t *Entry );
@@ -274,13 +268,13 @@ static int setObjectStrongRefSet( aafObject *Obj, aafStrongRefSetHeader_t *Heade
 
 
 /**
- *	Sets the aafStrongRefVectorHeader_t Obj->Header and aafStrongRefVectorEntry_t
- *	Obj->Entry, when parsing an Object from a StrongReferenceSet. This function is called
- *	by the retrieveStrongReferenceVector() function.
+ * Sets the aafStrongRefVectorHeader_t Obj->Header and aafStrongRefVectorEntry_t
+ * Obj->Entry, when parsing an Object from a StrongReferenceSet. This function is called
+ * by the retrieveStrongReferenceVector() function.
  *
- *	@param  Obj    Pointer to an aafObject structure.
- *	@param  Header Pointer to an aafStrongRefVectorHeader_t structure.
- *	@param  Entry  Pointer to an aafStrongRefVectorEntry_t structure.
+ * @param  Obj    Pointer to an aafObject structure.
+ * @param  Header Pointer to an aafStrongRefVectorHeader_t structure.
+ * @param  Entry  Pointer to an aafStrongRefVectorEntry_t structure.
  */
 
 static int setObjectStrongRefVector( aafObject *Obj, aafStrongRefVectorHeader_t *Header, aafStrongRefVectorEntry_t *Entry );
@@ -288,12 +282,12 @@ static int setObjectStrongRefVector( aafObject *Obj, aafStrongRefVectorHeader_t 
 
 
 /**
- *	Retrieves and parses a single StrongReference Object. This function is called by
- *	retrieveProperty() when it encounters an SF_STRONG_OBJECT_REFERENCE property.
+ * Retrieves and parses a single StrongReference Object. This function is called by
+ * retrieveProperty() when it encounters an SF_STRONG_OBJECT_REFERENCE property.
  *
- *	@param aafd   Pointer to the AAF_Data structure.
- *	@param Prop   Pointer to the property holding the SF_STRONG_OBJECT_REFERENCE.
- *	@param parent Pointer to the parent Object which holds the Prop property.
+ * @param aafd   Pointer to the AAF_Data structure.
+ * @param Prop   Pointer to the property holding the SF_STRONG_OBJECT_REFERENCE.
+ * @param parent Pointer to the parent Object which holds the Prop property.
  */
 
 static int retrieveStrongReference( AAF_Data *aafd, aafProperty *Prop, aafObject *parent );
@@ -301,12 +295,12 @@ static int retrieveStrongReference( AAF_Data *aafd, aafProperty *Prop, aafObject
 
 
 /**
- *	Retrieves and parses StrongReferenceSet Objects. This function is called by
- *	retrieveProperty() when it encounters an SF_STRONG_OBJECT_REFERENCE_SET property.
+ * Retrieves and parses StrongReferenceSet Objects. This function is called by
+ * retrieveProperty() when it encounters an SF_STRONG_OBJECT_REFERENCE_SET property.
  *
- *	@param aafd   Pointer to the AAF_Data structure.
- *	@param Prop   Pointer to the property holding the SF_STRONG_OBJECT_REFERENCE_SET.
- *	@param parent Pointer to the parent Object which holds the Prop property.
+ * @param aafd   Pointer to the AAF_Data structure.
+ * @param Prop   Pointer to the property holding the SF_STRONG_OBJECT_REFERENCE_SET.
+ * @param parent Pointer to the parent Object which holds the Prop property.
  */
 
 static int retrieveStrongReferenceSet( AAF_Data *aafd, aafProperty *Prop, aafObject *parent );
@@ -314,12 +308,12 @@ static int retrieveStrongReferenceSet( AAF_Data *aafd, aafProperty *Prop, aafObj
 
 
 /**
- *	Retrieve and parse StrongReferenceVector Objects. This function is called by
- *	retrieveProperty() when it encounters an SF_STRONG_OBJECT_REFERENCE_VECTOR property.
+ * Retrieve and parse StrongReferenceVector Objects. This function is called by
+ * retrieveProperty() when it encounters an SF_STRONG_OBJECT_REFERENCE_VECTOR property.
  *
- *	@param aafd   Pointer to the AAF_Data structure.
- *	@param Prop   Pointer to the property holding the SF_STRONG_OBJECT_REFERENCE_VECTOR.
- *	@param parent Pointer to the parent Object which holds the Prop property.
+ * @param aafd   Pointer to the AAF_Data structure.
+ * @param Prop   Pointer to the property holding the SF_STRONG_OBJECT_REFERENCE_VECTOR.
+ * @param parent Pointer to the parent Object which holds the Prop property.
  */
 
 static int retrieveStrongReferenceVector( AAF_Data *aafd, aafProperty *Prop, aafObject *parent );
@@ -327,22 +321,22 @@ static int retrieveStrongReferenceVector( AAF_Data *aafd, aafProperty *Prop, aaf
 
 
 /**
- *	Adds a new aafProperty to an Object->properties list. If the property Stored Form is
- *	either SF_STRONG_OBJECT_REFERENCE, SF_STRONG_OBJECT_REFERENCE_SET or
- *	SF_STRONG_OBJECT_REFERENCE_VECTOR, then the function follows the "link" to the
- *	Object(s) by calling respectively retrieveStrongReference(),
- *	retrieveStrongReferenceSet() or retrieveStrongReferenceVector(). This function is
- *	called by retrieveObjectProperties().
+ * Adds a new aafProperty to an Object->properties list. If the property Stored Form is
+ * either SF_STRONG_OBJECT_REFERENCE, SF_STRONG_OBJECT_REFERENCE_SET or
+ * SF_STRONG_OBJECT_REFERENCE_VECTOR, then the function follows the "link" to the
+ * Object(s) by calling respectively retrieveStrongReference(),
+ * retrieveStrongReferenceSet() or retrieveStrongReferenceVector(). This function is
+ * called by retrieveObjectProperties().
  *
- *	@param aafd Pointer to the AAF_Data structure.
- *	@param Obj  Pointer to the aafObject structure holding this property.
- *	@param Def  Pointer to the aafPropertyDef structure defining this property.
- *	@param p    Pointer to the aafPropertyIndexEntry_t structure representing the property
- *	            in the file.
- *	@param v    Pointer to a p->_length long byte array holding the actual property value.
- *	@param bo   uint8_t specifying the property's Byte Order. TO BE IMPLEMENTED
+ * @param aafd Pointer to the AAF_Data structure.
+ * @param Obj  Pointer to the aafObject structure holding this property.
+ * @param Def  Pointer to the aafPropertyDef structure defining this property.
+ * @param p    Pointer to the aafPropertyIndexEntry_t structure representing the property
+ *             in the file.
+ * @param v    Pointer to a p->_length long byte array holding the actual property value.
+ * @param bo   uint8_t specifying the property's Byte Order. TO BE IMPLEMENTED
  *
- *	@TODO Take ByteOrder into account
+ * @TODO Take ByteOrder into account
  */
 
 static int retrieveProperty( AAF_Data *aafd, aafObject *Obj, aafPropertyDef *Def, aafPropertyIndexEntry_t *p, aafByte_t *v, uint8_t bo );
@@ -350,10 +344,10 @@ static int retrieveProperty( AAF_Data *aafd, aafObject *Obj, aafPropertyDef *Def
 
 
 /**
- *	Retrieves the properties for a given aafObject.
+ * Retrieves the properties for a given aafObject.
  *
- *	@param aafd Pointer to the AAF_Data structure.
- *	@param Obj  Pointer to the aafObject holding the properties.
+ * @param aafd Pointer to the AAF_Data structure.
+ * @param Obj  Pointer to the aafObject holding the properties.
  */
 
 static int retrieveObjectProperties( AAF_Data  *aafd, aafObject *Obj );
@@ -361,14 +355,14 @@ static int retrieveObjectProperties( AAF_Data  *aafd, aafObject *Obj );
 
 
 /**
- *	Retrieves a StrongRef Set/Vector Index Node in the Compound File Tree. This function
- *	is called by both retrieveStrongReferenceSet() and retrieveStrongReferenceVector().
+ * Retrieves a StrongRef Set/Vector Index Node in the Compound File Tree. This function
+ * is called by both retrieveStrongReferenceSet() and retrieveStrongReferenceVector().
  *
- *	@param  aafd    Pointer to the AAF_Data structure.
- *	@param  parent  Pointer to the parent aafObject.
- *	@param  refName Pointer to a null terminated string holding the reference name.
+ * @param  aafd    Pointer to the AAF_Data structure.
+ * @param  parent  Pointer to the parent aafObject.
+ * @param  refName Pointer to a null terminated string holding the reference name.
  *
- *	@return         Pointer to the retrieved Node cfbNode structure.
+ * @return         Pointer to the retrieved Node cfbNode structure.
  */
 
 static cfbNode * getStrongRefIndexNode( AAF_Data *aafd, aafObject *parent, const wchar_t *refName );
@@ -376,16 +370,16 @@ static cfbNode * getStrongRefIndexNode( AAF_Data *aafd, aafObject *parent, const
 
 
 /**
- *	Retrieves a StrongRef Set or Vector Entry Node in the Compound File Tree. This
- *	function is called by both retrieveStrongReferenceSet() and
- *	retrieveStrongReferenceVector().
+ * Retrieves a StrongRef Set or Vector Entry Node in the Compound File Tree. This
+ * function is called by both retrieveStrongReferenceSet() and
+ * retrieveStrongReferenceVector().
  *
- *	@param aafd     Pointer to the AAF_Data structure.
- *	@param parent   Pointer to the parent Index Node.
- *	@param baseName Pointer to a null terminated string holding the reference base name.
- *	@param index    uint32_t number representing the index number of the reference.
+ * @param aafd     Pointer to the AAF_Data structure.
+ * @param parent   Pointer to the parent Index Node.
+ * @param baseName Pointer to a null terminated string holding the reference base name.
+ * @param index    uint32_t number representing the index number of the reference.
  *
- *	@return         Pointer to the retrieved Node cfbNode structure.
+ * @return         Pointer to the retrieved Node cfbNode structure.
  */
 
 static cfbNode * getStrongRefEntryNode( AAF_Data *aafd, aafObject *parent, const wchar_t *baseName, uint16_t index );
@@ -393,15 +387,15 @@ static cfbNode * getStrongRefEntryNode( AAF_Data *aafd, aafObject *parent, const
 
 
 /**
- *	Retrieves and returns a list of aafPropertyIndexHeader_t.
- *	For a given cfbNode, retrieves its /properties Stream Node and returns the stream as
- *	a pointer to an aafPropertyIndexHeader_t structure, wich the stream should begin with.
+ * Retrieves and returns a list of aafPropertyIndexHeader_t.
+ * For a given cfbNode, retrieves its /properties Stream Node and returns the stream as
+ * a pointer to an aafPropertyIndexHeader_t structure, wich the stream should begin with.
  *
- *	@param  aafd Pointer to the AAF_Data structure.
- *	@param  node Pointer to a cfbNode structure.
+ * @param  aafd Pointer to the AAF_Data structure.
+ * @param  node Pointer to a cfbNode structure.
  *
- *	@return      Pointer to an aafPropertyIndexHeader_t structure, followed by _entryCount
- *	             aafPropertyIndexEntry_t structures.
+ * @return      Pointer to an aafPropertyIndexHeader_t structure, followed by _entryCount
+ *              aafPropertyIndexEntry_t structures.
  */
 
 static aafByte_t * getNodeProperties( AAF_Data *aafd, cfbNode *node );
@@ -409,17 +403,17 @@ static aafByte_t * getNodeProperties( AAF_Data *aafd, cfbNode *node );
 
 
 /**
- *	Retrieves and returns a list of StrongReferenceSet.
+ * Retrieves and returns a list of StrongReferenceSet.
  *
- *	For a given Index cfbNode, retrieves its Stream and returns it as a pointer to an
- *	aafStrongRefSetHeader_t structure, wich the stream should begin with.
+ * For a given Index cfbNode, retrieves its Stream and returns it as a pointer to an
+ * aafStrongRefSetHeader_t structure, wich the stream should begin with.
  *
- *	@param aafd   Pointer to the AAF_Data structure.
- *	@param node   Pointer to an Index cfbNode structure.
- *	@param parent Pointer to the aafObject parent, only used on error printing.
+ * @param aafd   Pointer to the AAF_Data structure.
+ * @param node   Pointer to an Index cfbNode structure.
+ * @param parent Pointer to the aafObject parent, only used on error printing.
  *
- *	@return       Pointer to an aafStrongRefSetHeader_t structure, followed by _entryCount
- *	              aafStrongRefSetEntry_t structures.
+ * @return       Pointer to an aafStrongRefSetHeader_t structure, followed by _entryCount
+ *               aafStrongRefSetEntry_t structures.
  */
 
 static aafStrongRefSetHeader_t * getStrongRefSetList( AAF_Data *aafd, cfbNode *node, aafObject *parent );
@@ -427,25 +421,20 @@ static aafStrongRefSetHeader_t * getStrongRefSetList( AAF_Data *aafd, cfbNode *n
 
 
 /**
- *	Retrieves and returns a list of StrongReferenceVectors.
+ * Retrieves and returns a list of StrongReferenceVectors.
  *
- *	For a given Index cfbNode, retrieves its Stream and returns it as a pointer to an
- *	aafStrongRefVectorHeader_t structure, wich the stream should begin with.
+ * For a given Index cfbNode, retrieves its Stream and returns it as a pointer to an
+ * aafStrongRefVectorHeader_t structure, wich the stream should begin with.
  *
- *	@param  aafd   Pointer to the AAF_Data structure.
- *	@param  node   Pointer to an Index cfbNode structure.
- *	@param  parent Pointer to the aafObject parent, only used on error printing.
+ * @param  aafd   Pointer to the AAF_Data structure.
+ * @param  node   Pointer to an Index cfbNode structure.
+ * @param  parent Pointer to the aafObject parent, only used on error printing.
  *
- *	@return        Pointer to an aafStrongRefVectorHeader_t structure, followed by
- *	               _entryCount aafStrongRefVectorEntry_t structures.
+ * @return        Pointer to an aafStrongRefVectorHeader_t structure, followed by
+ *                _entryCount aafStrongRefVectorEntry_t structures.
  */
 
 static aafByte_t * getStrongRefVectorList( AAF_Data *aafd, cfbNode *node, aafObject *parent );
-
-
-
-
-
 
 
 
@@ -497,9 +486,9 @@ int aaf_load_file( AAF_Data *aafd, const char *file )
 	}
 
 	/*
-	 *	NOTE: at least Avid Media Composer doesn't respect
-	 *	the standard clsid AAFFileKind_Aaf4KBinary identifier.
-	 *	Therefore isValidAAF() is useless until futher findings..
+	 * NOTE: at least Avid Media Composer doesn't respect
+	 * the standard clsid AAFFileKind_Aaf4KBinary identifier.
+	 * Therefore isValidAAF() is useless until futher findings..
 	 */
 
 	// if ( isValidAAF( aafd ) == 0 ) {
@@ -660,7 +649,7 @@ wchar_t * aaf_get_ObjectPath( aafObject *Obj )
 
 
 
-int aaf__foreach_ObjectInSet( aafObject **Obj, aafObject *head, const aafUID_t *filter )
+int _aaf_foreach_ObjectInSet( aafObject **Obj, aafObject *head, const aafUID_t *filter )
 {
 	if ( *Obj == NULL )
 		*Obj = head;
@@ -763,7 +752,7 @@ aafObject * aaf_get_MobSlotBySlotID( aafObject *MobSlots, aafSlotID_t SlotID )
 
 
 /*
- *	TODO Works when the property was retrieved from MetaDictionary. What if the property is standard ?
+ * TODO Works when the property was retrieved from MetaDictionary. What if the property is standard ?
  */
 
 aafPID_t aaf_get_PropertyIDByName( AAF_Data *aafd, const wchar_t *name )
@@ -945,14 +934,6 @@ void * aaf_get_indirectValue( AAF_Data *aafd, aafIndirect_t *Indirect, const aaf
 
 	return &Indirect->Value;
 }
-
-
-
-
-
-
-
-
 
 
 
@@ -1183,7 +1164,7 @@ static int retrieveObjectTree( AAF_Data *aafd )
 
 
 
-	/******************* retrieveObjectProperties() *********************/
+	/* retrieveObjectProperties() */
 
 	propStream = getNodeProperties( aafd, aafd->Root->Node );
 
@@ -1238,7 +1219,7 @@ static int retrieveObjectTree( AAF_Data *aafd )
 
 
 	/*
-	 *	Retrieve MetaDictionary.
+	 * Retrieve MetaDictionary.
 	 */
 
 	aafObject *MetaDic = aaf_get_propertyValue( aafd->Root, PID_Root_MetaDictionary, &AAFUID_NULL );
@@ -1262,7 +1243,6 @@ static int retrieveObjectTree( AAF_Data *aafd )
 	aaf_foreach_ObjectInSet( &ClassDef, ClassDefs, NULL ) {
 		retrieveMetaDictionaryClass( aafd, ClassDef );
 	}
-
 
 
 	PDef = getPropertyDefinitionByID( aafd->Root->Class, PID_Root_Header );
@@ -1335,7 +1315,7 @@ static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *Target
 	          aafUIDCmp( ClassID, &AAFClassID_MetaDictionary    ) == 0 )
 	{
 		/*
-		 *	TODO: what is this ? when does it happen ?
+		 * TODO: what is this ? when does it happen ?
 		 */
 		error( "Parent's Class equals Child's : %ls.", ClassIDToText( aafd, ClassID ) );
 		return NULL;
@@ -1386,7 +1366,7 @@ static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *Target
 		}
 
 		/*
-		 *	We skip all the properties that were already defined in setDefaultClasses().
+		 * We skip all the properties that were already defined in setDefaultClasses().
 		 */
 
 		aafPropertyDef *PDef = NULL;
@@ -1436,7 +1416,7 @@ static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *Target
 
 		/*
 		 *  Looks like nobody cares about AAF standard TypeDefinition. All observed files
-		 *	had incorrect values for Type Name and Identification, even Avid's files. So...
+		 * had incorrect values for Type Name and Identification, even Avid's files. So...
 		 */
 
 		memcpy( &PDef->type, typeUID, sizeof(aafUID_t) );
@@ -1798,7 +1778,7 @@ static int retrieveStrongReferenceVector( AAF_Data *aafd, aafProperty *Prop, aaf
 		}
 
 		/*
-		 *	Vectors are ordered.
+		 * Vectors are ordered.
 		 */
 
 		if ( Prop->val != NULL ) {

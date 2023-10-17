@@ -22,9 +22,14 @@
 #define __debug_h__
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+
 
 
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+
 
 
 enum debug_source_id {
@@ -36,6 +41,7 @@ enum debug_source_id {
 };
 
 
+
 typedef enum verbosityLevel_e {
 	VERB_QUIET = 0,
 	VERB_ERROR,
@@ -43,6 +49,7 @@ typedef enum verbosityLevel_e {
 	VERB_DEBUG,
 	MAX_VERB
 } verbosityLevel_e;
+
 
 
 struct dbg {
@@ -57,7 +64,6 @@ struct dbg {
 
 	void *user;
 };
-
 
 
 
@@ -82,6 +88,7 @@ struct dbg {
 	}} \
 
 
+
 struct dbg * new_debug( void );
 
 void free_debug( struct dbg *dbg );
@@ -89,4 +96,4 @@ void free_debug( struct dbg *dbg );
 void debug_callback( struct dbg *dbg, void *ctxdata, int lib, int type, const char *srcfile, const char *srcfunc, int lineno, const char *msg, void *user );
 
 
-#endif // ! __debug_h__
+#endif // !__debug_h__

@@ -35,20 +35,14 @@
 
 
 
-// Stored forms
-/*
-#define SF_DATA                                                 0x0082
-#define SF_DATA_STREAM                                          0x0042
-#define SF_STRONG_OBJECT_REFERENCE                              0x0022
-#define SF_STRONG_OBJECT_REFERENCE_VECTOR                       0x0032
-#define SF_STRONG_OBJECT_REFERENCE_SET                          0x003A
-#define SF_WEAK_OBJECT_REFERENCE                                0x0002
-#define SF_WEAK_OBJECT_REFERENCE_VECTOR                         0x0012
-#define SF_WEAK_OBJECT_REFERENCE_SET                            0x001A
-#define SF_WEAK_OBJECT_REFERENCE_STORED_OBJECT_ID               0x0003
-#define SF_UNIQUE_OBJECT_ID                                     0x0086
-#define SF_OPAQUE_STREAM                                        0x0040
-*/
+#define AAF_HEADER_BYTEORDER_LE               0x4949 // II
+#define AAF_HEADER_BYTEORDER_BE               0x4D4D // MM
+
+#define AAF_PROPERTIES_BYTEORDER_LE           0x4c // L
+#define AAF_PROPERTIES_BYTEORDER_BE           0x42 // B
+#define AAF_PROPERTIES_BYTEORDER_UNSPECIFIED  0x55 // U
+
+
 
 typedef enum aafStoredForm_e
 {
@@ -66,50 +60,41 @@ typedef enum aafStoredForm_e
 
 } aafStoredForm_e;
 
+
+
 /*
 typedef int32_t AAFTypeCategory_t;
 typedef enum _eAAFTypeCategory_e
 {
-  AAFTypeCatUnknown       = 0,  // can only occur in damaged files
-  AAFTypeCatInt           = 1,  // any integral type
-  AAFTypeCatCharacter     = 2,  // any character type
-  AAFTypeCatStrongObjRef  = 3,  // strong object reference
-  AAFTypeCatWeakObjRef    = 4,  // weak object reference
-  AAFTypeCatRename        = 5,  // renamed type
-  AAFTypeCatEnum          = 6,  // enumerated type
-  AAFTypeCatFixedArray    = 7,  // fixed-size array
-  AAFTypeCatVariableArray = 8,  // variably-sized array
-  AAFTypeCatSet           = 9,  // set of strong object references or
-                                 // set of weak object references
-  AAFTypeCatRecord        = 10, // a structured type
-  AAFTypeCatStream        = 11, // potentially huge amount of data
-  AAFTypeCatString        = 12, // null-terminated variably-sized
-                                 // array of characters
-  AAFTypeCatExtEnum       = 13, // extendible enumerated type
-  AAFTypeCatIndirect      = 14, // type must be determined at runtime
-  AAFTypeCatOpaque        = 15, // type can be determined at runtime
-  AAFTypeCatEncrypted     = 16  // type can be determined at runtime
-                                 // but bits are encrypted
+	AAFTypeCatUnknown       = 0,  // can only occur in damaged files
+	AAFTypeCatInt           = 1,  // any integral type
+	AAFTypeCatCharacter     = 2,  // any character type
+	AAFTypeCatStrongObjRef  = 3,  // strong object reference
+	AAFTypeCatWeakObjRef    = 4,  // weak object reference
+	AAFTypeCatRename        = 5,  // renamed type
+	AAFTypeCatEnum          = 6,  // enumerated type
+	AAFTypeCatFixedArray    = 7,  // fixed-size array
+	AAFTypeCatVariableArray = 8,  // variably-sized array
+	AAFTypeCatSet           = 9,  // set of strong object references or
+	                              // set of weak object references
+	AAFTypeCatRecord        = 10, // a structured type
+	AAFTypeCatStream        = 11, // potentially huge amount of data
+	AAFTypeCatString        = 12, // null-terminated variably-sized
+	                              // array of characters
+	AAFTypeCatExtEnum       = 13, // extendible enumerated type
+	AAFTypeCatIndirect      = 14, // type must be determined at runtime
+	AAFTypeCatOpaque        = 15, // type can be determined at runtime
+	AAFTypeCatEncrypted     = 16  // type can be determined at runtime
+	                              // but bits are encrypted
 } AAFTypeCategory_e;
 */
 
 
 
-
-
-#define AAF_HEADER_BYTEORDER_LE			0x4949	// II
-#define AAF_HEADER_BYTEORDER_BE			0x4D4D	// MM
-
-#define AAF_PROPERTIES_BYTEORDER_LE           0x4c	// L
-#define AAF_PROPERTIES_BYTEORDER_BE           0x42	// B
-#define AAF_PROPERTIES_BYTEORDER_UNSPECIFIED  0x55	// U
-
-
-
-/*****************************************************************************************
-	:: Types Definition
-	   see Git nevali/aaf/ref-impl/include/ref-api/AAFTypes.h
-*****************************************************************************************/
+/*
+ * :: Types Definition
+ * see Git nevali/aaf/ref-impl/include/ref-api/AAFTypes.h
+*/
 
 typedef unsigned char  aafByte_t;
 
@@ -127,15 +112,17 @@ typedef uint32_t       aafSlotID_t;
 
 
 
-
 typedef struct _aafStream_t
 {
 	uint64_t          size;
 	aafByte_t        *data;
+
 } aafStream_t;
 
 
+
 typedef int32_t aafJPEGTableID_t; /* for TIFF objects */
+
 
 
 typedef struct _aafRational_t
@@ -147,39 +134,41 @@ typedef struct _aafRational_t
 
 
 
-
 typedef struct _aafDateStruct_t
 {
-  int16_t year;   /* range -32,767 to +32767 */
-  uint8_t month;  /* range: 1-12, inclusive */
-  uint8_t day;    /* range: 1-31, inclusive */
+	int16_t year;   /* range -32,767 to +32767 */
+	uint8_t month;  /* range: 1-12, inclusive */
+	uint8_t day;    /* range: 1-31, inclusive */
 
 } aafDateStruct_t;
 
+
+
 typedef struct _aafTimeStruct_t
 {
-  uint8_t hour;     /* range 0-23 inclusive */
-  uint8_t minute;   /* range 0-59 inclusive */
-  uint8_t second;   /* range 0-59 inclusive */
-  uint8_t fraction; /* range 0..99 inclusive; accuracy: .01 sec */
+	uint8_t hour;     /* range 0-23 inclusive */
+	uint8_t minute;   /* range 0-59 inclusive */
+	uint8_t second;   /* range 0-59 inclusive */
+	uint8_t fraction; /* range 0..99 inclusive; accuracy: .01 sec */
 
 } aafTimeStruct_t;
 
+
+
 typedef struct _aafTimeStamp_t
 {
-  aafDateStruct_t date;
-  aafTimeStruct_t time;
+	aafDateStruct_t date;
+	aafTimeStruct_t time;
 
 } aafTimeStamp_t;
 
 
 
-
-
-
-
-// FIXME is int32_t in the original AAFTypes.h, but does not match when parsing..
+// TODO is int32_t in the original AAFTypes.h, but does not match when parsing..
 typedef int8_t aafProductReleaseType_t;
+
+
+
 typedef enum  _aafProductReleaseType_e
 {
 	AAFVersionUnknown      = 0,
@@ -193,26 +182,26 @@ typedef enum  _aafProductReleaseType_e
 
 
 
-
 /* Version Format for ObjHeader->Version */
-typedef struct _aafVersionType_t
+typedef PACK(struct _aafVersionType_t
 {
 	int8_t            major;
 	int8_t            minor;
 
-} aafVersionType_t;
+}) aafVersionType_t;
+
+
 
 /* Version Format for ObjIdentification->ProductVersion */
-typedef struct _aafProductVersion_t
+typedef PACK(struct _aafProductVersion_t
 {
-	uint16_t				major;
-	uint16_t				minor;
-	uint16_t				tertiary;
-	uint16_t				patchLevel;
-	int8_t                  type;
+	uint16_t   major;
+	uint16_t   minor;
+	uint16_t   tertiary;
+	uint16_t   patchLevel;
+	int8_t     type;
 
-} aafProductVersion_t;
-
+}) aafProductVersion_t;
 
 
 
@@ -228,18 +217,22 @@ typedef enum   _aafFadeType_e
 
 
 
-
 /* binary compatibility with GUID/CLSID and IID structures. */
 typedef struct _aafUID_t
 {
-    uint32_t Data1;
-    uint16_t Data2;
-    uint16_t Data3;
-    uint8_t  Data4[8];
+	uint32_t Data1;
+	uint16_t Data2;
+	uint16_t Data3;
+	uint8_t  Data4[8];
 
 } aafUID_t;
 
+
+
 #define AAFUID_PRINTED_LEN 35 // excluding NULL terminating char
+
+
+
 static const aafUID_t AUID_NULL =
 {0x00000000, 0x0000, 0x0000, {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
 
@@ -247,25 +240,15 @@ static const aafUID_t AUID_NULL =
 
 typedef struct  _aafMobID_t
 {
-    uint8_t			SMPTELabel[12];		// 12-bytes of label prefix
-	uint8_t			length;
-    uint8_t			instanceHigh;
-    uint8_t			instanceMid;
-    uint8_t			instanceLow;
-	aafUID_t		material; // 16 bytes
+	uint8_t     SMPTELabel[12];		// 12-bytes of label prefix
+	uint8_t     length;
+	uint8_t     instanceHigh;
+	uint8_t     instanceMid;
+	uint8_t     instanceLow;
+	aafUID_t    material; // 16 bytes
 
 } aafMobID_t; // 32 bytes total
 
-
-
-/*
-typedef struct _AAF_List
-{
-	struct _AAF_List 	*next;
-	void 			 	*data;
-
-} AAF_List;
-*/
 
 
 typedef struct _aafIndirect_t
@@ -281,7 +264,11 @@ typedef struct _aafIndirect_t
 } /*__attribute__((packed))*/ aafIndirect_t;
 
 
+
 typedef int32_t aafElectroSpatialFormulation_t;
+
+
+
 typedef enum _aafElectroSpatialFormulation_e
 {
 	AAFElectroSpatialFormulation_Default                                       = 0,
@@ -299,6 +286,9 @@ typedef enum _aafElectroSpatialFormulation_e
 
 
 typedef int32_t aafFrameLayout_t;
+
+
+
 typedef enum _aafFrameLayout_e
 {
 	AAFFullFrame      = 0,
@@ -310,7 +300,11 @@ typedef enum _aafFrameLayout_e
 } aafFrameLayout_e;
 
 
+
 typedef int32_t aafAlphaTransparency_t;
+
+
+
 typedef enum _aafAlphaTransparency_e
 {
 	AAFMinValueTransparent = 0,
@@ -320,6 +314,9 @@ typedef enum _aafAlphaTransparency_e
 
 
 typedef int32_t aafFieldNumber_t;
+
+
+
 typedef enum _aafFieldNumber_e
 {
 	AAFUnspecifiedField = 0,
@@ -329,7 +326,11 @@ typedef enum _aafFieldNumber_e
 } aafFieldNumber_e;
 
 
+
 typedef int32_t aafSignalStandard_t;
+
+
+
 typedef enum _aafSignalStandard_e
 {
 	AAFSignalStandard_None      = 0,
@@ -343,7 +344,11 @@ typedef enum _aafSignalStandard_e
 } aafSignalStandard_e;
 
 
+
 typedef int32_t aafContentScanningType_t;
+
+
+
 typedef enum _aafContentScanningType_e
 {
 	kAAFContentScanning_NotKnown    = 0,
@@ -354,7 +359,11 @@ typedef enum _aafContentScanningType_e
 } aafContentScanningType_e;
 
 
+
 typedef int32_t aafColorSiting_t;
+
+
+
 typedef enum _aafColorSiting_e
 {
 	AAFCoSiting      = 0,
@@ -367,7 +376,11 @@ typedef enum _aafColorSiting_e
 } aafColorSiting_e;
 
 
+
 typedef int32_t aafScanningDirection_t;
+
+
+
 typedef enum _aafScanningDirection_e
 {
 	AAFScanningDirection_LeftToRightTopToBottom = 0,
@@ -382,7 +395,11 @@ typedef enum _aafScanningDirection_e
 } aafScanningDirection_e;
 
 
+
 typedef int32_t aafFilmType_t;
+
+
+
 typedef enum _aafFilmType_e
 {
 	AAFFtNull = 0,
@@ -394,12 +411,16 @@ typedef enum _aafFilmType_e
 } aafFilmType_e;
 
 
+
 typedef int32_t aafTapeCaseType_t;
+
+
+
 typedef enum _aafTapeCaseType_e
 {
 	AAFTapeCaseNull             = 0,
 	AAFThreeFourthInchVideoTape = 1,
-    AAFVHSVideoTape             = 2,
+	AAFVHSVideoTape             = 2,
 	AAF8mmVideoTape             = 3,
 	AAFBetacamVideoTape         = 4,
 	AAFCompactCassette          = 5,
@@ -409,7 +430,11 @@ typedef enum _aafTapeCaseType_e
 } aafTapeCaseType_e;
 
 
+
 typedef int32_t aafVideoSignalType_t;
+
+
+
 typedef enum _aafVideoSignalType_e
 {
 	AAFVideoSignalNull = 0,
@@ -420,7 +445,11 @@ typedef enum _aafVideoSignalType_e
 } aafVideoSignalType_e;
 
 
+
 typedef int32_t aafTapeFormatType_t;
+
+
+
 typedef enum _aafTapeFormatType_e
 {
 	AAFTapeFormatNull  = 0,
@@ -435,8 +464,10 @@ typedef enum _aafTapeFormatType_e
 
 
 
-
 typedef int32_t aafRGBAComponentKind_t;
+
+
+
 typedef enum _aafRGBAComponentKind_e
 {
 	AAFCompNone    = 0x30,
@@ -450,6 +481,8 @@ typedef enum _aafRGBAComponentKind_e
 
 } aafRGBAComponentKind_e;
 
+
+
 typedef struct _aafRGBAComponent_t
 {
 	aafRGBAComponentKind_t Code;
@@ -457,9 +490,9 @@ typedef struct _aafRGBAComponent_t
 
 } aafRGBAComponent_t;
 
+
+
 //typedef aafRGBAComponent_t aafRGBALayout[8];
-
-
 
 
 
@@ -468,46 +501,41 @@ static const aafUID_t AAFUID_NULL =
 
 
 
-
-
-
-
-
 /**
- *	This structure map the first bytes in a **properties** stream
- *	node.
+ * This structure map the first bytes in a **properties** stream
+ * node.
  *
- *	This Header is followed by #_entryCount aafPropertyIndexEntry_t
- *	structures, which are then followed by aafPropertyIndexHeader_t._entryCount variable
- *	sized property values.
+ * This Header is followed by #_entryCount aafPropertyIndexEntry_t
+ * structures, which are then followed by aafPropertyIndexHeader_t._entryCount variable
+ * sized property values.
  */
 
 typedef struct aafPropertyIndexHeader_t
 {
 	/**
-	 *	The byte order of :
-	 *	- the remaining fields of the aafPropertyIndexHeader_t struct
-	 *	- the aafPropertyIndexEntry_t structs that follow
-	 *	- the actual property data
+	 * The byte order of :
+	 * - the remaining fields of the aafPropertyIndexHeader_t struct
+	 * - the aafPropertyIndexEntry_t structs that follow
+	 * - the actual property data
 	 *
-	 *	Currently unused when parsing.
+	 * Currently unused when parsing.
 	 */
 
 	uint8_t                 _byteOrder;
 
 
 	/**
-	 *	The version number of the stored format. This allows
-	 *	for otherwise incompatible changes to the stored format.
+	 * The version number of the stored format. This allows
+	 * for otherwise incompatible changes to the stored format.
 	 *
-	 *	Currently unused when parsing.
+	 * Currently unused when parsing.
 	 */
 
 	uint8_t                 _formatVersion;
 
 
 	/**
-	 *	The number of aafPropertyIndexEntry_t structs that follow.
+	 * The number of aafPropertyIndexEntry_t structs that follow.
 	 */
 
 	uint16_t                _entryCount;
@@ -515,58 +543,59 @@ typedef struct aafPropertyIndexHeader_t
 } /* __attribute__((packed)) */ aafPropertyIndexHeader_t;
 
 
+
 /**
- *	This structure represents one property entry inside a
- *	**properties** stream node. The actual property value
- *	is located bellow all the property entries.
+ * This structure represents one property entry inside a
+ * **properties** stream node. The actual property value
+ * is located bellow all the property entries.
  *
- *	The offset to the property values is calculated by :
+ * The offset to the property values is calculated by :
  *
- *	@code
-
-	int offset = sizeof(aafPropertyIndexHeader_t) + (aafPropertyIndexHeader_t._entryCount * sizeof(aafPropertyIndexEntry_t))
-
- *	@endcode
- *	The offset inside the property values is calculated by :
+ * @code
+ *
+ * int offset = sizeof(aafPropertyIndexHeader_t) + (aafPropertyIndexHeader_t._entryCount * sizeof(aafPropertyIndexEntry_t))
+ *
+ * @endcode
+ * The offset inside the property values is calculated by :
  *
  *
-	```
- 	for( PropEntry[i]; PropEntry[i] < i; i++ )
-		offset += PropEntry. _length;
-	```
+ * ```
+ * for( PropEntry[i]; PropEntry[i] < i; i++ )
+ * offset += PropEntry. _length;
+ * ```
  */
 
 typedef struct aafPropertyIndexEntry_t
 {
 	/**
-	 *	The ID that describes the property.
+	 * The ID that describes the property.
 	 *
-	 *	All the standard IDs can be found in AAFDefs/AAFPropertyIDs.h.
+	 * All the standard IDs can be found in AAFDefs/AAFPropertyIDs.h.
 	 */
 
 	aafPID_t                _pid;
 
 
 	/**
-	 *	Identifies the “type” of representation chosen for this
-	 *	property. Note that the stored form described here is not
-	 * 	the data type of the property value, rather it is the type
-	 *	of external representation employed. The data type of a
-	 *	given property value is implied by the property ID.
+	 * Identifies the “type” of representation chosen for this
+	 * property. Note that the stored form described here is not
+	 * the data type of the property value, rather it is the type
+	 * of external representation employed. The data type of a
+	 * given property value is implied by the property ID.
 	 *
-	 *	Can take one of the value from #aafStoredForm_e enum.
+	 * Can take one of the value from #aafStoredForm_e enum.
 	 *
-	 *	Even though only 1 byte is needed, _storedForm is 2 bytes
-	 *	in size in order to keep each property index entry an even
-	 *	number of bytes in size.
+	 * Even though only 1 byte is needed, _storedForm is 2 bytes
+	 * in size in order to keep each property index entry an even
+	 * number of bytes in size.
 	 */
 
 	uint16_t                _storedForm;
 
 
 	/**
-	 *	The length, in bytes, of the property value in the property
-	 *	value stream.
+	 * The length, in bytes, of the property value in the property
+	 * value stream.
 	 */
 
 	uint16_t                _length;
@@ -575,59 +604,53 @@ typedef struct aafPropertyIndexEntry_t
 
 
 
-
-
-
-
-
-
 /**
- *	An unordered collection of strongly referenced (contained)
- *	uniquely identified objects, each of which can be :
- *	- efficiently located by key - O(lg N)
- *	- the target of a weak reference
+ * An unordered collection of strongly referenced (contained)
+ * uniquely identified objects, each of which can be :
+ * - efficiently located by key - O(lg N)
+ * - the target of a weak reference
  *
- *	Each set index consists of an aafStrongRefSetHeader_t
- *	followed by #_entryCount aafStrongRefSetEntry_t structs.
+ * Each set index consists of an aafStrongRefSetHeader_t
+ * followed by #_entryCount aafStrongRefSetEntry_t structs.
  */
 
-PACK(typedef struct aafStrongRefSetHeader_t
+typedef PACK(struct aafStrongRefSetHeader_t
 {
 	/**
-	 *	The number of aafStrongRefSetEntry_t structs that follow.
+	 * The number of aafStrongRefSetEntry_t structs that follow.
 	 */
 
 	uint32_t                _entryCount;
 
 
 	/**
-	 *	The next local key that will be assigned in this set.
+	 * The next local key that will be assigned in this set.
 	 */
 
 	uint32_t                _firstFreeKey;
 
 
 	/**
-	 *	The highest unassigned key above #_firstFreeKey. The keys
-	 *	between #_firstFreeKey and #_lastFreeKey are unassigned,
-	 *	while there may be other gaps in key assignement this
-	 *	represents the largest one.
+	 * The highest unassigned key above #_firstFreeKey. The keys
+	 * between #_firstFreeKey and #_lastFreeKey are unassigned,
+	 * while there may be other gaps in key assignement this
+	 * represents the largest one.
 	 */
 
 	uint32_t                _lastFreeKey;
 
 
 	/**
-	 *	The property id of each aafStrongRefSetEntry_t._identification field
-	 *	@TODO Understand that field..
+	 * The property id of each aafStrongRefSetEntry_t._identification field
+	 * @TODO Understand that field..
 	 */
 
 	aafPID_t                _identificationPid;
 
 
 	/**
-	 *	The length, in bytes, of each aafStrongRefSetEntry_t._identification
-	 *	field.
+	 * The length, in bytes, of each aafStrongRefSetEntry_t._identification
+	 * field.
 	 */
 
 	uint8_t                 _identificationSize;
@@ -635,99 +658,95 @@ PACK(typedef struct aafStrongRefSetHeader_t
 }) aafStrongRefSetHeader_t;
 
 
+
 typedef struct aafStrongRefSetEntry_t
 {
 	/**
-	 *	The #_localKey uniquely identifies this strong reference
-	 *	within this collection independently of its position
-	 *	within this collection. The #_localKey is used to form
-	 *	the name assigned to the element in this set at the
-	 *	corresponding ordinal position. That is, the #_localKey
-	 *	of the first aafStrongRefSetEntry_t is used to
-	 *	form the name of the first element in the set and so
-	 *	on. The #_localKey is an insertion key.
+	 * The #_localKey uniquely identifies this strong reference
+	 * within this collection independently of its position
+	 * within this collection. The #_localKey is used to form
+	 * the name assigned to the element in this set at the
+	 * corresponding ordinal position. That is, the #_localKey
+	 * of the first aafStrongRefSetEntry_t is used to
+	 * form the name of the first element in the set and so
+	 * on. The #_localKey is an insertion key.
 	*/
 
 	uint32_t	            _localKey;
 
 
 	/**
-	 *	The count of weak references to this object.
+	 * The count of weak references to this object.
 	 */
 
 	uint32_t	            _referenceCount;
 
 
 	/**
-	 *	The type of the #_identification field varies from one instance
-	 *	of a StrongReferenceSet to another. The value of the #_identification
-	 *	field uniquely identifies this object within the set. It is the
-	 *	search key.
+	 * The type of the #_identification field varies from one instance
+	 * of a StrongReferenceSet to another. The value of the #_identification
+	 * field uniquely identifies this object within the set. It is the
+	 * search key.
 	 */
 
-	aafByte_t               _identification[];
+	aafByte_t             _identification[];
 
 } /* __attribute__((packed)) */ aafStrongRefSetEntry_t;
 
 
 
-
-
-
-
-
-
-
 /**
- *	An ordered collection of strongly referenced (contained) objects.
- *	Each vector index consists of an aafStrongRefVectorHeader_t
- *	followed by #_entryCount aafStrongRefVectorEntry_t structs.
+ * An ordered collection of strongly referenced (contained) objects.
+ * Each vector index consists of an aafStrongRefVectorHeader_t
+ * followed by #_entryCount aafStrongRefVectorEntry_t structs.
  */
 
 typedef struct aafStrongRefVectorHeader_t
 {
 	/**
-	 *	The number of aafStrongRefVectorEntry_t structs that follow.
+	 * The number of aafStrongRefVectorEntry_t structs that follow.
 	 */
 
 	uint32_t                _entryCount;
 
 
 	/**
-	 *	The next local key that will be assigned in this vector.
+	 * The next local key that will be assigned in this vector.
 	 */
 
 	uint32_t                _firstFreeKey;
 
 
 	/**
-	 *	The highest unassigned key above #_firstFreeKey. The keys
-	 *	between #_firstFreeKey and #_lastFreeKey are unassigned,
-	 *	while there may be other gaps in key assignement this
-	 *	represents the largest one.
+	 * The highest unassigned key above #_firstFreeKey. The keys
+	 * between #_firstFreeKey and #_lastFreeKey are unassigned,
+	 * while there may be other gaps in key assignement this
+	 * represents the largest one.
 	 */
 
 	uint32_t                _lastFreeKey;
 
 } /* __attribute__((packed)) */ aafStrongRefVectorHeader_t;
 
+
+
 /**
- *	An ordered collection of strongly referenced (contained) objects.
- *	Each vector index consists of an aafStrongRefVectorHeader_t
- *	followed by aafStrongRefVectorHeader_t._entryCount aafStrongRefVectorEntry_t structs.
+ * An ordered collection of strongly referenced (contained) objects.
+ * Each vector index consists of an aafStrongRefVectorHeader_t
+ * followed by aafStrongRefVectorHeader_t._entryCount aafStrongRefVectorEntry_t structs.
  */
 
 typedef struct aafStrongRefVectorEntry_t
 {
 	/**
-	 *	The _localKey uniquely identifies this strong reference
-	 *	within this collection independently of its position
-	 *	within this collection. The #_localKey is used to form
-	 *	the name assigned to the element in this vector at the
-	 *	corresponding ordinal position. That is, the #_localKey
-	 *	of the first aafStrongRefVectorEntry_t is used to
-	 *	form the name of the first element in the vector and so
-	 *	on. The #_localKey is an insertion key.
+	 * The _localKey uniquely identifies this strong reference
+	 * within this collection independently of its position
+	 * within this collection. The #_localKey is used to form
+	 * the name assigned to the element in this vector at the
+	 * corresponding ordinal position. That is, the #_localKey
+	 * of the first aafStrongRefVectorEntry_t is used to
+	 * form the name of the first element in the vector and so
+	 * on. The #_localKey is an insertion key.
 	*/
 
 	uint32_t                _localKey;
@@ -736,53 +755,47 @@ typedef struct aafStrongRefVectorEntry_t
 
 
 
-
-
-
-
-
-
-
 /**
- *	A weak object reference is a persistent data type that denotes
- *	a weak reference to a uniquely identified object. In memory,
- *	weak references are similar to pointers. When persisted, weak
- *	references contain the unique identifier of the referenced object.
+ * A weak object reference is a persistent data type that denotes
+ * a weak reference to a uniquely identified object. In memory,
+ * weak references are similar to pointers. When persisted, weak
+ * references contain the unique identifier of the referenced object.
  *
- *	An aafWeakRef_t can appears as a property value with the
- *	stored form #SF_WEAK_OBJECT_REFERENCE, as an entry into
- *	a weak reference vector index or set index.
+ * An aafWeakRef_t can appears as a property value with the
+ * stored form #SF_WEAK_OBJECT_REFERENCE, as an entry into
+ * a weak reference vector index or set index.
  */
+
 typedef struct _WeakObjectReference
 {
 	/**
-	 *	The index into the referenced property table of
-	 *	the path to the property (a strong reference set)
-	 *	containing the referenced object.
+	 * The index into the referenced property table of
+	 * the path to the property (a strong reference set)
+	 * containing the referenced object.
 	 */
 
 	uint16_t                _referencedPropertyIndex;
 
 
 	/**
-	 *	The property id of the #_identification field
-	 *	@TODO Understand that field..
+	 * The property id of the #_identification field
+	 * @TODO Understand that field..
 	 */
 
 	aafPID_t                _identificationPid;
 
 
 	/**
-	 *	The length, in bytes, of the #_identification field.
+	 * The length, in bytes, of the #_identification field.
 	 */
 
 	uint8_t                 _identificationSize;
 
 
 	/**
-	 *	The type of the #_identification field varies from one instance
-	 *	of a WeakObjectReference to another. The #_identification field
-	 *	uniquely identifies the object within the target set.
+	 * The type of the #_identification field varies from one instance
+	 * of a WeakObjectReference to another. The #_identification field
+	 * uniquely identifies the object within the target set.
 	 */
 
 	aafByte_t               _identification[];
@@ -790,49 +803,48 @@ typedef struct _WeakObjectReference
 } /* __attribute__((packed)) */ aafWeakRef_t;
 
 
+
 /**
- *	An ordered collection of aafWeakRef_t. The aafWeakRefHeader_t
- *	is common to weak reference Set and Vector.
+ * An ordered collection of aafWeakRef_t. The aafWeakRefHeader_t
+ * is common to weak reference Set and Vector.
  *
  */
+
 typedef struct _WeakReferenceIndexHeader
 {
 	/**
-	 *	The number of aafWeakRef_t structs that follow.
+	 * The number of aafWeakRef_t structs that follow.
 	 */
 
 	uint32_t               _entryCount;
 
 
 	/**
-	 *	The index into the referenced property table of
-	 *	the path to the property (a strong reference set)
-	 *	containing the referenced object.
-	 *	@TODO Understand that field..
+	 * The index into the referenced property table of
+	 * the path to the property (a strong reference set)
+	 * containing the referenced object.
+	 * @TODO Understand that field..
 	 */
 
 	uint16_t               _referencedPropertyIndex;
 
 
 	/**
-	 *	The property id of each aafStrongRefSetEntry_t._identification field.
-	 *	@TODO Understand that field..
+	 * The property id of each aafStrongRefSetEntry_t._identification field.
+	 * @TODO Understand that field..
 	 */
 
 	uint16_t               _identificationPid;
 
 
 	/**
-	 *	The length, in bytes, of each aafWeakRef_t._identification
-	 *	field.
+	 * The length, in bytes, of each aafWeakRef_t._identification
+	 * field.
 	 */
 
 	uint8_t                _identificationSize;
 
 } /* __attribute__((packed)) */ aafWeakRefHeader_t;
-
-
-
 
 
 

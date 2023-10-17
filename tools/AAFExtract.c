@@ -88,11 +88,11 @@ int main( int argc, char *argv[] )
 
 	const struct option longopts[] = {
 
-    { "help",            no_argument,       0, 'h' },
+		{ "help",            no_argument,       0, 'h' },
 
 		{ "output-path",     required_argument, 0, 'p' },
 		{ "no-nonlatin",     required_argument, 0, 'n' },
-    { "file",            required_argument, 0, 'f' },
+		{ "file",            required_argument, 0, 'f' },
 	};
 
 	int c = 0;
@@ -101,23 +101,23 @@ int main( int argc, char *argv[] )
 
 		switch (c) {
 
-      case 'h':
-        showHelp();
-        break;
+			case 'h':
+				showHelp();
+				break;
 
-      case 'p':
-        output_path = c99strdup(optarg);
-        break;
+			case 'p':
+				output_path = c99strdup(optarg);
+				break;
 
 			case 'n':
 				no_nonlatin = 1;
 				break;
 
-      case 'f':
+			case 'f':
 				aaf_file = c99strdup(optarg);
-        break;
+				break;
 
-      default:
+			default:
 				printf( "Error: unrecognized option. See --help for usage information.\n" );
 				return 1;
 		}

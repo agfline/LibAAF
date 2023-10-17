@@ -19,10 +19,10 @@
  */
 
 /**
- *	@brief AAF core functions.
- *	@author Adrien Gesta-Fline
- *	@version 0.1
- *	@date 04 october 2017
+ * @brief AAF core functions.
+ * @author Adrien Gesta-Fline
+ * @version 0.1
+ * @date 04 october 2017
  */
 
 
@@ -32,7 +32,6 @@
 #include <errno.h>
 
 #include <libaaf/AAFTypes.h>
-#include "AAFClass.h"
 #include <libaaf/AAFCore.h>
 #include <libaaf/AAFToText.h>
 
@@ -41,6 +40,8 @@
 #include  <libaaf/AAFDefs/AAFTypeDefUIDs.h>
 
 #include <libaaf/debug.h>
+
+#include "AAFClass.h"
 
 
 #define debug( ... ) \
@@ -70,7 +71,6 @@
 
 
 
-
 int classExists( AAF_Data *aafd, aafUID_t *ClassID )
 {
 	aafClass *Class = NULL;
@@ -87,25 +87,23 @@ int classExists( AAF_Data *aafd, aafUID_t *ClassID )
 
 
 
-
 /**
- *	Allocates and initializes a new aafClass structure, adds it
- *	to the aafd->class  list and returns a pointer to the newly
- *	allocated Class.
+ * Allocates and initializes a new aafClass structure, adds it
+ * to the aafd->class  list and returns a pointer to the newly
+ * allocated Class.
  *
- *	@param  aafd       pointer to the AAF_Data structure.
- *	@param  id         pointer to the ClassID.
- *	@param  isConcrete boolean to set the Class as either an ABSTRACT or a CONCRETE Class.
- *	@param  parent     pointer to the parent Class.
- *	@return            pointer to the newly allocated aafClass.
+ * @param  aafd       pointer to the AAF_Data structure.
+ * @param  id         pointer to the ClassID.
+ * @param  isConcrete boolean to set the Class as either an ABSTRACT or a CONCRETE Class.
+ * @param  parent     pointer to the parent Class.
+ * @return            pointer to the newly allocated aafClass.
  */
 
 aafClass * defineNewClass( AAF_Data *aafd, const aafUID_t *id, uint8_t isConcrete, aafClass *parent )
 {
 	aafClass *Class = malloc( sizeof(aafClass) );
 
-	if ( Class == NULL )
-	{
+	if ( Class == NULL ) {
 		error( "%s.", strerror( errno ) );
 		return NULL;
 	}
@@ -126,13 +124,12 @@ aafClass * defineNewClass( AAF_Data *aafd, const aafUID_t *id, uint8_t isConcret
 
 
 
-
 /**
- *	Retrieve an aafClass for a given ClassID.
+ * Retrieve an aafClass for a given ClassID.
  *
- *	@param  aafd pointer to the AAF_Data structure.
- *	@param  id   pointer to the ClassID to search for.
- *	@return      pointer to the retrieved aafClass structure, or NULL if not found.
+ * @param  aafd pointer to the AAF_Data structure.
+ * @param  id   pointer to the ClassID to search for.
+ * @return      pointer to the retrieved aafClass structure, or NULL if not found.
  */
 
 aafClass * getClassByID( AAF_Data *aafd, const aafUID_t *id )
@@ -148,17 +145,14 @@ aafClass * getClassByID( AAF_Data *aafd, const aafUID_t *id )
 
 
 
-
-
-
-aafPropertyDef * getPropertyDefinitionByID( aafClass *Classes, aafPID_t PID )
+aafPropertyDef * getPropertyDefinitionByID( aafClass *Classes, aafPID_t pid )
 {
 	aafClass       *Class = NULL;
 	aafPropertyDef *PDef  = NULL;
 
 	foreachClassInheritance( Class, Classes )
 		foreachPropertyDefinition( PDef, Class->Properties )
-			if ( PDef->pid == PID )
+			if ( PDef->pid == pid )
 				return PDef;
 
 	return NULL;
@@ -167,15 +161,15 @@ aafPropertyDef * getPropertyDefinitionByID( aafClass *Classes, aafPID_t PID )
 
 
 /**
- *	Defines each Class with its properties according to
- *	the standard. All the Classes are then hold by the
- *	AAF_Data.Class list.
+ * Defines each Class with its properties according to
+ * the standard. All the Classes are then hold by the
+ * AAF_Data.Class list.
  *
- *	We define the Classes at runtime, so we can later
- *	add any custom class defined in the MetaDictionary.
- *	This is not yet implemented though.
+ * We define the Classes at runtime, so we can later
+ * add any custom class defined in the MetaDictionary.
+ * This is not yet implemented though.
  *
- *	@param aafd The AAF_Data struct pointer.
+ * @param aafd The AAF_Data struct pointer.
  */
 int setDefaultClasses( AAF_Data *aafd )
 {
@@ -412,8 +406,6 @@ int setDefaultClasses( AAF_Data *aafd )
 	if ( TextLocator == NULL ) { return -1; }
 
 	attachNewProperty( aafd, TextLocator,      prop, PID_TextLocator_Name,                                      PROP_REQ );
-
-
 
 
 

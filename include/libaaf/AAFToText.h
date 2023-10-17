@@ -18,6 +18,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifndef __AAFToText_h__
+#define __AAFToText_h__
+
 #include <stdio.h>
 #include <wchar.h>
 
@@ -26,11 +29,9 @@
 #include <libaaf/LibCFB.h>
 
 
-// typedef struct AAF_Data AAF_Data;
-
 
 #define AUIDToText( auid ) \
-    CLSIDToText( (const cfbCLSID_t*)auid )
+	CLSIDToText( (const cfbCLSID_t*)auid )
 
 
 const wchar_t * MobIDToText( aafMobID_t *mobid );
@@ -40,7 +41,6 @@ const wchar_t * TimestampToText( aafTimeStamp_t *ts );
 const wchar_t * VersionToText( aafVersionType_t *vers );
 
 const wchar_t * ProductVersionToText( aafProductVersion_t *vers );
-
 
 const wchar_t * FileKindToText( const aafUID_t *auid );
 
@@ -100,8 +100,6 @@ const wchar_t * ColorPrimariesToText( const aafUID_t *auid );
 
 const wchar_t * UsageCodeToText( const aafUID_t *auid );
 
-// const wchar_t * StoredFormToText( uint16_t sf );
-
 const wchar_t * PIDToText( AAF_Data *aafd, aafPID_t pid );
 
 const wchar_t * ClassIDToText( AAF_Data *aafd, const aafUID_t *auid );
@@ -109,3 +107,6 @@ const wchar_t * ClassIDToText( AAF_Data *aafd, const aafUID_t *auid );
 const wchar_t * ContainerToText( const aafUID_t *auid );
 
 const wchar_t * CompressionToText( const aafUID_t *auid );
+
+
+#endif // !__AAFToText_h__

@@ -22,10 +22,10 @@
 #define __AAFClass_h__
 
 /**
- *	@brief AAF core functions.
- *	@author Adrien Gesta-Fline
- *	@version 0.1
- *	@date 04 october 2017
+ * @brief AAF core functions.
+ * @author Adrien Gesta-Fline
+ * @version 0.1
+ * @date 04 october 2017
  */
 
 #include <stdio.h>

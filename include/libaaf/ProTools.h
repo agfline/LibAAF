@@ -21,7 +21,9 @@
 #ifndef __ProTools_h__
 #define __ProTools_h__
 
-struct AAF_Iface;
+#include <libaaf/AAFIface.h>
+#include <libaaf/AAFIParser.h>
+
 
 enum protools_options {
   PROTOOLS_REMOVE_SAMPLE_ACCURATE_EDIT = 1<<0,
@@ -32,6 +34,7 @@ enum protools_options {
 
 
 int protools_AAF( struct AAF_Iface *aafi );
+
 int protools_post_processing( AAF_Iface *aafi );
 
 #endif // ! __ProTools_h__
