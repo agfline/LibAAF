@@ -387,6 +387,8 @@ int main( int argc, char *argv[] )
 
 	aafi_set_debug( aafi, verb, stdout, NULL, NULL );
 
+	aafi_enable_windows_VT100_output();
+
 	aafi->ctx.options.verb = verb;
 	aafi->ctx.options.trace = trace;
 	aafi->ctx.options.trace_meta = trace_meta;

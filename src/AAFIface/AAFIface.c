@@ -129,6 +129,8 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 
 
 
+void aafi_enable_windows_VT100_output( void )
+{
 #ifdef _WIN32
 	/* enables ANSI colors and unicode chars */
 	HANDLE hOut = GetStdHandle( STD_OUTPUT_HANDLE );

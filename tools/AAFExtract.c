@@ -128,6 +128,8 @@ int main( int argc, char *argv[] )
 
 	aafi_set_debug( aafi, VERB_DEBUG, stdout, NULL, NULL );
 
+	aafi_enable_windows_VT100_output();
+
 	aafi->ctx.options.verb = VERB_DEBUG;
 	aafi->ctx.options.trace = 1;
 	aafi->ctx.options.forbid_nonlatin_filenames = no_nonlatin;
