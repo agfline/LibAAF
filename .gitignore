@@ -2,6 +2,7 @@
 counter.sh
 ardour/
 ardour_old/
+old/
 test/private_aaf
 include/libaaf/version.h
 AAF Structure.md
