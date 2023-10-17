@@ -130,8 +130,6 @@ static void cfb_closeFile( CFB_Data *cfbd );
 
 static int cfb_is_valid( CFB_Data *cfbd );
 
-
-
 static int cfb_retrieveFileHeader( CFB_Data *cfbd );
 
 static int cfb_retrieveDiFAT( CFB_Data *cfbd );
@@ -142,11 +140,7 @@ static int cfb_retrieveMiniFAT( CFB_Data * cfbd );
 
 static int cfb_retrieveNodes( CFB_Data *cfbd );
 
-
-
 static cfbSID_t getNodeCount( CFB_Data *cfbd );
-
-
 
 static cfbSID_t cfb_getIDByNode( CFB_Data *cfbd, cfbNode *node );
 
