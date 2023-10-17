@@ -377,6 +377,12 @@ int main( int argc, char *argv[] )
 	// aafd = aaf_alloc( NULL );
 
 	aafi = aafi_alloc( NULL );
+
+	if ( !aafi ) {
+		fprintf( stderr, "Failed to init AAF_Iface context.\n" );
+		goto err;
+	}
+
 	aafd = aafi->aafd;
 
 	aafi_set_debug( aafi, verb, stdout, NULL, NULL );
