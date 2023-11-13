@@ -633,7 +633,7 @@ typedef struct _aafData
 
 #define aafUIDCmp( auid1, auid2 ) \
 	( (auid1) != NULL && \
-	  (auid2) != NULL && \
+	  ((auid2)) != NULL && \
 	  (auid1)->Data1 == (auid2)->Data1 && \
 	  (auid1)->Data2 == (auid2)->Data2 && \
 	  (auid1)->Data3 == (auid2)->Data3 && \
