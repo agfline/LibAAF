@@ -50,7 +50,7 @@ extern "C" {
 
 
 #define IS_DIR_SEP(c) \
-	( (c) == DIR_SEP || (c) == '/' )
+	(( ((c) == DIR_SEP) || ((c) == '/') ))
 
 
 #define ANSI_COLOR_RED      "\033[38;5;124m" //"\x1b[31m"
