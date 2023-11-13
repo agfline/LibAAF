@@ -23,9 +23,7 @@
 
 #include <wchar.h>
 
-struct AAF_Iface;
-struct aafiAudioEssence;
-
+#include <libaaf/AAFIface.h>
 
 char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_file_path, const char *search_location );
 
