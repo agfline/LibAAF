@@ -73,21 +73,21 @@ typedef struct trace_dump {
 
 
 #define DUMP_OBJ( aafi, Obj, __td ) \
-	_DUMP_OBJ( aafi, Obj, __td, TD_OK, __LINE__, "" );
+	aafi_dump_obj( aafi, Obj, __td, TD_OK, __LINE__, "" );
 
 #define DUMP_OBJ_INFO( aafi, Obj, __td, ... ) \
-	_DUMP_OBJ( aafi, Obj, __td, TD_OK, __LINE__, __VA_ARGS__ );
+	aafi_dump_obj( aafi, Obj, __td, TD_OK, __LINE__, __VA_ARGS__ );
 
 #define DUMP_OBJ_WARNING( aafi, Obj, __td, ... ) \
-	_DUMP_OBJ( aafi, Obj, __td, TD_WARNING, __LINE__, __VA_ARGS__ );
+	aafi_dump_obj( aafi, Obj, __td, TD_WARNING, __LINE__, __VA_ARGS__ );
 
 #define DUMP_OBJ_ERROR( aafi, Obj, __td, ... ) \
 	(__td)->eob = 1; \
-	_DUMP_OBJ( aafi, Obj, __td, TD_ERROR, __LINE__, __VA_ARGS__ );
+	aafi_dump_obj( aafi, Obj, __td, TD_ERROR, __LINE__, __VA_ARGS__ );
 
 #define DUMP_OBJ_NO_SUPPORT( aafi, Obj, __td ) \
 	(__td)->eob = 1; \
-	_DUMP_OBJ_NO_SUPPORT( aafi, Obj, __td, __LINE__ );
+	aafi_dump_obj_no_support( aafi, Obj, __td, __LINE__ );
 
 
 
@@ -99,14 +99,14 @@ int aafi_retrieveData( AAF_Iface *aafi );
  * so they are accessible to vendor-specific files (Resolve.c, ProTools.c, etc.)
  */
 
-void _DUMP_OBJ( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int state, int line, const char *fmt, ... );
+void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int state, int line, const char *fmt, ... );
 
-void _DUMP_OBJ_NO_SUPPORT( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int line );
+void aafi_dump_obj_no_support( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, int line );
 
-void trace_obj( AAF_Iface *aafi, aafObject *Obj, const char *color );
+void aafi_trace_obj( AAF_Iface *aafi, aafObject *Obj, const char *color );
 
 
-int parse_Segment( AAF_Iface *aafi, aafObject *Segment, td *__ptd );
+int aafi_parse_Segment( AAF_Iface *aafi, aafObject *Segment, td *__ptd );
 
 
 #endif // !__AAFIParser_h__

@@ -77,7 +77,7 @@ static size_t externalAudioDataReaderCallback( unsigned char *buf, size_t offset
 
 
 
-char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_uri_filepath, const char *search_location )
+char * aafi_locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_uri_filepath, const char *search_location )
 {
 	/*
 	 * Absolute Uniform Resource Locator (URL) complying with RFC 1738 or relative
@@ -123,7 +123,7 @@ char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_ur
 
 	if ( search_location ) {
 
-		local_filepath = build_path( DIR_SEP_STR, search_location, fop_get_file(uri_filepath), NULL );
+		local_filepath = laaf_util_build_path( DIR_SEP_STR, search_location, laaf_util_fop_get_file(uri_filepath), NULL );
 
 		if ( local_filepath == NULL ) {
 			error( "Could not build search filepath" );
@@ -220,7 +220,7 @@ char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_ur
 
 	/* extract path to AAF file */
 
-	aaf_path = c99strdup( aafi->aafd->cfbd->file );
+	aaf_path = laaf_util_c99strdup( aafi->aafd->cfbd->file );
 
 	if ( aaf_path == NULL ) {
 		error( "Could not duplicate AAF filepath" );
@@ -238,7 +238,7 @@ char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_ur
 	}
 
 
-	local_filepath = build_path( DIR_SEP_STR, aaf_path, relativeEssencePath, NULL );
+	local_filepath = laaf_util_build_path( DIR_SEP_STR, aaf_path, relativeEssencePath, NULL );
 
 	if ( local_filepath == NULL ) {
 		error( "Could not build filepath" );
@@ -256,7 +256,7 @@ char * locate_external_essence_file( AAF_Iface *aafi, const wchar_t *original_ur
 	// debug("File not found");
 
 found:
-	retpath = c99strdup( retpath );
+	retpath = laaf_util_c99strdup( retpath );
 	goto end;
 
 err:
@@ -357,7 +357,7 @@ int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence,
 	}
 
 
-	filepath = build_path( DIR_SEP_STR, outfilepath, clean_filename(filename), NULL );
+	filepath = laaf_util_build_path( DIR_SEP_STR, outfilepath, laaf_util_clean_filename(filename), NULL );
 
 	if ( filepath == NULL ) {
 		error( "Could not build filepath" );
@@ -447,9 +447,9 @@ end:
 
 
 
-int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
+int aafi_parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 {
-	// dump_hex( audioEssence->summary->val, audioEssence->summary->len );
+	// laaf_util_dump_hex( audioEssence->summary->val, audioEssence->summary->len );
 
 	int rc = 0;
 	char *externalFilePath = NULL;
@@ -476,7 +476,7 @@ int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 		 *	______________________________________________________________________
 		 */
 
-		// dump_hex( audioEssence->summary->val, audioEssence->summary->len );
+		// laaf_util_dump_hex( audioEssence->summary->val, audioEssence->summary->len );
 
 
 		rc = riff_parseAudioFile( &RIFFAudioFile, RIFF_PARSE_ONLY_HEADER, &embeddedAudioDataReaderCallback, audioEssence->summary->val, &audioEssence->summary->len, aafi, aafi->dbg );
@@ -490,7 +490,7 @@ int parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 
 		/* TODO: can external essence have audioEssence->summary too ? If mp3 (Resolve 18.5.aaf) ? */
 
-		externalFilePath = locate_external_essence_file( aafi, audioEssence->original_file_path, aafi->ctx.options.media_location );
+		externalFilePath = aafi_locate_external_essence_file( aafi, audioEssence->original_file_path, aafi->ctx.options.media_location );
 
 		if ( externalFilePath == NULL ) {
 			error( "Could not locate external audio essence file '%ls'", audioEssence->original_file_path );

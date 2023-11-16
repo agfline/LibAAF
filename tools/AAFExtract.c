@@ -29,7 +29,7 @@
 
 #include <libaaf.h>
 
-#include "../src/common/utils.h" // ANSI colors, c99strdup()
+#include "../src/common/utils.h" // ANSI colors, laaf_util_c99strdup()
 
 
 static void showHelp( void ) {
@@ -106,7 +106,7 @@ int main( int argc, char *argv[] )
 				break;
 
 			case 'p':
-				output_path = c99strdup(optarg);
+				output_path = laaf_util_c99strdup(optarg);
 				break;
 
 			case 'n':
@@ -114,7 +114,7 @@ int main( int argc, char *argv[] )
 				break;
 
 			case 'f':
-				aaf_file = c99strdup(optarg);
+				aaf_file = laaf_util_c99strdup(optarg);
 				break;
 
 			default:

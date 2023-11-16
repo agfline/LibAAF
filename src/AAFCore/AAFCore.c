@@ -186,7 +186,7 @@ static void setObjectShortcuts( AAF_Data *aafd );
  * and then parses the rest of the Tree starting at Root::Header.
  *
  * This function should be called after the AAF Classes has been defined by
- * #setDefaultClasses(). This function is called by aaf_load_file().
+ * #aafclass_setDefaultClasses(). This function is called by aaf_load_file().
  *
  * @param  aafd   Pointer to the AAF_Data structure.
  */
@@ -455,7 +455,7 @@ AAF_Data *aaf_alloc( struct dbg *dbg )
 
 	aafd->Classes = NULL;
 	aafd->Objects = NULL;
-	// aafd->debug_callback = &debug_callback;
+	// aafd->debug_callback = &laaf_debug_callback;
 	aafd->dbg = dbg;
 
 
@@ -495,7 +495,7 @@ int aaf_load_file( AAF_Data *aafd, const char *file )
 	// 	return 1;
 	// }
 
-	if ( setDefaultClasses( aafd ) < 0 ) {
+	if ( aafclass_setDefaultClasses( aafd ) < 0 ) {
 		return -1;
 	}
 
@@ -613,7 +613,7 @@ void aaf_release( AAF_Data **aafd )
 
 	/* free once in AAFIface */
 	// if ( (*aafd)->dbg ) {
-	// 	free_debug( (*aafd)->dbg );
+	// 	laaf_free_debug( (*aafd)->dbg );
 	// }
 
 	free( *aafd );
@@ -791,17 +791,17 @@ aafProperty * aaf_get_property( aafObject *Obj, aafPID_t pid )
 
 	if ( Prop == NULL ) {
 
-		aafPropertyDef *PDef = getPropertyDefinitionByID( Obj->Class, pid );
+		aafPropertyDef *PDef = aafclass_getPropertyDefinitionByID( Obj->Class, pid );
 
 		if ( PDef == NULL ) {
-			warning( "Unknown property 0x%04x (%ls) of Class %ls", pid, PIDToText( aafd, pid ), ClassIDToText(aafd, Obj->Class->ID) );
+			warning( "Unknown property 0x%04x (%ls) of Class %ls", pid, aaft_PIDToText( aafd, pid ), aaft_ClassIDToText(aafd, Obj->Class->ID) );
 			return NULL;
 		}
 
 		if ( PDef->isReq ) {
-			error( "Could not retrieve %ls required property 0x%04x (%ls)", ClassIDToText(aafd, Obj->Class->ID), pid, PIDToText(aafd, pid) );
+			error( "Could not retrieve %ls required property 0x%04x (%ls)", aaft_ClassIDToText(aafd, Obj->Class->ID), pid, aaft_PIDToText(aafd, pid) );
 		} else {
-			debug( "Could not retrieve %ls optional property 0x%04x (%ls)", ClassIDToText(aafd, Obj->Class->ID), pid, PIDToText(aafd, pid) );
+			debug( "Could not retrieve %ls optional property 0x%04x (%ls)", aaft_ClassIDToText(aafd, Obj->Class->ID), pid, aaft_PIDToText(aafd, pid) );
 		}
 	}
 
@@ -838,7 +838,7 @@ void * aaf_get_propertyValue( aafObject *Obj, aafPID_t pid, const aafUID_t *type
 	if ( aafUIDCmp( typeID, &AAFTypeID_String ) ) {
 
 		if ( ((uint16_t*)value)[(len/2)-1] != 0x0000 ) {
-			error( "Object %ls string property 0x%04x (%ls) does not end with NULL", ClassIDToText(aafd, Obj->Class->ID), pid, PIDToText(aafd, pid) );
+			error( "Object %ls string property 0x%04x (%ls) does not end with NULL", aaft_ClassIDToText(aafd, Obj->Class->ID), pid, aaft_PIDToText(aafd, pid) );
 			return NULL;
 		}
 
@@ -856,7 +856,7 @@ void * aaf_get_propertyValue( aafObject *Obj, aafPID_t pid, const aafUID_t *type
 		aafIndirect_t *Indirect = value;
 
 		if ( aafUIDCmp( &Indirect->TypeDef, &AAFTypeID_String ) && ((uint16_t*)value)[(len/2)-1] != 0x0000 ) {
-			error( "Object %ls Indirect::string property 0x%04x (%ls) does not end with NULL", ClassIDToText(aafd, Obj->Class->ID), pid, PIDToText(aafd, pid) );
+			error( "Object %ls Indirect::string property 0x%04x (%ls) does not end with NULL", aaft_ClassIDToText(aafd, Obj->Class->ID), pid, aaft_PIDToText(aafd, pid) );
 			return NULL;
 		}
 	}
@@ -880,7 +880,7 @@ void * aaf_get_propertyValue( aafObject *Obj, aafPID_t pid, const aafUID_t *type
 	     ( aafUIDCmp( typeID, &AAFTypeID_AUID )            && len != sizeof(aafUID_t)            ) ||
 	     ( aafUIDCmp( typeID, &AAFTypeID_MobIDType )       && len != sizeof(aafMobID_t)          ) )
 	{
-		error( "Object %ls property 0x%04x (%ls) size (%u) does not match type %ls", ClassIDToText(aafd, Obj->Class->ID), pid, PIDToText(aafd, pid), len, TypeIDToText(typeID) );
+		error( "Object %ls property 0x%04x (%ls) size (%u) does not match type %ls", aaft_ClassIDToText(aafd, Obj->Class->ID), pid, aaft_PIDToText(aafd, pid), len, aaft_TypeIDToText(typeID) );
 		return NULL;
 	}
 
@@ -897,7 +897,7 @@ void * aaf_get_indirectValue( AAF_Data *aafd, aafIndirect_t *Indirect, const aaf
 	}
 
 	if ( typeDef && aafUIDCmp( &Indirect->TypeDef, typeDef ) == 0 ) {
-		error( "Requested Indirect value of type %ls but has type %ls", TypeIDToText(typeDef), TypeIDToText(&Indirect->TypeDef) );
+		error( "Requested Indirect value of type %ls but has type %ls", aaft_TypeIDToText(typeDef), aaft_TypeIDToText(&Indirect->TypeDef) );
 		return NULL;
 	}
 
@@ -1102,7 +1102,7 @@ static int parse_Identification( AAF_Data *aafd )
 // 		 aafUIDCmp( hdrClsID, &AAFFileKind_Aaf4KBinary  ) )
 // 			return 1;
 //
-// //  warning( "Unsuported AAF encoding (%ls).", FileKindToText( hdrClsID ) );
+// //  warning( "Unsuported AAF encoding (%ls).", aaft_FileKindToText( hdrClsID ) );
 //
 // 	return 0;
 // }
@@ -1147,11 +1147,11 @@ static int retrieveObjectTree( AAF_Data *aafd )
 
 	cfbNode *Node = &aafd->cfbd->nodes[0];
 
-	aafClass *Class = getClassByID( aafd, (aafUID_t*)&Node->_clsId );
+	aafClass *Class = aafclass_getClassByID( aafd, (aafUID_t*)&Node->_clsId );
 
 
 	if ( Class == NULL && aafUIDCmp( Class->ID, (aafUID_t*)&Node->_clsId ) != 0 ) {
-		error( "Looks like the fist Object is not the Root Class : %ls.", ClassIDToText( aafd, Class->ID ) );
+		error( "Looks like the fist Object is not the Root Class : %ls.", aaft_ClassIDToText( aafd, Class->ID ) );
 		goto err;
 	}
 
@@ -1206,14 +1206,14 @@ static int retrieveObjectTree( AAF_Data *aafd )
 		}
 	}
 
-	PDef = getPropertyDefinitionByID( aafd->Root->Class, PID_Root_MetaDictionary );
+	PDef = aafclass_getPropertyDefinitionByID( aafd->Root->Class, PID_Root_MetaDictionary );
 
 	/* Start recursive parsing of /Root/Header/{*} */
 
 	rc = retrieveProperty( aafd, aafd->Root, PDef, &AAFMetaDcProp, AAFMetaDcVal, Header._byteOrder );
 
 	if ( rc < 0 ) {
-		error( "Could not retrieve property %ls.", PIDToText( aafd, PDef->pid ) );
+		error( "Could not retrieve property %ls.", aaft_PIDToText( aafd, PDef->pid ) );
 		goto err;
 	}
 
@@ -1245,14 +1245,14 @@ static int retrieveObjectTree( AAF_Data *aafd )
 	}
 
 
-	PDef = getPropertyDefinitionByID( aafd->Root->Class, PID_Root_Header );
+	PDef = aafclass_getPropertyDefinitionByID( aafd->Root->Class, PID_Root_Header );
 
 	/* Starts recursive parsing of /Root/Header/{*} */
 
 	rc = retrieveProperty( aafd, aafd->Root, PDef, &AAFHeaderProp, AAFHeaderVal, Header._byteOrder );
 
 	if ( rc < 0 ) {
-		error( "Could not retrieve property %ls.", PIDToText( aafd, PDef->pid ) );
+		error( "Could not retrieve property %ls.", aaft_PIDToText( aafd, PDef->pid ) );
 		goto err;
 	}
 
@@ -1317,12 +1317,12 @@ static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *Target
 		/*
 		 * TODO: what is this ? when does it happen ?
 		 */
-		error( "Parent's Class equals Child's : %ls.", ClassIDToText( aafd, ClassID ) );
+		error( "Parent's Class equals Child's : %ls.", aaft_ClassIDToText( aafd, ClassID ) );
 		return NULL;
 	}
 
 
-	aafClass *Class = getClassByID( aafd, ClassID );
+	aafClass *Class = aafclass_getClassByID( aafd, ClassID );
 
 	if ( Class == NULL ) {
 
@@ -1333,7 +1333,7 @@ static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *Target
 			return NULL;
 		}
 
-		Class = defineNewClass( aafd, ClassID, *isCon, ParentClass );
+		Class = aafclass_defineNewClass( aafd, ClassID, *isCon, ParentClass );
 
 		Class->name = aaf_get_propertyValue( ClassDef, PID_MetaDefinition_Name, &AAFTypeID_String );
 		Class->meta = 1;
@@ -1366,7 +1366,7 @@ static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *Target
 		}
 
 		/*
-		 * We skip all the properties that were already defined in setDefaultClasses().
+		 * We skip all the properties that were already defined in aafclass_setDefaultClasses().
 		 */
 
 		aafPropertyDef *PDef = NULL;
@@ -1427,7 +1427,7 @@ static aafClass * retrieveMetaDictionaryClass( AAF_Data *aafd, aafObject *Target
 		// debug( "TypeName :  %ls (%ls) |  name : %ls.",
 		// // AUIDToText(typeUID),
 		// 	typeName,
-		// 	TypeIDToText( typeUID ),
+		// 	aaft_TypeIDToText( typeUID ),
 		// 	PDef->name );
 		//
 		// free( typeName );
@@ -1587,10 +1587,10 @@ static int retrieveStrongReference( AAF_Data *aafd, aafProperty *Prop, aafObject
 	}
 
 
-	aafClass *Class = getClassByID( aafd, (aafUID_t*)&Node->_clsId );
+	aafClass *Class = aafclass_getClassByID( aafd, (aafUID_t*)&Node->_clsId );
 
 	if ( Class == NULL ) {
-		error( "Could not retrieve Class %ls @ \"%ls\".", ClassIDToText( aafd, (aafUID_t*)&Node->_clsId ), aaf_get_ObjectPath( Parent ) );
+		error( "Could not retrieve Class %ls @ \"%ls\".", aaft_ClassIDToText( aafd, (aafUID_t*)&Node->_clsId ), aaf_get_ObjectPath( Parent ) );
 		return -1;
 	}
 
@@ -1662,10 +1662,10 @@ static int retrieveStrongReferenceSet( AAF_Data *aafd, aafProperty *Prop, aafObj
 			continue;
 		}
 
-		aafClass *Class = getClassByID( aafd, (aafUID_t*)&Node->_clsId );
+		aafClass *Class = aafclass_getClassByID( aafd, (aafUID_t*)&Node->_clsId );
 
 		if ( Class == NULL ) {
-			error( "Could not retrieve Class %ls.", ClassIDToText( aafd, (aafUID_t*)&Node->_clsId ) );
+			error( "Could not retrieve Class %ls.", aaft_ClassIDToText( aafd, (aafUID_t*)&Node->_clsId ) );
 			continue;
 		}
 
@@ -1752,10 +1752,10 @@ static int retrieveStrongReferenceVector( AAF_Data *aafd, aafProperty *Prop, aaf
 			continue;
 		}
 
-		aafClass * Class = getClassByID( aafd, (aafUID_t*)&Node->_clsId );
+		aafClass * Class = aafclass_getClassByID( aafd, (aafUID_t*)&Node->_clsId );
 
 		if ( Class == NULL ) {
-			warning( "Could not retrieve Class ID %ls.", ClassIDToText( aafd, (aafUID_t*)&Node->_clsId ) );
+			warning( "Could not retrieve Class ID %ls.", aaft_ClassIDToText( aafd, (aafUID_t*)&Node->_clsId ) );
 			continue;
 		}
 
@@ -1873,7 +1873,7 @@ static int retrieveObjectProperties( AAF_Data *aafd, aafObject *Obj )
 	aafByte_t *propStream = getNodeProperties( aafd, Obj->Node );
 
 	if ( propStream == NULL ) {
-		error( "Could not retrieve object %ls properties : %ls", ClassIDToText(aafd, Obj->Class->ID), aaf_get_ObjectPath( Obj ) );
+		error( "Could not retrieve object %ls properties : %ls", aaft_ClassIDToText(aafd, Obj->Class->ID), aaf_get_ObjectPath( Obj ) );
 		goto err;
 	}
 
@@ -1892,17 +1892,17 @@ static int retrieveObjectProperties( AAF_Data *aafd, aafObject *Obj )
 
 	foreachPropertyEntry( propStream, Header, Prop, value, valueOffset, i ) {
 
-		PDef = getPropertyDefinitionByID( Obj->Class, Prop._pid );
+		PDef = aafclass_getPropertyDefinitionByID( Obj->Class, Prop._pid );
 
 		if ( PDef == NULL ) {
-			warning( "Unknown property 0x%04x (%ls) of object %ls", Prop._pid, PIDToText( aafd, Prop._pid ), ClassIDToText(aafd, Obj->Class->ID) );
+			warning( "Unknown property 0x%04x (%ls) of object %ls", Prop._pid, aaft_PIDToText( aafd, Prop._pid ), aaft_ClassIDToText(aafd, Obj->Class->ID) );
 			continue;
 		}
 
 		rc = retrieveProperty( aafd, Obj, PDef, &Prop, value, Header._byteOrder );
 
 		if ( rc < 0 ) {
-			error( "Could not retrieve property %ls of object %ls", PIDToText( aafd, PDef->pid ), ClassIDToText(aafd, Obj->Class->ID) );
+			error( "Could not retrieve property %ls of object %ls", aaft_PIDToText( aafd, PDef->pid ), aaft_ClassIDToText(aafd, Obj->Class->ID) );
 			goto err;
 		}
 	}

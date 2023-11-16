@@ -66,21 +66,21 @@ extern "C" {
 
 
 
-int wstr_contains_nonlatin( const wchar_t *str );
+int laaf_util_wstr_contains_nonlatin( const wchar_t *str );
 
-char * clean_filename( char *filename );
+char * laaf_util_clean_filename( char *filename );
 
-const char * fop_get_file( const char *filepath );
+const char * laaf_util_fop_get_file( const char *filepath );
 
-char * build_path( const char *sep, const char *first, ... );
+char * laaf_util_build_path( const char *sep, const char *first, ... );
 
-int snprintf_realloc( char **str, int *size, size_t offset, const char *format, ... );
+int laaf_util_snprintf_realloc( char **str, int *size, size_t offset, const char *format, ... );
 
-int vsnprintf_realloc( char **str, int *size, int offset, const char *fmt, va_list *args );
+int laaf_util_vsnprintf_realloc( char **str, int *size, int offset, const char *fmt, va_list *args );
 
-char * c99strdup( const char *src );
+char * laaf_util_c99strdup( const char *src );
 
-int dump_hex( const unsigned char *stream, size_t stream_sz, char **buf, int *bufsz, int offset );
+int laaf_util_dump_hex( const unsigned char *stream, size_t stream_sz, char **buf, int *bufsz, int offset );
 
 
 #ifdef __cplusplus

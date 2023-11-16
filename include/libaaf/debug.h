@@ -89,11 +89,11 @@ struct dbg {
 
 
 
-struct dbg * new_debug( void );
+struct dbg * laaf_new_debug( void );
 
-void free_debug( struct dbg *dbg );
+void laaf_free_debug( struct dbg *dbg );
 
-void debug_callback( struct dbg *dbg, void *ctxdata, int lib, int type, const char *srcfile, const char *srcfunc, int lineno, const char *msg, void *user );
+void laaf_debug_callback( struct dbg *dbg, void *ctxdata, int lib, int type, const char *srcfile, const char *srcfunc, int lineno, const char *msg, void *user );
 
 
 #endif // !__debug_h__

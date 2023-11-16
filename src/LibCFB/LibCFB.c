@@ -149,7 +149,7 @@ static cfbSID_t cfb_getIDByNode( CFB_Data *cfbd, cfbNode *node );
 
 
 
-const wchar_t * CLSIDToText( const cfbCLSID_t *clsid )
+const wchar_t * cfb_CLSIDToText( const cfbCLSID_t *clsid )
 {
 	static wchar_t str[96];
 
@@ -1256,7 +1256,7 @@ cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const wchar_t *path, cfbSID_t id )
 			return NULL;
 		}
 
-		// dump_hex( cfbd->nodes[id]->_ab, cfbd->nodes[id]->_cb );
+		// laaf_util_dump_hex( cfbd->nodes[id]->_ab, cfbd->nodes[id]->_cb );
 
 		cfb_w16towchar( ab, cfbd->nodes[id]._ab, cfbd->nodes[id]._cb );
 

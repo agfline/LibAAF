@@ -32,7 +32,7 @@
 
 
 
-int wstr_contains_nonlatin( const wchar_t *str )
+int laaf_util_wstr_contains_nonlatin( const wchar_t *str )
 {
 	for ( size_t i = 0; str[i] != 0x0000; i++ ) {
 		/* if char is out of the Basic Latin range */
@@ -46,7 +46,7 @@ int wstr_contains_nonlatin( const wchar_t *str )
 
 
 
-char * clean_filename( char *fname )
+char * laaf_util_clean_filename( char *fname )
 {
 	/*
 	 * sanitize file/dir name
@@ -87,7 +87,7 @@ char * clean_filename( char *fname )
 
 
 
-const char * fop_get_file( const char *filepath )
+const char * laaf_util_fop_get_file( const char *filepath )
 {
 	if ( filepath == NULL ) {
 		return NULL;
@@ -104,7 +104,7 @@ const char * fop_get_file( const char *filepath )
 
 
 
-char * build_path( const char *sep, const char *first, ... )
+char * laaf_util_build_path( const char *sep, const char *first, ... )
 {
 	char *str = malloc( BUILD_PATH_DEFAULT_BUF_SIZE );
 
@@ -192,7 +192,7 @@ char * build_path( const char *sep, const char *first, ... )
 
 
 
-int snprintf_realloc( char **str, int *size, size_t offset, const char *format, ... )
+int laaf_util_snprintf_realloc( char **str, int *size, size_t offset, const char *format, ... )
 {
 	int tmpsize = 0;
 
@@ -237,7 +237,7 @@ int snprintf_realloc( char **str, int *size, size_t offset, const char *format, 
 
 
 
-int vsnprintf_realloc( char **str, int *size, int offset, const char *fmt, va_list *args )
+int laaf_util_vsnprintf_realloc( char **str, int *size, int offset, const char *fmt, va_list *args )
 {
 	va_list args2, args3;
 
@@ -273,7 +273,7 @@ int vsnprintf_realloc( char **str, int *size, int offset, const char *fmt, va_li
 
 
 
-char * c99strdup( const char *src )
+char * laaf_util_c99strdup( const char *src )
 {
 	if ( !src ) {
 		return NULL;
@@ -303,7 +303,7 @@ char * c99strdup( const char *src )
 
 
 
-int dump_hex( const unsigned char *stream, size_t stream_sz, char **buf, int *bufsz, int offset )
+int laaf_util_dump_hex( const unsigned char *stream, size_t stream_sz, char **buf, int *bufsz, int offset )
 {
 	if ( stream == NULL ) {
 		return -1;
@@ -317,7 +317,7 @@ int dump_hex( const unsigned char *stream, size_t stream_sz, char **buf, int *bu
 
 	uint32_t count   = 0;
 
-	offset += snprintf_realloc( buf, bufsz, offset, " ______________________________ Hex Dump ______________________________\n\n" );
+	offset += laaf_util_snprintf_realloc( buf, bufsz, offset, " ______________________________ Hex Dump ______________________________\n\n" );
 
 	while ( count < stream_sz ) {
 
@@ -371,10 +371,10 @@ int dump_hex( const unsigned char *stream, size_t stream_sz, char **buf, int *bu
 
 		count += lineLen;
 
-		offset += snprintf_realloc( buf, bufsz, offset, " %s  |  %s\n", hex, ascii );
+		offset += laaf_util_snprintf_realloc( buf, bufsz, offset, " %s  |  %s\n", hex, ascii );
 	}
 
-	offset += snprintf_realloc( buf, bufsz, offset, " ______________________________________________________________________\n\n" );
+	offset += laaf_util_snprintf_realloc( buf, bufsz, offset, " ______________________________________________________________________\n\n" );
 
 	return offset - initialOffset; /* bytes written */
 }

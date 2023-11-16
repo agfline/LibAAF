@@ -163,7 +163,7 @@ int resolve_parse_aafObject_Selector( struct AAF_Iface *aafi, aafObject *Selecto
 				int i = 0;
 				aaf_foreach_ObjectInSet( &Alternate, Alternates, NULL ) {
 					if ( i == 0 ) { /* there should be only one Segment in set, but still. Let's be carefull */
-						parse_Segment( aafi, Alternate, &__td );
+						aafi_parse_Segment( aafi, Alternate, &__td );
 					}
 					else {
 						DUMP_OBJ_ERROR( aafi, Alternate, &__td, "Multiple Alternates in Davinci Resolve selector" );
@@ -178,7 +178,7 @@ int resolve_parse_aafObject_Selector( struct AAF_Iface *aafi, aafObject *Selecto
 
 	/* aafi->ctx.current_clip_is_muted was already reset at this point */
 	if ( ismuted == 0 ) {
-		return parse_Segment( aafi, Selected, &__td );
+		return aafi_parse_Segment( aafi, Selected, &__td );
 	}
 
 	return 0;

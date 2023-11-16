@@ -77,7 +77,7 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 	}
 
 
-	aafi->dbg = new_debug();
+	aafi->dbg = laaf_new_debug();
 
 	if ( aafi->dbg == NULL ) {
 		return NULL;
@@ -164,7 +164,7 @@ int aafi_set_media_location( AAF_Iface *aafi, const char *path ) {
 		free( aafi->ctx.options.media_location );
 	}
 
-	aafi->ctx.options.media_location = (path) ? c99strdup( path ) : NULL;
+	aafi->ctx.options.media_location = (path) ? laaf_util_c99strdup( path ) : NULL;
 
 	return 0;
 }
@@ -256,7 +256,7 @@ void aafi_release( AAF_Iface **aafi )
 	}
 
 	if ( (*aafi)->dbg ) {
-		free_debug( (*aafi)->dbg );
+		laaf_free_debug( (*aafi)->dbg );
 	}
 
 	free( *aafi );
@@ -280,7 +280,7 @@ int aafi_load_file( AAF_Iface *aafi, const char * file )
 
 
 
-aafiTransition * get_fadein( aafiTimelineItem *audioItem )
+aafiTransition * aafi_get_fadein( aafiTimelineItem *audioItem )
 {
 
 	if ( audioItem->prev != NULL &&
@@ -297,7 +297,7 @@ aafiTransition * get_fadein( aafiTimelineItem *audioItem )
 
 
 
-aafiTransition * get_fadeout( aafiTimelineItem *audioItem )
+aafiTransition * aafi_get_fadeout( aafiTimelineItem *audioItem )
 {
 
 	if ( audioItem->next != NULL &&
@@ -314,7 +314,7 @@ aafiTransition * get_fadeout( aafiTimelineItem *audioItem )
 
 
 
-aafiTransition * get_xfade( aafiTimelineItem *audioItem )
+aafiTransition * aafi_get_xfade( aafiTimelineItem *audioItem )
 {
   if ( audioItem->prev != NULL &&
 	     audioItem->prev->type == AAFI_TRANS )

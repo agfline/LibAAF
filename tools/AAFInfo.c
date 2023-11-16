@@ -34,7 +34,7 @@
 #include <libaaf.h>
 
 #include "./thirdparty/libTC.h"
-#include "../src/common/utils.h" // ANSI colors, c99strdup()
+#include "../src/common/utils.h" // ANSI colors, laaf_util_c99strdup()
 
 
 
@@ -604,7 +604,7 @@ int main( int argc, char *argv[] )
 				( audioEssence->file_name && wcslen(audioEssence->file_name) == wcslen(audioEssence->unique_file_name) ) ? "" : ")"
 			);
 
-			// printf( "MOBID    %s\n", MobIDToText( audioEssence->sourceMobID ) );
+			// printf( "MOBID    %s\n", aaft_MobIDToText( audioEssence->sourceMobID ) );
 
 			i++;
 		}
@@ -640,7 +640,7 @@ int main( int argc, char *argv[] )
 				 videoItem = videoTrack->Items;
 				 videoClip = (aafiVideoClip*)videoItem->data;
 
-				 // locate_external_essence_file( aafi, videoClip->Essence->original_file_path );
+				 // aafi_locate_external_essence_file( aafi, videoClip->Essence->original_file_path );
 
 				 struct timecode tc_in;
 				 struct timecode tc_out;
@@ -742,8 +742,8 @@ int main( int argc, char *argv[] )
 					// aafPosition_t sessionStart = convertEditUnit( audioClip->track->Audio->tc->start, aafi->Audio->tc->edit_rate, audioClip->track->edit_rate );
 
 
-					aafiTransition *fadein  = get_fadein( audioItem );
-					aafiTransition *fadeout = get_fadeout( audioItem );
+					aafiTransition *fadein  = aafi_get_fadein( audioItem );
+					aafiTransition *fadeout = aafi_get_fadeout( audioItem );
 
 					char posFormatBuf1[POS_FORMAT_BUFFER_LEN];
 					char posFormatBuf2[POS_FORMAT_BUFFER_LEN];

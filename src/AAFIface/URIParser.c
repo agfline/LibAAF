@@ -116,7 +116,7 @@ static int _uri_parse_query( struct uri *uri, const char **pos, const char *end,
 static int _uri_parse_fragment( struct uri *uri, const char **pos, const char *end, struct dbg *dbg );
 
 static void _uri_scheme2schemeType( struct uri *uri );
-static int  _snprintf_realloc( char **str, size_t *size, size_t offset, const char *format, ... );
+static int  _laaf_util_snprintf_realloc( char **str, size_t *size, size_t offset, const char *format, ... );
 
 #ifdef BUILD_URI_TEST //  gcc -g -W -Wall ./URIParser.c -D BUILD_URI_TEST
 	static int  _uri_cmp( const struct uri *a, const struct uri *b );
@@ -741,7 +741,7 @@ int uriIsIPv4( const char *s, int size, char **err ) {
 
 			if ( *(s+i) == '.' ) {
 				if ( err ) {
-					_snprintf_realloc( err, NULL, 0, "IPV4 parser error : can't start with a single '.'" );
+					_laaf_util_snprintf_realloc( err, NULL, 0, "IPV4 parser error : can't start with a single '.'" );
 				}
 				return 0;
 			}
@@ -757,7 +757,7 @@ int uriIsIPv4( const char *s, int size, char **err ) {
 
 			if ( *(s+i) == '.' ) {
 				if ( err ) {
-					_snprintf_realloc( err, NULL, 0, "IPV4 parser error : can't have successive '.'" );
+					_laaf_util_snprintf_realloc( err, NULL, 0, "IPV4 parser error : can't have successive '.'" );
 				}
 				return 0;
 			}
@@ -775,14 +775,14 @@ int uriIsIPv4( const char *s, int size, char **err ) {
 				int octet = atoi(currentOctetStart);
 				if ( octet > 255 ) {
 					if ( err ) {
-						_snprintf_realloc( err, NULL, 0, "IPV4 parser error : octet %i is too high : %.*s", (octets), (int)((s+i) - currentOctetStart), currentOctetStart );
+						_laaf_util_snprintf_realloc( err, NULL, 0, "IPV4 parser error : octet %i is too high : %.*s", (octets), (int)((s+i) - currentOctetStart), currentOctetStart );
 					}
 					return 0;
 				}
 
 				if ( i+1 == size ) {
 					if ( err ) {
-						_snprintf_realloc( err, NULL, 0, "IPV4 parser error : can't end with a single '.'" );
+						_laaf_util_snprintf_realloc( err, NULL, 0, "IPV4 parser error : can't end with a single '.'" );
 					}
 					return 0;
 				}
@@ -798,7 +798,7 @@ int uriIsIPv4( const char *s, int size, char **err ) {
 		}
 
 		if ( err ) {
-			_snprintf_realloc( err, NULL, 0, "IPV4 parser error : illegal char '%c' (0x%02x)", *(s+i), *(s+i) );
+			_laaf_util_snprintf_realloc( err, NULL, 0, "IPV4 parser error : illegal char '%c' (0x%02x)", *(s+i), *(s+i) );
 		}
 		return 0;
 	}
@@ -806,13 +806,13 @@ int uriIsIPv4( const char *s, int size, char **err ) {
 
 	if ( octets > 4 ) {
 		if ( err ) {
-			_snprintf_realloc( err, NULL, 0, "IPV4 parser error : too many octets" );
+			_laaf_util_snprintf_realloc( err, NULL, 0, "IPV4 parser error : too many octets" );
 		}
 		return 0;
 	}
 	if ( octets < 4 ) {
 		if ( err ) {
-			_snprintf_realloc( err, NULL, 0, "IPV4 parser error : not enough octets" );
+			_laaf_util_snprintf_realloc( err, NULL, 0, "IPV4 parser error : not enough octets" );
 		}
 		return 0;
 	}
@@ -867,7 +867,7 @@ int uriIsIPv6( const char *s, int size, char **err ) {
 
 			if ( *(s+i) == ':' ) {
 				if ( err ) {
-					_snprintf_realloc( err, NULL, 0, "can't start with a single ':'" );
+					_laaf_util_snprintf_realloc( err, NULL, 0, "can't start with a single ':'" );
 				}
 				return 0;
 			}
@@ -895,7 +895,7 @@ int uriIsIPv6( const char *s, int size, char **err ) {
 				int octet = atoi(curSegmentStart);
 				if ( octet > 255 ) {
 					if ( err ) {
-						_snprintf_realloc( err, NULL, 0, "ipv4 portion octet %i is too high : %.*s", (ipv4portion), curSegmentLength, curSegmentStart );
+						_laaf_util_snprintf_realloc( err, NULL, 0, "ipv4 portion octet %i is too high : %.*s", (ipv4portion), curSegmentLength, curSegmentStart );
 					}
 					return 0;
 				}
@@ -908,7 +908,7 @@ int uriIsIPv6( const char *s, int size, char **err ) {
 			if ( i == size || *(s+i) == ':' ) {
 				if ( curSegmentLength > 4 ) {
 					if ( err ) {
-						_snprintf_realloc( err, NULL, 0, "segment %i is too long : %.*s", (segmentCount-1), curSegmentLength, curSegmentStart );
+						_laaf_util_snprintf_realloc( err, NULL, 0, "segment %i is too long : %.*s", (segmentCount-1), curSegmentLength, curSegmentStart );
 					}
 					return 0;
 				}
@@ -924,7 +924,7 @@ int uriIsIPv6( const char *s, int size, char **err ) {
 				else
 				if ( i+1 == size ) {
 					if ( err ) {
-						_snprintf_realloc( err, NULL, 0, "can't end with a single ':'" );
+						_laaf_util_snprintf_realloc( err, NULL, 0, "can't end with a single ':'" );
 					}
 					return 0;
 				}
@@ -957,7 +957,7 @@ int uriIsIPv6( const char *s, int size, char **err ) {
 
 			if ( *(s+i) == ':' ) {
 				if ( err ) {
-					_snprintf_realloc( err, NULL, 0, "can't have more than two successive ':'" );
+					_laaf_util_snprintf_realloc( err, NULL, 0, "can't have more than two successive ':'" );
 				}
 				return 0;
 			}
@@ -974,7 +974,7 @@ int uriIsIPv6( const char *s, int size, char **err ) {
 
 			if ( *(s+i) == '.' ) {
 				if ( err ) {
-					_snprintf_realloc( err, NULL, 0, "can't have successive '.'" );
+					_laaf_util_snprintf_realloc( err, NULL, 0, "can't have successive '.'" );
 				}
 				return 0;
 			}
@@ -992,7 +992,7 @@ int uriIsIPv6( const char *s, int size, char **err ) {
 				int octet = atoi(curSegmentStart);
 				if ( octet > 255 ) {
 					if ( err ) {
-						_snprintf_realloc( err, NULL, 0, "ipv4 portion octet %i is too high : %.*s", (ipv4portion), curSegmentLength, curSegmentStart );
+						_laaf_util_snprintf_realloc( err, NULL, 0, "ipv4 portion octet %i is too high : %.*s", (ipv4portion), curSegmentLength, curSegmentStart );
 					}
 					return 0;
 				}
@@ -1001,7 +1001,7 @@ int uriIsIPv6( const char *s, int size, char **err ) {
 
 				if ( i+1 == size ) {
 					if ( err ) {
-						_snprintf_realloc( err, NULL, 0, "can't end with a single '.'" );
+						_laaf_util_snprintf_realloc( err, NULL, 0, "can't end with a single '.'" );
 					}
 					return 0;
 				}
@@ -1017,7 +1017,7 @@ int uriIsIPv6( const char *s, int size, char **err ) {
 		}
 
 		if ( err ) {
-			_snprintf_realloc( err, NULL, 0, "illegal char '%c' (0x%02x)", *(s+i), *(s+i) );
+			_laaf_util_snprintf_realloc( err, NULL, 0, "illegal char '%c' (0x%02x)", *(s+i), *(s+i) );
 		}
 
 		return 0;
@@ -1031,26 +1031,26 @@ int uriIsIPv6( const char *s, int size, char **err ) {
 
 	if ( ipv4portion > 4 ) {
 		if ( err ) {
-			_snprintf_realloc( err, NULL, 0, "too many octets in ipv4 portion" );
+			_laaf_util_snprintf_realloc( err, NULL, 0, "too many octets in ipv4 portion" );
 		}
 		return 0;
 	}
 	if ( ipv4portion > 0 && ipv4portion < 4 ) {
 		if ( err ) {
-			_snprintf_realloc( err, NULL, 0, "not enough octets in ipv4 portion" );
+			_laaf_util_snprintf_realloc( err, NULL, 0, "not enough octets in ipv4 portion" );
 		}
 		return 0;
 	}
 	if ( emptySegmentCount + (segmentCount/2) + ipv4portion > 8 ) {
 		if ( err ) {
-			_snprintf_realloc( err, NULL, 0, "too many segments" );
+			_laaf_util_snprintf_realloc( err, NULL, 0, "too many segments" );
 		}
 		return 0;
 	}
 
 	if ( emptySegmentCount == 0 && (((ipv4portion/2) + segmentCount) < 8) ) {
 		if ( err ) {
-			_snprintf_realloc( err, NULL, 0, "not enough segments" );
+			_laaf_util_snprintf_realloc( err, NULL, 0, "not enough segments" );
 		}
 		return 0;
 	}
@@ -1093,7 +1093,7 @@ static void _uri_scheme2schemeType( struct uri *uri ) {
 
 
 
-static int _snprintf_realloc( char **str, size_t *size, size_t offset, const char *format, ... )
+static int _laaf_util_snprintf_realloc( char **str, size_t *size, size_t offset, const char *format, ... )
 {
 	size_t tmpsize = 0;
 

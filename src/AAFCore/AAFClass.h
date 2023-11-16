@@ -48,17 +48,17 @@
 
 
 
-int classExists( AAF_Data *aafd, aafUID_t *ClassID );
+int aafclass_classExists( AAF_Data *aafd, aafUID_t *ClassID );
 
-aafClass * defineNewClass( AAF_Data *aafd, const aafUID_t *id, uint8_t isConcrete, aafClass *parent );
+aafClass * aafclass_defineNewClass( AAF_Data *aafd, const aafUID_t *id, uint8_t isConcrete, aafClass *parent );
 
-aafClass * getClassByID( AAF_Data *aafd, const aafUID_t *id );
+aafClass * aafclass_getClassByID( AAF_Data *aafd, const aafUID_t *id );
 
-aafPropertyDef * getPropertyDefinitionByID( aafClass *Classes, aafPID_t PID );
+aafPropertyDef * aafclass_getPropertyDefinitionByID( aafClass *Classes, aafPID_t PID );
 
-void printClasses( aafClass *Class, int depth ); // TODO move to AAFDump ?
+void aafclass_printClasses( aafClass *Class, int depth ); // TODO move to AAFDump ?
 
-int setDefaultClasses( AAF_Data *aafd );
+int aafclass_setDefaultClasses( AAF_Data *aafd );
 
 
 #endif // ! __AAFClass_h__

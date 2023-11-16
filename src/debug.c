@@ -11,11 +11,11 @@
 
 
 
-struct dbg * new_debug( void )
+struct dbg * laaf_new_debug( void )
 {
 	struct dbg *dbg = calloc( sizeof(struct dbg), sizeof(char) );
 
-	dbg->debug_callback = &debug_callback;
+	dbg->debug_callback = &laaf_debug_callback;
 	dbg->fp = stdout;
 
 	return dbg;
@@ -23,7 +23,7 @@ struct dbg * new_debug( void )
 
 
 
-void free_debug( struct dbg *dbg )
+void laaf_free_debug( struct dbg *dbg )
 {
 	if ( dbg->_dbg_msg ) {
 		free( dbg->_dbg_msg );
@@ -34,7 +34,7 @@ void free_debug( struct dbg *dbg )
 
 
 
-void debug_callback( struct dbg *dbg, void *ctxdata, int libid, int type, const char *srcfile, const char *srcfunc, int lineno, const char *msg, void *user )
+void laaf_debug_callback( struct dbg *dbg, void *ctxdata, int libid, int type, const char *srcfile, const char *srcfunc, int lineno, const char *msg, void *user )
 {
 	AAF_Iface *aafi = NULL;
 	AAF_Data  *aafd = NULL;

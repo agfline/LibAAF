@@ -934,11 +934,11 @@ void aafi_release( AAF_Iface **aafi );
 int aafi_load_file( AAF_Iface *aafi, const char * file );
 
 
-aafiTransition * get_fadein( aafiTimelineItem *audioItem );
+aafiTransition * aafi_get_fadein( aafiTimelineItem *audioItem );
 
-aafiTransition * get_fadeout( aafiTimelineItem *audioItem );
+aafiTransition * aafi_get_fadeout( aafiTimelineItem *audioItem );
 
-aafiTransition * get_xfade( aafiTimelineItem *audioItem );
+aafiTransition * aafi_get_xfade( aafiTimelineItem *audioItem );
 
 aafiMarker * aafi_newMarker( AAF_Iface *aafi, aafRational_t *editRate, aafPosition_t start, aafPosition_t length, wchar_t *name, wchar_t *comment, uint16_t *RVBColor[3] );
 

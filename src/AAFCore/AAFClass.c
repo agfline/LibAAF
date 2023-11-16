@@ -71,7 +71,7 @@
 
 
 
-int classExists( AAF_Data *aafd, aafUID_t *ClassID )
+int aafclass_classExists( AAF_Data *aafd, aafUID_t *ClassID )
 {
 	aafClass *Class = NULL;
 
@@ -99,7 +99,7 @@ int classExists( AAF_Data *aafd, aafUID_t *ClassID )
  * @return            pointer to the newly allocated aafClass.
  */
 
-aafClass * defineNewClass( AAF_Data *aafd, const aafUID_t *id, uint8_t isConcrete, aafClass *parent )
+aafClass * aafclass_defineNewClass( AAF_Data *aafd, const aafUID_t *id, uint8_t isConcrete, aafClass *parent )
 {
 	aafClass *Class = malloc( sizeof(aafClass) );
 
@@ -132,7 +132,7 @@ aafClass * defineNewClass( AAF_Data *aafd, const aafUID_t *id, uint8_t isConcret
  * @return      pointer to the retrieved aafClass structure, or NULL if not found.
  */
 
-aafClass * getClassByID( AAF_Data *aafd, const aafUID_t *id )
+aafClass * aafclass_getClassByID( AAF_Data *aafd, const aafUID_t *id )
 {
 	aafClass *Class = NULL;
 
@@ -145,7 +145,7 @@ aafClass * getClassByID( AAF_Data *aafd, const aafUID_t *id )
 
 
 
-aafPropertyDef * getPropertyDefinitionByID( aafClass *Classes, aafPID_t pid )
+aafPropertyDef * aafclass_getPropertyDefinitionByID( aafClass *Classes, aafPID_t pid )
 {
 	aafClass       *Class = NULL;
 	aafPropertyDef *PDef  = NULL;
@@ -171,14 +171,14 @@ aafPropertyDef * getPropertyDefinitionByID( aafClass *Classes, aafPID_t pid )
  *
  * @param aafd The AAF_Data struct pointer.
  */
-int setDefaultClasses( AAF_Data *aafd )
+int aafclass_setDefaultClasses( AAF_Data *aafd )
 {
 	aafPropertyDef *prop = NULL;
 
 	/* TODO test ENOMEM after each class alloc */
 
 
-	aafClass *IOC = defineNewClass( aafd, &AAFClassID_InterchangeObject, ABSTRACT, NULL );
+	aafClass *IOC = aafclass_defineNewClass( aafd, &AAFClassID_InterchangeObject, ABSTRACT, NULL );
 
 	if ( IOC == NULL ) { return -1; }
 
@@ -186,7 +186,7 @@ int setDefaultClasses( AAF_Data *aafd )
 	attachNewProperty( aafd, IOC,              prop, PID_InterchangeObject_Generation,                          PROP_OPT );
 
 
-	aafClass *Root = defineNewClass( aafd, &AAFClassID_Root, CONCRETE, IOC );
+	aafClass *Root = aafclass_defineNewClass( aafd, &AAFClassID_Root, CONCRETE, IOC );
 
 	if ( Root == NULL ) { return -1; }
 
@@ -194,7 +194,7 @@ int setDefaultClasses( AAF_Data *aafd )
 	attachNewProperty( aafd, Root,             prop, PID_Root_Header,                                           PROP_REQ );
 
 
-	aafClass *Header = defineNewClass( aafd, &AAFClassID_Header, CONCRETE, IOC );
+	aafClass *Header = aafclass_defineNewClass( aafd, &AAFClassID_Header, CONCRETE, IOC );
 
 	if ( Header == NULL ) { return -1; }
 
@@ -211,7 +211,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass *Identif = defineNewClass( aafd, &AAFClassID_Identification, CONCRETE, IOC );
+	aafClass *Identif = aafclass_defineNewClass( aafd, &AAFClassID_Identification, CONCRETE, IOC );
 
 	if ( Identif == NULL ) { return -1; }
 
@@ -226,7 +226,7 @@ int setDefaultClasses( AAF_Data *aafd )
 	attachNewProperty( aafd, Identif,          prop, PID_Identification_GenerationAUID,                         PROP_REQ );
 
 
-	aafClass * Dictionary = defineNewClass( aafd, &AAFClassID_Dictionary, CONCRETE, IOC );
+	aafClass * Dictionary = aafclass_defineNewClass( aafd, &AAFClassID_Dictionary, CONCRETE, IOC );
 
 	if ( Dictionary == NULL ) { return -1; }
 
@@ -241,7 +241,7 @@ int setDefaultClasses( AAF_Data *aafd )
 	attachNewProperty( aafd, Dictionary,       prop, PID_Dictionary_TaggedValueDefinitions,                     PROP_OPT );
 
 
-	aafClass *Content = defineNewClass( aafd, &AAFClassID_ContentStorage, CONCRETE, IOC );
+	aafClass *Content = aafclass_defineNewClass( aafd, &AAFClassID_ContentStorage, CONCRETE, IOC );
 
 	if ( Content == NULL ) { return -1; }
 
@@ -250,7 +250,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass *Mob = defineNewClass( aafd, &AAFClassID_Mob, ABSTRACT, IOC );
+	aafClass *Mob = aafclass_defineNewClass( aafd, &AAFClassID_Mob, ABSTRACT, IOC );
 
 	if ( Mob == NULL ) { return -1; }
 
@@ -266,7 +266,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass *CompoMob = defineNewClass( aafd, &AAFClassID_CompositionMob, CONCRETE, Mob );
+	aafClass *CompoMob = aafclass_defineNewClass( aafd, &AAFClassID_CompositionMob, CONCRETE, Mob );
 
 	if ( CompoMob == NULL ) { return -1; }
 
@@ -277,7 +277,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass *MasterMob = defineNewClass( aafd, &AAFClassID_MasterMob, CONCRETE, Mob );
+	aafClass *MasterMob = aafclass_defineNewClass( aafd, &AAFClassID_MasterMob, CONCRETE, Mob );
 
 	if ( MasterMob == NULL ) { return -1; }
 
@@ -285,7 +285,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass *SourceMob = defineNewClass( aafd, &AAFClassID_SourceMob, CONCRETE, Mob );
+	aafClass *SourceMob = aafclass_defineNewClass( aafd, &AAFClassID_SourceMob, CONCRETE, Mob );
 
 	if ( SourceMob == NULL ) { return -1; }
 
@@ -293,7 +293,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass *MobSlot = defineNewClass( aafd, &AAFClassID_MobSlot, ABSTRACT, IOC );
+	aafClass *MobSlot = aafclass_defineNewClass( aafd, &AAFClassID_MobSlot, ABSTRACT, IOC );
 
 	if ( MobSlot == NULL ) { return -1; }
 
@@ -304,7 +304,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass *TimelineMobSlot = defineNewClass( aafd, &AAFClassID_TimelineMobSlot, CONCRETE, MobSlot );
+	aafClass *TimelineMobSlot = aafclass_defineNewClass( aafd, &AAFClassID_TimelineMobSlot, CONCRETE, MobSlot );
 
 	if ( TimelineMobSlot == NULL ) { return -1; }
 
@@ -316,7 +316,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass *EventMobSlot = defineNewClass( aafd, &AAFClassID_EventMobSlot, CONCRETE, MobSlot );
+	aafClass *EventMobSlot = aafclass_defineNewClass( aafd, &AAFClassID_EventMobSlot, CONCRETE, MobSlot );
 
 	if ( EventMobSlot == NULL ) { return -1; }
 
@@ -325,7 +325,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass *StaticMobSlot = defineNewClass( aafd, &AAFClassID_StaticMobSlot, CONCRETE, MobSlot );
+	aafClass *StaticMobSlot = aafclass_defineNewClass( aafd, &AAFClassID_StaticMobSlot, CONCRETE, MobSlot );
 
 	if ( StaticMobSlot == NULL ) { return -1; }
 
@@ -333,7 +333,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * KLVData = defineNewClass( aafd, &AAFClassID_KLVData, CONCRETE, IOC );
+	aafClass * KLVData = aafclass_defineNewClass( aafd, &AAFClassID_KLVData, CONCRETE, IOC );
 
 	if ( KLVData == NULL ) { return -1; }
 
@@ -341,7 +341,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * TaggedValue = defineNewClass( aafd, &AAFClassID_TaggedValue, CONCRETE, IOC );
+	aafClass * TaggedValue = aafclass_defineNewClass( aafd, &AAFClassID_TaggedValue, CONCRETE, IOC );
 
 	if ( TaggedValue == NULL ) { return -1; }
 
@@ -350,7 +350,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * Parameter = defineNewClass( aafd, &AAFClassID_Parameter, ABSTRACT, IOC );
+	aafClass * Parameter = aafclass_defineNewClass( aafd, &AAFClassID_Parameter, ABSTRACT, IOC );
 
 	if ( Parameter == NULL ) { return -1; }
 
@@ -358,7 +358,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * ConstantValue = defineNewClass( aafd, &AAFClassID_ConstantValue, CONCRETE, Parameter );
+	aafClass * ConstantValue = aafclass_defineNewClass( aafd, &AAFClassID_ConstantValue, CONCRETE, Parameter );
 
 	if ( ConstantValue == NULL ) { return -1; }
 
@@ -366,7 +366,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * VaryingValue = defineNewClass( aafd, &AAFClassID_VaryingValue, CONCRETE, Parameter );
+	aafClass * VaryingValue = aafclass_defineNewClass( aafd, &AAFClassID_VaryingValue, CONCRETE, Parameter );
 
 	if ( VaryingValue == NULL ) { return -1; }
 
@@ -375,7 +375,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * ControlPoint = defineNewClass( aafd, &AAFClassID_ControlPoint, CONCRETE, IOC );
+	aafClass * ControlPoint = aafclass_defineNewClass( aafd, &AAFClassID_ControlPoint, CONCRETE, IOC );
 
 	if ( ControlPoint == NULL ) { return -1; }
 
@@ -385,7 +385,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * Locator = defineNewClass( aafd, &AAFClassID_Locator, ABSTRACT, IOC );
+	aafClass * Locator = aafclass_defineNewClass( aafd, &AAFClassID_Locator, ABSTRACT, IOC );
 
 	if ( Locator == NULL ) { return -1; }
 
@@ -393,7 +393,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * NetworkLocator = defineNewClass( aafd, &AAFClassID_NetworkLocator, CONCRETE, Locator );
+	aafClass * NetworkLocator = aafclass_defineNewClass( aafd, &AAFClassID_NetworkLocator, CONCRETE, Locator );
 
 	if ( NetworkLocator == NULL ) { return -1; }
 
@@ -401,7 +401,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * TextLocator = defineNewClass( aafd, &AAFClassID_TextLocator, CONCRETE, Locator );
+	aafClass * TextLocator = aafclass_defineNewClass( aafd, &AAFClassID_TextLocator, CONCRETE, Locator );
 
 	if ( TextLocator == NULL ) { return -1; }
 
@@ -421,7 +421,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * Component = defineNewClass( aafd, &AAFClassID_Component, ABSTRACT, IOC );
+	aafClass * Component = aafclass_defineNewClass( aafd, &AAFClassID_Component, ABSTRACT, IOC );
 
 	if ( Component == NULL ) { return -1; }
 
@@ -433,7 +433,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * Transition = defineNewClass( aafd, &AAFClassID_Transition, CONCRETE, Component );
+	aafClass * Transition = aafclass_defineNewClass( aafd, &AAFClassID_Transition, CONCRETE, Component );
 
 	if ( Transition == NULL ) { return -1; }
 
@@ -442,7 +442,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * Segment = defineNewClass( aafd, &AAFClassID_Segment, ABSTRACT, Component );
+	aafClass * Segment = aafclass_defineNewClass( aafd, &AAFClassID_Segment, ABSTRACT, Component );
 
 	if ( Segment == NULL ) { return -1; }
 
@@ -450,7 +450,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * Sequence = defineNewClass( aafd, &AAFClassID_Sequence, CONCRETE, Segment );
+	aafClass * Sequence = aafclass_defineNewClass( aafd, &AAFClassID_Sequence, CONCRETE, Segment );
 
 	if ( Sequence == NULL ) { return -1; }
 
@@ -458,7 +458,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * Filler = defineNewClass( aafd, &AAFClassID_Filler, CONCRETE, Segment );
+	aafClass * Filler = aafclass_defineNewClass( aafd, &AAFClassID_Filler, CONCRETE, Segment );
 
 	if ( Filler == NULL ) { return -1; }
 
@@ -466,7 +466,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * SourceRef = defineNewClass( aafd, &AAFClassID_SourceReference, ABSTRACT, Segment );
+	aafClass * SourceRef = aafclass_defineNewClass( aafd, &AAFClassID_SourceReference, ABSTRACT, Segment );
 
 	if ( SourceRef == NULL ) { return -1; }
 
@@ -477,7 +477,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * SourceClip = defineNewClass( aafd, &AAFClassID_SourceClip, CONCRETE, SourceRef );
+	aafClass * SourceClip = aafclass_defineNewClass( aafd, &AAFClassID_SourceClip, CONCRETE, SourceRef );
 
 	if ( SourceClip == NULL ) { return -1; }
 
@@ -489,7 +489,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * Event = defineNewClass( aafd, &AAFClassID_Event, ABSTRACT, Segment );
+	aafClass * Event = aafclass_defineNewClass( aafd, &AAFClassID_Event, ABSTRACT, Segment );
 
 	if ( Event == NULL ) { return -1; }
 
@@ -498,7 +498,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * CommentMarker = defineNewClass( aafd, &AAFClassID_CommentMarker, CONCRETE, Event );
+	aafClass * CommentMarker = aafclass_defineNewClass( aafd, &AAFClassID_CommentMarker, CONCRETE, Event );
 
 	if ( CommentMarker == NULL ) { return -1; }
 
@@ -506,7 +506,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * DescriptiveMarker = defineNewClass( aafd, &AAFClassID_DescriptiveMarker, CONCRETE, CommentMarker );
+	aafClass * DescriptiveMarker = aafclass_defineNewClass( aafd, &AAFClassID_DescriptiveMarker, CONCRETE, CommentMarker );
 
 	if ( DescriptiveMarker == NULL ) { return -1; }
 
@@ -515,7 +515,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * GPITrigger = defineNewClass( aafd, &AAFClassID_GPITrigger, CONCRETE, Event );
+	aafClass * GPITrigger = aafclass_defineNewClass( aafd, &AAFClassID_GPITrigger, CONCRETE, Event );
 
 	if ( GPITrigger == NULL ) { return -1; }
 
@@ -523,7 +523,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * Timecode = defineNewClass( aafd, &AAFClassID_Timecode, CONCRETE, Segment );
+	aafClass * Timecode = aafclass_defineNewClass( aafd, &AAFClassID_Timecode, CONCRETE, Segment );
 
 	if ( Timecode == NULL ) { return -1; }
 
@@ -533,7 +533,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * TCStream = defineNewClass( aafd, &AAFClassID_TimecodeStream, ABSTRACT, Segment );
+	aafClass * TCStream = aafclass_defineNewClass( aafd, &AAFClassID_TimecodeStream, ABSTRACT, Segment );
 
 	if ( TCStream == NULL ) { return -1; }
 
@@ -543,7 +543,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * TCStream12M = defineNewClass( aafd, &AAFClassID_TimecodeStream12M, CONCRETE, TCStream );
+	aafClass * TCStream12M = aafclass_defineNewClass( aafd, &AAFClassID_TimecodeStream12M, CONCRETE, TCStream );
 
 	if ( TCStream12M == NULL ) { return -1; }
 
@@ -551,7 +551,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * Edgecode = defineNewClass( aafd, &AAFClassID_Edgecode, CONCRETE, Segment );
+	aafClass * Edgecode = aafclass_defineNewClass( aafd, &AAFClassID_Edgecode, CONCRETE, Segment );
 
 	if ( Edgecode == NULL ) { return -1; }
 
@@ -562,7 +562,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * Pulldown = defineNewClass( aafd, &AAFClassID_Pulldown, CONCRETE, Segment );
+	aafClass * Pulldown = aafclass_defineNewClass( aafd, &AAFClassID_Pulldown, CONCRETE, Segment );
 
 	if ( Pulldown == NULL ) { return -1; }
 
@@ -573,7 +573,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * OperationGroup = defineNewClass( aafd, &AAFClassID_OperationGroup, CONCRETE, Segment );
+	aafClass * OperationGroup = aafclass_defineNewClass( aafd, &AAFClassID_OperationGroup, CONCRETE, Segment );
 
 	if ( OperationGroup == NULL ) { return -1; }
 
@@ -585,7 +585,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * NestedScope = defineNewClass( aafd, &AAFClassID_NestedScope, CONCRETE, Segment );
+	aafClass * NestedScope = aafclass_defineNewClass( aafd, &AAFClassID_NestedScope, CONCRETE, Segment );
 
 	if ( NestedScope == NULL ) { return -1; }
 
@@ -593,7 +593,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * ScopeReference = defineNewClass( aafd, &AAFClassID_ScopeReference, CONCRETE, Segment );
+	aafClass * ScopeReference = aafclass_defineNewClass( aafd, &AAFClassID_ScopeReference, CONCRETE, Segment );
 
 	if ( ScopeReference == NULL ) { return -1; }
 
@@ -602,7 +602,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * Selector = defineNewClass( aafd, &AAFClassID_Selector, CONCRETE, Segment );
+	aafClass * Selector = aafclass_defineNewClass( aafd, &AAFClassID_Selector, CONCRETE, Segment );
 
 	if ( Selector == NULL ) { return -1; }
 
@@ -611,7 +611,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * EssenceGroup = defineNewClass( aafd, &AAFClassID_EssenceGroup, CONCRETE, Segment );
+	aafClass * EssenceGroup = aafclass_defineNewClass( aafd, &AAFClassID_EssenceGroup, CONCRETE, Segment );
 
 	if ( EssenceGroup == NULL ) { return -1; }
 
@@ -631,13 +631,13 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * DescriptiveFramework = defineNewClass( aafd, &AAFClassID_DescriptiveFramework, ABSTRACT, IOC );
+	aafClass * DescriptiveFramework = aafclass_defineNewClass( aafd, &AAFClassID_DescriptiveFramework, ABSTRACT, IOC );
 
 	if ( DescriptiveFramework == NULL ) { return -1; }
 
 
 
-	aafClass *EssenceDesc = defineNewClass( aafd, &AAFClassID_EssenceDescriptor, ABSTRACT, IOC );
+	aafClass *EssenceDesc = aafclass_defineNewClass( aafd, &AAFClassID_EssenceDescriptor, ABSTRACT, IOC );
 
 	if ( EssenceDesc == NULL ) { return -1; }
 
@@ -645,7 +645,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass *FileDesc = defineNewClass( aafd, &AAFClassID_FileDescriptor, ABSTRACT, EssenceDesc );
+	aafClass *FileDesc = aafclass_defineNewClass( aafd, &AAFClassID_FileDescriptor, ABSTRACT, EssenceDesc );
 
 	if ( FileDesc == NULL ) { return -1; }
 
@@ -657,7 +657,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass *DigitalImageDesc = defineNewClass( aafd, &AAFClassID_DigitalImageDescriptor, ABSTRACT, FileDesc );
+	aafClass *DigitalImageDesc = aafclass_defineNewClass( aafd, &AAFClassID_DigitalImageDescriptor, ABSTRACT, FileDesc );
 
 	if ( DigitalImageDesc == NULL ) { return -1; }
 
@@ -690,7 +690,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * CDCIDesc = defineNewClass( aafd, &AAFClassID_CDCIDescriptor, CONCRETE, DigitalImageDesc );
+	aafClass * CDCIDesc = aafclass_defineNewClass( aafd, &AAFClassID_CDCIDescriptor, CONCRETE, DigitalImageDesc );
 
 	if ( CDCIDesc == NULL ) { return -1; }
 
@@ -707,7 +707,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * RGBADesc = defineNewClass( aafd, &AAFClassID_RGBADescriptor, CONCRETE, DigitalImageDesc );
+	aafClass * RGBADesc = aafclass_defineNewClass( aafd, &AAFClassID_RGBADescriptor, CONCRETE, DigitalImageDesc );
 
 	if ( RGBADesc == NULL ) { return -1; }
 
@@ -722,7 +722,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * TapeDesc = defineNewClass( aafd, &AAFClassID_TapeDescriptor, CONCRETE, EssenceDesc );
+	aafClass * TapeDesc = aafclass_defineNewClass( aafd, &AAFClassID_TapeDescriptor, CONCRETE, EssenceDesc );
 
 	if ( TapeDesc == NULL ) { return -1; }
 
@@ -737,7 +737,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * FilmDesc = defineNewClass( aafd, &AAFClassID_FilmDescriptor, CONCRETE, EssenceDesc );
+	aafClass * FilmDesc = aafclass_defineNewClass( aafd, &AAFClassID_FilmDescriptor, CONCRETE, EssenceDesc );
 
 	if ( FilmDesc == NULL ) { return -1; }
 
@@ -752,7 +752,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * WAVEDesc = defineNewClass( aafd, &AAFClassID_WAVEDescriptor, CONCRETE, FileDesc );
+	aafClass * WAVEDesc = aafclass_defineNewClass( aafd, &AAFClassID_WAVEDescriptor, CONCRETE, FileDesc );
 
 	if ( WAVEDesc == NULL ) { return -1; }
 
@@ -760,7 +760,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * AIFCDesc = defineNewClass( aafd, &AAFClassID_AIFCDescriptor, CONCRETE, FileDesc );
+	aafClass * AIFCDesc = aafclass_defineNewClass( aafd, &AAFClassID_AIFCDescriptor, CONCRETE, FileDesc );
 
 	if ( AIFCDesc == NULL ) { return -1; }
 
@@ -768,7 +768,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * TIFFDesc = defineNewClass( aafd, &AAFClassID_TIFFDescriptor, CONCRETE, FileDesc );
+	aafClass * TIFFDesc = aafclass_defineNewClass( aafd, &AAFClassID_TIFFDescriptor, CONCRETE, FileDesc );
 
 	if ( TIFFDesc == NULL ) { return -1; }
 
@@ -781,7 +781,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * SoundDesc = defineNewClass( aafd, &AAFClassID_SoundDescriptor, CONCRETE, FileDesc );
+	aafClass * SoundDesc = aafclass_defineNewClass( aafd, &AAFClassID_SoundDescriptor, CONCRETE, FileDesc );
 
 	if ( SoundDesc == NULL ) { return -1; }
 
@@ -796,7 +796,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * PCMDesc = defineNewClass( aafd, &AAFClassID_PCMDescriptor, CONCRETE, SoundDesc );
+	aafClass * PCMDesc = aafclass_defineNewClass( aafd, &AAFClassID_PCMDescriptor, CONCRETE, SoundDesc );
 
 	if ( PCMDesc == NULL ) { return -1; }
 
@@ -816,7 +816,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * PhysicalDesc = defineNewClass( aafd, &AAFClassID_PhysicalDescriptor, ABSTRACT, EssenceDesc );
+	aafClass * PhysicalDesc = aafclass_defineNewClass( aafd, &AAFClassID_PhysicalDescriptor, ABSTRACT, EssenceDesc );
 
 	if ( PhysicalDesc == NULL ) { return -1; }
 
@@ -824,7 +824,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * ImportDesc = defineNewClass( aafd, &AAFClassID_ImportDescriptor, CONCRETE, PhysicalDesc );
+	aafClass * ImportDesc = aafclass_defineNewClass( aafd, &AAFClassID_ImportDescriptor, CONCRETE, PhysicalDesc );
 
 	if ( ImportDesc == NULL ) { return -1; }
 
@@ -832,7 +832,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * RecordingDesc = defineNewClass( aafd, &AAFClassID_RecordingDescriptor, CONCRETE, PhysicalDesc );
+	aafClass * RecordingDesc = aafclass_defineNewClass( aafd, &AAFClassID_RecordingDescriptor, CONCRETE, PhysicalDesc );
 
 	if ( RecordingDesc == NULL ) { return -1; }
 
@@ -840,7 +840,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * AuxiliaryDesc = defineNewClass( aafd, &AAFClassID_AuxiliaryDescriptor, CONCRETE, PhysicalDesc );
+	aafClass * AuxiliaryDesc = aafclass_defineNewClass( aafd, &AAFClassID_AuxiliaryDescriptor, CONCRETE, PhysicalDesc );
 
 	if ( AuxiliaryDesc == NULL ) { return -1; }
 
@@ -861,7 +861,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * DefObject = defineNewClass( aafd, &AAFClassID_DefinitionObject, ABSTRACT, IOC );
+	aafClass * DefObject = aafclass_defineNewClass( aafd, &AAFClassID_DefinitionObject, ABSTRACT, IOC );
 
 	if ( DefObject == NULL ) { return -1; }
 
@@ -871,7 +871,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * DataDef = defineNewClass( aafd, &AAFClassID_DataDefinition, CONCRETE, DefObject );
+	aafClass * DataDef = aafclass_defineNewClass( aafd, &AAFClassID_DataDefinition, CONCRETE, DefObject );
 
 	if ( DataDef == NULL ) { return -1; }
 
@@ -879,7 +879,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * ContainerDef = defineNewClass( aafd, &AAFClassID_ContainerDefinition, CONCRETE, DefObject );
+	aafClass * ContainerDef = aafclass_defineNewClass( aafd, &AAFClassID_ContainerDefinition, CONCRETE, DefObject );
 
 	if ( ContainerDef == NULL ) { return -1; }
 
@@ -887,7 +887,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * OperationDef = defineNewClass( aafd, &AAFClassID_OperationDefinition, CONCRETE, DefObject );
+	aafClass * OperationDef = aafclass_defineNewClass( aafd, &AAFClassID_OperationDefinition, CONCRETE, DefObject );
 
 	if ( OperationDef == NULL ) { return -1; }
 
@@ -901,7 +901,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * ParameterDef = defineNewClass( aafd, &AAFClassID_ParameterDefinition, CONCRETE, DefObject );
+	aafClass * ParameterDef = aafclass_defineNewClass( aafd, &AAFClassID_ParameterDefinition, CONCRETE, DefObject );
 
 	if ( ParameterDef == NULL ) { return -1; }
 
@@ -910,7 +910,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * InterpolationDef = defineNewClass( aafd, &AAFClassID_InterpolationDefinition, CONCRETE, DefObject );
+	aafClass * InterpolationDef = aafclass_defineNewClass( aafd, &AAFClassID_InterpolationDefinition, CONCRETE, DefObject );
 
 	if ( InterpolationDef == NULL ) { return -1; }
 
@@ -918,7 +918,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * CodecDef = defineNewClass( aafd, &AAFClassID_CodecDefinition, CONCRETE, DefObject );
+	aafClass * CodecDef = aafclass_defineNewClass( aafd, &AAFClassID_CodecDefinition, CONCRETE, DefObject );
 
 	if ( CodecDef == NULL ) { return -1; }
 
@@ -927,7 +927,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * PluginDef = defineNewClass( aafd, &AAFClassID_PluginDefinition, CONCRETE, DefObject );
+	aafClass * PluginDef = aafclass_defineNewClass( aafd, &AAFClassID_PluginDefinition, CONCRETE, DefObject );
 
 	if ( PluginDef == NULL ) { return -1; }
 
@@ -953,7 +953,7 @@ int setDefaultClasses( AAF_Data *aafd )
 	attachNewProperty( aafd, PluginDef,        prop, PID_PluginDefinition_DefinitionObject,                     PROP_OPT );
 
 
-	aafClass * TaggedValueDef = defineNewClass( aafd, &AAFClassID_TaggedValueDefinition, CONCRETE, DefObject );
+	aafClass * TaggedValueDef = aafclass_defineNewClass( aafd, &AAFClassID_TaggedValueDefinition, CONCRETE, DefObject );
 
 	if ( TaggedValueDef == NULL ) { return -1; }
 
@@ -961,7 +961,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * KLVDataDef = defineNewClass( aafd, &AAFClassID_KLVDataDefinition, CONCRETE, DefObject );
+	aafClass * KLVDataDef = aafclass_defineNewClass( aafd, &AAFClassID_KLVDataDefinition, CONCRETE, DefObject );
 
 	if ( KLVDataDef == NULL ) { return -1; }
 
@@ -969,7 +969,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * EssenceData = defineNewClass( aafd, &AAFClassID_EssenceData, CONCRETE, IOC );
+	aafClass * EssenceData = aafclass_defineNewClass( aafd, &AAFClassID_EssenceData, CONCRETE, IOC );
 
 	if ( EssenceData == NULL ) { return -1; }
 
@@ -989,7 +989,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * MetaDefinition = defineNewClass( aafd, &AAFClassID_MetaDefinition, ABSTRACT, NULL );
+	aafClass * MetaDefinition = aafclass_defineNewClass( aafd, &AAFClassID_MetaDefinition, ABSTRACT, NULL );
 
 	if ( MetaDefinition == NULL ) { return -1; }
 
@@ -999,7 +999,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * ClassDefinition = defineNewClass( aafd, &AAFClassID_ClassDefinition, CONCRETE, MetaDefinition );
+	aafClass * ClassDefinition = aafclass_defineNewClass( aafd, &AAFClassID_ClassDefinition, CONCRETE, MetaDefinition );
 
 	if ( ClassDefinition == NULL ) { return -1; }
 
@@ -1009,7 +1009,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * PropertyDefinition = defineNewClass( aafd, &AAFClassID_PropertyDefinition, CONCRETE, MetaDefinition );
+	aafClass * PropertyDefinition = aafclass_defineNewClass( aafd, &AAFClassID_PropertyDefinition, CONCRETE, MetaDefinition );
 
 	if ( PropertyDefinition == NULL ) { return -1; }
 
@@ -1020,7 +1020,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * TypeDef = defineNewClass( aafd, &AAFClassID_TypeDefinition, ABSTRACT, MetaDefinition );
+	aafClass * TypeDef = aafclass_defineNewClass( aafd, &AAFClassID_TypeDefinition, ABSTRACT, MetaDefinition );
 
 	if ( TypeDef == NULL ) { return -1; }
 
@@ -1028,7 +1028,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * TypeDefCharacter = defineNewClass( aafd, &AAFClassID_TypeDefinitionCharacter, CONCRETE, TypeDef );
+	aafClass * TypeDefCharacter = aafclass_defineNewClass( aafd, &AAFClassID_TypeDefinitionCharacter, CONCRETE, TypeDef );
 
 	if ( TypeDefCharacter == NULL ) { return -1; }
 
@@ -1036,7 +1036,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * TypeDefEnum = defineNewClass( aafd, &AAFClassID_TypeDefinitionEnumeration, CONCRETE, TypeDef );
+	aafClass * TypeDefEnum = aafclass_defineNewClass( aafd, &AAFClassID_TypeDefinitionEnumeration, CONCRETE, TypeDef );
 
 	if ( TypeDefEnum == NULL ) { return -1; }
 
@@ -1046,7 +1046,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * TypeDefExtEnum = defineNewClass( aafd, &AAFClassID_TypeDefinitionExtendibleEnumeration, CONCRETE, TypeDef );
+	aafClass * TypeDefExtEnum = aafclass_defineNewClass( aafd, &AAFClassID_TypeDefinitionExtendibleEnumeration, CONCRETE, TypeDef );
 
 	if ( TypeDefExtEnum == NULL ) { return -1; }
 
@@ -1055,7 +1055,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * TypeDefFixedArray = defineNewClass( aafd, &AAFClassID_TypeDefinitionFixedArray, CONCRETE, TypeDef );
+	aafClass * TypeDefFixedArray = aafclass_defineNewClass( aafd, &AAFClassID_TypeDefinitionFixedArray, CONCRETE, TypeDef );
 
 	if ( TypeDefFixedArray == NULL ) { return -1; }
 
@@ -1064,7 +1064,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * TypeDefIndirect = defineNewClass( aafd, &AAFClassID_TypeDefinitionIndirect, CONCRETE, TypeDef );
+	aafClass * TypeDefIndirect = aafclass_defineNewClass( aafd, &AAFClassID_TypeDefinitionIndirect, CONCRETE, TypeDef );
 
 	if ( TypeDefIndirect == NULL ) { return -1; }
 
@@ -1072,7 +1072,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * TypeDefInt = defineNewClass( aafd, &AAFClassID_TypeDefinitionInteger, CONCRETE, TypeDef );
+	aafClass * TypeDefInt = aafclass_defineNewClass( aafd, &AAFClassID_TypeDefinitionInteger, CONCRETE, TypeDef );
 
 	if ( TypeDefInt == NULL ) { return -1; }
 
@@ -1081,7 +1081,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * TypeDefOpaque = defineNewClass( aafd, &AAFClassID_TypeDefinitionOpaque, CONCRETE, TypeDef );
+	aafClass * TypeDefOpaque = aafclass_defineNewClass( aafd, &AAFClassID_TypeDefinitionOpaque, CONCRETE, TypeDef );
 
 	if ( TypeDefOpaque == NULL ) { return -1; }
 
@@ -1089,7 +1089,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * TypeDefRecord = defineNewClass( aafd, &AAFClassID_TypeDefinitionRecord, CONCRETE, TypeDef );
+	aafClass * TypeDefRecord = aafclass_defineNewClass( aafd, &AAFClassID_TypeDefinitionRecord, CONCRETE, TypeDef );
 
 	if ( TypeDefRecord == NULL ) { return -1; }
 
@@ -1098,7 +1098,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * TypeDefRename = defineNewClass( aafd, &AAFClassID_TypeDefinitionRename, CONCRETE, TypeDef );
+	aafClass * TypeDefRename = aafclass_defineNewClass( aafd, &AAFClassID_TypeDefinitionRename, CONCRETE, TypeDef );
 
 	if ( TypeDefRename == NULL ) { return -1; }
 
@@ -1106,7 +1106,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * TypeDefSet = defineNewClass( aafd, &AAFClassID_TypeDefinitionSet, CONCRETE, TypeDef );
+	aafClass * TypeDefSet = aafclass_defineNewClass( aafd, &AAFClassID_TypeDefinitionSet, CONCRETE, TypeDef );
 
 	if ( TypeDefSet == NULL ) { return -1; }
 
@@ -1114,7 +1114,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * TypeDefStream = defineNewClass( aafd, &AAFClassID_TypeDefinitionStream, CONCRETE, TypeDef );
+	aafClass * TypeDefStream = aafclass_defineNewClass( aafd, &AAFClassID_TypeDefinitionStream, CONCRETE, TypeDef );
 
 	if ( TypeDefStream == NULL ) { return -1; }
 
@@ -1122,7 +1122,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * TypeDefString = defineNewClass( aafd, &AAFClassID_TypeDefinitionString, CONCRETE, TypeDef );
+	aafClass * TypeDefString = aafclass_defineNewClass( aafd, &AAFClassID_TypeDefinitionString, CONCRETE, TypeDef );
 
 	if ( TypeDefString == NULL ) { return -1; }
 
@@ -1130,7 +1130,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * TypeDefStrongObjRef = defineNewClass( aafd, &AAFClassID_TypeDefinitionStrongObjectReference, CONCRETE, TypeDef );
+	aafClass * TypeDefStrongObjRef = aafclass_defineNewClass( aafd, &AAFClassID_TypeDefinitionStrongObjectReference, CONCRETE, TypeDef );
 
 	if ( TypeDefStrongObjRef == NULL ) { return -1; }
 
@@ -1138,7 +1138,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * TypeDefVariableArray = defineNewClass( aafd, &AAFClassID_TypeDefinitionVariableArray, CONCRETE, TypeDef );
+	aafClass * TypeDefVariableArray = aafclass_defineNewClass( aafd, &AAFClassID_TypeDefinitionVariableArray, CONCRETE, TypeDef );
 
 	if ( TypeDefVariableArray == NULL ) { return -1; }
 
@@ -1146,7 +1146,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * TypeDefWeakObjRef = defineNewClass( aafd, &AAFClassID_TypeDefinitionWeakObjectReference, CONCRETE, TypeDef );
+	aafClass * TypeDefWeakObjRef = aafclass_defineNewClass( aafd, &AAFClassID_TypeDefinitionWeakObjectReference, CONCRETE, TypeDef );
 
 	if ( TypeDefWeakObjRef == NULL ) { return -1; }
 
@@ -1155,7 +1155,7 @@ int setDefaultClasses( AAF_Data *aafd )
 
 
 
-	aafClass * MetaDictionary = defineNewClass( aafd, &AAFClassID_MetaDictionary, CONCRETE, NULL );
+	aafClass * MetaDictionary = aafclass_defineNewClass( aafd, &AAFClassID_MetaDictionary, CONCRETE, NULL );
 
 	if ( MetaDictionary == NULL ) { return -1; }
 

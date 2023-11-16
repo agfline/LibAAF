@@ -842,7 +842,7 @@ typedef struct CFB_Data
  */
 
 
-const wchar_t * CLSIDToText( const cfbCLSID_t *clsid );
+const wchar_t * cfb_CLSIDToText( const cfbCLSID_t *clsid );
 
 wchar_t * cfb_w16towchar( wchar_t *buf, uint16_t *w16buf, size_t w16blen );
 

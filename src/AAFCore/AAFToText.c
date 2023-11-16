@@ -42,7 +42,7 @@
 
 
 
-const wchar_t * MobIDToText( aafMobID_t *mobid )
+const wchar_t * aaft_MobIDToText( aafMobID_t *mobid )
 {
 	static wchar_t str[127];
 
@@ -75,7 +75,7 @@ const wchar_t * MobIDToText( aafMobID_t *mobid )
 
 
 
-const wchar_t * TimestampToText( aafTimeStamp_t *ts )
+const wchar_t * aaft_TimestampToText( aafTimeStamp_t *ts )
 {
 	static wchar_t str[24];
 
@@ -101,7 +101,7 @@ const wchar_t * TimestampToText( aafTimeStamp_t *ts )
 
 
 
-const wchar_t * VersionToText( aafVersionType_t *vers )
+const wchar_t * aaft_VersionToText( aafVersionType_t *vers )
 {
 	static wchar_t str[16];
 
@@ -122,7 +122,7 @@ const wchar_t * VersionToText( aafVersionType_t *vers )
 
 
 
-const wchar_t * ProductVersionToText( aafProductVersion_t *vers )
+const wchar_t * aaft_ProductVersionToText( aafProductVersion_t *vers )
 {
 	static wchar_t str[64];
 
@@ -138,7 +138,7 @@ const wchar_t * ProductVersionToText( aafProductVersion_t *vers )
 			vers->minor,
 			vers->tertiary,
 			vers->patchLevel,
-			ProductReleaseTypeToText( vers->type ),
+			aaft_ProductReleaseTypeToText( vers->type ),
 			vers->type );
 	}
 
@@ -147,7 +147,7 @@ const wchar_t * ProductVersionToText( aafProductVersion_t *vers )
 
 
 
-const wchar_t * FileKindToText( const aafUID_t *auid )
+const wchar_t * aaft_FileKindToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
 		return L"n/a";
@@ -171,7 +171,7 @@ const wchar_t * FileKindToText( const aafUID_t *auid )
 
 
 
-const wchar_t * TapeCaseTypeToText( aafTapeCaseType_t t )
+const wchar_t * aaft_TapeCaseTypeToText( aafTapeCaseType_t t )
 {
 	switch ( t ) {
 		case AAFTapeCaseNull:              return L"AAFTapeCaseNull";
@@ -189,7 +189,7 @@ const wchar_t * TapeCaseTypeToText( aafTapeCaseType_t t )
 
 
 
-const wchar_t * VideoSignalTypeToText( aafVideoSignalType_t v )
+const wchar_t * aaft_VideoSignalTypeToText( aafVideoSignalType_t v )
 {
 	switch ( v ) {
 		case AAFVideoSignalNull:  return L"AAFVideoSignalNull";
@@ -203,7 +203,7 @@ const wchar_t * VideoSignalTypeToText( aafVideoSignalType_t v )
 
 
 
-const wchar_t * TapeFormatTypeToText( aafTapeFormatType_t t )
+const wchar_t * aaft_TapeFormatTypeToText( aafTapeFormatType_t t )
 {
 	switch ( t ) {
 		case AAFTapeFormatNull:   return L"AAFTapeFormatNull";
@@ -220,7 +220,7 @@ const wchar_t * TapeFormatTypeToText( aafTapeFormatType_t t )
 
 
 
-const wchar_t * FilmTypeToText( aafFilmType_t f )
+const wchar_t * aaft_FilmTypeToText( aafFilmType_t f )
 {
 	switch ( f ) {
 		case AAFFtNull:  return L"AAFFtNull";
@@ -235,7 +235,7 @@ const wchar_t * FilmTypeToText( aafFilmType_t f )
 
 
 
-const wchar_t * SignalStandardToText( aafSignalStandard_t s )
+const wchar_t * aaft_SignalStandardToText( aafSignalStandard_t s )
 {
 	switch ( s ) {
 		case AAFSignalStandard_None:       return L"AAFSignalStandard_None";
@@ -252,7 +252,7 @@ const wchar_t * SignalStandardToText( aafSignalStandard_t s )
 
 
 
-const wchar_t * FieldNumberToText( aafFieldNumber_t f )
+const wchar_t * aaft_FieldNumberToText( aafFieldNumber_t f )
 {
 	switch ( f ) {
 		case AAFUnspecifiedField:  return L"AAFUnspecifiedField";
@@ -265,7 +265,7 @@ const wchar_t * FieldNumberToText( aafFieldNumber_t f )
 
 
 
-const wchar_t * AlphaTransparencyToText( aafAlphaTransparency_t a )
+const wchar_t * aaft_AlphaTransparencyToText( aafAlphaTransparency_t a )
 {
 	switch ( a ) {
 		case AAFMinValueTransparent:  return L"AAFMinValueTransparent";
@@ -277,7 +277,7 @@ const wchar_t * AlphaTransparencyToText( aafAlphaTransparency_t a )
 
 
 
-const wchar_t * FrameLayoutToText( aafFrameLayout_t f )
+const wchar_t * aaft_FrameLayoutToText( aafFrameLayout_t f )
 {
 	switch ( f ) {
 		case AAFFullFrame:       return L"AAFFullFrame";
@@ -292,7 +292,7 @@ const wchar_t * FrameLayoutToText( aafFrameLayout_t f )
 
 
 
-const wchar_t * ColorSitingToText( aafColorSiting_t c )
+const wchar_t * aaft_ColorSitingToText( aafColorSiting_t c )
 {
 	switch ( c ) {
 		case AAFCoSiting:       return L"AAFCoSiting";
@@ -308,7 +308,7 @@ const wchar_t * ColorSitingToText( aafColorSiting_t c )
 
 
 
-const wchar_t * ProductReleaseTypeToText( aafProductReleaseType_t t )
+const wchar_t * aaft_ProductReleaseTypeToText( aafProductReleaseType_t t )
 {
 	switch ( t ) {
 		case AAFVersionUnknown:       return L"AAFVersionUnknown";
@@ -324,7 +324,7 @@ const wchar_t * ProductReleaseTypeToText( aafProductReleaseType_t t )
 
 
 
-const wchar_t * FadeTypeToText( aafFadeType_t f )
+const wchar_t * aaft_FadeTypeToText( aafFadeType_t f )
 {
 	switch ( f ) {
 		case AAFFadeNone:         return L"AAFFadeNone";
@@ -337,7 +337,7 @@ const wchar_t * FadeTypeToText( aafFadeType_t f )
 
 
 
-const wchar_t * BoolToText( aafBoolean_t b )
+const wchar_t * aaft_BoolToText( aafBoolean_t b )
 {
 	switch ( b ) {
 		case 1:  return L"True";
@@ -349,7 +349,7 @@ const wchar_t * BoolToText( aafBoolean_t b )
 
 
 
-const wchar_t * OperationCategoryToText( const aafUID_t *auid )
+const wchar_t * aaft_OperationCategoryToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
 		return L"n/a";
@@ -362,7 +362,7 @@ const wchar_t * OperationCategoryToText( const aafUID_t *auid )
 
 
 
-const wchar_t * PluginCategoryToText( const aafUID_t *auid )
+const wchar_t * aaft_PluginCategoryToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
 		return L"n/a";
@@ -377,7 +377,7 @@ const wchar_t * PluginCategoryToText( const aafUID_t *auid )
 
 
 
-const wchar_t * ScanningDirectionToText( aafScanningDirection_t s )
+const wchar_t * aaft_ScanningDirectionToText( aafScanningDirection_t s )
 {
 	switch ( s ) {
 		case AAFScanningDirection_LeftToRightTopToBottom:  return L"AAFScanningDirection_LeftToRightTopToBottom";
@@ -395,7 +395,7 @@ const wchar_t * ScanningDirectionToText( aafScanningDirection_t s )
 
 
 
-const wchar_t * ByteOrderToText( int16_t bo )
+const wchar_t * aaft_ByteOrderToText( int16_t bo )
 {
 	switch ( bo ) {
 
@@ -413,7 +413,7 @@ const wchar_t * ByteOrderToText( int16_t bo )
 
 
 
-const wchar_t * ElectroSpatialToText( aafElectroSpatialFormulation_t e )
+const wchar_t * aaft_ElectroSpatialToText( aafElectroSpatialFormulation_t e )
 {
 	switch ( e ) {
 		case AAFElectroSpatialFormulation_Default:                                       return L"AAFElectroSpatialFormulation_Default";
@@ -432,7 +432,7 @@ const wchar_t * ElectroSpatialToText( aafElectroSpatialFormulation_t e )
 
 
 
-const wchar_t * StoredFormToText( enum aafStoredForm_e sf )
+const wchar_t * aaft_StoredFormToText( enum aafStoredForm_e sf )
 {
 	switch ( sf ) {
 		case SF_DATA:                                   return L"SF_DATA";
@@ -453,7 +453,7 @@ const wchar_t * StoredFormToText( enum aafStoredForm_e sf )
 
 
 
-const wchar_t * OPDefToText( const aafUID_t *auid )
+const wchar_t * aaft_OPDefToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
 		return L"n/a";
@@ -467,7 +467,7 @@ const wchar_t * OPDefToText( const aafUID_t *auid )
 
 
 
-const wchar_t * TypeIDToText( const aafUID_t *auid )
+const wchar_t * aaft_TypeIDToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
 		return L"n/a";
@@ -633,7 +633,7 @@ const wchar_t * TypeIDToText( const aafUID_t *auid )
 
 
 
-const wchar_t * DataDefToText( AAF_Data *aafd, const aafUID_t *auid )
+const wchar_t * aaft_DataDefToText( AAF_Data *aafd, const aafUID_t *auid )
 {
 	if ( auid == NULL )
 		return L"n/a";
@@ -677,7 +677,7 @@ const wchar_t * DataDefToText( AAF_Data *aafd, const aafUID_t *auid )
 
 
 
-const wchar_t * OperationDefToText( AAF_Data *aafd, const aafUID_t *auid )
+const wchar_t * aaft_OperationDefToText( AAF_Data *aafd, const aafUID_t *auid )
 {
 	if ( auid == NULL )
 		return L"n/a";
@@ -740,7 +740,7 @@ const wchar_t * OperationDefToText( AAF_Data *aafd, const aafUID_t *auid )
 
 
 
-const wchar_t * InterpolationToText( const aafUID_t *auid )
+const wchar_t * aaft_InterpolationToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
 		return L"n/a";
@@ -758,7 +758,7 @@ const wchar_t * InterpolationToText( const aafUID_t *auid )
 
 
 
-const wchar_t * ParameterToText( AAF_Data *aafd, const aafUID_t *auid )
+const wchar_t * aaft_ParameterToText( AAF_Data *aafd, const aafUID_t *auid )
 {
 	if ( auid == NULL )
 		return L"n/a";
@@ -856,7 +856,7 @@ const wchar_t * ParameterToText( AAF_Data *aafd, const aafUID_t *auid )
 
 
 
-const wchar_t * TransferCharacteristicToText( const aafUID_t *auid )
+const wchar_t * aaft_TransferCharacteristicToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
 		return L"n/a";
@@ -874,7 +874,7 @@ const wchar_t * TransferCharacteristicToText( const aafUID_t *auid )
 
 
 
-const wchar_t * CodingEquationsToText( const aafUID_t *auid )
+const wchar_t * aaft_CodingEquationsToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
 		return L"n/a";
@@ -889,7 +889,7 @@ const wchar_t * CodingEquationsToText( const aafUID_t *auid )
 
 
 
-const wchar_t * ColorPrimariesToText( const aafUID_t *auid )
+const wchar_t * aaft_ColorPrimariesToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
 		return L"n/a";
@@ -904,7 +904,7 @@ const wchar_t * ColorPrimariesToText( const aafUID_t *auid )
 
 
 
-const wchar_t * UsageCodeToText( const aafUID_t *auid )
+const wchar_t * aaft_UsageCodeToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
 		return L"n/a";
@@ -921,7 +921,7 @@ const wchar_t * UsageCodeToText( const aafUID_t *auid )
 
 
 
-const wchar_t * PIDToText( AAF_Data *aafd, aafPID_t pid )
+const wchar_t * aaft_PIDToText( AAF_Data *aafd, aafPID_t pid )
 {
 	switch ( pid ) {
 		case PID_Root_MetaDictionary:                                return L"PID_Root_MetaDictionary";
@@ -1282,7 +1282,7 @@ const wchar_t * PIDToText( AAF_Data *aafd, aafPID_t pid )
 
 
 
-const wchar_t * ClassIDToText( AAF_Data *aafd, const aafUID_t *auid )
+const wchar_t * aaft_ClassIDToText( AAF_Data *aafd, const aafUID_t *auid )
 {
 	if ( auid == NULL )
 		return L"n/a";
@@ -1416,7 +1416,7 @@ const wchar_t * ClassIDToText( AAF_Data *aafd, const aafUID_t *auid )
 
 
 
-const wchar_t * ContainerToText( const aafUID_t *auid )
+const wchar_t * aaft_ContainerToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
 		return L"n/a";
@@ -1521,7 +1521,7 @@ const wchar_t * ContainerToText( const aafUID_t *auid )
 
 
 
-const wchar_t * CompressionToText( const aafUID_t *auid )
+const wchar_t * aaft_CompressionToText( const aafUID_t *auid )
 {
 	if ( auid == NULL )
 		return L"n/a";
