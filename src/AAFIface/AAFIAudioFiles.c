@@ -121,9 +121,25 @@ char * aafi_locate_external_essence_file( AAF_Iface *aafi, const wchar_t *origin
 
 	// debug( "Original URI filepath : %s", uri_filepath );
 
+
+	uri = uriParse( uri_filepath, URI_OPT_DECODE_ALL, aafi->dbg );
+
+	if ( uri == NULL ) {
+		error( "Could not parse URI" );
+		goto err;
+	}
+
+	if ( uri->path == NULL ) {
+		error( "Could not retrieve <path> out of URI" );
+		goto err;
+	}
+
+	// debug( "URI's filepath : %s", uri->path );
+
+
 	if ( search_location ) {
 
-		local_filepath = laaf_util_build_path( DIR_SEP_STR, search_location, laaf_util_fop_get_file(uri_filepath), NULL );
+		local_filepath = laaf_util_build_path( DIR_SEP_STR, search_location, laaf_util_fop_get_file(uri->path), NULL );
 
 		if ( local_filepath == NULL ) {
 			error( "Could not build search filepath" );
@@ -152,20 +168,6 @@ char * aafi_locate_external_essence_file( AAF_Iface *aafi, const wchar_t *origin
 
 
 	/* Try <path> part of URI */
-
-	uri = uriParse( uri_filepath, URI_OPT_DECODE_ALL, aafi->dbg );
-
-	if ( uri == NULL ) {
-		error( "Could not parse URI" );
-		goto err;
-	}
-
-	if ( uri->path == NULL ) {
-		error( "Could not retrieve <path> out of URI" );
-		goto err;
-	}
-
-	// debug( "URI's filepath : %s", uri->path );
 
 	if ( access( uri->path, F_OK ) != -1 ) {
 		// debug( "FOUND: %s", path );
