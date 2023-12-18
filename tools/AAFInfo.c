@@ -35,6 +35,7 @@
 
 #include "./thirdparty/libTC.h"
 #include "../src/common/utils.h" // ANSI colors, laaf_util_c99strdup()
+#include "common.h" // aafi_enable_windows_VT100_output()
 
 
 
