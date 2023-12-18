@@ -134,19 +134,70 @@ char * aafi_locate_external_essence_file( AAF_Iface *aafi, const wchar_t *origin
 		goto err;
 	}
 
-	// debug( "URI's filepath : %s", uri->path );
+	// debug( "Decoded URI's filepath : %s", uri->path );
+
+
+
+	/* extract relative path to essence file : "<firstparent>/<essence.file>" */
+
+	char *relativeEssencePath = NULL;
+	char *p = uri->path + strlen(uri->path);
+
+	int sepcount = 0;
+
+	while ( p > uri->path ) {
+		if ( *p == '/' ) { /* parsing URI, so will always be '/' as separator character */
+			sepcount++;
+			if ( sepcount == 2 ) {
+				relativeEssencePath = (p+1);
+				break;
+			}
+		}
+		p--;
+	}
+
+
+	const char *essenceFileName = laaf_util_fop_get_file( uri->path );
+
+	// debug( "Essence filename : %s", essenceFileName );
 
 
 	if ( search_location ) {
 
-		local_filepath = laaf_util_build_path( DIR_SEP_STR, search_location, laaf_util_fop_get_file(uri->path), NULL );
+		/*
+		 * "<search_location>/<essence.file>"
+		 */
+
+		local_filepath = laaf_util_build_path( DIR_SEP_STR, search_location, essenceFileName, NULL );
 
 		if ( local_filepath == NULL ) {
 			error( "Could not build search filepath" );
 			goto err;
 		}
 
-		// debug( "Search filepath : %s", fpath );
+		// debug( "Search filepath : %s", local_filepath );
+
+		if ( access( local_filepath, F_OK ) != -1 ) {
+			// debug( "FOUND: %s", local_filepath );
+			retpath = local_filepath;
+			goto found;
+		}
+
+		free( local_filepath ); local_filepath = NULL;
+
+
+		/*
+		 * "<search_location>/<firstparentInOriginalEssencePath>/<essence.file>"
+		 */
+
+		local_filepath = laaf_util_build_path( DIR_SEP_STR, search_location, relativeEssencePath, NULL );
+
+		if ( local_filepath == NULL ) {
+			error( "Could not build search filepath" );
+			goto err;
+		}
+
+		// debug( "Search filepath : %s", local_filepath );
 
 		if ( access( local_filepath, F_OK ) != -1 ) {
 			// debug( "FOUND: %s", local_filepath );
@@ -170,7 +221,7 @@ char * aafi_locate_external_essence_file( AAF_Iface *aafi, const wchar_t *origin
 	/* Try <path> part of URI */
 
 	if ( access( uri->path, F_OK ) != -1 ) {
-		// debug( "FOUND: %s", path );
+		// debug( "FOUND: %s", uri->path );
 		retpath = uri->path;
 		goto found;
 	}
@@ -201,24 +252,6 @@ char * aafi_locate_external_essence_file( AAF_Iface *aafi, const wchar_t *origin
 	 *    = /home/user/AudioFiles/essence.file
 	 */
 
-	/* extract relative path to essence file : "<firstparent>/<essence.file>" */
-
-	char *relativeEssencePath = NULL;
-	char *p = uri->path + strlen(uri->path);
-
-	int sepcount = 0;
-
-	while ( p > uri->path ) {
-		if ( *p == '/' ) { /* parsing URI, so will always be '/' as separator character */
-			sepcount++;
-			if ( sepcount == 2 ) {
-				relativeEssencePath = (p+1);
-				break;
-			}
-		}
-		p--;
-	}
-
 
 	/* extract path to AAF file */
 
@@ -240,6 +273,30 @@ char * aafi_locate_external_essence_file( AAF_Iface *aafi, const wchar_t *origin
 	}
 
 
+	/*
+	 * "<localPathToAAFfile>/<essence.file>"
+	 */
+
+	local_filepath = laaf_util_build_path( DIR_SEP_STR, aaf_path, essenceFileName, NULL );
+
+	if ( local_filepath == NULL ) {
+		error( "Could not build filepath" );
+		goto err;
+	}
+
+	// debug( "AAF relative filepath : %s", local_filepath );
+
+	if ( access( local_filepath, F_OK ) != -1 ) {
+		// debug( "FOUND: %s", filepath );
+		retpath = local_filepath;
+		goto found;
+	}
+
+
+	/*
+	 * "<localPathToAAFfile>/<firstparentInOriginalEssencePath>/<essence.file>"
+	 */
+
 	local_filepath = laaf_util_build_path( DIR_SEP_STR, aaf_path, relativeEssencePath, NULL );
 
 	if ( local_filepath == NULL ) {
@@ -254,6 +311,7 @@ char * aafi_locate_external_essence_file( AAF_Iface *aafi, const wchar_t *origin
 		retpath = local_filepath;
 		goto found;
 	}
+
 
 	// debug("File not found");
 
