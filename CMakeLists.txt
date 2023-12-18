@@ -9,6 +9,8 @@ option( BUILD_TOOLS      "Build AAFInfo and AAFExtract programs"     ON )
 
 option( XBUILD_WIN       "Cross compile libaaf on Linux for Windows" OFF )
 
+set( LIBAAF_VERSION "GIT" CACHE STRING "Set version manualy, git version used otherwise" )
+
 
 if ( NOT BUILD_SHARED_LIB AND NOT BUILD_STATIC_LIB )
   message( FATAL_ERROR "You need to enable at least one lib build (BUILD_STATIC_LIB or BUILD_SHARED_LIB)." )
@@ -24,6 +26,7 @@ add_custom_target( version
                    -D DST=${CMAKE_BINARY_DIR}/include/libaaf/version.h
                    -D PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
                    -D GIT_EXECUTABLE=${GIT_EXECUTABLE}
+                   -D LIBAAF_VERSION=${LIBAAF_VERSION}
                    -P ${CMAKE_SOURCE_DIR}/GenerateVersionHeader.cmake
   )
 

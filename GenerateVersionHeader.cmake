@@ -1,5 +1,4 @@
-if ( GIT_EXECUTABLE )
-
+if ( LIBAAF_VERSION STREQUAL "GIT" AND GIT_EXECUTABLE )
   get_filename_component( SRC_DIR ${SRC} DIRECTORY )
   # Generate a git-describe version string from Git repository tags
   execute_process(
@@ -16,9 +15,12 @@ endif()
 
 # Final fallback: Just use a bogus version string that is semantically older
 # than anything else and spit out a warning to the developer.
-if ( NOT DEFINED LIBAAF_VERSION )
+if ( LIBAAF_VERSION STREQUAL "GIT" )
   set( LIBAAF_VERSION v0.0.0-unknown )
   message( WARNING "Failed to determine LIBAAF_VERSION from Git tags. Using default version \"${LIBAAF_VERSION}\"." )
 endif()
+
+
+message( "Building ${LIBAAF_VERSION}" )
 
 configure_file( ${SRC} ${DST} @ONLY )
