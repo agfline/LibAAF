@@ -18,8 +18,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __commong_h__
-#define __commong_h__
+#ifndef __common_h__
+#define __common_h__
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,4 +31,4 @@ void aafi_enable_windows_VT100_output( void );
 }
 #endif
 
-#endif // ! __utils_h__
+#endif // ! __common_h__

@@ -18,26 +18,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * @file LibAAF/AAFIface/AAFIface.c
- * @brief AAF processing
- * @author Adrien Gesta-Fline
- * @version 0.1
- * @date 04 october 2017
- *
- * @ingroup AAFIface
- * @addtogroup AAFIface
- *
- * The AAFIface provides the actual processing of the AAF Objects in order to show
- * essences and clips in a simplified manner. Indeed, AAF has many different ways to
- * store data and metadata. Thus, the AAFIface is an abstraction layer that provides
- * a constant and unique representation method of essences and clips.
- *
- *
- *
- * @{
- */
-
 
 #include "common.h"
 
@@ -50,8 +30,7 @@
 
 
 
-void aafi_enable_windows_VT100_output( void )
-{
+void aafi_enable_windows_VT100_output( void ) {
 #ifdef _WIN32
 	/* enables ANSI colors and unicode chars */
 	HANDLE hOut = GetStdHandle( STD_OUTPUT_HANDLE );
