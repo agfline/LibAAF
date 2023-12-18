@@ -36,6 +36,7 @@
 #include "./thirdparty/libTC.h"
 #include "../src/common/utils.h" // ANSI colors, laaf_util_c99strdup()
 
+#include "common.h"
 
 
 #define POS_FORMAT_BUFFER_LEN 32
