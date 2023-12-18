@@ -171,11 +171,13 @@ if ( BUILD_TOOLS )
 
   add_executable( AAFInfo
     ${TOOLS_SRC_PATH}/AAFInfo.c
+    ${TOOLS_SRC_PATH}/common.c
     ${TOOLS_SRC_PATH}/thirdparty/libTC.c
   )
 
   add_executable( AAFExtract
     ${TOOLS_SRC_PATH}/AAFExtract.c
+    ${TOOLS_SRC_PATH}/common.c
     ${TOOLS_SRC_PATH}/thirdparty/libTC.c
   )
 

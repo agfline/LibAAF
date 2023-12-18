@@ -129,19 +129,6 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 
 
 
-void aafi_enable_windows_VT100_output( void )
-{
-#ifdef _WIN32
-	/* enables ANSI colors and unicode chars */
-	HANDLE hOut = GetStdHandle( STD_OUTPUT_HANDLE );
-	DWORD dwMode = 0;
-	GetConsoleMode( hOut, &dwMode );
-	SetConsoleMode( hOut, (dwMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING) );
-#endif
-}
-
-
-
 void aafi_set_debug( AAF_Iface *aafi, verbosityLevel_e v, FILE *fp, void (*callback)(struct dbg *dbg, void *ctxdata, int lib, int type, const char *srcfile, const char *srcfunc, int lineno, const char *msg, void *user), void *user )
 {
 	aafi->dbg->verb = v;
