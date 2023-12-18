@@ -21,7 +21,7 @@ endif()
 find_package( Git )
 add_custom_target( version
   ${CMAKE_COMMAND} -D SRC=${PROJECT_SOURCE_DIR}/src/version.h.in
-                   -D DST=${PROJECT_SOURCE_DIR}/include/libaaf/version.h
+                   -D DST=${CMAKE_BINARY_DIR}/include/libaaf/version.h
                    -D PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
                    -D GIT_EXECUTABLE=${GIT_EXECUTABLE}
                    -P ${CMAKE_SOURCE_DIR}/GenerateVersionHeader.cmake
@@ -70,9 +70,9 @@ elseif ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows" )
 endif()
 
 
-set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib )
-set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib )
-set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin )
+set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib )
+set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib )
+set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
 
 
 set( LIB_SRC_PATH      ${PROJECT_SOURCE_DIR}/src )
@@ -127,6 +127,7 @@ if ( BUILD_SHARED_LIB )
   add_library( aaf-shared SHARED ${LIBAAF_LIB_SOURCES} )
   add_dependencies( aaf-shared version )
   target_compile_options( aaf-shared PUBLIC ${LIBAAF_COMPILE_OPTIONS} )
+  target_include_directories ( aaf-shared PUBLIC "${CMAKE_BINARY_DIR}/include/" )
   set_target_properties( aaf-shared PROPERTIES OUTPUT_NAME "aaf" )
   set_target_properties( aaf-shared PROPERTIES
     PREFIX "${LIBAAF_PREFIX}"
@@ -140,6 +141,7 @@ if ( BUILD_STATIC_LIB )
   add_library( aaf-static STATIC ${LIBAAF_LIB_SOURCES} )
   add_dependencies( aaf-static version )
   target_compile_options( aaf-static PUBLIC ${LIBAAF_COMPILE_OPTIONS} )
+  target_include_directories ( aaf-static PUBLIC "${CMAKE_BINARY_DIR}/include/" )
   set_target_properties( aaf-static PROPERTIES OUTPUT_NAME "aaf" )
   set_target_properties( aaf-static PROPERTIES
     PREFIX "${LIBAAF_PREFIX}"
@@ -179,6 +181,9 @@ if ( BUILD_TOOLS )
     ${TOOLS_SRC_PATH}/thirdparty/libTC.c
   )
 
+  target_include_directories ( AAFInfo    PRIVATE "${CMAKE_BINARY_DIR}/include/" )
+  target_include_directories ( AAFExtract PRIVATE "${CMAKE_BINARY_DIR}/include/" )
+
   set_target_properties( AAFInfo    PROPERTIES SUFFIX "${PROG_SUFFIX}" )
   set_target_properties( AAFExtract PROPERTIES SUFFIX "${PROG_SUFFIX}" )
 
@@ -195,4 +200,6 @@ if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
   install( TARGETS AAFInfo    DESTINATION ${CMAKE_INSTALL_FULL_BINDIR} )
   install( TARGETS AAFExtract DESTINATION ${CMAKE_INSTALL_FULL_BINDIR} )
   install( DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR} FILES_MATCHING PATTERN "*.h*" )
+  install( DIRECTORY ${CMAKE_BINARY_DIR}/include/ DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR} FILES_MATCHING PATTERN "*.h*" )
+
 endif()
