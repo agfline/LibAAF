@@ -292,6 +292,8 @@ char * aafi_locate_external_essence_file( AAF_Iface *aafi, const wchar_t *origin
 		goto found;
 	}
 
+	free( local_filepath ); local_filepath = NULL;
+
 
 	/*
 	 * "<localPathToAAFfile>/<firstparentInOriginalEssencePath>/<essence.file>"
@@ -311,6 +313,8 @@ char * aafi_locate_external_essence_file( AAF_Iface *aafi, const wchar_t *origin
 		retpath = local_filepath;
 		goto found;
 	}
+
+	free( local_filepath ); local_filepath = NULL;
 
 
 	// debug("File not found");
@@ -545,6 +549,11 @@ int aafi_parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 			warning( "TODO: Could not parse embedded essence summary. Should try essence data stream ?" );
 			goto err;
 		}
+
+		audioEssence->channels   = RIFFAudioFile.channels;
+		audioEssence->samplerate = RIFFAudioFile.sampleRate;
+		audioEssence->samplesize = RIFFAudioFile.sampleSize;
+		audioEssence->length     = RIFFAudioFile.duration;
 	}
 	else {
 
