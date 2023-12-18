@@ -35,9 +35,12 @@ LibAAF was widely tested with :
 | Original essence file names             | x | *Full support*                         |
 | PCM Embedded Essences                   | x | *Full support*                         |
 | WAVE Embedded Essences                  | x | *Full support*                         |
+| WAVE External Essences                  | x | *Full support*                         |
 | AIFF Embedded Essences                  | x | *Full support*                         |
+| AIFF External Essences                  | x | *Full support*                         |
 | AES3 Embedded Essences                  | - | *Missing from the specs*               |
-| MXF support                             | - | **TODO**                               |
+| MXF Embedded Essences                   | - | **TODO**                               |
+| MXF External Essences                   | x | *Full support*                         |
 | Multi-channel Essences                  | - | **TODO** (*AAFClassID_MultipleDescriptor*) |
 | Multi-channel Tracks (stereo, 5.1, 7.1) | x | *ProTools AAF with **Export Stereo, 5.1 and 7.1 tracks as multi-channel** enabled.* |
 | Fades in/out - XFades                   | x | *Full support*                         |

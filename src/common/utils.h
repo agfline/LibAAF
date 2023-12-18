@@ -72,6 +72,8 @@ char * laaf_util_clean_filename( char *filename );
 
 const char * laaf_util_fop_get_file( const char *filepath );
 
+int laaf_util_fop_is_wstr_fileext( const wchar_t *filepath, const wchar_t *ext );
+
 char * laaf_util_build_path( const char *sep, const char *first, ... );
 
 int laaf_util_snprintf_realloc( char **str, int *size, size_t offset, const char *format, ... );

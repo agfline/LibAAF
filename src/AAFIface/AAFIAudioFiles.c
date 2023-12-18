@@ -521,7 +521,7 @@ int aafi_parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 	if ( audioEssence->is_embedded ) {
 
 		if ( audioEssence->summary == NULL ) {
-			warning( "TODO: Audio essence has no summary. Should try essence data stream ?" );
+			warning( "TODO: Audio essence has no summary. TODO: Should try essence data stream ?" );
 			goto err;
 		}
 
@@ -573,27 +573,33 @@ int aafi_parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 		}
 
 
-		fp = fopen( externalFilePath, "rb" );
+		if ( laaf_util_fop_is_wstr_fileext( audioEssence->original_file_path, L"wav"  ) ||
+		     laaf_util_fop_is_wstr_fileext( audioEssence->original_file_path, L"wave" ) ||
+				 laaf_util_fop_is_wstr_fileext( audioEssence->original_file_path, L"aif"  ) ||
+				 laaf_util_fop_is_wstr_fileext( audioEssence->original_file_path, L"aiff" ) ||
+		     laaf_util_fop_is_wstr_fileext( audioEssence->original_file_path, L"aifc" ) )
+		{
+			fp = fopen( externalFilePath, "rb" );
 
-		if ( fp == NULL ) {
-			error( "Could not open external audio essence file for reading : %s", externalFilePath );
-			goto err;
-		}
+			if ( fp == NULL ) {
+				error( "Could not open external audio essence file for reading : %s", externalFilePath );
+				goto err;
+			}
 
 
-		rc = riff_parseAudioFile( &RIFFAudioFile, RIFF_PARSE_ONLY_HEADER, &externalAudioDataReaderCallback, fp, externalFilePath, aafi, aafi->dbg );
+			rc = riff_parseAudioFile( &RIFFAudioFile, RIFF_PARSE_ONLY_HEADER, &externalAudioDataReaderCallback, fp, externalFilePath, aafi, aafi->dbg );
 
-		if ( rc < 0 ) {
-			error( "TODO IF MP3 ? Failed parsing external essence file : %s", externalFilePath );
-			goto err;
+			if ( rc < 0 ) {
+				error( "Failed parsing external audio essence file : %s", externalFilePath );
+				goto err;
+			}
+
+			audioEssence->channels   = RIFFAudioFile.channels;
+			audioEssence->samplerate = RIFFAudioFile.sampleRate;
+			audioEssence->samplesize = RIFFAudioFile.sampleSize;
+			audioEssence->length     = RIFFAudioFile.duration;
 		}
 	}
-
-
-	audioEssence->channels   = RIFFAudioFile.channels;
-	audioEssence->samplerate = RIFFAudioFile.sampleRate;
-	audioEssence->samplesize = RIFFAudioFile.sampleSize;
-	audioEssence->length     = RIFFAudioFile.duration;
 
 	rc = 0;
 	goto end;
