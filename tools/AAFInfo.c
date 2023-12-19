@@ -814,9 +814,9 @@ int main( int argc, char *argv[] )
 				markerCount++,
 				formatPosValue( (marker->start + sessionStart), marker->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf1 ),
 				formatPosValue(  marker->length,                marker->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf2 ),
-				marker->RVBColor[0],
-				marker->RVBColor[1],
-				marker->RVBColor[2],
+				marker->RGBColor[0],
+				marker->RGBColor[1],
+				marker->RGBColor[2],
 				marker->name,
 				marker->comment );
 		}

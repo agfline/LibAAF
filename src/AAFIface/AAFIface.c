@@ -317,7 +317,7 @@ aafiTransition * aafi_get_xfade( aafiTimelineItem *audioItem )
 
 
 
-aafiMarker * aafi_newMarker( AAF_Iface *aafi, aafRational_t *editRate, aafPosition_t start, aafPosition_t length, wchar_t *name, wchar_t *comment, uint16_t *(RVBColor[3]) )
+aafiMarker * aafi_newMarker( AAF_Iface *aafi, aafRational_t *editRate, aafPosition_t start, aafPosition_t length, wchar_t *name, wchar_t *comment, uint16_t *(RGBColor[3]) )
 {
 	aafiMarker *marker = malloc( sizeof(aafiMarker) );
 
@@ -331,10 +331,10 @@ aafiMarker * aafi_newMarker( AAF_Iface *aafi, aafRational_t *editRate, aafPositi
 	marker->prev = NULL;
 	marker->next = NULL;
 
-	if ( RVBColor ) {
-		marker->RVBColor[0] = (*RVBColor)[0];
-		marker->RVBColor[1] = (*RVBColor)[1];
-		marker->RVBColor[2] = (*RVBColor)[2];
+	if ( RGBColor ) {
+		marker->RGBColor[0] = (*RGBColor)[0];
+		marker->RGBColor[1] = (*RGBColor)[1];
+		marker->RGBColor[2] = (*RGBColor)[2];
 	}
 
 	if ( aafi->Markers != NULL ) {

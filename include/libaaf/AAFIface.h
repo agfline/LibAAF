@@ -729,7 +729,7 @@ typedef struct aafiMarker {
 
 	wchar_t          *name;
 	wchar_t          *comment;
-	uint16_t          RVBColor[3];
+	uint16_t          RGBColor[3];
 
 	struct aafiMarker *prev;
 	struct aafiMarker *next;
@@ -938,7 +938,7 @@ aafiTransition * aafi_get_fadeout( aafiTimelineItem *audioItem );
 
 aafiTransition * aafi_get_xfade( aafiTimelineItem *audioItem );
 
-aafiMarker * aafi_newMarker( AAF_Iface *aafi, aafRational_t *editRate, aafPosition_t start, aafPosition_t length, wchar_t *name, wchar_t *comment, uint16_t *RVBColor[3] );
+aafiMarker * aafi_newMarker( AAF_Iface *aafi, aafRational_t *editRate, aafPosition_t start, aafPosition_t length, wchar_t *name, wchar_t *comment, uint16_t *RGBColor[3] );
 
 void aafi_freeMarkers( aafiMarker **aafi );
 
