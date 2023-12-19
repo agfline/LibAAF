@@ -233,25 +233,18 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 	struct dbg *dbg = aafi->dbg;
 	int offset = 0;
 
-	// switch ( state ) {
-	// 	case TD_ERROR:		      offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "err %ls ", L"\u2502" );  break;
-	// 	case TD_WARNING:	      offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "wrn %ls ", L"\u2502" );  break;
-	// 	case TD_NOT_SUPPORTED:  offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "uns %ls ", L"\u2502" );  break;
-	// 	default:                offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "    %ls ", L"\u2502" );  break;
-	// }
-
 	if ( Obj ) {
 
 		switch ( state ) {
-			case TD_ERROR:		      offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%serr%s %ls %s", ANSI_COLOR_RED(dbg),    ANSI_COLOR_RESET(dbg), L"\u2502", ANSI_COLOR_RED(dbg)    );  break;
-			case TD_WARNING:	      offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%swrn%s %ls %s", ANSI_COLOR_YELLOW(dbg), ANSI_COLOR_RESET(dbg), L"\u2502", ANSI_COLOR_YELLOW(dbg) );  break;
-			case TD_NOT_SUPPORTED:  offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%suns%s %ls %s", ANSI_COLOR_ORANGE(dbg), ANSI_COLOR_RESET(dbg), L"\u2502", ANSI_COLOR_ORANGE(dbg) );  break;
-			default:                offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "    %ls %s", L"\u2502", ANSI_COLOR_DARKGREY(dbg) );  break;
+			case TD_ERROR:		      offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%serr %s%ls %s", ANSI_COLOR_RED(dbg),    ANSI_COLOR_DARKGREY(dbg), L"\u2502", ANSI_COLOR_RED(dbg)    );  break;
+			case TD_WARNING:	      offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%swrn %s%ls %s", ANSI_COLOR_YELLOW(dbg), ANSI_COLOR_DARKGREY(dbg), L"\u2502", ANSI_COLOR_YELLOW(dbg) );  break;
+			case TD_NOT_SUPPORTED:  offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%suns %s%ls %s", ANSI_COLOR_ORANGE(dbg), ANSI_COLOR_DARKGREY(dbg), L"\u2502", ANSI_COLOR_ORANGE(dbg) );  break;
+			default:                offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "    %s%ls ", ANSI_COLOR_DARKGREY(dbg), L"\u2502" );  break;
 		}
 		offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%05i", line );
 	}
 	else {
-		offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "    %ls      ", L"\u2502" );
+		offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "    %s%ls%s      ", ANSI_COLOR_DARKGREY(dbg), L"\u2502", ANSI_COLOR_RESET(dbg) );
 	}
 
 	offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s%ls%s", ANSI_COLOR_DARKGREY(dbg), L"\u2502", ANSI_COLOR_RESET(dbg) ); // │
