@@ -58,6 +58,7 @@ struct dbg {
 
 	FILE *fp;
 	verbosityLevel_e verb;
+	int ansicolor;
 
 	char *_dbg_msg;
 	int   _dbg_msg_size;

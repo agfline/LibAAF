@@ -222,7 +222,7 @@ void aaf_dump_MetaDictionary( AAF_Data *aafd )
 		foreachPropertyDefinition( PDef, Class->Properties )
 		{
 			if ( Class->meta ) {
-				offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, ANSI_COLOR_YELLOW "%ls::%ls (0x%04x)\n" ANSI_COLOR_RESET,
+				offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s%ls::%ls (0x%04x)%s\n", ANSI_COLOR_YELLOW(dbg), ANSI_COLOR_RESET(dbg),
 					Class->name,
 					PDef->name,
 					PDef->pid );
@@ -230,7 +230,7 @@ void aaf_dump_MetaDictionary( AAF_Data *aafd )
 				print++;
 			}
 			else if ( PDef->meta ) {
-				offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%ls::" ANSI_COLOR_YELLOW "%ls (0x%04x)\n" ANSI_COLOR_RESET,
+				offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%ls::%s%ls (0x%04x)\n", ANSI_COLOR_YELLOW(dbg), ANSI_COLOR_RESET(dbg),
 					aaft_ClassIDToText( aafd, Class->ID ),
 					PDef->name,
 					PDef->pid );
@@ -265,9 +265,9 @@ void aaf_dump_Classes( AAF_Data *aafd )
 		foreachClassInheritance( Class, ConcreteClass )
 		{
 			offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s%ls%s",
-				(Class->meta) ? ANSI_COLOR_YELLOW : "",
+				(Class->meta) ? ANSI_COLOR_YELLOW(dbg) : "",
 				aaft_ClassIDToText( aafd, Class->ID ),
-				(Class->meta) ? ANSI_COLOR_RESET  : "" );
+				(Class->meta) ? ANSI_COLOR_RESET(dbg)  : "" );
 
 
 			if ( Class->Parent != NULL )

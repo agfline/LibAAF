@@ -199,6 +199,7 @@ static void showHelp( void )
 		"\n"
 		"   --pos-format <tc|hms|samples>  Position and length display format.\n"
 		"   --show-automation              Shows track and clip automation values.\n"
+		"   --no-color                     Disable ANSI colors in output.\n"
 		"\n"
 		"   --verbose               <num>  0=quiet 1=error 2=warning 3=debug.\n"
 		"\n\n"
@@ -238,6 +239,7 @@ int main( int argc, char *argv[] )
 	enum verbosityLevel_e verb = VERB_DEBUG;
 	int trace = 0;
 	int trace_meta = 0;
+	int ansicolor = 1;
 
 	char *trace_class = NULL;
 
@@ -274,6 +276,7 @@ int main( int argc, char *argv[] )
 		{ "pos-format",      required_argument,	 0,	 0x8e },
 
 		{ "show-automation", no_argument,	       0,	 0x8f },
+		{ "no-color",        no_argument,	       0,	 0xa0 },
 
 		{ "verbose",         required_argument,	 0,	 0x90 },
 
@@ -336,6 +339,8 @@ int main( int argc, char *argv[] )
 			case 0x92:  trace_meta = 1;                          break;
 			case 0x93:  trace_class = optarg;                    break;
 
+			case 0xa0:  ansicolor = 0;                           break;
+
 			case 'h':	showHelp();        												 goto end;
 
 			default:                                             break;
@@ -386,7 +391,7 @@ int main( int argc, char *argv[] )
 
 	aafd = aafi->aafd;
 
-	aafi_set_debug( aafi, verb, stdout, NULL, NULL );
+	aafi_set_debug( aafi, verb, ansicolor, stdout, NULL, NULL );
 
 	aafi_enable_windows_VT100_output();
 
@@ -565,7 +570,7 @@ int main( int argc, char *argv[] )
 
 		for ( Object = aafd->Objects; Object != NULL; Object = Object->nextObj )
 		{
-			printf( "\n\n\n" ANSI_COLOR_MAGENTA " Object" ANSI_COLOR_RESET " @ %ls\n", aaf_get_ObjectPath( Object ) );
+			printf( "\n\n\n%s Object%s @ %ls\n", ANSI_COLOR_MAGENTA(aafd->dbg), ANSI_COLOR_RESET(aafd->dbg), aaf_get_ObjectPath( Object ) );
 			aaf_dump_ObjectProperties( aafd, Object );
 		}
 

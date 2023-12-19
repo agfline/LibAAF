@@ -129,9 +129,10 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 
 
 
-void aafi_set_debug( AAF_Iface *aafi, verbosityLevel_e v, FILE *fp, void (*callback)(struct dbg *dbg, void *ctxdata, int lib, int type, const char *srcfile, const char *srcfunc, int lineno, const char *msg, void *user), void *user )
+void aafi_set_debug( AAF_Iface *aafi, verbosityLevel_e v, int ansicolor, FILE *fp, void (*callback)(struct dbg *dbg, void *ctxdata, int lib, int type, const char *srcfile, const char *srcfunc, int lineno, const char *msg, void *user), void *user )
 {
 	aafi->dbg->verb = v;
+	aafi->dbg->ansicolor = ansicolor;
 	aafi->dbg->fp = fp;
 
 	if ( callback ) {

@@ -53,6 +53,7 @@ int main( int argc, char *argv[] )
 	int no_nonlatin = 0;
 	char *output_path = NULL;
 	char *aaf_file = NULL;
+	int ansicolor = 1;
 
 	printf( "\nAAFExtract\nlibAAF %s\n\n", LIBAAF_VERSION );
 
@@ -65,6 +66,7 @@ int main( int argc, char *argv[] )
 
 		{ "output-path",     required_argument, 0, 'p' },
 		{ "no-nonlatin",     required_argument, 0, 'n' },
+		{ "no-color",        no_argument,       0, 'c' },
 		{ "file",            required_argument, 0, 'f' },
 	};
 
@@ -90,6 +92,10 @@ int main( int argc, char *argv[] )
 				aaf_file = laaf_util_c99strdup(optarg);
 				break;
 
+			case 'c':
+				ansicolor = 0;
+				break;
+
 			default:
 				printf( "Error: unrecognized option. See --help for usage information.\n" );
 				return 1;
@@ -99,7 +105,7 @@ int main( int argc, char *argv[] )
 
 	AAF_Iface *aafi = aafi_alloc( NULL );
 
-	aafi_set_debug( aafi, VERB_DEBUG, stdout, NULL, NULL );
+	aafi_set_debug( aafi, ansicolor, VERB_DEBUG, stdout, NULL, NULL );
 
 	aafi_enable_windows_VT100_output();
 

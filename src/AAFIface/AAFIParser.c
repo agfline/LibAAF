@@ -206,7 +206,7 @@ static void xplore_StrongObjectReferenceVector( AAF_Iface *aafi, aafObject *ObjC
 				free( indirectValue );
 			}
 			else {
-				offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "Tagged     |     Name: %ls%*s      Value (%s%ls%s) : %sUNKNOWN_TYPE%s\n", name, 56-(int)wcslen(name), " ", ANSI_COLOR_RED, aaft_TypeIDToText(&indirect->TypeDef), ANSI_COLOR_RESET, ANSI_COLOR_RED, ANSI_COLOR_RESET );
+				offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "Tagged     |     Name: %ls%*s      Value (%s%ls%s) : %sUNKNOWN_TYPE%s\n", name, 56-(int)wcslen(name), " ", ANSI_COLOR_RED(dbg), aaft_TypeIDToText(&indirect->TypeDef), ANSI_COLOR_RESET(dbg), ANSI_COLOR_RED(dbg), ANSI_COLOR_RESET(dbg) );
 			}
 
 			dbg->debug_callback( dbg, (void*)aafi, DEBUG_SRC_ID_DUMP, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
@@ -233,21 +233,28 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 	struct dbg *dbg = aafi->dbg;
 	int offset = 0;
 
+	// switch ( state ) {
+	// 	case TD_ERROR:		      offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "err %ls ", L"\u2502" );  break;
+	// 	case TD_WARNING:	      offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "wrn %ls ", L"\u2502" );  break;
+	// 	case TD_NOT_SUPPORTED:  offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "uns %ls ", L"\u2502" );  break;
+	// 	default:                offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "    %ls ", L"\u2502" );  break;
+	// }
+
 	if ( Obj ) {
 
 		switch ( state ) {
-			case TD_ERROR:		      offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_RED      );  break;
-			case TD_WARNING:	      offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_YELLOW   );  break;
-			case TD_NOT_SUPPORTED:  offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_ORANGE   );  break;
-			default:                offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_DARKGREY );  break;
+			case TD_ERROR:		      offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%serr%s %ls %s", ANSI_COLOR_RED(dbg),    ANSI_COLOR_RESET(dbg), L"\u2502", ANSI_COLOR_RED(dbg)    );  break;
+			case TD_WARNING:	      offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%swrn%s %ls %s", ANSI_COLOR_YELLOW(dbg), ANSI_COLOR_RESET(dbg), L"\u2502", ANSI_COLOR_YELLOW(dbg) );  break;
+			case TD_NOT_SUPPORTED:  offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%suns%s %ls %s", ANSI_COLOR_ORANGE(dbg), ANSI_COLOR_RESET(dbg), L"\u2502", ANSI_COLOR_ORANGE(dbg) );  break;
+			default:                offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "    %ls %s", L"\u2502", ANSI_COLOR_DARKGREY(dbg) );  break;
 		}
 		offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%05i", line );
 	}
 	else {
-		offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "     " );
+		offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "    %ls      ", L"\u2502" );
 	}
 
-	offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s%ls%s", ANSI_COLOR_DARKGREY, L"\u2502", ANSI_COLOR_RESET ); // │
+	offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s%ls%s", ANSI_COLOR_DARKGREY(dbg), L"\u2502", ANSI_COLOR_RESET(dbg) ); // │
 
 	/* Print padding and vertical lines */
 
@@ -286,15 +293,15 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 	if ( Obj ) {
 
 		switch ( state ) {
-			case TD_ERROR:          offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_RED      );  break;
-			case TD_WARNING:        offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_YELLOW   );  break;
-			case TD_NOT_SUPPORTED:  offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_ORANGE   );  break;
+			case TD_ERROR:          offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_RED(dbg)      );  break;
+			case TD_WARNING:        offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_YELLOW(dbg)   );  break;
+			case TD_NOT_SUPPORTED:  offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_ORANGE(dbg)   );  break;
 			case TD_INFO:
 			case TD_OK:
 				if ( __td->sub )
-					offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_DARKGREY );
+					offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_DARKGREY(dbg) );
 				else
-					offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_CYAN );
+					offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_CYAN(dbg) );
 
 				break;
 		}
@@ -302,7 +309,7 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 
 		offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%ls ", aaft_ClassIDToText(aafi->aafd, Obj->Class->ID) );
 
-		offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_RESET );
+		offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_RESET(dbg) );
 
 
 		if ( aafUIDCmp( Obj->Class->ID, &AAFClassID_TimelineMobSlot ) &&
@@ -316,15 +323,15 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 			uint32_t  *trackNo        = aaf_get_propertyValue( Obj, PID_MobSlot_PhysicalTrackNumber, &AAFTypeID_UInt32 );
 
 			offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "[slot:%s%i%s track:%s%i%s] (DataDef : %s%ls%s) %s%ls ",
-				ANSI_COLOR_BOLD,
+				ANSI_COLOR_BOLD(dbg),
 				(slotID) ? (int)(*slotID) : -1,
-				ANSI_COLOR_RESET,
-				ANSI_COLOR_BOLD,
+				ANSI_COLOR_RESET(dbg),
+				ANSI_COLOR_BOLD(dbg),
 				(trackNo) ? (int)(*trackNo) : -1,
-				ANSI_COLOR_RESET,
-				ANSI_COLOR_DARKGREY,
+				ANSI_COLOR_RESET(dbg),
+				ANSI_COLOR_DARKGREY(dbg),
 				aaft_DataDefToText( aafi->aafd, DataDefinition ),
-				ANSI_COLOR_RESET,
+				ANSI_COLOR_RESET(dbg),
 				(name[0] != 0x00) ? ": " : "", (name) ? name : L""
 			);
 
@@ -339,9 +346,9 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 			wchar_t  *name      = aaf_get_propertyValue( Obj, PID_Mob_Name, &AAFTypeID_String );
 
 			offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "(UsageCode: %s%ls%s) %s%ls",
-				ANSI_COLOR_DARKGREY,
+				ANSI_COLOR_DARKGREY(dbg),
 				aaft_UsageCodeToText( usageCode ),
-				ANSI_COLOR_RESET,
+				ANSI_COLOR_RESET(dbg),
 				(name && name[0] != 0x00) ? ": " : "", (name) ? name : L""
 			);
 
@@ -352,9 +359,9 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 			aafUID_t *OperationIdentification = get_OperationGroup_OperationIdentification( aafi, Obj );
 
 			offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "(OpIdent: %s%ls%s) ",
-				ANSI_COLOR_DARKGREY,
+				ANSI_COLOR_DARKGREY(dbg),
 				aaft_OperationDefToText( aafi->aafd, OperationIdentification ),
-				ANSI_COLOR_RESET
+				ANSI_COLOR_RESET(dbg)
 			);
 		}
 		// else if ( aafUIDCmp( Obj->Class->ID, &AAFClassID_TapeDescriptor ) ||
@@ -374,10 +381,10 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 
 
 		if ( state == TD_ERROR ) {
-			offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, ": %s", ANSI_COLOR_RED );
+			offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, ": %s", ANSI_COLOR_RED(dbg) );
 		}
 		else if ( state == TD_INFO ) {
-			offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, ": %s", ANSI_COLOR_CYAN );
+			offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, ": %s", ANSI_COLOR_CYAN(dbg) );
 		}
 
 		va_list args;
@@ -419,19 +426,19 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 
 		if ( state == TD_NOT_SUPPORTED || ( aafi->ctx.options.trace_class && wcscmp( aaft_ClassIDToText(aafi->aafd, Obj->Class->ID), aafi->ctx.options.trace_class ) == 0) ) {
 
-			offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n%s", ( state == TD_NOT_SUPPORTED ) ? ANSI_COLOR_ORANGE : "" );
-
-			// offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "CFB Object Dump : %ls\n", aaf_get_ObjectPath( Obj ) );
-			// offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "=================\n" );
-			// cfb_dump_node( aafi->aafd->cfbd, Obj->Node, 1 );
-
-			offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "Properties Dump (%ls)\n", aaf_get_ObjectPath( Obj ) );
-			offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "===============\n\n" );
-			// aaf_dump_nodeStreamProperties( aafi->aafd, Obj->Node );
-
-			// dbg->debug_callback( dbg, (void*)aafi, DEBUG_SRC_ID_TRACE, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
+			// offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n%s", ( state == TD_NOT_SUPPORTED ) ? ANSI_COLOR_ORANGE(dbg) : "" );
 			//
-			// offset = 0;
+			// // offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "CFB Object Dump : %ls\n", aaf_get_ObjectPath( Obj ) );
+			// // offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "=================\n" );
+			// // cfb_dump_node( aafi->aafd->cfbd, Obj->Node, 1 );
+			//
+			// offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "Properties Dump (%ls)\n", aaf_get_ObjectPath( Obj ) );
+			// offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "===============\n\n" );
+			// // aaf_dump_nodeStreamProperties( aafi->aafd, Obj->Node );
+			//
+			// // dbg->debug_callback( dbg, (void*)aafi, DEBUG_SRC_ID_TRACE, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
+			// //
+			// // offset = 0;
 			// aaf_dump_ObjectProperties( aafi->aafd, Obj );
 		}
 		else {
@@ -463,7 +470,7 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 						}
 					}
 					else {
-						offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s%s %ls[0x%04x]", ANSI_COLOR_RESET, (!hasUnknownProps) ? "  (MetaProps:" : "", aaft_PIDToText( aafi->aafd, Prop->pid ), Prop->pid );
+						offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s%s %ls[0x%04x]", ANSI_COLOR_RESET(dbg), (!hasUnknownProps) ? "  (MetaProps:" : "", aaft_PIDToText( aafi->aafd, Prop->pid ), Prop->pid );
 						// laaf_util_dump_hex( Prop->val, Prop->len );
 						hasUnknownProps++;
 					}
@@ -474,7 +481,7 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 			}
 		}
 
-		offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_RESET );
+		offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_RESET(dbg) );
 	}
 
 
