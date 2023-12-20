@@ -100,7 +100,7 @@ static const char * panToStr( aafiAudioPan *pan )
 		float panval = aafRationalToFloat( (*pan->value) );
 
 		snprintf( str, 32, "%0.1f %s ",
-			  panval,
+			panval,
 			( panval == 0.0 ) ? "(L)" :
 			( panval == 0.5 ) ? "(C)" :
 			( panval == 1.0 ) ? "(R)" : "   " );
@@ -251,7 +251,7 @@ int main( int argc, char *argv[] )
 
 	static struct option long_options[] = {
 
-		{ "help",			       no_argument,		     0,  	'h' },
+		{ "help",            no_argument,        0,   'h' },
 
 		{ "cfb-header",      no_argument,        0,  0x81 },
 		{ "cfb-fat",         no_argument,        0,  0x82 },
@@ -259,7 +259,7 @@ int main( int argc, char *argv[] )
 		{ "cfb-difat",       no_argument,        0,  0x84 },
 		{ "cfb-nodes",       no_argument,        0,  0x85 },
 
-		{ "get-node",        required_argument,	 0,	 0x86 },
+		{ "get-node",        required_argument,  0,  0x86 },
 
 		{ "aaf-summary",     no_argument,        0,  0x87 },
 		{ "aaf-essences",    no_argument,        0,  0x88 },
@@ -268,17 +268,17 @@ int main( int argc, char *argv[] )
 		{ "aaf-meta",        no_argument,        0,  0x8b },
 		{ "aaf-properties",  no_argument,        0,  0x8c },
 
-		{ "trace",           no_argument,	       0,	 0x91 },
-		{ "trace-meta",      no_argument,	       0,	 0x92 },
+		{ "trace",           no_argument,        0,  0x91 },
+		{ "trace-meta",      no_argument,        0,  0x92 },
 		{ "trace-class",     required_argument,  0,  0x93 },
 
-		{ "media-location",  required_argument,	 0,	 0x8d },
-		{ "pos-format",      required_argument,	 0,	 0x8e },
+		{ "media-location",  required_argument,  0,  0x8d },
+		{ "pos-format",      required_argument,  0,  0x8e },
 
-		{ "show-automation", no_argument,	       0,	 0x8f },
-		{ "no-color",        no_argument,	       0,	 0xa0 },
+		{ "show-automation", no_argument,        0,  0x8f },
+		{ "no-color",        no_argument,        0,  0xa0 },
 
-		{ "verbose",         required_argument,	 0,	 0x90 },
+		{ "verbose",         required_argument,  0,  0x90 },
 
 		{ 0,                 0,                  0,  0x00 }
 	};
@@ -341,7 +341,7 @@ int main( int argc, char *argv[] )
 
 			case 0xa0:  ansicolor = 0;                           break;
 
-			case 'h':	showHelp();        												 goto end;
+			case 'h':	showHelp();                                goto end;
 
 			default:                                             break;
 		}
@@ -586,7 +586,7 @@ int main( int argc, char *argv[] )
 	if ( aaf_essences ) {
 
 		printf( "Media Essences :\n"
-	          "================\n\n" );
+		        "================\n\n" );
 		aafiAudioEssence *audioEssence = NULL;
 
 		uint32_t i = 0;
@@ -641,45 +641,45 @@ int main( int argc, char *argv[] )
 			 *  For exemple, if TC is 30000/1001 and audio clips are 48000/1, then TC->start has to be converted from FPS to samples.
 			 */
 
-			 // sessionStart = convertEditUnit( aafi->Timecode->start, *aafi->Timecode->edit_rate, *videoClip->track->edit_rate );
+			// sessionStart = convertEditUnit( aafi->Timecode->start, *aafi->Timecode->edit_rate, *videoClip->track->edit_rate );
 			sessionStart = convertEditUnit( aafi->compositionStart, aafi->compositionStart_editRate, *videoTrack->edit_rate );
 
 
 			printf( "VideoTrack %s(%u) - edit_rate %i/%i (%02.2f)  -  \"%ls\"\n",
-					(videoTrack->number < 10) ? " " : "",
-					videoTrack->number,
-					videoTrack->edit_rate->numerator, videoTrack->edit_rate->denominator,
-					aafRationalToFloat((*videoTrack->edit_rate)),
-					(videoTrack->name != NULL) ? videoTrack->name : L""
-			 );
+				(videoTrack->number < 10) ? " " : "",
+				videoTrack->number,
+				videoTrack->edit_rate->numerator, videoTrack->edit_rate->denominator,
+				aafRationalToFloat((*videoTrack->edit_rate)),
+				(videoTrack->name != NULL) ? videoTrack->name : L""
+			);
 
-			 if ( videoTrack->Items ) {
+			if ( videoTrack->Items ) {
 
-				 videoItem = videoTrack->Items;
-				 videoClip = (aafiVideoClip*)videoItem->data;
+				videoItem = videoTrack->Items;
+				videoClip = (aafiVideoClip*)videoItem->data;
 
-				 char posFormatBuf1[POS_FORMAT_BUFFER_LEN];
-				 char posFormatBuf2[POS_FORMAT_BUFFER_LEN];
-				 char posFormatBuf3[POS_FORMAT_BUFFER_LEN];
-				 char posFormatBuf4[POS_FORMAT_BUFFER_LEN];
+				char posFormatBuf1[POS_FORMAT_BUFFER_LEN];
+				char posFormatBuf2[POS_FORMAT_BUFFER_LEN];
+				char posFormatBuf3[POS_FORMAT_BUFFER_LEN];
+				char posFormatBuf4[POS_FORMAT_BUFFER_LEN];
 
-				 printf( " VideoClip "
-						 " Start:%s  Len:%s  End:%s  SrcOffset:%s  "
-						 " SourceFile: %ls   (%ls)\n",
-					 // i, ( i < 10 ) ? " " : "",
-					 // videoClip->track->number, ( videoClip->track->number < 10 ) ? " " : "",
-					 formatPosValue( (videoClip->pos + sessionStart),                  videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf1 ),
-					 formatPosValue( (videoClip->len),                                 videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf2 ),
-					 formatPosValue( (videoClip->pos + sessionStart + videoClip->len), videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf3 ),
-					 formatPosValue(  videoClip->essence_offset,                       videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf4 ),
-					 // (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start),
-					 (videoClip->Essence) ? videoClip->Essence->usable_file_path : L"",
-					 (videoClip->Essence) ? videoClip->Essence->file_name : L""
-				 );
+				printf( " VideoClip "
+				        " Start:%s  Len:%s  End:%s  SrcOffset:%s  "
+				        " SourceFile: %ls   (%ls)\n",
+					// i, ( i < 10 ) ? " " : "",
+					// videoClip->track->number, ( videoClip->track->number < 10 ) ? " " : "",
+					formatPosValue( (videoClip->pos + sessionStart),                  videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf1 ),
+					formatPosValue( (videoClip->len),                                 videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf2 ),
+					formatPosValue( (videoClip->pos + sessionStart + videoClip->len), videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf3 ),
+					formatPosValue(  videoClip->essence_offset,                       videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf4 ),
+					// (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start),
+					(videoClip->Essence) ? videoClip->Essence->usable_file_path : L"",
+					(videoClip->Essence) ? videoClip->Essence->file_name : L""
+				);
 
-				 printf( "\n\n\n" );
-			 }
-		 }
+				printf( "\n\n\n" );
+			}
+		}
 
 
 
@@ -702,28 +702,28 @@ int main( int argc, char *argv[] )
 
 
 			printf( "Track %s(%u) - %s - Gain: %s - Pan: %s - edit_rate: %i/%i (%02.2f)  -  \"%ls\"\n",
-					(audioTrack->number < 10) ? " " : "",
-					audioTrack->number,
-					(audioTrack->format == AAFI_TRACK_FORMAT_MONO)   ? "MONO  " :
-					(audioTrack->format == AAFI_TRACK_FORMAT_STEREO) ? "STEREO" :
-					(audioTrack->format == AAFI_TRACK_FORMAT_5_1)    ? "5.1   " :
-					(audioTrack->format == AAFI_TRACK_FORMAT_7_1)    ? "7.1   " : "Unknwn",
-					gainToStr( audioTrack->gain ),
-					panToStr( audioTrack->pan ),
-					audioTrack->edit_rate->numerator, audioTrack->edit_rate->denominator,
-					aafRationalToFloat((*audioTrack->edit_rate)),
-					(audioTrack->name != NULL) ? audioTrack->name : L""
-			 );
+				(audioTrack->number < 10) ? " " : "",
+				audioTrack->number,
+				(audioTrack->format == AAFI_TRACK_FORMAT_MONO)   ? "MONO  " :
+				(audioTrack->format == AAFI_TRACK_FORMAT_STEREO) ? "STEREO" :
+				(audioTrack->format == AAFI_TRACK_FORMAT_5_1)    ? "5.1   " :
+				(audioTrack->format == AAFI_TRACK_FORMAT_7_1)    ? "7.1   " : "Unknwn",
+				gainToStr( audioTrack->gain ),
+				panToStr( audioTrack->pan ),
+				audioTrack->edit_rate->numerator, audioTrack->edit_rate->denominator,
+				aafRationalToFloat((*audioTrack->edit_rate)),
+				(audioTrack->name != NULL) ? audioTrack->name : L""
+			);
 
-			 if ( show_automation && audioTrack->gain != NULL && audioTrack->gain->flags & AAFI_AUDIO_GAIN_VARIABLE ) {
-				 printf( "TRACK GAIN AUTOMATION : \n" );
-				 dumpVaryingValues( audioTrack->gain );
-			 }
+			if ( show_automation && audioTrack->gain != NULL && audioTrack->gain->flags & AAFI_AUDIO_GAIN_VARIABLE ) {
+				printf( "TRACK GAIN AUTOMATION : \n" );
+				dumpVaryingValues( audioTrack->gain );
+			}
 
-			 if ( show_automation && audioTrack->pan != NULL && audioTrack->pan->flags & AAFI_AUDIO_GAIN_VARIABLE ) {
-				 printf( "TRACK PAN AUTOMATION : \n" );
-				 dumpVaryingValues( audioTrack->pan );
-			 }
+			if ( show_automation && audioTrack->pan != NULL && audioTrack->pan->flags & AAFI_AUDIO_GAIN_VARIABLE ) {
+				printf( "TRACK PAN AUTOMATION : \n" );
+				dumpVaryingValues( audioTrack->pan );
+			}
 
 			foreach_Item( audioItem, audioTrack ) {
 
@@ -741,15 +741,6 @@ int main( int argc, char *argv[] )
 
 					audioClip = (aafiAudioClip*)audioItem->data;
 
-					// /*
-					//  *  Composition Timecode does not always share the same edit rate as tracks and clips.
-					//  *	Therefore, we need to do the conversion prior to any maths.
-					//  *  For exemple, if TC is 30000/1001 and audio clips are 48000/1, then TC->start has to be converted from FPS to samples.
-					//  */
-					//
-					// aafPosition_t sessionStart = convertEditUnit( audioClip->track->Audio->tc->start, aafi->Audio->tc->edit_rate, audioClip->track->edit_rate );
-
-
 					aafiTransition *fadein  = aafi_get_fadein( audioItem );
 					aafiTransition *fadeout = aafi_get_fadeout( audioItem );
 
@@ -759,8 +750,8 @@ int main( int argc, char *argv[] )
 					char posFormatBuf4[POS_FORMAT_BUFFER_LEN];
 
 					printf( " Clip:%u%s  Gain: %s %s  GainAuto: %s "
-							" Start:%s  Len:%s  End:%s  "
-							" Fadein: %s  Fadeout: %s  SrcOffset: %s  SourceFile: %ls   (%ls)\n",
+					        " Start:%s  Len:%s  End:%s  "
+					        " Fadein: %s  Fadeout: %s  SrcOffset: %s  SourceFile: %ls   (%ls)\n",
 						clipCount, ( clipCount < 10 ) ? " " : "",
 						gainToStr( audioClip->gain ),
 						(audioClip->mute) ? "(mute)" : "      ",
@@ -780,12 +771,6 @@ int main( int argc, char *argv[] )
 						printf( "CLIP GAIN AUTOMATION : \n" );
 						dumpVaryingValues( audioClip->automation );
 					}
-
-					// if ( fadein )
-					// 	free( fadein );
-					//
-					// if ( fadeout )
-					// 	free( fadeout );
 
 					clipCount++;
 				}
