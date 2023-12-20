@@ -828,13 +828,8 @@ end:
 	if ( aafi ) {
 		aafi_release( &aafi );
 	}
-	else {
-		if ( media_location ) {
-			free( media_location );
-		}
-		if ( aafd ) {
-			aaf_release( &aafd );
-		}
+	else if ( aafd ) {
+		aaf_release( &aafd );
 	}
 
 
