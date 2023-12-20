@@ -1075,23 +1075,39 @@ static int parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescripto
 		return -1;
 	}
 
+	/*
+	 * « Informative note: In the case of picture essence, the Sample Rate is usually the frame rate. The value should be
+	 * numerically exact, for example {25,1} or {30000, 1001}. »
+	 *
+	 * « Informative note: Care should be taken if a sample rate of {2997,100} is encountered, since this may have been intended
+	 * as a (mistaken) approximation to the exact value. »
+	 */
 
 	aafRational_t *framerate = aaf_get_propertyValue( DIDescriptor, PID_FileDescriptor_SampleRate, &AAFTypeID_Rational );
 
-	if ( framerate == NULL ) {
-		DUMP_OBJ_ERROR( aafi, DIDescriptor, &__td, "Missing PID_FileDescriptor_SampleRate" );
+	if ( framerate == NULL ) { /* REQ */
+		DUMP_OBJ_ERROR( aafi, DIDescriptor, &__td, "Missing PID_FileDescriptor_SampleRate (framerate)" );
 		return -1;
 	}
 
 	videoEssence->framerate = framerate;
 
+	debug("Video framerate : %i/%i", framerate->numerator, framerate->denominator );
+
+
+	/*
+	 * All mandatory properties below are treated as optional, because we assume that
+	 * video will be an external file so we are not using those, and because some AAF
+	 * implementations does not even set those mandatory properties (eg. Davinci Resolve).
+	 *
+	 * TODO: parse PID_FileDescriptor_Length ?
+	 */
 
 
 	uint32_t *storedHeight = aaf_get_propertyValue( DIDescriptor, PID_DigitalImageDescriptor_StoredHeight, &AAFTypeID_UInt32 );
 
-	if ( storedHeight == NULL ) {
-		DUMP_OBJ_ERROR( aafi, DIDescriptor, &__td, "Missing PID_DigitalImageDescriptor_StoredHeight" );
-		return -1;
+	if ( storedHeight == NULL ) { /* REQ */
+		DUMP_OBJ_WARNING( aafi, DIDescriptor, &__td, "Missing PID_DigitalImageDescriptor_StoredHeight" );
 	}
 
 	// debug( "storedHeight : %u", *storedHeight );
@@ -1100,9 +1116,8 @@ static int parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescripto
 
 	uint32_t *storedWidth = aaf_get_propertyValue( DIDescriptor, PID_DigitalImageDescriptor_StoredWidth, &AAFTypeID_UInt32 );
 
-	if ( storedWidth == NULL ) {
-		DUMP_OBJ_ERROR( aafi, DIDescriptor, &__td, "Missing PID_DigitalImageDescriptor_StoredWidth" );
-		return -1;
+	if ( storedWidth == NULL ) { /* REQ */
+		DUMP_OBJ_WARNING( aafi, DIDescriptor, &__td, "Missing PID_DigitalImageDescriptor_StoredWidth" );
 	}
 
 	// debug( "storedWidth : %u", *storedWidth );
@@ -1112,8 +1127,7 @@ static int parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescripto
 	uint32_t *displayHeight = aaf_get_propertyValue( DIDescriptor, PID_DigitalImageDescriptor_DisplayHeight, &AAFTypeID_UInt32 );
 
 	if ( displayHeight == NULL ) {
-		DUMP_OBJ_ERROR( aafi, DIDescriptor, &__td, "Missing PID_DigitalImageDescriptor_DisplayHeight" );
-		return -1;
+		DUMP_OBJ_WARNING( aafi, DIDescriptor, &__td, "Missing PID_DigitalImageDescriptor_DisplayHeight" );
 	}
 
 	// debug( "displayHeight : %u", *displayHeight );
@@ -1123,8 +1137,7 @@ static int parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescripto
 	uint32_t *displayWidth = aaf_get_propertyValue( DIDescriptor, PID_DigitalImageDescriptor_DisplayWidth, &AAFTypeID_UInt32 );
 
 	if ( displayWidth == NULL ) {
-		DUMP_OBJ_ERROR( aafi, DIDescriptor, &__td, "Missing PID_DigitalImageDescriptor_DisplayWidth" );
-		return -1;
+		DUMP_OBJ_WARNING( aafi, DIDescriptor, &__td, "Missing PID_DigitalImageDescriptor_DisplayWidth" );
 	}
 
 	// debug( "displayWidth : %u", *displayWidth );
@@ -1133,9 +1146,8 @@ static int parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescripto
 
 	aafRational_t *imageAspectRatio = aaf_get_propertyValue( DIDescriptor, PID_DigitalImageDescriptor_ImageAspectRatio, &AAFTypeID_Rational );
 
-	if ( imageAspectRatio == NULL ) {
-		DUMP_OBJ_ERROR( aafi, DIDescriptor, &__td, "Missing PID_DigitalImageDescriptor_ImageAspectRatio" );
-		return -1;
+	if ( imageAspectRatio == NULL ) { /* REQ */
+		DUMP_OBJ_WARNING( aafi, DIDescriptor, &__td, "Missing PID_DigitalImageDescriptor_ImageAspectRatio" );
 	}
 
 	// debug( "imageAspectRatio : %i/%i", imageAspectRatio->numerator, imageAspectRatio->denominator );
@@ -2922,6 +2934,17 @@ POS NOT UPDATED HERE ------------------> └──◻ AAFClassID_SourceClip
 		          aafUIDCmp( DataDefinition, &AAFDataDef_LegacyPicture ) )
 		{
 
+			/*
+			 * │ 04382│├──◻ AAFClassID_TimelineMobSlot [slot:2 track:1] (DataDef : AAFDataDef_Picture)
+			 * │ 01939││    └──◻ AAFClassID_Sequence
+			 * │ 03007││         └──◻ AAFClassID_SourceClip
+			 */
+
+			/*
+			 * │ 04390│└──◻ AAFClassID_TimelineMobSlot [slot:8 track:1] (DataDef : AAFDataDef_LegacyPicture) : Video Mixdown
+			 * │ 03007│     └──◻ AAFClassID_SourceClip
+			 */
+
 			if ( aafi->Video->Tracks->Items ) {
 				DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Current implementation supports only one video clip" );
 				return -1;
@@ -3002,6 +3025,11 @@ POS NOT UPDATED HERE ------------------> └──◻ AAFClassID_SourceClip
 				// memcpy( &(aafi->ctx), &ctxBackup, sizeof(struct aafiContext) );
 
 			}
+			else {
+				DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "RefMob isn't MasterMob : %ls", aaft_ClassIDToText( aafi->aafd, refMob->Class->ID ) );
+				// parse_CompositionMob( )
+				return -1;
+			}
 
 		}
 	}
@@ -3059,7 +3087,6 @@ POS NOT UPDATED HERE ------------------> └──◻ AAFClassID_SourceClip
 			aafiAudioEssence *audioEssence = NULL;
 
 			foreachEssence( audioEssence, aafi->Audio->Essences ) {
-
 				if ( aafMobIDCmp( audioEssence->sourceMobID, sourceID ) && audioEssence->sourceMobSlotID == (unsigned)*SourceMobSlotID ) {
 					/* Essence already retrieved */
 					aafi->ctx.current_clip->Essence = audioEssence;
@@ -3148,6 +3175,23 @@ POS NOT UPDATED HERE ------------------> └──◻ AAFClassID_SourceClip
 		else if ( aafUIDCmp( DataDefinition, &AAFDataDef_Picture ) ||
 		          aafUIDCmp( DataDefinition, &AAFDataDef_LegacyPicture ) )
 		{
+			/*
+			 * │ 04382│├──◻ AAFClassID_TimelineMobSlot [slot:2 track:1] (DataDef : AAFDataDef_Picture)
+			 * │ 01939││    └──◻ AAFClassID_Sequence
+			 * │ 03007││         └──◻ AAFClassID_SourceClip
+			 * │ 03012││              └──◻ AAFClassID_MasterMob (UsageCode: n/a) : sample@29
+			 * │ 04402││                   └──◻ AAFClassID_TimelineMobSlot
+			 * │ 03234││                        └──◻ AAFClassID_SourceClip
+			 */
+
+			/*
+			 * │ 04390│└──◻ AAFClassID_TimelineMobSlot [slot:8 track:1] (DataDef : AAFDataDef_LegacyPicture) : Video Mixdown
+			 * │ 03007│     └──◻ AAFClassID_SourceClip
+			 * │ 03012│          └──◻ AAFClassID_MasterMob (UsageCode: n/a) : 2975854  -  PREPARATIFS DISPOSITIF 2 30.Exported.01,Video Mixdown,5  (MetaProps: ConvertFrameRate[0xfff8])
+			 * │ 04410│               └──◻ AAFClassID_TimelineMobSlot
+			 * │ 03242│                    └──◻ AAFClassID_SourceClip
+			 */
+
 			/* Check if this Essence has already been retrieved */
 
 			// int slotID = MobSlot->Entry->_localKey;
@@ -3170,6 +3214,8 @@ POS NOT UPDATED HERE ------------------> └──◻ AAFClassID_SourceClip
 				if ( aafMobIDCmp( videoEssence->sourceMobID, sourceID ) && videoEssence->sourceMobSlotID == (unsigned)*SourceMobSlotID ) {
 					/* Essence already retrieved */
 					aafi->ctx.current_video_clip->Essence = videoEssence;
+					__td.eob = 1;
+					DUMP_OBJ_INFO( aafi, SourceClip, &__td, "Essence already parsed: Linking with %ls", videoEssence->file_name );
 					return 0;
 				}
 			}
@@ -3189,6 +3235,9 @@ POS NOT UPDATED HERE ------------------> └──◻ AAFClassID_SourceClip
 
 			videoEssence->file_name = aaf_get_propertyValue( ParentMob, PID_Mob_Name, &AAFTypeID_String );
 
+			if ( videoEssence->file_name == NULL ) {
+				debug( "Missing MasterMob::PID_Mob_Name (essence file name)" );
+			}
 
 			/*
 			 * p.49 : To create a SourceReference that refers to a MobSlot within
@@ -3204,9 +3253,6 @@ POS NOT UPDATED HERE ------------------> └──◻ AAFClassID_SourceClip
 			// }
 
 
-			aafi->ctx.current_video_essence = videoEssence;
-
-
 			DUMP_OBJ( aafi, SourceClip, &__td );
 
 
@@ -3219,16 +3265,23 @@ POS NOT UPDATED HERE ------------------> └──◻ AAFClassID_SourceClip
 
 			videoEssence->SourceMob = SourceMob;
 
-			parse_SourceMob( aafi, SourceMob, &__td );
-
 
 			aafObject *EssenceData = get_EssenceData_By_MobID( aafi, videoEssence->sourceMobID );
+
+			if ( EssenceData )
+				__td.ll[__td.lv] = 2;
+
+			aafi->ctx.current_video_essence = videoEssence;
+
+			parse_SourceMob( aafi, SourceMob, &__td );
+
+			__td.ll[__td.lv] = 0;
+
 
 			if ( EssenceData == NULL ) {
 				/*
 				 * It means essence is not embedded.
 				 */
-
 				// return -1;
 			}
 			else {
@@ -3237,7 +3290,6 @@ POS NOT UPDATED HERE ------------------> └──◻ AAFClassID_SourceClip
 
 
 			videoEssence->unique_file_name = build_unique_videofilename( aafi, videoEssence );
-
 
 
 			// aafi_trace_obj( aafi, SourceClip, ANSI_COLOR_MAGENTA );
@@ -4675,6 +4727,44 @@ int aafi_retrieveData( AAF_Iface *aafi )
 		else {
 			// warning( "audioEssence '%ls' has different samplesize : %i", audioEssence->file_name, audioEssence->samplesize );
 		}
+	}
+
+
+
+	aafiVideoEssence *videoEssence = NULL;
+
+	foreachEssence( videoEssence, aafi->Video->Essences ) {
+
+		if ( videoEssence->original_file_path == NULL ) {
+			continue;
+		}
+
+		char *externalFilePath = aafi_locate_external_essence_file( aafi, videoEssence->original_file_path, aafi->ctx.options.media_location );
+
+		if ( externalFilePath == NULL ) {
+			error( "Could not locate external audio essence file '%ls'", videoEssence->original_file_path );
+			continue;
+		}
+
+		videoEssence->usable_file_path = malloc( (strlen(externalFilePath) + 1) * sizeof(wchar_t) );
+
+		if ( videoEssence->usable_file_path == NULL ) {
+			error( "Could not allocate memory : %s", strerror(errno) );
+			free( externalFilePath );
+			continue;
+		}
+
+		int rc = swprintf( videoEssence->usable_file_path, strlen(externalFilePath)+1, L"%" WPRIs, externalFilePath );
+
+		if ( rc < 0 ) {
+			error( "Failed setting usable_file_path" );
+			free( externalFilePath );
+			free( videoEssence->usable_file_path );
+			videoEssence->usable_file_path = NULL;
+			continue;
+		}
+
+		free( externalFilePath );
 	}
 
 

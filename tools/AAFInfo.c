@@ -623,6 +623,8 @@ int main( int argc, char *argv[] )
 
 	if ( aaf_clips ) {
 
+		aafPosition_t sessionStart = 0;
+
 		printf( "Tracks & Clips :\n"
 						"================\n\n" );
 
@@ -632,6 +634,16 @@ int main( int argc, char *argv[] )
 		aafiVideoClip    *videoClip  = NULL;
 
 		if ( videoTrack != NULL ) {
+
+			/*
+			 *  Composition Timecode does not always share the same edit rate as tracks and clips.
+			 *	Therefore, we need to do the conversion prior to any maths.
+			 *  For exemple, if TC is 30000/1001 and audio clips are 48000/1, then TC->start has to be converted from FPS to samples.
+			 */
+
+			 // sessionStart = convertEditUnit( aafi->Timecode->start, *aafi->Timecode->edit_rate, *videoClip->track->edit_rate );
+			sessionStart = convertEditUnit( aafi->compositionStart, aafi->compositionStart_editRate, *videoTrack->edit_rate );
+
 
 			printf( "VideoTrack %s(%u) - edit_rate %i/%i (%02.2f)  -  \"%ls\"\n",
 					(videoTrack->number < 10) ? " " : "",
@@ -646,32 +658,22 @@ int main( int argc, char *argv[] )
 				 videoItem = videoTrack->Items;
 				 videoClip = (aafiVideoClip*)videoItem->data;
 
-				 // aafi_locate_external_essence_file( aafi, videoClip->Essence->original_file_path );
-
-				 struct timecode tc_in;
-				 struct timecode tc_out;
-				 struct timecode tc_len;
-
-				 memset(&tc_in,  0x00, sizeof(struct timecode));
-				 memset(&tc_out, 0x00, sizeof(struct timecode));
-				 memset(&tc_len, 0x00, sizeof(struct timecode));
-
-				 aafPosition_t sessionStart = convertEditUnit( aafi->Timecode->start, *aafi->Timecode->edit_rate, *videoClip->track->edit_rate );
-
-				 tc_set_by_unitValue( &tc_in,  (videoClip->pos + sessionStart),                  (rational_t*)videoClip->track->edit_rate, tcFormat );
-				 tc_set_by_unitValue( &tc_len,  videoClip->len,                                  (rational_t*)videoClip->track->edit_rate, tcFormat );
-				 tc_set_by_unitValue( &tc_out, (videoClip->pos + videoClip->len + sessionStart), (rational_t*)videoClip->track->edit_rate, tcFormat );
+				 char posFormatBuf1[POS_FORMAT_BUFFER_LEN];
+				 char posFormatBuf2[POS_FORMAT_BUFFER_LEN];
+				 char posFormatBuf3[POS_FORMAT_BUFFER_LEN];
+				 char posFormatBuf4[POS_FORMAT_BUFFER_LEN];
 
 				 printf( " VideoClip "
-						 " Start:%s  Len:%s  End:%s  "
+						 " Start:%s  Len:%s  End:%s  SrcOffset:%s  "
 						 " SourceFile: %ls   (%ls)\n",
 					 // i, ( i < 10 ) ? " " : "",
 					 // videoClip->track->number, ( videoClip->track->number < 10 ) ? " " : "",
-					 tc_in.string,
-					 tc_len.string,
-					 tc_out.string,
+					 formatPosValue( (videoClip->pos + sessionStart),                  videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf1 ),
+					 formatPosValue( (videoClip->len),                                 videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf2 ),
+					 formatPosValue( (videoClip->pos + sessionStart + videoClip->len), videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf3 ),
+					 formatPosValue(  videoClip->essence_offset,                       videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf4 ),
 					 // (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start),
-					 (videoClip->Essence) ? videoClip->Essence->original_file_path : L"",
+					 (videoClip->Essence) ? videoClip->Essence->usable_file_path : L"",
 					 (videoClip->Essence) ? videoClip->Essence->file_name : L""
 				 );
 
@@ -696,7 +698,7 @@ int main( int argc, char *argv[] )
 			 *  For exemple, if TC is 30000/1001 and audio clips are 48000/1, then TC->start has to be converted from FPS to samples.
 			 */
 
-			aafPosition_t sessionStart = convertEditUnit( aafi->compositionStart, aafi->compositionStart_editRate, *audioTrack->edit_rate );
+			sessionStart = convertEditUnit( aafi->compositionStart, aafi->compositionStart_editRate, *audioTrack->edit_rate );
 
 
 			printf( "Track %s(%u) - %s - Gain: %s - Pan: %s - edit_rate: %i/%i (%02.2f)  -  \"%ls\"\n",
@@ -810,7 +812,7 @@ int main( int argc, char *argv[] )
 			 *  For exemple, if TC is 30000/1001 and markers are 48000/1, then TC->start has to be converted from FPS to samples.
 			 */
 
-			aafPosition_t sessionStart = convertEditUnit( aafi->Timecode->start, *aafi->Timecode->edit_rate, *marker->edit_rate );
+			sessionStart = convertEditUnit( aafi->Timecode->start, *aafi->Timecode->edit_rate, *marker->edit_rate );
 
 			char posFormatBuf1[POS_FORMAT_BUFFER_LEN];
 			char posFormatBuf2[POS_FORMAT_BUFFER_LEN];
