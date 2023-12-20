@@ -291,6 +291,7 @@ static int _uri_parse_authority( struct uri *uri, const char **pos, const char *
 
 	if ( *uri->authority == 0x00 ) {
 		uri->flags |= URI_T_LOCALHOST;
+		/* TODO: return 0 ? */
 	}
 
 	return 1;
@@ -308,7 +309,12 @@ static int _uri_parse_userinfo( struct uri *uri, const char **pos, const char *e
 
 	const char *p = *pos;
 
-	while ( p < end ) {
+	while ( p < end &&
+	       /* end of authority */
+	       *p != '/' &&
+	       ( !SCHEME_ALLOW_QUERY(uri) || *p != '?' ) &&
+	       ( !SCHEME_ALLOW_FRAGMENT(uri) || *p != '#' ) )
+	{
 
 		if ( *p == '@' ) {
 			hasUserinfo = 1;
