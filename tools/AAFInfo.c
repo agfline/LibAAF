@@ -427,7 +427,7 @@ int main( int argc, char *argv[] ) {
 
 		wchar_t wget_node_str[1024];
 
-		swprintf( wget_node_str, 1024, L"%" WPRIws, get_node_str );
+		swprintf( wget_node_str, 1024, L"%" WPRIs, get_node_str );
 
 		cfbNode *node = cfb_getNodeByPath( aafd->cfbd, wget_node_str, 0 );
 
