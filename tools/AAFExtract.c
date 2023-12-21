@@ -36,11 +36,17 @@
 
 static void showHelp( void ) {
 	printf(
+		"Usage: AAFExtract [options] --output-path <path> [AAFFILE]\n"
 		"\n"
-		"   --file                  AAF file.\n"
-		"   --output-path           Where audio files will be extracted.\n"
-		"   --no-nonlatin           If internal audio filename contains non-latin characters,\n"
-		"                           extracted file will be named out of its UUID.\n"
+		"  --output-path <path>  Where audio files will be extracted.\n"
+		"  --no-nonlatin         If internal audio filename contains non-latin characters,\n"
+		"                        extracted file will be named out of its UUID.\n"
+		"\n"
+		"  --trace               Prints AAF class/object tree.\n"
+		"\n"
+		"  --no-color            Disable ANSI colors in output.\n"
+		"  --verb         <num>  0=quiet 1=error 2=warning 3=debug.\n"
+
 		"\n\n"
 	);
 }
@@ -52,68 +58,91 @@ int main( int argc, char *argv[] )
 	int rc = 0;
 	int no_nonlatin = 0;
 	char *output_path = NULL;
-	char *aaf_file = NULL;
 	int ansicolor = 1;
+	AAF_Iface *aafi = NULL;
+	int trace = 0;
+	enum verbosityLevel_e verb = VERB_WARNING;
 
-	printf( "\nAAFExtract\nlibAAF %s\n\n", LIBAAF_VERSION );
 
-
-	const char* optstring = "hnp:f:";
+	const char* optstring = "hontc:v:";
 
 	const struct option longopts[] = {
 
-		{ "help",            no_argument,       0, 'h' },
+		{ "output-path",     required_argument, 0, 'o' },
+		{ "no-nonlatin",     no_argument,       0, 'n' },
 
-		{ "output-path",     required_argument, 0, 'p' },
-		{ "no-nonlatin",     required_argument, 0, 'n' },
+		{ "trace",           no_argument,       0, 't' },
+
 		{ "no-color",        no_argument,       0, 'c' },
-		{ "file",            required_argument, 0, 'f' },
+		{ "verb",            required_argument, 0, 'v' },
+
+		{ "help",            no_argument,       0, 'h' },
 	};
 
 	int c = 0;
+	int optindex = 0;
 
-	while ( EOF != (c = getopt_long( argc, argv, optstring, longopts, (int*)0 )) ) {
+	while ( EOF != (c = getopt_long( argc, argv, optstring, longopts, &optindex )) ) {
 
 		switch (c) {
 
-			case 'h':
-				showHelp();
-				break;
+			case 'o': output_path = laaf_util_c99strdup(optarg);  break;
+			case 'n': no_nonlatin = 1;                            break;
 
-			case 'p':
-				output_path = laaf_util_c99strdup(optarg);
-				break;
+			case 't': trace = 1;                                  break;
 
-			case 'n':
-				no_nonlatin = 1;
-				break;
+			case 'c': ansicolor = 0;                              break;
+			case 'v': verb = atoi(optarg);                        break;
 
-			case 'f':
-				aaf_file = laaf_util_c99strdup(optarg);
-				break;
-
-			case 'c':
-				ansicolor = 0;
-				break;
+			case 'h': showHelp();                                 goto end;
 
 			default:
-				printf( "Error: unrecognized option. See --help for usage information.\n" );
+				printf( "Try 'AAFExtract --help' for more informations.\n" );
 				return 1;
 		}
 	}
 
+	if ( verb )
+		printf( "\nAAFExtract\nlibAAF %s\n\n", LIBAAF_VERSION );
 
-	AAF_Iface *aafi = aafi_alloc( NULL );
 
-	aafi_set_debug( aafi, ansicolor, VERB_DEBUG, stdout, NULL, NULL );
+	if ( optind == argc ) {
+
+		if ( verb )
+			fprintf( stderr,
+				"Command line error: missing AAF file\n"
+				"Try 'AAFExtract --help' for more informations.\n" );
+
+		goto err;
+	}
+
+	if ( output_path == NULL ) {
+
+		if ( verb )
+			fprintf( stderr,
+				"Command line error: missing --output-path\n"
+				"Try 'AAFExtract --help' for more informations.\n" );
+
+		goto err;
+	}
+
+
+	aafi = aafi_alloc( NULL );
+
+	if ( !aafi ) {
+		fprintf( stderr, "Failed to init AAF_Iface context.\n" );
+		goto err;
+	}
+
+	aafi_set_debug( aafi, verb, ansicolor, stdout, NULL, NULL );
 
 	aafi_enable_windows_VT100_output();
 
-	aafi->ctx.options.verb = VERB_DEBUG;
-	aafi->ctx.options.trace = 1;
+	aafi->ctx.options.verb = verb;
+	aafi->ctx.options.trace = trace;
 	aafi->ctx.options.forbid_nonlatin_filenames = no_nonlatin;
 
-	if ( aafi_load_file( aafi, aaf_file ) ) {
+	if ( aafi_load_file( aafi, argv[argc-1] ) ) {
 		goto err;
 	}
 
@@ -124,11 +153,16 @@ int main( int argc, char *argv[] )
 
 		if ( audioEssence->is_embedded ) {
 			if ( aafi_extract_audio_essence( aafi, audioEssence, output_path, NULL ) == 0 ) {
-				printf( "Media file extracted @ %ls\n", audioEssence->usable_file_path );
+				if ( verb )
+					printf( " Audio file extracted to %ls\n", audioEssence->usable_file_path );
+			} else {
+				/* error was already printed by library */
 			}
 		}
 	}
 
+	if ( verb )
+		printf( "\nCompleted.\n\n" );
 
 	goto end;
 
@@ -137,13 +171,11 @@ err:
 
 end:
 
-	aafi_release( &aafi );
+	if ( aafi )
+		aafi_release( &aafi );
 
 	if ( output_path )
 		free( output_path );
-
-	if ( aaf_file )
-		free( aaf_file );
 
 	return rc;
 }

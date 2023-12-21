@@ -65,6 +65,13 @@ enum pos_format {
 
 
 
+static const char * gainToStr( aafiAudioGain *gain );
+static const char * panToStr( aafiAudioPan *pan );
+static void dumpVaryingValues( aafiAudioGain *Gain );
+static const char * formatPosValue( aafPosition_t pos, aafRational_t *editRate, enum pos_format posFormat, enum TC_FORMAT tcFormat, uint64_t samplerate, char *buf );
+static void showHelp( void );
+
+
 
 static const char * gainToStr( aafiAudioGain *gain ) {
 
@@ -88,8 +95,8 @@ static const char * gainToStr( aafiAudioGain *gain ) {
 
 
 
-static const char * panToStr( aafiAudioPan *pan )
-{
+static const char * panToStr( aafiAudioPan *pan ) {
+
 	static char str[32];
 
 	if ( pan == NULL ) {
@@ -130,8 +137,8 @@ static void dumpVaryingValues( aafiAudioGain *Gain ) {
 
 
 
-static const char * formatPosValue( aafPosition_t pos, aafRational_t *editRate, enum pos_format posFormat, enum TC_FORMAT tcFormat, uint64_t samplerate, char *buf )
-{
+static const char * formatPosValue( aafPosition_t pos, aafRational_t *editRate, enum pos_format posFormat, enum TC_FORMAT tcFormat, uint64_t samplerate, char *buf ) {
+
 	struct timecode tc;
 
 	if ( posFormat == POS_FORMAT_TC ) {
@@ -164,9 +171,10 @@ static const char * formatPosValue( aafPosition_t pos, aafRational_t *editRate, 
 
 
 
-static void showHelp( void )
-{
+static void showHelp( void ) {
+
 	printf(
+		"Usage: AAFInfo [analysis] [options] [AAFFILE]\n"
 		"\n"
 		" CFB Analysis :\n"
 		"\n"
@@ -188,28 +196,28 @@ static void showHelp( void )
 		"   --aaf-meta                     Lists Classes and Properties from the MetaDictionary.\n"
 		"   --aaf-properties               Displays all Properties.\n"
 		"\n"
-		"   --trace                        Dumps trace of AAF parsing.\n"
+		"   --trace                        Prints AAF class/object tree.\n"
 		"   --trace-meta                   Prints MetaProperties in the trace.\n"
 		"   --trace-class    <AAFClassID>  Prints properties of a specific AAFClass in the trace.\n"
 		"\n"
 		"\n"
 		" Options :\n"
 		"\n"
-		"   --media-location       <path>  Where to find external essence files.\n"
+		"   --media-location       <path>  Location of audio and video essence files.\n"
 		"\n"
-		"   --pos-format <tc|hms|samples>  Position and length display format.\n"
+		"   --pos-format <tc|hms|samples>  Position and duration display format.\n"
 		"   --show-automation              Shows track and clip automation values.\n"
 		"   --no-color                     Disable ANSI colors in output.\n"
 		"\n"
-		"   --verbose               <num>  0=quiet 1=error 2=warning 3=debug.\n"
+		"   --verb                  <num>  0=quiet 1=error 2=warning 3=debug.\n"
 		"\n\n"
 	);
 }
 
 
 
-int main( int argc, char *argv[] )
-{
+int main( int argc, char *argv[] ) {
+
 	setlocale( LC_ALL, "" );
 
 	int rc = 0;
@@ -236,7 +244,7 @@ int main( int argc, char *argv[] )
 	enum pos_format posFormat = POS_FORMAT_TC;
 	int show_automation    = 0;
 
-	enum verbosityLevel_e verb = VERB_DEBUG;
+	enum verbosityLevel_e verb = VERB_WARNING;
 	int trace = 0;
 	int trace_meta = 0;
 	int ansicolor = 1;
@@ -278,7 +286,7 @@ int main( int argc, char *argv[] )
 		{ "show-automation", no_argument,        0,  0x8f },
 		{ "no-color",        no_argument,        0,  0xa0 },
 
-		{ "verbose",         required_argument,  0,  0x90 },
+		{ "verb",            required_argument,  0,  0x90 },
 
 		{ 0,                 0,                  0,  0x00 }
 	};
@@ -324,9 +332,8 @@ int main( int argc, char *argv[] )
 					posFormat = POS_FORMAT_HMS;
 				else {
 					fprintf( stderr,
-						"AAFInfo: wrong --pos-format value (must be \"tc\" or \"samples\")\n"
-						"Try 'AAFInfo --help' for more informations.\n"
-					);
+						"Command line error: wrong --pos-format <value>\n"
+						"Try 'AAFInfo --help' for more informations.\n" );
 					goto err;
 				}
 
@@ -343,16 +350,17 @@ int main( int argc, char *argv[] )
 
 			case 'h':	showHelp();                                goto end;
 
-			default:                                             break;
+			default:
+				printf( "Try 'AAFInfo --help' for more informations.\n" );
+				break;
 		}
 	}
 
 
 	if ( optind == argc ) {
 		fprintf( stderr,
-			"AAFInfo: missing file operand\n"
-			"Try 'AAFInfo --help' for more informations.\n"
-		);
+			"Command line error: missing AAF file\n"
+			"Try 'AAFInfo --help' for more informations.\n" );
 
 		goto err;
 	}
@@ -360,9 +368,8 @@ int main( int argc, char *argv[] )
 
 	if ( cmd == 0 ) {
 		fprintf( stderr,
-			"Usage: AAFInfo [CMD] [FILE]\n"
-			"Try 'AAFInfo --help' for more informations.\n"
-		);
+			"Command line error: at least one analysis option is required.\n"
+			"Try 'AAFInfo --help' for more informations.\n" );
 
 		goto err;
 	}
@@ -370,17 +377,13 @@ int main( int argc, char *argv[] )
 
 	if ( verb < VERB_QUIET || verb >= MAX_VERB ) {
 		fprintf( stderr,
-			"AAFInfo: Wrong --verbosity level\n"
-			"Try 'AAFInfo --help' for more informations.\n"
-		);
+			"Command line error: wrong --verb <value>\n"
+			"Try 'AAFInfo --help' for more informations.\n" );
 
 		goto err;
 	}
 
 
-
-
-	// aafd = aaf_alloc( NULL );
 
 	aafi = aafi_alloc( NULL );
 
@@ -415,7 +418,6 @@ int main( int argc, char *argv[] )
 		goto err;
 	}
 
-
 	printf( "\n" );
 
 
@@ -431,7 +433,7 @@ int main( int argc, char *argv[] )
 		cfbNode *node = cfb_getNodeByPath( aafd->cfbd, wget_node_str, 0 );
 
 		if ( node == NULL ) {
-			printf( "Could not find node at \"%s\"\n", get_node_str );
+			fprintf( stderr, "Could not find node at \"%s\"\n", get_node_str );
 		}
 		else {
 			cfb_dump_node( aafd->cfbd, node, 0 );
@@ -517,14 +519,12 @@ int main( int argc, char *argv[] )
 		printf( " TC Start             : %s (%u fps %s)\n",
 			tc_start.string,
 			aafi->Timecode->fps,
-			(aafi->Timecode->drop) ? "DF" : "NDF"
-		);
+			(aafi->Timecode->drop) ? "DF" : "NDF" );
 
 		printf( " TC End               : %s (%u fps %s)\n",
 			tc_end.string,
 			aafi->Timecode->fps,
-			(aafi->Timecode->drop) ? "DF" : "NDF"
-		);
+			(aafi->Timecode->drop) ? "DF" : "NDF" );
 
 
 		printf( "\n" );
@@ -548,19 +548,19 @@ int main( int argc, char *argv[] )
 			}
 		}
 
-		printf("\n\n");
+		printf( "\n\n" );
 	}
 
 
 	if ( aaf_classes ) {
 		aaf_dump_Classes( aafd );
-		printf("\n\n");
+		printf( "\n\n" );
 	}
 
 
 	if ( aaf_meta ) {
 		aaf_dump_MetaDictionary( aafd );
-		printf("\n\n");
+		printf( "\n\n" );
 	}
 
 
@@ -574,7 +574,7 @@ int main( int argc, char *argv[] )
 			aaf_dump_ObjectProperties( aafd, Object );
 		}
 
-		printf("\n\n");
+		printf( "\n\n" );
 	}
 
 
@@ -607,8 +607,7 @@ int main( int argc, char *argv[] )
 				audioEssence->file_name,
 				( audioEssence->file_name && wcslen(audioEssence->file_name) == wcslen(audioEssence->unique_file_name) ) ? "" : "   (",
 				( audioEssence->file_name && wcslen(audioEssence->file_name) == wcslen(audioEssence->unique_file_name) ) ? L"" : audioEssence->unique_file_name,
-				( audioEssence->file_name && wcslen(audioEssence->file_name) == wcslen(audioEssence->unique_file_name) ) ? "" : ")"
-			);
+				( audioEssence->file_name && wcslen(audioEssence->file_name) == wcslen(audioEssence->unique_file_name) ) ? "" : ")" );
 
 			// printf( "MOBID    %s\n", aaft_MobIDToText( audioEssence->sourceMobID ) );
 
@@ -650,8 +649,7 @@ int main( int argc, char *argv[] )
 				videoTrack->number,
 				videoTrack->edit_rate->numerator, videoTrack->edit_rate->denominator,
 				aafRationalToFloat((*videoTrack->edit_rate)),
-				(videoTrack->name != NULL) ? videoTrack->name : L""
-			);
+				(videoTrack->name != NULL) ? videoTrack->name : L"" );
 
 			if ( videoTrack->Items ) {
 
@@ -666,16 +664,12 @@ int main( int argc, char *argv[] )
 				printf( " VideoClip "
 				        " Start:%s  Len:%s  End:%s  SrcOffset:%s  "
 				        " SourceFile: %ls   (%ls)\n",
-					// i, ( i < 10 ) ? " " : "",
-					// videoClip->track->number, ( videoClip->track->number < 10 ) ? " " : "",
 					formatPosValue( (videoClip->pos + sessionStart),                  videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf1 ),
 					formatPosValue( (videoClip->len),                                 videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf2 ),
 					formatPosValue( (videoClip->pos + sessionStart + videoClip->len), videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf3 ),
 					formatPosValue(  videoClip->essence_offset,                       videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf4 ),
-					// (audioClip->pos + audioClip->len + audioClip->track->Audio->tc->start),
 					(videoClip->Essence) ? videoClip->Essence->usable_file_path : L"",
-					(videoClip->Essence) ? videoClip->Essence->file_name : L""
-				);
+					(videoClip->Essence) ? videoClip->Essence->file_name : L"" );
 
 				printf( "\n\n\n" );
 			}
@@ -712,8 +706,7 @@ int main( int argc, char *argv[] )
 				panToStr( audioTrack->pan ),
 				audioTrack->edit_rate->numerator, audioTrack->edit_rate->denominator,
 				aafRationalToFloat((*audioTrack->edit_rate)),
-				(audioTrack->name != NULL) ? audioTrack->name : L""
-			);
+				(audioTrack->name != NULL) ? audioTrack->name : L"" );
 
 			if ( show_automation && audioTrack->gain != NULL && audioTrack->gain->flags & AAFI_AUDIO_GAIN_VARIABLE ) {
 				printf( "TRACK GAIN AUTOMATION : \n" );
@@ -764,8 +757,7 @@ int main( int argc, char *argv[] )
 						// eu2sample( aafi->Audio->samplerate, audioClip->track->edit_rate, audioClip->essence_offset ),
 						formatPosValue( audioClip->essence_offset, audioClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf4 ),
 						(audioClip->Essence) ? audioClip->Essence->unique_file_name : L"",
-						(audioClip->Essence) ? audioClip->Essence->file_name : L""
-					);
+						(audioClip->Essence) ? audioClip->Essence->file_name : L"" );
 
 					if ( show_automation && audioClip->automation ) {
 						printf( "CLIP GAIN AUTOMATION : \n" );
@@ -802,7 +794,7 @@ int main( int argc, char *argv[] )
 			char posFormatBuf1[POS_FORMAT_BUFFER_LEN];
 			char posFormatBuf2[POS_FORMAT_BUFFER_LEN];
 
-			printf(" Marker[%i]:  Start: %s  Length: %s  Color: #%02x%02x%02x  Label: \"%ls\"  Comment: \"%ls\"\n",
+			printf( " Marker[%i]:  Start: %s  Length: %s  Color: #%02x%02x%02x  Label: \"%ls\"  Comment: \"%ls\"\n",
 				markerCount++,
 				formatPosValue( (marker->start + sessionStart), marker->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf1 ),
 				formatPosValue(  marker->length,                marker->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf2 ),
