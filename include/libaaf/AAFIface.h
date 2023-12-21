@@ -805,7 +805,6 @@ typedef struct aafiContext
 
 	struct options {
 
-		verbosityLevel_e verb;
 		int              trace;
 		int              trace_meta;
 		wchar_t         *trace_class;
