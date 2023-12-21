@@ -396,20 +396,15 @@ int main( int argc, char *argv[] ) {
 
 	aafi_set_debug( aafi, verb, ansicolor, stdout, NULL, NULL );
 
+	aafi_set_option_int( aafi, "trace",      trace        );
+	aafi_set_option_int( aafi, "trace_meta", trace_meta   );
+	aafi_set_option_int( aafi, "protools",   PROTOOLS_ALL );
+	aafi_set_option_int( aafi, "resolve",    RESOLVE_ALL  );
+
+	aafi_set_option_str( aafi, "media_location", media_location );
+	aafi_set_option_str( aafi, "trace_class",    trace_class    );
+
 	aafi_enable_windows_VT100_output();
-
-	aafi->ctx.options.trace = trace;
-	aafi->ctx.options.trace_meta = trace_meta;
-	aafi->ctx.options.protools = PROTOOLS_ALL;
-	aafi->ctx.options.resolve = RESOLVE_ALL;
-
-	if ( media_location ) {
-		aafi_set_media_location( aafi, media_location );
-	}
-
-	if ( trace_class ) {
-		aafi_set_trace_class( aafi, trace_class );
-	}
 
 
 	if ( aafi_load_file( aafi, argv[argc-1] ) ) {

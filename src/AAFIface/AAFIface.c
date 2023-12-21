@@ -146,35 +146,68 @@ void aafi_set_debug( AAF_Iface *aafi, verbosityLevel_e v, int ansicolor, FILE *f
 
 
 
-int aafi_set_media_location( AAF_Iface *aafi, const char *path ) {
+int aafi_set_option_int( AAF_Iface *aafi, const char *optname, int val ) {
 
-	if ( aafi->ctx.options.media_location ) {
-		free( aafi->ctx.options.media_location );
+	if ( strcmp( optname, "trace" ) == 0 ) {
+		aafi->ctx.options.trace = val;
+		return 0;
+	}
+	else if ( strcmp( optname, "trace_meta" ) == 0 ) {
+		aafi->ctx.options.trace_meta = val;
+		return 0;
+	}
+	else if ( strcmp( optname, "forbid_nonlatin_filenames" ) == 0 ) {
+		aafi->ctx.options.forbid_nonlatin_filenames = val;
+		return 0;
+	}
+	else if ( strcmp( optname, "protools" ) == 0 ) {
+		aafi->ctx.options.protools = val;
+		return 0;
+	}
+	else if ( strcmp( optname, "resolve" ) == 0 ) {
+		aafi->ctx.options.resolve = val;
+		return 0;
 	}
 
-	aafi->ctx.options.media_location = (path) ? laaf_util_c99strdup( path ) : NULL;
-
-	return 0;
+	return 1;
 }
 
 
 
-int aafi_set_trace_class( AAF_Iface *aafi, const char *className ) {
+int aafi_set_option_str( AAF_Iface *aafi, const char *optname, char *val ) {
 
-	if ( aafi->ctx.options.trace_class ) {
-		free( aafi->ctx.options.trace_class );
-		aafi->ctx.options.trace_class = NULL;
+	if ( strcmp( optname, "media_location" ) == 0 ) {
+
+		if ( aafi->ctx.options.media_location ) {
+			free( aafi->ctx.options.media_location );
+		}
+
+		aafi->ctx.options.media_location = (val) ? laaf_util_c99strdup( val ) : NULL;
+
+		return 0;
+	}
+	else if ( strcmp( optname, "trace_class" ) == 0 ) {
+
+		if ( aafi->ctx.options.trace_class ) {
+			free( aafi->ctx.options.trace_class );
+			aafi->ctx.options.trace_class = NULL;
+		}
+
+		if ( val == NULL )
+			return 0;
+
+		aafi->ctx.options.trace_class = malloc( (strlen(val)+1)*sizeof(wchar_t) );
+
+		if ( aafi->ctx.options.trace_class == NULL ) {
+			return -1;
+		}
+
+		swprintf( aafi->ctx.options.trace_class, strlen(val)+1, L"%" WPRIs, val );
+
+		return 0;
 	}
 
-	aafi->ctx.options.trace_class = malloc( (strlen(className)+1)*sizeof(wchar_t) );
-
-	if ( aafi->ctx.options.trace_class == NULL ) {
-		return -1;
-	}
-
-	swprintf( aafi->ctx.options.trace_class, strlen(className)+1, L"%" WPRIs, className );
-
-	return 0;
+	return 1;
 }
 
 

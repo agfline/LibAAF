@@ -136,10 +136,11 @@ int main( int argc, char *argv[] )
 
 	aafi_set_debug( aafi, verb, ansicolor, stdout, NULL, NULL );
 
+	aafi_set_option_int( aafi, "trace",                     trace       );
+	aafi_set_option_int( aafi, "forbid_nonlatin_filenames", no_nonlatin );
+
 	aafi_enable_windows_VT100_output();
 
-	aafi->ctx.options.trace = trace;
-	aafi->ctx.options.forbid_nonlatin_filenames = no_nonlatin;
 
 	if ( aafi_load_file( aafi, argv[argc-1] ) ) {
 		goto err;
