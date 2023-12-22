@@ -174,7 +174,7 @@ int aafi_set_option_int( AAF_Iface *aafi, const char *optname, int val ) {
 
 
 
-int aafi_set_option_str( AAF_Iface *aafi, const char *optname, char *val ) {
+int aafi_set_option_str( AAF_Iface *aafi, const char *optname, const char *val ) {
 
 	if ( strcmp( optname, "media_location" ) == 0 ) {
 

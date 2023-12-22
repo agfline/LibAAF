@@ -922,7 +922,7 @@ typedef struct AAF_Iface
 void aafi_set_debug( AAF_Iface *aafi, verbosityLevel_e v, int ansicolor, FILE *fp, void (*callback)(struct dbg *dbg, void *ctxdata, int lib, int type, const char *srcfile, const char *srcfunc, int lineno, const char *msg, void *user), void *user );
 
 int aafi_set_option_int( AAF_Iface *aafi, const char *optname, int val );
-int aafi_set_option_str( AAF_Iface *aafi, const char *optname, char *val );
+int aafi_set_option_str( AAF_Iface *aafi, const char *optname, const char *val );
 
 AAF_Iface * aafi_alloc( AAF_Data *aafd );
 
