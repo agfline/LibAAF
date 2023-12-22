@@ -136,9 +136,9 @@ void cfb_dump_nodeStream( CFB_Data *cfbd, cfbNode *node )
 		return;
 	}
 
-	laaf_util_dump_hex( stream, stream_sz, &dbg->_dbg_msg, &dbg->_dbg_msg_size, 0 );
+	laaf_util_dump_hex( stream, stream_sz, &dbg->_dbg_msg, &dbg->_dbg_msg_size, dbg->_dbg_msg_pos );
 
-	dbg->debug_callback( dbg, (void*)cfbd, DEBUG_SRC_ID_LIB_CFB, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
+	dbg->debug_callback( dbg, (void*)cfbd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
 
 	free( stream );
 }
@@ -161,7 +161,7 @@ void cfb_dump_nodePathStream( CFB_Data *cfbd, const wchar_t *path )
 
 	cfb_getStream( cfbd, node, &stream, &stream_sz );
 
-	laaf_util_dump_hex( stream, stream_sz, &dbg->_dbg_msg, &dbg->_dbg_msg_size, 0 );
+	laaf_util_dump_hex( stream, stream_sz, &dbg->_dbg_msg, &dbg->_dbg_msg_size, dbg->_dbg_msg_pos );
 
 	dbg->debug_callback( dbg, (void*)cfbd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
 
