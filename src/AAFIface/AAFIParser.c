@@ -49,6 +49,7 @@
 #include <libaaf/AAFIAudioFiles.h>
 #include <libaaf/AAFToText.h>
 #include <libaaf/AAFDump.h>
+#include <libaaf/CFBDump.h>
 #include <libaaf/debug.h>
 
 #include <libaaf/ProTools.h>
