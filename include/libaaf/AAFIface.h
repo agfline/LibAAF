@@ -807,7 +807,8 @@ typedef struct aafiContext
 
 		int              trace;
 		int              trace_meta;
-		wchar_t         *trace_class;
+		wchar_t         *dump_class_aaf_properties;
+		wchar_t         *dump_class_raw_properties;
 		char            *media_location;
 		char             forbid_nonlatin_filenames;
 		/* vendor specific */

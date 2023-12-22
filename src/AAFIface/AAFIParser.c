@@ -414,35 +414,7 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 			DBG_BUFFER_WRITE( dbg, "." );
 		}
 
-		if ( /*state == TD_NOT_SUPPORTED ||*/ ( aafi->ctx.options.trace_class && wcscmp( aaft_ClassIDToText(aafi->aafd, Obj->Class->ID), aafi->ctx.options.trace_class ) == 0) ) {
-
-			// DBG_BUFFER_WRITE( dbg, "\n\n%s", ( state == TD_NOT_SUPPORTED ) ? ANSI_COLOR_ORANGE(dbg) : "" );
-			DBG_BUFFER_WRITE( dbg, "\n\n" );
-
-			DBG_BUFFER_WRITE( dbg, "CFB Object Dump : %ls\n", aaf_get_ObjectPath( Obj ) );
-			DBG_BUFFER_WRITE( dbg, "=================\n" );
-
-			dbg->debug_callback( dbg, (void*)aafi, DEBUG_SRC_ID_TRACE, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
-
-			cfb_dump_node( aafi->aafd->cfbd, Obj->Node, 1 );
-
-			//
-			// DBG_BUFFER_WRITE( dbg, "Properties Dump (%ls)\n", aaf_get_ObjectPath( Obj ) );
-			// DBG_BUFFER_WRITE( dbg, "===============\n\n" );
-			// // aaf_dump_nodeStreamProperties( aafi->aafd, Obj->Node );
-			//
-			// // dbg->debug_callback( dbg, (void*)aafi, DEBUG_SRC_ID_TRACE, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
-			// //
-			// // offset = 0;
-			//
-			// dbg->debug_callback( dbg, (void*)aafi, DEBUG_SRC_ID_TRACE, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
-			//
-			// aaf_dump_ObjectProperties( aafi->aafd, Obj );
-			//
-			// DBG_BUFFER_WRITE( dbg, "\n" );
-		}
-		else {
-
+		if ( !aafi->ctx.options.dump_class_aaf_properties ) {
 			aafProperty * Prop = NULL;
 			int hasUnknownProps = 0;
 
@@ -479,6 +451,38 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 			if ( aafi->ctx.options.trace_meta == 0 && hasUnknownProps ) {
 				DBG_BUFFER_WRITE( dbg, ")" );
 			}
+		}
+
+
+		if ( aafi->ctx.options.dump_class_raw_properties && wcscmp( aaft_ClassIDToText(aafi->aafd, Obj->Class->ID), aafi->ctx.options.dump_class_raw_properties ) == 0 ) {
+			DBG_BUFFER_WRITE( dbg, "\n\n" );
+			DBG_BUFFER_WRITE( dbg, "======================================================================\n" );
+			DBG_BUFFER_WRITE( dbg, "                     CFB Object Properties Dump\n" );
+			DBG_BUFFER_WRITE( dbg, "======================================================================\n" );
+			DBG_BUFFER_WRITE( dbg, "%s", ANSI_COLOR_DARKGREY(dbg) );
+			DBG_BUFFER_WRITE( dbg, "%ls\n", aaft_ClassIDToText(aafi->aafd, Obj->Class->ID) );
+			DBG_BUFFER_WRITE( dbg, "%ls/properties\n", aaf_get_ObjectPath( Obj ) );
+			DBG_BUFFER_WRITE( dbg, "%s\n\n", ANSI_COLOR_RESET(dbg) );
+
+			// cfb_dump_node( aafi->aafd->cfbd, cfb_getChildNode( aafi->aafd->cfbd, L"properties", Obj->Node ), 1 );
+			aaf_dump_nodeStreamProperties( aafi->aafd, cfb_getChildNode( aafi->aafd->cfbd, L"properties", Obj->Node ) );
+
+			DBG_BUFFER_WRITE( dbg, "\n" );
+		}
+
+		if ( aafi->ctx.options.dump_class_aaf_properties && wcscmp( aaft_ClassIDToText(aafi->aafd, Obj->Class->ID), aafi->ctx.options.dump_class_aaf_properties ) == 0 ) {
+			DBG_BUFFER_WRITE( dbg, "\n\n" );
+			DBG_BUFFER_WRITE( dbg, "======================================================================\n" );
+			DBG_BUFFER_WRITE( dbg, "                         AAF Properties Dump\n" );
+			DBG_BUFFER_WRITE( dbg, "======================================================================\n" );
+			DBG_BUFFER_WRITE( dbg, "%s", ANSI_COLOR_DARKGREY(dbg) );
+			DBG_BUFFER_WRITE( dbg, "%ls\n", aaft_ClassIDToText(aafi->aafd, Obj->Class->ID) );
+			DBG_BUFFER_WRITE( dbg, "%ls/properties\n", aaf_get_ObjectPath( Obj ) );
+			DBG_BUFFER_WRITE( dbg, "%s\n\n", ANSI_COLOR_RESET(dbg) );
+
+			aaf_dump_ObjectProperties( aafi->aafd, Obj );
+
+			DBG_BUFFER_WRITE( dbg, "\n" );
 		}
 
 		DBG_BUFFER_WRITE( dbg, "%s", ANSI_COLOR_RESET(dbg) );

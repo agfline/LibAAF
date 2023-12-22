@@ -195,9 +195,10 @@ static void showHelp( void ) {
 		"   --aaf-meta                     Lists Classes and Properties from the MetaDictionary.\n"
 		"   --aaf-properties               Displays all Properties.\n"
 		"\n"
-		"   --trace                        Prints AAF class/object tree.\n"
-		"   --trace-meta                   Prints MetaProperties in the trace.\n"
-		"   --trace-class    <AAFClassID>  Prints properties of a specific AAFClass in the trace.\n"
+		"   --trace                        Prints file class/object tree.\n"
+		"   --show-meta                    Prints MetaProperties for each class/object.\n"
+		"   --dump-class     <AAFClassID>  Dumps aaf properties of a specific AAFClass.\n"
+		"   --dump-class-raw <AAFClassID>  Dumps raw properties of a specific AAFClass.\n"
 		"\n"
 		"\n"
 		" Options :\n"
@@ -248,7 +249,8 @@ int main( int argc, char *argv[] ) {
 	int trace_meta = 0;
 	int ansicolor = 1;
 
-	char *trace_class = NULL;
+	char *dump_class_aaf_properties = NULL;
+	char *dump_class_raw_properties = NULL;
 
 	int cmd = 0;
 
@@ -276,8 +278,9 @@ int main( int argc, char *argv[] ) {
 		{ "aaf-properties",  no_argument,        0,  0x8c },
 
 		{ "trace",           no_argument,        0,  0x91 },
-		{ "trace-meta",      no_argument,        0,  0x92 },
-		{ "trace-class",     required_argument,  0,  0x93 },
+		{ "show-meta",       no_argument,        0,  0x92 },
+		{ "dump-class",      required_argument,  0,  0x93 },
+		{ "dump-class-raw",  required_argument,  0,  0x94 },
 
 		{ "media-location",  required_argument,  0,  0x8d },
 		{ "pos-format",      required_argument,  0,  0x8e },
@@ -343,7 +346,8 @@ int main( int argc, char *argv[] ) {
 			case 0x90:  verb  = atoi(optarg);                    break;
 			case 0x91:  trace = 1;                  cmd++;       break;
 			case 0x92:  trace_meta = 1;                          break;
-			case 0x93:  trace_class = optarg;                    break;
+			case 0x93:  dump_class_aaf_properties = optarg;      break;
+			case 0x94:  dump_class_raw_properties = optarg;      break;
 
 			case 0xa0:  ansicolor = 0;                           break;
 
@@ -400,8 +404,9 @@ int main( int argc, char *argv[] ) {
 	aafi_set_option_int( aafi, "protools",   PROTOOLS_ALL );
 	aafi_set_option_int( aafi, "resolve",    RESOLVE_ALL  );
 
-	aafi_set_option_str( aafi, "media_location", media_location );
-	aafi_set_option_str( aafi, "trace_class",    trace_class    );
+	aafi_set_option_str( aafi, "media_location",            media_location            );
+	aafi_set_option_str( aafi, "dump_class_aaf_properties", dump_class_aaf_properties );
+	aafi_set_option_str( aafi, "dump_class_raw_properties", dump_class_raw_properties );
 
 	aafi_enable_windows_VT100_output();
 

@@ -165,7 +165,7 @@ void aaf_dump_rawProperties( AAF_Data *aafd, aafByte_t *propStream )
 
 		aafd->dbg->_dbg_msg_pos += laaf_util_dump_hex( value, Prop._length, &aafd->dbg->_dbg_msg, &aafd->dbg->_dbg_msg_size, aafd->dbg->_dbg_msg_pos );
 
-		DBG_BUFFER_WRITE( dbg, "\n\n" );
+		DBG_BUFFER_WRITE( dbg, "\n" );
 	}
 
 	dbg->debug_callback( dbg, (void*)aafd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, dbg->_dbg_msg, dbg->user );

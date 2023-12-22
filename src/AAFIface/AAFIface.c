@@ -186,23 +186,43 @@ int aafi_set_option_str( AAF_Iface *aafi, const char *optname, char *val ) {
 
 		return 0;
 	}
-	else if ( strcmp( optname, "trace_class" ) == 0 ) {
+	else if ( strcmp( optname, "dump_class_aaf_properties" ) == 0 ) {
 
-		if ( aafi->ctx.options.trace_class ) {
-			free( aafi->ctx.options.trace_class );
-			aafi->ctx.options.trace_class = NULL;
+		if ( aafi->ctx.options.dump_class_aaf_properties ) {
+			free( aafi->ctx.options.dump_class_aaf_properties );
+			aafi->ctx.options.dump_class_aaf_properties = NULL;
 		}
 
 		if ( val == NULL )
 			return 0;
 
-		aafi->ctx.options.trace_class = malloc( (strlen(val)+1)*sizeof(wchar_t) );
+		aafi->ctx.options.dump_class_aaf_properties = malloc( (strlen(val)+1)*sizeof(wchar_t) );
 
-		if ( aafi->ctx.options.trace_class == NULL ) {
+		if ( aafi->ctx.options.dump_class_aaf_properties == NULL ) {
 			return -1;
 		}
 
-		swprintf( aafi->ctx.options.trace_class, strlen(val)+1, L"%" WPRIs, val );
+		swprintf( aafi->ctx.options.dump_class_aaf_properties, strlen(val)+1, L"%" WPRIs, val );
+
+		return 0;
+	}
+	else if ( strcmp( optname, "dump_class_raw_properties" ) == 0 ) {
+
+		if ( aafi->ctx.options.dump_class_raw_properties ) {
+			free( aafi->ctx.options.dump_class_raw_properties );
+			aafi->ctx.options.dump_class_raw_properties = NULL;
+		}
+
+		if ( val == NULL )
+			return 0;
+
+		aafi->ctx.options.dump_class_raw_properties = malloc( (strlen(val)+1)*sizeof(wchar_t) );
+
+		if ( aafi->ctx.options.dump_class_raw_properties == NULL ) {
+			return -1;
+		}
+
+		swprintf( aafi->ctx.options.dump_class_raw_properties, strlen(val)+1, L"%" WPRIs, val );
 
 		return 0;
 	}
@@ -263,8 +283,12 @@ void aafi_release( AAF_Iface **aafi )
 		aafi_freeMarkers( &(*aafi)->Markers );
 	}
 
-	if ( (*aafi)->ctx.options.trace_class ) {
-		free( (*aafi)->ctx.options.trace_class );
+	if ( (*aafi)->ctx.options.dump_class_aaf_properties ) {
+		free( (*aafi)->ctx.options.dump_class_aaf_properties );
+	}
+
+	if ( (*aafi)->ctx.options.dump_class_raw_properties ) {
+		free( (*aafi)->ctx.options.dump_class_raw_properties );
 	}
 
 	if ( (*aafi)->ctx.options.media_location ) {
