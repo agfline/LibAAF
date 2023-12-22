@@ -72,7 +72,11 @@ void aaf_dump_ObjectProperty( AAF_Data *aafd, aafProperty *Prop )
 {
 	struct dbg *dbg = aafd->dbg;
 
-	DBG_BUFFER_WRITE( dbg, " :.: (0x%04x) %ls (%ls)\n", Prop->pid, aaft_PIDToText( aafd, Prop->pid ), aaft_StoredFormToText( Prop->sf ) /*AUIDToText( &Prop->def->type ),*/ /*aaft_TypeIDToText( &(Prop->def->type) )*/ );
+	if ( Prop->def->meta ) {
+		DBG_BUFFER_WRITE( dbg, " :.: %s(0x%04x) %ls%s (%ls)\n", ANSI_COLOR_YELLOW(dbg), Prop->pid, aaft_PIDToText( aafd, Prop->pid ), ANSI_COLOR_RESET(dbg), aaft_StoredFormToText( Prop->sf ) /*AUIDToText( &Prop->def->type ),*/ /*aaft_TypeIDToText( &(Prop->def->type) )*/ );
+	} else {
+		DBG_BUFFER_WRITE( dbg, " :.: (0x%04x) %ls (%ls)\n", Prop->pid, aaft_PIDToText( aafd, Prop->pid ), aaft_StoredFormToText( Prop->sf ) /*AUIDToText( &Prop->def->type ),*/ /*aaft_TypeIDToText( &(Prop->def->type) )*/ );
+	}
 
 	// WARNING : Wont print strong references (set/vector) corectly.
 	aafd->dbg->_dbg_msg_pos += laaf_util_dump_hex( Prop->val, Prop->len, &aafd->dbg->_dbg_msg, &aafd->dbg->_dbg_msg_size, aafd->dbg->_dbg_msg_pos );
