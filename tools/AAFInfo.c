@@ -188,11 +188,11 @@ static void showHelp( void ) {
 		"\n"
 		" AAF Analysis :\n"
 		"\n"
-		"   --aaf-summary                  Displays AAF informations from both header and identification objects.\n"
-		"   --aaf-essences                 Lists AAF essences.\n"
-		"   --aaf-clips                    Lists AAF clips.\n"
-		"   --aaf-classes                  Lists AAF Classes. The ones from MetaDictionary are shown in yellow.\n"
-		"   --aaf-meta                     Lists Classes and Properties from the MetaDictionary.\n"
+		"   --aaf-summary                  Displays aaf informations from both header and identification objects.\n"
+		"   --aaf-essences                 Lists aaf essences.\n"
+		"   --aaf-clips                    Lists aaf clips.\n"
+		"   --aaf-classes                  Lists aaf classes.\n"
+		"   --aaf-meta                     Lists classes and properties from the MetaDictionary.\n"
 		"   --aaf-properties               Displays all Properties.\n"
 		"\n"
 		"   --trace                        Prints file class/object tree.\n"
@@ -260,35 +260,35 @@ int main( int argc, char *argv[] ) {
 
 	static struct option long_options[] = {
 
-		{ "help",            no_argument,        0,   'h' },
+		{ "help",            no_argument,        0,  0xff },
 
-		{ "cfb-header",      no_argument,        0,  0x81 },
-		{ "cfb-fat",         no_argument,        0,  0x82 },
-		{ "cfb-minifat",     no_argument,        0,  0x83 },
-		{ "cfb-difat",       no_argument,        0,  0x84 },
-		{ "cfb-nodes",       no_argument,        0,  0x85 },
+		{ "cfb-header",      no_argument,        0,  0x01 },
+		{ "cfb-fat",         no_argument,        0,  0x02 },
+		{ "cfb-minifat",     no_argument,        0,  0x03 },
+		{ "cfb-difat",       no_argument,        0,  0x04 },
+		{ "cfb-nodes",       no_argument,        0,  0x05 },
 
-		{ "get-node",        required_argument,  0,  0x86 },
+		{ "get-node",        required_argument,  0,  0x06 },
 
-		{ "aaf-summary",     no_argument,        0,  0x87 },
-		{ "aaf-essences",    no_argument,        0,  0x88 },
-		{ "aaf-clips",       no_argument,        0,  0x89 },
-		{ "aaf-classes",     no_argument,        0,  0x8a },
-		{ "aaf-meta",        no_argument,        0,  0x8b },
-		{ "aaf-properties",  no_argument,        0,  0x8c },
+		{ "aaf-summary",     no_argument,        0,  0x10 },
+		{ "aaf-essences",    no_argument,        0,  0x11 },
+		{ "aaf-clips",       no_argument,        0,  0x12 },
+		{ "aaf-classes",     no_argument,        0,  0x13 },
+		{ "aaf-meta",        no_argument,        0,  0x14 },
+		{ "aaf-properties",  no_argument,        0,  0x15 },
 
-		{ "trace",           no_argument,        0,  0x91 },
-		{ "show-meta",       no_argument,        0,  0x92 },
-		{ "dump-class",      required_argument,  0,  0x93 },
-		{ "dump-class-raw",  required_argument,  0,  0x94 },
+		{ "trace",           no_argument,        0,  0x20 },
+		{ "show-meta",       no_argument,        0,  0x21 },
+		{ "dump-class",      required_argument,  0,  0x22 },
+		{ "dump-class-raw",  required_argument,  0,  0x23 },
 
-		{ "media-location",  required_argument,  0,  0x8d },
-		{ "pos-format",      required_argument,  0,  0x8e },
+		{ "media-location",  required_argument,  0,  0x30 },
+		{ "pos-format",      required_argument,  0,  0x31 },
 
-		{ "show-automation", no_argument,        0,  0x8f },
-		{ "no-color",        no_argument,        0,  0xa0 },
+		{ "show-automation", no_argument,        0,  0x32 },
+		{ "no-color",        no_argument,        0,  0x33 },
 
-		{ "verb",            required_argument,  0,  0x90 },
+		{ "verb",            required_argument,  0,  0x34 },
 
 		{ 0,                 0,                  0,  0x00 }
 	};
@@ -307,51 +307,45 @@ int main( int argc, char *argv[] ) {
 
 		switch ( c )
 		{
-			case 0x81:  cfb_header     = 1;         cmd++;       break;
-			case 0x82:  cfb_fat        = 1;         cmd++;       break;
-			case 0x83:  cfb_minifat    = 1;         cmd++;       break;
-			case 0x84:  cfb_difat      = 1;         cmd++;       break;
-			case 0x85:  cfb_nodes      = 1;         cmd++;       break;
+			case 0x01:  cfb_header     = 1;         cmd++;       break;
+			case 0x02:  cfb_fat        = 1;         cmd++;       break;
+			case 0x03:  cfb_minifat    = 1;         cmd++;       break;
+			case 0x04:  cfb_difat      = 1;         cmd++;       break;
+			case 0x05:  cfb_nodes      = 1;         cmd++;       break;
 
-			case 0x86:	get_node_str   = optarg;    cmd++;       break;
+			case 0x06:	get_node_str   = optarg;    cmd++;       break;
 
-			case 0x87:  aaf_summary    = 1;         cmd++;       break;
-			case 0x88:  aaf_essences   = 1;         cmd++;       break;
-			case 0x89:  aaf_clips      = 1;         cmd++;       break;
-			case 0x8a:  aaf_classes    = 1;         cmd++;       break;
-			case 0x8b:  aaf_meta       = 1;         cmd++;       break;
-			case 0x8c:  aaf_properties = 1;         cmd++;       break;
+			case 0x10:  aaf_summary    = 1;         cmd++;       break;
+			case 0x11:  aaf_essences   = 1;         cmd++;       break;
+			case 0x12:  aaf_clips      = 1;         cmd++;       break;
+			case 0x13:  aaf_classes    = 1;         cmd++;       break;
+			case 0x14:  aaf_meta       = 1;         cmd++;       break;
+			case 0x15:  aaf_properties = 1;         cmd++;       break;
 
-			case 0x8d:  media_location = optarg;                 break;
+			case 0x20:  trace = 1;                  cmd++;       break;
+			case 0x21:  trace_meta = 1;                          break;
+			case 0x22:  dump_class_aaf_properties = optarg;      break;
+			case 0x23:  dump_class_raw_properties = optarg;      break;
 
-			case 0x8e:
-
-				if ( strcmp( optarg, "tc" ) == 0 )
-					posFormat = POS_FORMAT_TC;
-				else if ( strcmp( optarg, "samples" ) == 0 )
-					posFormat = POS_FORMAT_SAMPLES;
-				else if ( strcmp( optarg, "hms" ) == 0 )
-					posFormat = POS_FORMAT_HMS;
+			case 0x30:  media_location = optarg;                 break;
+			case 0x31:
+				if      ( strcmp( optarg, "tc"      ) == 0 ) posFormat = POS_FORMAT_TC;
+				else if ( strcmp( optarg, "samples" ) == 0 ) posFormat = POS_FORMAT_SAMPLES;
+				else if ( strcmp( optarg, "hms"     ) == 0 ) posFormat = POS_FORMAT_HMS;
 				else {
 					fprintf( stderr,
 						"Command line error: wrong --pos-format <value>\n"
 						"Try 'AAFInfo --help' for more informations.\n" );
 					goto err;
 				}
-
 				break;
 
-			case 0x8f:  show_automation = 1;                     break;
+			case 0x32:  show_automation = 1;                     break;
+			case 0x33:  ansicolor = 0;                           break;
 
-			case 0x90:  verb  = atoi(optarg);                    break;
-			case 0x91:  trace = 1;                  cmd++;       break;
-			case 0x92:  trace_meta = 1;                          break;
-			case 0x93:  dump_class_aaf_properties = optarg;      break;
-			case 0x94:  dump_class_raw_properties = optarg;      break;
+			case 0x34:  verb = atoi(optarg);                     break;
 
-			case 0xa0:  ansicolor = 0;                           break;
-
-			case 'h':	showHelp();                                goto end;
+			case 0xff:	showHelp();                              goto end;
 
 			default:
 				printf( "Try 'AAFInfo --help' for more informations.\n" );
@@ -387,7 +381,6 @@ int main( int argc, char *argv[] ) {
 	}
 
 
-
 	aafi = aafi_alloc( NULL );
 
 	if ( !aafi ) {
@@ -410,16 +403,12 @@ int main( int argc, char *argv[] ) {
 
 	aafi_enable_windows_VT100_output();
 
-
 	if ( aafi_load_file( aafi, argv[argc-1] ) ) {
 		fprintf( stderr, "Failed to open %s\n", argv[argc-1] );
 		goto err;
 	}
 
 	printf( "\n" );
-
-
-
 
 
 	if ( get_node_str != NULL ) {
@@ -476,9 +465,6 @@ int main( int argc, char *argv[] ) {
 		uint32_t i = 0;
 		cfb_dump_nodePaths( aafd->cfbd, 0, NULL, &i, NULL );
 	}
-
-
-
 
 
 	enum TC_FORMAT tcFormat;
@@ -576,11 +562,6 @@ int main( int argc, char *argv[] ) {
 	}
 
 
-
-
-
-
-
 	if ( aaf_essences ) {
 
 		printf( "Media Essences :\n"
@@ -607,15 +588,11 @@ int main( int argc, char *argv[] ) {
 				( audioEssence->file_name && wcslen(audioEssence->file_name) == wcslen(audioEssence->unique_file_name) ) ? L"" : audioEssence->unique_file_name,
 				( audioEssence->file_name && wcslen(audioEssence->file_name) == wcslen(audioEssence->unique_file_name) ) ? "" : ")" );
 
-			// printf( "MOBID    %s\n", aaft_MobIDToText( audioEssence->sourceMobID ) );
-
 			i++;
 		}
 
 		printf( "\n\n" );
 	}
-
-
 
 
 	if ( aaf_clips ) {
@@ -624,7 +601,6 @@ int main( int argc, char *argv[] ) {
 
 		printf( "Tracks & Clips :\n"
 						"================\n\n" );
-
 
 		aafiVideoTrack   *videoTrack = aafi->Video->Tracks;
 		aafiTimelineItem *videoItem  = NULL;
@@ -672,8 +648,6 @@ int main( int argc, char *argv[] ) {
 				printf( "\n\n\n" );
 			}
 		}
-
-
 
 
 		aafiAudioTrack   *audioTrack = NULL;
@@ -752,7 +726,6 @@ int main( int argc, char *argv[] ) {
 						formatPosValue( (audioClip->pos + sessionStart + audioClip->len), audioClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf3 ),
 						INTERPOL_TO_STRING( fadein ),
 						INTERPOL_TO_STRING( fadeout ),
-						// eu2sample( aafi->Audio->samplerate, audioClip->track->edit_rate, audioClip->essence_offset ),
 						formatPosValue( audioClip->essence_offset, audioClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf4 ),
 						(audioClip->Essence) ? audioClip->Essence->unique_file_name : L"",
 						(audioClip->Essence) ? audioClip->Essence->file_name : L"" );
@@ -768,7 +741,6 @@ int main( int argc, char *argv[] ) {
 
 			printf( "\n\n" );
 		}
-
 
 
 		if ( aafi->Markers ) {
@@ -805,7 +777,6 @@ int main( int argc, char *argv[] ) {
 	}
 
 
-
 	printf( "\n\n" );
 
 	goto end;
@@ -821,7 +792,6 @@ end:
 	else if ( aafd ) {
 		aaf_release( &aafd );
 	}
-
 
 	return rc;
 }
