@@ -32,7 +32,7 @@
 #include "RIFFParser.h"
 #include "URIParser.h"
 
-#include "../common/utils.h"
+#include <libaaf/utils.h>
 
 #if defined(__linux__)
 	#include <linux/limits.h>

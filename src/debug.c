@@ -7,8 +7,7 @@
 #include <libaaf/AAFIface.h>
 #include <libaaf/AAFIParser.h>
 
-#include "common/utils.h"
-
+#include <libaaf/utils.h>
 
 
 struct dbg * laaf_new_debug( void )
@@ -46,6 +45,7 @@ void laaf_debug_callback( struct dbg *dbg, void *ctxdata, int libid, int type, c
 	const char *color = "";
 
 	if ( dbg->fp == NULL ) {
+		DBG_BUFFER_RESET( dbg );
 		return;
 	}
 
@@ -69,6 +69,8 @@ void laaf_debug_callback( struct dbg *dbg, void *ctxdata, int libid, int type, c
 	}
 
 	fprintf( dbg->fp, "%s\n", msg );
+
+	DBG_BUFFER_RESET( dbg );
 
 	/* avoids -Wunused-parameter -Wunused-but-set-variable */
 	(void)aafi;

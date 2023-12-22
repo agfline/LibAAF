@@ -68,7 +68,7 @@
 #include  <libaaf/AAFDefs/AAFOPDefs.h>
 // #include  <libaaf/AAFDefs/AAFContainerDefs.h>
 
-#include "../common/utils.h"
+#include <libaaf/utils.h>
 
 
 
@@ -186,7 +186,6 @@ static void xplore_StrongObjectReferenceVector( AAF_Iface *aafi, aafObject *ObjC
 
 	aaf_foreach_ObjectInSet( &Obj, ObjCollection, NULL ) {
 		// aaf_dump_ObjectProperties( aafi->aafd, ObjCollection );
-		int offset = 0;
 		/* TODO implement retrieve_TaggedValue() */
 
 		if ( aaf_get_property( Obj, PID_TaggedValue_Name ) &&
@@ -197,16 +196,16 @@ static void xplore_StrongObjectReferenceVector( AAF_Iface *aafi, aafObject *ObjC
 
 			if ( aafUIDCmp( &indirect->TypeDef, &AAFTypeID_Int32 ) ) {
 				int32_t *indirectValue = aaf_get_indirectValue( aafi->aafd, indirect, &AAFTypeID_Int32 );
-				offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "Tagged     |     Name: %ls%*s      Value (%ls)  : %i\n", name, 56-(int)wcslen(name), " ", aaft_TypeIDToText(&indirect->TypeDef), *indirectValue );
+				DBG_BUFFER_WRITE( dbg, "Tagged     |     Name: %ls%*s      Value (%ls)  : %i\n", name, 56-(int)wcslen(name), " ", aaft_TypeIDToText(&indirect->TypeDef), *indirectValue );
 			}
 			else
 			if ( aafUIDCmp( &indirect->TypeDef, &AAFTypeID_String ) ) {
 				wchar_t *indirectValue = aaf_get_indirectValue( aafi->aafd, indirect, &AAFTypeID_String );
-				offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "Tagged     |     Name: %ls%*s      Value (%ls) : %ls\n", name, 56-(int)wcslen(name), " ", aaft_TypeIDToText(&indirect->TypeDef), indirectValue );
+				DBG_BUFFER_WRITE( dbg, "Tagged     |     Name: %ls%*s      Value (%ls) : %ls\n", name, 56-(int)wcslen(name), " ", aaft_TypeIDToText(&indirect->TypeDef), indirectValue );
 				free( indirectValue );
 			}
 			else {
-				offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "Tagged     |     Name: %ls%*s      Value (%s%ls%s) : %sUNKNOWN_TYPE%s\n", name, 56-(int)wcslen(name), " ", ANSI_COLOR_RED(dbg), aaft_TypeIDToText(&indirect->TypeDef), ANSI_COLOR_RESET(dbg), ANSI_COLOR_RED(dbg), ANSI_COLOR_RESET(dbg) );
+				DBG_BUFFER_WRITE( dbg, "Tagged     |     Name: %ls%*s      Value (%s%ls%s) : %sUNKNOWN_TYPE%s\n", name, 56-(int)wcslen(name), " ", ANSI_COLOR_RED(dbg), aaft_TypeIDToText(&indirect->TypeDef), ANSI_COLOR_RESET(dbg), ANSI_COLOR_RED(dbg), ANSI_COLOR_RESET(dbg) );
 			}
 
 			dbg->debug_callback( dbg, (void*)aafi, DEBUG_SRC_ID_DUMP, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
@@ -215,8 +214,6 @@ static void xplore_StrongObjectReferenceVector( AAF_Iface *aafi, aafObject *ObjC
 		}
 		else {
 			dbg->debug_callback( dbg, (void*)aafi, DEBUG_SRC_ID_DUMP, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
-
-			offset = 0;
 			aaf_dump_ObjectProperties( aafi->aafd, Obj );
 		}
 	}
@@ -231,23 +228,22 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 
 	/* Print caller line number */
 	struct dbg *dbg = aafi->dbg;
-	int offset = 0;
 
 	if ( Obj ) {
 
 		switch ( state ) {
-			case TD_ERROR:		      offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%serr %s%ls %s", ANSI_COLOR_RED(dbg),    ANSI_COLOR_DARKGREY(dbg), L"\u2502", ANSI_COLOR_RED(dbg)    );  break;
-			case TD_WARNING:	      offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%swrn %s%ls %s", ANSI_COLOR_YELLOW(dbg), ANSI_COLOR_DARKGREY(dbg), L"\u2502", ANSI_COLOR_YELLOW(dbg) );  break;
-			case TD_NOT_SUPPORTED:  offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%suns %s%ls %s", ANSI_COLOR_ORANGE(dbg), ANSI_COLOR_DARKGREY(dbg), L"\u2502", ANSI_COLOR_ORANGE(dbg) );  break;
-			default:                offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "    %s%ls ", ANSI_COLOR_DARKGREY(dbg), L"\u2502" );  break;
+			case TD_ERROR:		      DBG_BUFFER_WRITE( dbg, "%serr %s%ls %s", ANSI_COLOR_RED(dbg),    ANSI_COLOR_DARKGREY(dbg), L"\u2502", ANSI_COLOR_RED(dbg)    );  break;
+			case TD_WARNING:	      DBG_BUFFER_WRITE( dbg, "%swrn %s%ls %s", ANSI_COLOR_YELLOW(dbg), ANSI_COLOR_DARKGREY(dbg), L"\u2502", ANSI_COLOR_YELLOW(dbg) );  break;
+			case TD_NOT_SUPPORTED:  DBG_BUFFER_WRITE( dbg, "%suns %s%ls %s", ANSI_COLOR_ORANGE(dbg), ANSI_COLOR_DARKGREY(dbg), L"\u2502", ANSI_COLOR_ORANGE(dbg) );  break;
+			default:                DBG_BUFFER_WRITE( dbg, "    %s%ls ", ANSI_COLOR_DARKGREY(dbg), L"\u2502" );  break;
 		}
-		offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%05i", line );
+		DBG_BUFFER_WRITE( dbg, "%05i", line );
 	}
 	else {
-		offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "    %s%ls%s      ", ANSI_COLOR_DARKGREY(dbg), L"\u2502", ANSI_COLOR_RESET(dbg) );
+		DBG_BUFFER_WRITE( dbg, "    %s%ls%s      ", ANSI_COLOR_DARKGREY(dbg), L"\u2502", ANSI_COLOR_RESET(dbg) );
 	}
 
-	offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s%ls%s", ANSI_COLOR_DARKGREY(dbg), L"\u2502", ANSI_COLOR_RESET(dbg) ); // │
+	DBG_BUFFER_WRITE( dbg, "%s%ls%s", ANSI_COLOR_DARKGREY(dbg), L"\u2502", ANSI_COLOR_RESET(dbg) ); // │
 
 	/* Print padding and vertical lines */
 
@@ -263,21 +259,21 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 
 				if ( i+1 == __td->lv ) {
 					if ( Obj ) {
-						offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%ls", L"\u251c\u2500\u2500\u25fb " ); // ├──◻
+						DBG_BUFFER_WRITE( dbg, "%ls", L"\u251c\u2500\u2500\u25fb " ); // ├──◻
 					}
 					else {
-						offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%ls", L"\u2502    " ); // │
+						DBG_BUFFER_WRITE( dbg, "%ls", L"\u2502    " ); // │
 					}
 				}
 				else {
-					offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%ls", L"\u2502    " ); // │
+					DBG_BUFFER_WRITE( dbg, "%ls", L"\u2502    " ); // │
 				}
 			}
 			else if ( i+1 == __td->lv && Obj ) {
-				offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%ls", L"\u2514\u2500\u2500\u25fb " ); // └──◻
+				DBG_BUFFER_WRITE( dbg, "%ls", L"\u2514\u2500\u2500\u25fb " ); // └──◻
 			}
 			else {
-				offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "     " );
+				DBG_BUFFER_WRITE( dbg, "     " );
 			}
 		}
 	}
@@ -286,23 +282,24 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 	if ( Obj ) {
 
 		switch ( state ) {
-			case TD_ERROR:          offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_RED(dbg)      );  break;
-			case TD_WARNING:        offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_YELLOW(dbg)   );  break;
-			case TD_NOT_SUPPORTED:  offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_ORANGE(dbg)   );  break;
+			case TD_ERROR:          DBG_BUFFER_WRITE( dbg, "%s", ANSI_COLOR_RED(dbg)      );  break;
+			case TD_WARNING:        DBG_BUFFER_WRITE( dbg, "%s", ANSI_COLOR_YELLOW(dbg)   );  break;
+			case TD_NOT_SUPPORTED:  DBG_BUFFER_WRITE( dbg, "%s", ANSI_COLOR_ORANGE(dbg)   );  break;
 			case TD_INFO:
 			case TD_OK:
-				if ( __td->sub )
-					offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_DARKGREY(dbg) );
-				else
-					offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_CYAN(dbg) );
+				if ( __td->sub ) {
+					DBG_BUFFER_WRITE( dbg, "%s", ANSI_COLOR_DARKGREY(dbg) );
+				} else {
+					DBG_BUFFER_WRITE( dbg, "%s", ANSI_COLOR_CYAN(dbg) );
+				}
 
 				break;
 		}
 
 
-		offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%ls ", aaft_ClassIDToText(aafi->aafd, Obj->Class->ID) );
+		DBG_BUFFER_WRITE( dbg, "%ls ", aaft_ClassIDToText(aafi->aafd, Obj->Class->ID) );
 
-		offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_RESET(dbg) );
+		DBG_BUFFER_WRITE( dbg, "%s", ANSI_COLOR_RESET(dbg) );
 
 
 		if ( aafUIDCmp( Obj->Class->ID, &AAFClassID_TimelineMobSlot ) &&
@@ -315,7 +312,7 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 			uint32_t  *slotID         = aaf_get_propertyValue( Obj, PID_MobSlot_SlotID, &AAFTypeID_UInt32 );
 			uint32_t  *trackNo        = aaf_get_propertyValue( Obj, PID_MobSlot_PhysicalTrackNumber, &AAFTypeID_UInt32 );
 
-			offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "[slot:%s%i%s track:%s%i%s] (DataDef : %s%ls%s) %s%ls ",
+			DBG_BUFFER_WRITE( dbg, "[slot:%s%i%s track:%s%i%s] (DataDef : %s%ls%s) %s%ls ",
 				ANSI_COLOR_BOLD(dbg),
 				(slotID) ? (int)(*slotID) : -1,
 				ANSI_COLOR_RESET(dbg),
@@ -338,7 +335,7 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 			aafUID_t *usageCode = aaf_get_propertyValue( Obj, PID_Mob_UsageCode, &AAFTypeID_UsageType );
 			wchar_t  *name      = aaf_get_propertyValue( Obj, PID_Mob_Name, &AAFTypeID_String );
 
-			offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "(UsageCode: %s%ls%s) %s%ls",
+			DBG_BUFFER_WRITE( dbg, "(UsageCode: %s%ls%s) %s%ls",
 				ANSI_COLOR_DARKGREY(dbg),
 				aaft_UsageCodeToText( usageCode ),
 				ANSI_COLOR_RESET(dbg),
@@ -351,7 +348,7 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 
 			aafUID_t *OperationIdentification = get_OperationGroup_OperationIdentification( aafi, Obj );
 
-			offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "(OpIdent: %s%ls%s) ",
+			DBG_BUFFER_WRITE( dbg, "(OpIdent: %s%ls%s) ",
 				ANSI_COLOR_DARKGREY(dbg),
 				aaft_OperationDefToText( aafi->aafd, OperationIdentification ),
 				ANSI_COLOR_RESET(dbg)
@@ -369,21 +366,21 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 		//           aafUIDCmp( Obj->Class->ID, &AAFClassID_AIFCDescriptor ) )
 		// {
 		// 	aafUID_t *ContainerFormat = get_FileDescriptor_ContainerFormat( aafi, Obj );
-		// 	offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "(ContainerIdent : \x1b[38;5;242m%ls\x1b[0m)", aaft_ContainerToText(ContainerFormat) );
+		// 	DBG_BUFFER_WRITE( dbg, "(ContainerIdent : \x1b[38;5;242m%ls\x1b[0m)", aaft_ContainerToText(ContainerFormat) );
 		// }
 
 
 		if ( state == TD_ERROR ) {
-			offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, ": %s", ANSI_COLOR_RED(dbg) );
+			DBG_BUFFER_WRITE( dbg, ": %s", ANSI_COLOR_RED(dbg) );
 		}
 		else if ( state == TD_INFO ) {
-			offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, ": %s", ANSI_COLOR_CYAN(dbg) );
+			DBG_BUFFER_WRITE( dbg, ": %s", ANSI_COLOR_CYAN(dbg) );
 		}
 
 		va_list args;
 		va_start( args, fmt );
 
-		offset += laaf_util_vsnprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, fmt, &args );
+		dbg->_dbg_msg_pos += laaf_util_vsnprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, dbg->_dbg_msg_pos, fmt, &args );
 
 		va_end( args );
 		// va_list args;
@@ -414,25 +411,35 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 		// va_end( args );
 
 		if ( state == TD_ERROR || state == TD_INFO ) {
-			offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "." );
+			DBG_BUFFER_WRITE( dbg, "." );
 		}
 
-		if ( state == TD_NOT_SUPPORTED || ( aafi->ctx.options.trace_class && wcscmp( aaft_ClassIDToText(aafi->aafd, Obj->Class->ID), aafi->ctx.options.trace_class ) == 0) ) {
+		if ( /*state == TD_NOT_SUPPORTED ||*/ ( aafi->ctx.options.trace_class && wcscmp( aaft_ClassIDToText(aafi->aafd, Obj->Class->ID), aafi->ctx.options.trace_class ) == 0) ) {
 
-			// offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n%s", ( state == TD_NOT_SUPPORTED ) ? ANSI_COLOR_ORANGE(dbg) : "" );
+			// DBG_BUFFER_WRITE( dbg, "\n\n%s", ( state == TD_NOT_SUPPORTED ) ? ANSI_COLOR_ORANGE(dbg) : "" );
+			DBG_BUFFER_WRITE( dbg, "\n\n" );
+
+			DBG_BUFFER_WRITE( dbg, "CFB Object Dump : %ls\n", aaf_get_ObjectPath( Obj ) );
+			DBG_BUFFER_WRITE( dbg, "=================\n" );
+
+			dbg->debug_callback( dbg, (void*)aafi, DEBUG_SRC_ID_TRACE, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
+
+			cfb_dump_node( aafi->aafd->cfbd, Obj->Node, 1 );
+
 			//
-			// // offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "CFB Object Dump : %ls\n", aaf_get_ObjectPath( Obj ) );
-			// // offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "=================\n" );
-			// // cfb_dump_node( aafi->aafd->cfbd, Obj->Node, 1 );
-			//
-			// offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "Properties Dump (%ls)\n", aaf_get_ObjectPath( Obj ) );
-			// offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "===============\n\n" );
+			// DBG_BUFFER_WRITE( dbg, "Properties Dump (%ls)\n", aaf_get_ObjectPath( Obj ) );
+			// DBG_BUFFER_WRITE( dbg, "===============\n\n" );
 			// // aaf_dump_nodeStreamProperties( aafi->aafd, Obj->Node );
 			//
 			// // dbg->debug_callback( dbg, (void*)aafi, DEBUG_SRC_ID_TRACE, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
 			// //
 			// // offset = 0;
+			//
+			// dbg->debug_callback( dbg, (void*)aafi, DEBUG_SRC_ID_TRACE, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
+			//
 			// aaf_dump_ObjectProperties( aafi->aafd, Obj );
+			//
+			// DBG_BUFFER_WRITE( dbg, "\n" );
 		}
 		else {
 
@@ -443,42 +450,42 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 
 				if ( Prop->def->meta ) {
 
-					// offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n");
+					// DBG_BUFFER_WRITE( dbg, "\n");
 
 					if ( aafi->ctx.options.trace_meta ) {
 						// aaf_dump_ObjectProperties( aafi->aafd, Obj );
 
 						// if ( Prop->pid == 0xffca ) {
 						if ( Prop->sf == SF_STRONG_OBJECT_REFERENCE_VECTOR ) {
-							offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n" );
-							offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, " >>> (0x%04x) %ls (%ls)\n", Prop->pid, aaft_PIDToText( aafi->aafd, Prop->pid ), aaft_StoredFormToText( Prop->sf ) /*AUIDToText( &Prop->def->type ),*/ /*aaft_TypeIDToText( &(Prop->def->type) )*/ );
+							DBG_BUFFER_WRITE( dbg, "\n" );
+							DBG_BUFFER_WRITE( dbg, " >>> (0x%04x) %ls (%ls)\n", Prop->pid, aaft_PIDToText( aafi->aafd, Prop->pid ), aaft_StoredFormToText( Prop->sf ) /*AUIDToText( &Prop->def->type ),*/ /*aaft_TypeIDToText( &(Prop->def->type) )*/ );
 							void *propValue = aaf_get_propertyValue( Obj, Prop->pid, &AAFUID_NULL );
 							xplore_StrongObjectReferenceVector( aafi, propValue, __td );
 
 							// DUMP_OBJ_NO_SUPPORT( aafi, propValue, __td );
 						}
 						else {
-							offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n" );
+							DBG_BUFFER_WRITE( dbg, "\n" );
 							aaf_dump_ObjectProperty( aafi->aafd, Prop );
 						}
 					}
 					else {
-						offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s%s %ls[0x%04x]", ANSI_COLOR_RESET(dbg), (!hasUnknownProps) ? "  (MetaProps:" : "", aaft_PIDToText( aafi->aafd, Prop->pid ), Prop->pid );
+						DBG_BUFFER_WRITE( dbg, "%s%s %ls[0x%04x]", ANSI_COLOR_RESET(dbg), (!hasUnknownProps) ? "  (MetaProps:" : "", aaft_PIDToText( aafi->aafd, Prop->pid ), Prop->pid );
 						// laaf_util_dump_hex( Prop->val, Prop->len );
 						hasUnknownProps++;
 					}
 				}
 			}
 			if ( aafi->ctx.options.trace_meta == 0 && hasUnknownProps ) {
-				offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, ")" );
+				DBG_BUFFER_WRITE( dbg, ")" );
 			}
 		}
 
-		offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "%s", ANSI_COLOR_RESET(dbg) );
+		DBG_BUFFER_WRITE( dbg, "%s", ANSI_COLOR_RESET(dbg) );
 	}
 
 
-	// offset += laaf_util_snprintf_realloc( &dbg->_dbg_msg, &dbg->_dbg_msg_size, offset, "\n" );
+	// DBG_BUFFER_WRITE( dbg, "\n" );
 
 	dbg->debug_callback( dbg, (void*)aafi, DEBUG_SRC_ID_TRACE, 0, "", "", 0, dbg->_dbg_msg, dbg->user );
 

@@ -106,7 +106,7 @@
 #include <libaaf/LibCFB.h>
 #include <libaaf/debug.h>
 
-#include "../common/utils.h"
+#include <libaaf/utils.h>
 
 
 #define debug( ... ) \

@@ -25,7 +25,7 @@
 #include <wchar.h>
 #include <stdlib.h>
 
-#include "utils.h"
+#include <libaaf/utils.h>
 
 
 #define BUILD_PATH_DEFAULT_BUF_SIZE 1024

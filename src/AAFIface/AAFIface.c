@@ -44,7 +44,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include "../common/utils.h"
+#include <libaaf/utils.h>
 #include <libaaf/debug.h>
 #include <libaaf/AAFIface.h>
 #include <libaaf/AAFIParser.h>

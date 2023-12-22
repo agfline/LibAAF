@@ -28,8 +28,7 @@
 #endif
 
 #include <libaaf.h>
-
-#include "../src/common/utils.h" // ANSI colors, laaf_util_c99strdup()
+#include <libaaf/utils.h> // ANSI colors, laaf_util_c99strdup()
 
 #include "common.h"
 

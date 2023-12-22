@@ -38,7 +38,7 @@
 #include <libaaf/AAFTypes.h>
 
 #include "AAFClass.h"
-#include "../common/utils.h"
+#include <libaaf/utils.h>
 
 
 

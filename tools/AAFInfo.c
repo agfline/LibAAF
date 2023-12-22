@@ -32,10 +32,9 @@
 #endif
 
 #include <libaaf.h>
+#include <libaaf/utils.h> // ANSI colors, laaf_util_c99strdup()
 
 #include "./thirdparty/libTC.h"
-#include "../src/common/utils.h" // ANSI colors, laaf_util_c99strdup()
-
 #include "common.h"
 
 
