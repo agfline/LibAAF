@@ -1,7 +1,10 @@
 
 cmake_minimum_required( VERSION 3.11 )
 
-project( "libaaf" C )
+project( "libaaf"
+	LANGUAGES C
+	DESCRIPTION "libaaf is a C coded library for Advanced Authoring Format \(AAF\) file handling"
+	HOMEPAGE_URL "https://github.com/agfline/LibAAF" )
 
 option( BUILD_STATIC_LIB "Build the static library"                  ON )
 option( BUILD_SHARED_LIB "Build the shared library"                  ON )
