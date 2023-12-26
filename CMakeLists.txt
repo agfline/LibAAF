@@ -56,6 +56,7 @@ endfunction()
 laaf_set_version()
 
 configure_file( ${PROJECT_SOURCE_DIR}/src/version.h.in ${CMAKE_BINARY_DIR}/include/libaaf/version.h @ONLY )
+configure_file( ${PROJECT_SOURCE_DIR}/libaaf.pc.in ${CMAKE_BINARY_DIR}/libaaf.pc @ONLY )
 
 
 if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
@@ -228,6 +229,7 @@ if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
 
 	if ( BUILD_SHARED_LIB )
   	install( TARGETS aaf-shared DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR} )
+		install( FILES ${CMAKE_BINARY_DIR}/libaaf.pc DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig/ )
 	endif()
 
 	if ( BUILD_STATIC_LIB )
