@@ -22,18 +22,40 @@ endif()
 
 
 
-# cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
-find_package( Git )
-add_custom_target( version
-  ${CMAKE_COMMAND} -D SRC=${PROJECT_SOURCE_DIR}/src/version.h.in
-                   -D DST=${CMAKE_BINARY_DIR}/include/libaaf/version.h
-                   -D PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
-                   -D GIT_EXECUTABLE=${GIT_EXECUTABLE}
-                   -D LIBAAF_VERSION=${LIBAAF_VERSION}
-                   -P ${CMAKE_SOURCE_DIR}/GenerateVersionHeader.cmake
-  )
+function( laaf_set_version )
+
+	find_package( Git )
+
+	if ( LIBAAF_VERSION STREQUAL "GIT" AND GIT_EXECUTABLE )
+		# Generate a git-describe version string from Git repository tags
+		execute_process(
+				COMMAND ${GIT_EXECUTABLE} describe --tags --dirty --match "v*"
+				WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+				OUTPUT_VARIABLE GIT_DESCRIBE_VERSION
+				RESULT_VARIABLE GIT_DESCRIBE_ERROR_CODE
+				OUTPUT_STRIP_TRAILING_WHITESPACE
+			)
+		if ( NOT GIT_DESCRIBE_ERROR_CODE )
+			set( LIBAAF_VERSION ${GIT_DESCRIBE_VERSION} )
+		endif()
+	endif()
+
+	# fallback: Just use a bogus version string that is semantically older
+	# than anything else and spit out a warning to the developer.
+	if ( LIBAAF_VERSION STREQUAL "GIT" )
+		set( LIBAAF_VERSION v0.0.0-unknown )
+		message( WARNING "Failed to determine LIBAAF_VERSION from Git tags. Using default version \"${LIBAAF_VERSION}\"." )
+	endif()
+
+	set(LIBAAF_VERSION ${LIBAAF_VERSION} PARENT_SCOPE)
+
+	message( "libaaf version: ${LIBAAF_VERSION}" )
+endfunction()
 
 
+laaf_set_version()
+
+configure_file( ${PROJECT_SOURCE_DIR}/src/version.h.in ${CMAKE_BINARY_DIR}/include/libaaf/version.h @ONLY )
 
 
 if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
@@ -131,7 +153,7 @@ set( LIBAAF_LIB_SOURCES
 
 if ( BUILD_SHARED_LIB )
   add_library( aaf-shared SHARED ${LIBAAF_LIB_SOURCES} )
-  add_dependencies( aaf-shared version )
+  # add_dependencies( aaf-shared version )
   target_compile_options( aaf-shared PUBLIC ${LIBAAF_COMPILE_OPTIONS} )
   target_include_directories ( aaf-shared PUBLIC "${CMAKE_BINARY_DIR}/include/" )
   set_target_properties( aaf-shared PROPERTIES OUTPUT_NAME LIBAAF_LIB_OUTPUT_NAME )
@@ -145,7 +167,7 @@ endif( BUILD_SHARED_LIB )
 
 if ( BUILD_STATIC_LIB )
   add_library( aaf-static STATIC ${LIBAAF_LIB_SOURCES} )
-  add_dependencies( aaf-static version )
+  # add_dependencies( aaf-static version )
   target_compile_options( aaf-static PUBLIC ${LIBAAF_COMPILE_OPTIONS} )
   target_include_directories ( aaf-static PUBLIC "${CMAKE_BINARY_DIR}/include/" )
   set_target_properties( aaf-static PROPERTIES OUTPUT_NAME LIBAAF_LIB_OUTPUT_NAME )
