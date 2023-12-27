@@ -9,14 +9,21 @@ project( "libaaf"
 option( BUILD_STATIC_LIB "Build the static library"                  ON )
 option( BUILD_SHARED_LIB "Build the shared library"                  ON )
 option( BUILD_TOOLS      "Build AAFInfo and AAFExtract programs"     ON )
-
 option( XBUILD_WIN       "Cross compile libaaf on Linux for Windows" OFF )
 
 set( LIBAAF_VERSION "GIT" CACHE STRING "Set version manualy, git version used otherwise" )
 set( LIBAAF_LIB_OUTPUT_NAME "aaf" )
 
+set( LIBAAF_LIB_SRC_PATH      ${PROJECT_SOURCE_DIR}/src      )
+set( LIBAAF_TOOLS_SRC_PATH    ${PROJECT_SOURCE_DIR}/tools    )
+set( LIBAAF_EXAMPLES_SRC_PATH ${PROJECT_SOURCE_DIR}/examples )
+
+set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib )
+set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib )
+set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
+
 if ( NOT BUILD_SHARED_LIB AND NOT BUILD_STATIC_LIB )
-  message( FATAL_ERROR "You need to enable at least one lib build (BUILD_STATIC_LIB or BUILD_SHARED_LIB)." )
+	message( FATAL_ERROR "You need to enable at least one lib build (BUILD_STATIC_LIB or BUILD_SHARED_LIB)." )
 endif()
 
 
@@ -60,68 +67,45 @@ configure_file( ${PROJECT_SOURCE_DIR}/libaaf.pc.in ${CMAKE_BINARY_DIR}/libaaf.pc
 
 
 if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
-  set( LIBAAF_COMPILE_OPTIONS
-    -W -Wstrict-prototypes -Wmissing-prototypes
-    -Wall -Wcast-qual -Wcast-align -Wextra -Wwrite-strings -Wunsafe-loop-optimizations -Wlogical-op -std=c99 -pedantic -Wshadow # = Ardour's Waf --strict --c-strict
-    # -Wconversion
-    -Wcast-align=strict
-    -O3
-    -g
-    -fdebug-prefix-map=${SRC_PATH}=.
-  )
-  if ( XBUILD_WIN )
-    message( "┌─────────────────────────────┐" )
-    message( "│ Cross compiling for Windows │" )
-    message( "└─────────────────────────────┘" )
-    set( CMAKE_SYSTEM_NAME "Windows" )
-    set( CMAKE_CROSSCOMPILING true )
-    set( CMAKE_C_COMPILER "x86_64-w64-mingw32-gcc" )
-    set( LIBAAF_PREFIX "lib" )
-    set( LIBAAF_SHARED_SUFFIX ".dll" )
-    set( LIBAAF_STATIC_SUFFIX ".lib" )
-    set( PROG_SUFFIX ".exe" )
-  else()
-    message( "┌─────────────────────┐" )
-    message( "│ Compiling for Linux │" )
-    message( "└─────────────────────┘" )
-		include(GNUInstallDirs)
-    set( LIBAAF_PREFIX "lib" )
-    set( LIBAAF_SHARED_SUFFIX ".so" )
-    set( LIBAAF_STATIC_SUFFIX ".a" )
-    set( PROG_SUFFIX "" )
-  endif()
+	set( LIBAAF_COMPILE_OPTIONS
+		-W -Wstrict-prototypes -Wmissing-prototypes
+		-Wall -Wcast-qual -Wcast-align -Wextra -Wwrite-strings -Wunsafe-loop-optimizations -Wlogical-op -std=c99 -pedantic -Wshadow # = Ardour's Waf --strict --c-strict
+		# -Wconversion
+		-Wcast-align=strict
+		-O3
+		-g
+		-fdebug-prefix-map=${SRC_PATH}=.
+	)
+	if ( XBUILD_WIN )
+		message( "┌─────────────────────────────┐" )
+		message( "│ Cross compiling for Windows │" )
+		message( "└─────────────────────────────┘" )
+		set( CMAKE_SYSTEM_NAME "Windows" )
+		set( CMAKE_CROSSCOMPILING true )
+		set( CMAKE_C_COMPILER "x86_64-w64-mingw32-gcc" )
+		set( LIBAAF_PREFIX "lib" )
+		set( LIBAAF_SHARED_SUFFIX ".dll" )
+		set( LIBAAF_STATIC_SUFFIX ".lib" )
+		set( PROG_SUFFIX ".exe" )
+	else()
+		message( "┌─────────────────────┐" )
+		message( "│ Compiling for Linux │" )
+		message( "└─────────────────────┘" )
+		include( GNUInstallDirs )
+		set( LIBAAF_PREFIX "lib" )
+		set( LIBAAF_SHARED_SUFFIX ".so" )
+		set( LIBAAF_STATIC_SUFFIX ".a" )
+		set( PROG_SUFFIX "" )
+	endif()
 elseif ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows" )
-  set( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS 1 )
-  set( LIBAAF_PREFIX "lib" )
-  set( LIBAAF_SHARED_SUFFIX ".dll" )
-  set( LIBAAF_STATIC_SUFFIX ".obj" ) # MSVC
-  set( PROG_SUFFIX ".exe" )
+	set( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS 1 )
+	set( LIBAAF_PREFIX "lib" )
+	set( LIBAAF_SHARED_SUFFIX ".dll" )
+	set( LIBAAF_STATIC_SUFFIX ".obj" ) # MSVC
+	set( PROG_SUFFIX ".exe" )
 endif()
 
-
-set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib )
-set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib )
-set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
-
-
-set( LIB_SRC_PATH      ${PROJECT_SOURCE_DIR}/src )
-set( TOOLS_SRC_PATH    ${PROJECT_SOURCE_DIR}/tools )
-set( EXAMPLES_SRC_PATH ${PROJECT_SOURCE_DIR}/examples )
-
-
-
-# file( READ ${VERSION_FILE} VERSION_STR )
-#
-# string( REGEX MATCH "^([0-9]*)\.([0-9]*)\.([0-9]*)" _ ${VERSION_STR} )
-#
-# message( "Building ${VERSION_STR}" )
-#
-# set( PROJECT_VERSION_MAJOR ${CMAKE_MATCH_1} )
-# set( PROJECT_VERSION_MINOR ${CMAKE_MATCH_2} )
-# set( PROJECT_VERSION_PATCH ${CMAKE_MATCH_3} )
-
-
-
+# TODO: not required when compiling on linux but "missing header" when x-compiling
 include_directories( ${PROJECT_SOURCE_DIR}/include )
 
 
@@ -131,52 +115,50 @@ include_directories( ${PROJECT_SOURCE_DIR}/include )
 #########################
 
 set( LIBAAF_LIB_SOURCES
-  ${LIB_SRC_PATH}/LibCFB/LibCFB.c
-  ${LIB_SRC_PATH}/LibCFB/CFBDump.c
+	${LIBAAF_LIB_SRC_PATH}/LibCFB/LibCFB.c
+	${LIBAAF_LIB_SRC_PATH}/LibCFB/CFBDump.c
 
-  ${LIB_SRC_PATH}/AAFCore/AAFCore.c
-  ${LIB_SRC_PATH}/AAFCore/AAFClass.c
-  ${LIB_SRC_PATH}/AAFCore/AAFToText.c
-  ${LIB_SRC_PATH}/AAFCore/AAFDump.c
+	${LIBAAF_LIB_SRC_PATH}/AAFCore/AAFCore.c
+	${LIBAAF_LIB_SRC_PATH}/AAFCore/AAFClass.c
+	${LIBAAF_LIB_SRC_PATH}/AAFCore/AAFToText.c
+	${LIBAAF_LIB_SRC_PATH}/AAFCore/AAFDump.c
 
-  ${LIB_SRC_PATH}/AAFIface/AAFIface.c
-  ${LIB_SRC_PATH}/AAFIface/AAFIParser.c
-  ${LIB_SRC_PATH}/AAFIface/AAFIAudioFiles.c
-  ${LIB_SRC_PATH}/AAFIface/RIFFParser.c
-  ${LIB_SRC_PATH}/AAFIface/URIParser.c
-  ${LIB_SRC_PATH}/AAFIface/ProTools.c
-  ${LIB_SRC_PATH}/AAFIface/Resolve.c
+	${LIBAAF_LIB_SRC_PATH}/AAFIface/AAFIface.c
+	${LIBAAF_LIB_SRC_PATH}/AAFIface/AAFIParser.c
+	${LIBAAF_LIB_SRC_PATH}/AAFIface/AAFIAudioFiles.c
+	${LIBAAF_LIB_SRC_PATH}/AAFIface/RIFFParser.c
+	${LIBAAF_LIB_SRC_PATH}/AAFIface/URIParser.c
+	${LIBAAF_LIB_SRC_PATH}/AAFIface/ProTools.c
+	${LIBAAF_LIB_SRC_PATH}/AAFIface/Resolve.c
 
-  ${LIB_SRC_PATH}/common/utils.c
-  ${LIB_SRC_PATH}/debug.c
+	${LIBAAF_LIB_SRC_PATH}/common/utils.c
+	${LIBAAF_LIB_SRC_PATH}/debug.c
 )
 
 
 if ( BUILD_SHARED_LIB )
-  add_library( aaf-shared SHARED ${LIBAAF_LIB_SOURCES} )
-  # add_dependencies( aaf-shared version )
-  target_compile_options( aaf-shared PUBLIC ${LIBAAF_COMPILE_OPTIONS} )
-  target_include_directories ( aaf-shared PUBLIC "${CMAKE_BINARY_DIR}/include/" )
-  set_target_properties( aaf-shared PROPERTIES OUTPUT_NAME ${LIBAAF_LIB_OUTPUT_NAME} )
-  set_target_properties( aaf-shared PROPERTIES
-    PREFIX "${LIBAAF_PREFIX}"
-    SUFFIX "${LIBAAF_SHARED_SUFFIX}"
-  )
-  set( LINK_LIB aaf-shared )
+	add_library( aaf-shared SHARED ${LIBAAF_LIB_SOURCES} )
+	target_compile_options( aaf-shared PUBLIC ${LIBAAF_COMPILE_OPTIONS} )
+	target_include_directories( aaf-shared PUBLIC "${CMAKE_BINARY_DIR}/include/" )
+	set_target_properties( aaf-shared PROPERTIES
+		OUTPUT_NAME ${LIBAAF_LIB_OUTPUT_NAME}
+		PREFIX "${LIBAAF_PREFIX}"
+		SUFFIX "${LIBAAF_SHARED_SUFFIX}"
+	)
+	set( LINK_LIB aaf-shared )
 endif( BUILD_SHARED_LIB )
 
 
 if ( BUILD_STATIC_LIB )
-  add_library( aaf-static STATIC ${LIBAAF_LIB_SOURCES} )
-  # add_dependencies( aaf-static version )
-  target_compile_options( aaf-static PUBLIC ${LIBAAF_COMPILE_OPTIONS} )
-  target_include_directories ( aaf-static PUBLIC "${CMAKE_BINARY_DIR}/include/" )
-  set_target_properties( aaf-static PROPERTIES OUTPUT_NAME ${LIBAAF_LIB_OUTPUT_NAME} )
-  set_target_properties( aaf-static PROPERTIES
-    PREFIX "${LIBAAF_PREFIX}"
-    SUFFIX "${LIBAAF_STATIC_SUFFIX}"
-  )
-  set( LINK_LIB aaf-static )
+	add_library( aaf-static STATIC ${LIBAAF_LIB_SOURCES} )
+	target_compile_options( aaf-static PUBLIC ${LIBAAF_COMPILE_OPTIONS} )
+	target_include_directories( aaf-static PUBLIC "${CMAKE_BINARY_DIR}/include/" )
+	set_target_properties( aaf-static PROPERTIES
+		OUTPUT_NAME ${LIBAAF_LIB_OUTPUT_NAME}
+		PREFIX "${LIBAAF_PREFIX}"
+		SUFFIX "${LIBAAF_STATIC_SUFFIX}"
+	)
+	set( LINK_LIB aaf-static )
 endif( BUILD_STATIC_LIB )
 
 
@@ -188,38 +170,38 @@ endif( BUILD_STATIC_LIB )
 
 if ( BUILD_TOOLS )
 
-  if ( ${LINK_LIB} MATCHES "aaf-static" )
-    message( "Building AAFIface and AAFExtract upon static library" )
-  elseif( ${LINK_LIB} MATCHES "aaf-shared" )
-    message( "Building AAFIface and AAFExtract upon shared library" )
-  endif()
+	if ( ${LINK_LIB} MATCHES "aaf-static" )
+		message( "Building AAFIface and AAFExtract upon static library" )
+	elseif( ${LINK_LIB} MATCHES "aaf-shared" )
+		message( "Building AAFIface and AAFExtract upon shared library" )
+	endif()
 
-  if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
-    link_libraries( ${LINK_LIB} "-lm" )
-  else()
-    link_libraries( ${LINK_LIB} )
-  endif()
+	if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
+		link_libraries( ${LINK_LIB} "-lm" )
+	else()
+		link_libraries( ${LINK_LIB} )
+	endif()
+	
+	add_executable( AAFInfo
+		${LIBAAF_TOOLS_SRC_PATH}/AAFInfo.c
+		${LIBAAF_TOOLS_SRC_PATH}/common.c
+		${LIBAAF_TOOLS_SRC_PATH}/thirdparty/libTC.c
+	)
 
-  add_executable( AAFInfo
-    ${TOOLS_SRC_PATH}/AAFInfo.c
-    ${TOOLS_SRC_PATH}/common.c
-    ${TOOLS_SRC_PATH}/thirdparty/libTC.c
-  )
+	add_executable( AAFExtract
+		${LIBAAF_TOOLS_SRC_PATH}/AAFExtract.c
+		${LIBAAF_TOOLS_SRC_PATH}/common.c
+		${LIBAAF_TOOLS_SRC_PATH}/thirdparty/libTC.c
+	)
 
-  add_executable( AAFExtract
-    ${TOOLS_SRC_PATH}/AAFExtract.c
-    ${TOOLS_SRC_PATH}/common.c
-    ${TOOLS_SRC_PATH}/thirdparty/libTC.c
-  )
+	target_include_directories( AAFInfo    PRIVATE "${CMAKE_BINARY_DIR}/include/" )
+	target_include_directories( AAFExtract PRIVATE "${CMAKE_BINARY_DIR}/include/" )
 
-  target_include_directories ( AAFInfo    PRIVATE "${CMAKE_BINARY_DIR}/include/" )
-  target_include_directories ( AAFExtract PRIVATE "${CMAKE_BINARY_DIR}/include/" )
+	set_target_properties( AAFInfo    PROPERTIES SUFFIX "${PROG_SUFFIX}" )
+	set_target_properties( AAFExtract PROPERTIES SUFFIX "${PROG_SUFFIX}" )
 
-  set_target_properties( AAFInfo    PROPERTIES SUFFIX "${PROG_SUFFIX}" )
-  set_target_properties( AAFExtract PROPERTIES SUFFIX "${PROG_SUFFIX}" )
-
-  target_compile_options( AAFInfo    PUBLIC ${LIBAAF_COMPILE_OPTIONS} )
-  target_compile_options( AAFExtract PUBLIC ${LIBAAF_COMPILE_OPTIONS} )
+	target_compile_options( AAFInfo    PUBLIC ${LIBAAF_COMPILE_OPTIONS} )
+	target_compile_options( AAFExtract PUBLIC ${LIBAAF_COMPILE_OPTIONS} )
 
 endif( BUILD_TOOLS )
 
@@ -228,20 +210,20 @@ endif( BUILD_TOOLS )
 if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
 
 	if ( BUILD_SHARED_LIB )
-  	install( TARGETS aaf-shared DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR} )
+		install( TARGETS aaf-shared DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR} )
 		install( FILES ${CMAKE_BINARY_DIR}/libaaf.pc DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig/ )
 	endif()
 
 	if ( BUILD_STATIC_LIB )
-  	install( TARGETS aaf-static DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR} )
+		install( TARGETS aaf-static DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR} )
 	endif()
 
 	if ( BUILD_TOOLS )
-  	install( TARGETS AAFInfo    DESTINATION ${CMAKE_INSTALL_FULL_BINDIR} )
-  	install( TARGETS AAFExtract DESTINATION ${CMAKE_INSTALL_FULL_BINDIR} )
+		install( TARGETS AAFInfo    DESTINATION ${CMAKE_INSTALL_FULL_BINDIR} )
+		install( TARGETS AAFExtract DESTINATION ${CMAKE_INSTALL_FULL_BINDIR} )
 	endif()
 
-  install( DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR} FILES_MATCHING PATTERN "*.h*" )
-  install( DIRECTORY ${CMAKE_BINARY_DIR}/include/ DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR} FILES_MATCHING PATTERN "*.h*" )
+	install( DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR} FILES_MATCHING PATTERN "*.h*" )
+	install( DIRECTORY ${CMAKE_BINARY_DIR}/include/ DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR} FILES_MATCHING PATTERN "*.h*" )
 
 endif()
