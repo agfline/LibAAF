@@ -157,7 +157,7 @@ if ( BUILD_SHARED_LIB )
   # add_dependencies( aaf-shared version )
   target_compile_options( aaf-shared PUBLIC ${LIBAAF_COMPILE_OPTIONS} )
   target_include_directories ( aaf-shared PUBLIC "${CMAKE_BINARY_DIR}/include/" )
-  set_target_properties( aaf-shared PROPERTIES OUTPUT_NAME LIBAAF_LIB_OUTPUT_NAME )
+  set_target_properties( aaf-shared PROPERTIES OUTPUT_NAME ${LIBAAF_LIB_OUTPUT_NAME} )
   set_target_properties( aaf-shared PROPERTIES
     PREFIX "${LIBAAF_PREFIX}"
     SUFFIX "${LIBAAF_SHARED_SUFFIX}"
@@ -171,7 +171,7 @@ if ( BUILD_STATIC_LIB )
   # add_dependencies( aaf-static version )
   target_compile_options( aaf-static PUBLIC ${LIBAAF_COMPILE_OPTIONS} )
   target_include_directories ( aaf-static PUBLIC "${CMAKE_BINARY_DIR}/include/" )
-  set_target_properties( aaf-static PROPERTIES OUTPUT_NAME LIBAAF_LIB_OUTPUT_NAME )
+  set_target_properties( aaf-static PROPERTIES OUTPUT_NAME ${LIBAAF_LIB_OUTPUT_NAME} )
   set_target_properties( aaf-static PROPERTIES
     PREFIX "${LIBAAF_PREFIX}"
     SUFFIX "${LIBAAF_STATIC_SUFFIX}"
