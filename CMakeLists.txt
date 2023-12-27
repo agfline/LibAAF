@@ -6,7 +6,7 @@ project( "libaaf"
 	DESCRIPTION "libaaf is a C coded library for Advanced Authoring Format \(AAF\) file handling"
 	HOMEPAGE_URL "https://github.com/agfline/LibAAF" )
 
-option( BUILD_STATIC_LIB "Build the static library"                  ON )
+option( BUILD_STATIC_LIB "Build the static library"                  OFF )
 option( BUILD_SHARED_LIB "Build the shared library"                  ON )
 option( BUILD_TOOLS      "Build AAFInfo and AAFExtract programs"     ON )
 option( XBUILD_WIN       "Cross compile libaaf on Linux for Windows" OFF )
