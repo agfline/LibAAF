@@ -55,8 +55,6 @@ function( laaf_set_version )
 	endif()
 
 	set(LIBAAF_VERSION ${LIBAAF_VERSION} PARENT_SCOPE)
-
-	message( "libaaf version: ${LIBAAF_VERSION}" )
 endfunction()
 
 
@@ -181,7 +179,7 @@ if ( BUILD_TOOLS )
 	else()
 		link_libraries( ${LINK_LIB} )
 	endif()
-	
+
 	add_executable( AAFInfo
 		${LIBAAF_TOOLS_SRC_PATH}/AAFInfo.c
 		${LIBAAF_TOOLS_SRC_PATH}/common.c
@@ -191,7 +189,6 @@ if ( BUILD_TOOLS )
 	add_executable( AAFExtract
 		${LIBAAF_TOOLS_SRC_PATH}/AAFExtract.c
 		${LIBAAF_TOOLS_SRC_PATH}/common.c
-		${LIBAAF_TOOLS_SRC_PATH}/thirdparty/libTC.c
 	)
 
 	target_include_directories( AAFInfo    PRIVATE "${CMAKE_BINARY_DIR}/include/" )
