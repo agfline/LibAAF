@@ -10,7 +10,6 @@ option( BUILD_STATIC_LIB "Build the static library"                  OFF )
 option( BUILD_SHARED_LIB "Build the shared library"                  ON )
 option( BUILD_TOOLS      "Build AAFInfo and AAFExtract programs"     ON )
 option( XBUILD_WIN       "Cross compile libaaf on Linux for Windows" OFF )
-option( LIBAAF_RELEASE   "Make zip archive of source code"           OFF )
 
 set( LIBAAF_VERSION "GIT" CACHE STRING "Set version manualy, git version used otherwise" )
 set( LIBAAF_LIB_OUTPUT_NAME "aaf" )
@@ -236,27 +235,24 @@ if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
 endif()
 
 
-if ( LIBAAF_RELEASE )
 
-	add_custom_target(
-		source_release
-		WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-		COMMAND
-		zip -r "${CMAKE_BINARY_DIR}/${LIBAAF_VERSION}.zip"
-			./LICENSE
-			./CMakeLists.txt
-			./libaaf.pc.in
-			./src
-			./include
-			./tools
-			# ./examples
-			# ./test
-		COMMAND
-		cd "${CMAKE_BINARY_DIR}" &&
-		zip -r "${CMAKE_BINARY_DIR}/${LIBAAF_VERSION}.zip"
-			./include/libaaf/version.h )
-
-endif()
+add_custom_target(
+	source_release
+	WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+	COMMAND
+	zip -r "${CMAKE_BINARY_DIR}/${LIBAAF_VERSION}.zip"
+		./LICENSE
+		./CMakeLists.txt
+		./libaaf.pc.in
+		./src
+		./include
+		./tools
+		# ./examples
+		# ./test
+	COMMAND
+	cd "${CMAKE_BINARY_DIR}" &&
+	zip -r "${CMAKE_BINARY_DIR}/${LIBAAF_VERSION}.zip"
+		./include/libaaf/version.h )
 
 
 add_custom_target( clean-cmake-files
