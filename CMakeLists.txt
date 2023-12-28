@@ -1,5 +1,5 @@
 
-cmake_minimum_required( VERSION 3.11 )
+cmake_minimum_required( VERSION 3.18 )
 
 project( "libaaf"
 	LANGUAGES C
@@ -10,6 +10,7 @@ option( BUILD_STATIC_LIB "Build the static library"                  OFF )
 option( BUILD_SHARED_LIB "Build the shared library"                  ON )
 option( BUILD_TOOLS      "Build AAFInfo and AAFExtract programs"     ON )
 option( XBUILD_WIN       "Cross compile libaaf on Linux for Windows" OFF )
+option( LIBAAF_RELEASE   "Make zip archive of source code"           OFF )
 
 set( LIBAAF_VERSION "GIT" CACHE STRING "Set version manualy, git version used otherwise" )
 set( LIBAAF_LIB_OUTPUT_NAME "aaf" )
@@ -58,10 +59,19 @@ function( laaf_set_version )
 endfunction()
 
 
-laaf_set_version()
+# include/libaaf/version.h exists ONLY in released zip sources
+if ( NOT EXISTS ${PROJECT_SOURCE_DIR}/include/libaaf/version.h )
+	laaf_set_version()
+	configure_file( ${PROJECT_SOURCE_DIR}/src/version.h.in ${CMAKE_BINARY_DIR}/include/libaaf/version.h @ONLY )
+else()
+	file( STRINGS ${PROJECT_SOURCE_DIR}/include/libaaf/version.h RES REGEX "#define LIBAAF_VERSION \"(v[^\"]+)\"" )
+	string( REGEX MATCH "v[^\"]+" LIBAAF_VERSION ${RES} )
+endif()
 
-configure_file( ${PROJECT_SOURCE_DIR}/src/version.h.in ${CMAKE_BINARY_DIR}/include/libaaf/version.h @ONLY )
+message( "libaaf version: ${LIBAAF_VERSION}" )
+
 configure_file( ${PROJECT_SOURCE_DIR}/libaaf.pc.in ${CMAKE_BINARY_DIR}/libaaf.pc @ONLY )
+
 
 
 if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
@@ -222,6 +232,29 @@ if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
 
 	install( DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR} FILES_MATCHING PATTERN "*.h*" )
 	install( DIRECTORY ${CMAKE_BINARY_DIR}/include/ DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR} FILES_MATCHING PATTERN "*.h*" )
+
+endif()
+
+
+if ( LIBAAF_RELEASE )
+
+	add_custom_target(
+		source_release
+		WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+		COMMAND
+		zip -r "${CMAKE_BINARY_DIR}/${LIBAAF_VERSION}.zip"
+			./LICENSE
+			./CMakeLists.txt
+			./libaaf.pc.in
+			./src
+			./include
+			./tools
+			# ./examples
+			# ./test
+		COMMAND
+		cd "${CMAKE_BINARY_DIR}" &&
+		zip -r "${CMAKE_BINARY_DIR}/${LIBAAF_VERSION}.zip"
+			./include/libaaf/version.h )
 
 endif()
 
