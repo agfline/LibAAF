@@ -224,3 +224,11 @@ if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
 	install( DIRECTORY ${CMAKE_BINARY_DIR}/include/ DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR} FILES_MATCHING PATTERN "*.h*" )
 
 endif()
+
+
+add_custom_target( clean-cmake-files
+	COMMAND rm -rf "${CMAKE_BINARY_DIR}/CMakeFiles/"
+	COMMAND rm -rf "${CMAKE_BINARY_DIR}/CMakeCache.txt"
+	COMMAND rm -rf "${CMAKE_BINARY_DIR}/Makefile"
+	COMMAND rm -rf "${CMAKE_BINARY_DIR}/*.cmake"
+)
