@@ -240,7 +240,7 @@ add_custom_target(
 	source_release
 	WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
 	COMMAND
-	zip -r "${CMAKE_BINARY_DIR}/${LIBAAF_VERSION}.zip"
+	zip -r "${CMAKE_BINARY_DIR}/LibAAF_Source.zip"
 		./LICENSE
 		./CMakeLists.txt
 		./libaaf.pc.in
