@@ -596,7 +596,7 @@ int aafi_parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 			}
 
 
-			rc = riff_parseAudioFile( &RIFFAudioFile, RIFF_PARSE_ONLY_HEADER, &externalAudioDataReaderCallback, fp, externalFilePath, aafi, aafi->dbg );
+			rc = riff_parseAudioFile( &RIFFAudioFile, 0, &externalAudioDataReaderCallback, fp, externalFilePath, aafi, aafi->dbg );
 
 			if ( rc < 0 ) {
 				error( "Failed parsing external audio essence file : %s", externalFilePath );

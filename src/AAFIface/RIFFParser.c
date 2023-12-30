@@ -188,6 +188,12 @@ int riff_parseAudioFile( struct RIFFAudioFile *RIFFAudioFile, enum RIFF_PARSER_F
 
 		if ( !be ) { /* WAVE */
 
+			// debug( "Got chunck %c%c%c%c",
+			// 	chunk.ckid[0],
+			// 	chunk.ckid[1],
+			// 	chunk.ckid[2],
+			// 	chunk.ckid[3] );
+
 			if ( chunk.ckid[0] == 'f' &&
 			     chunk.ckid[1] == 'm' &&
 			     chunk.ckid[2] == 't' &&
