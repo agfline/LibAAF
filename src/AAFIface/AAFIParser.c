@@ -4233,7 +4233,8 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 
 
 
-	aafPosition_t session_end = 0;
+	aafPosition_t  track_end = 0;
+	aafRational_t *track_editrate = NULL;
 
 	if ( aafUIDCmp( MobSlot->Class->ID, &AAFClassID_TimelineMobSlot ) ) {
 
@@ -4355,12 +4356,8 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 
 
 				/* update session_end if needed */
-				// session_end = ( aafi->ctx.current_pos > session_end ) ? aafi->ctx.current_pos : session_end;
-				// debug( "AAFIParser 4286: Current pos : %lu\n", aafi->ctx.current_track->current_pos );
-				session_end = ( aafi->ctx.current_track->current_pos > session_end ) ? aafi->ctx.current_track->current_pos : session_end;
-
-				// debug( "SESSIon_end : %li", session_end );
-
+				track_end = ( aafi->ctx.current_track->current_pos > track_end ) ? aafi->ctx.current_track->current_pos : track_end;
+				track_editrate = aafi->ctx.current_track->edit_rate;
 			}
 			else if ( aafUIDCmp( DataDefinition, &AAFDataDef_Timecode ) ||
 			          aafUIDCmp( DataDefinition, &AAFDataDef_LegacyTimecode ) )
@@ -4500,18 +4497,10 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 		DUMP_OBJ_NO_SUPPORT( aafi, MobSlot, &__td );
 	}
 
-	/* TODO implement global (audio and video) session start and end */
-	// if ( aafi->ctx.current_tree_type == AAFI_TREE_TYPE_AUDIO )
 
-	if ( session_end > 0 && aafi->Timecode && aafi->Timecode->end < session_end ) {
-		aafi->Timecode->end = session_end;
+	if ( track_end > 0 && track_editrate && aafi->Timecode && aafi->Timecode->end < track_end ) {
+		aafi->Timecode->end = convertEditUnit( track_end, *track_editrate, *(aafi->Timecode->edit_rate) );
 	}
-
-	// if ( aafi->ctx.current_tree_type == AAFI_TREE_TYPE_VIDEO )
-	// 	if ( session_end > 0 && aafi->Video->tc )
-	// 		aafi->Video->tc->end = session_end;
-	// else
-	// 	error( "MISSING aafiTimecode !" );
 
 	return 0;
 }
