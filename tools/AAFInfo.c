@@ -66,7 +66,7 @@ enum pos_format {
 
 static const char * gainToStr( aafiAudioGain *gain );
 static const char * panToStr( aafiAudioPan *pan );
-static void dumpVaryingValues( aafiAudioGain *Gain );
+static void dumpVaryingValues( aafiAudioGain *Gain, FILE *logfp );
 static const char * formatPosValue( aafPosition_t pos, aafRational_t *editRate, enum pos_format posFormat, enum TC_FORMAT tcFormat, uint64_t samplerate, char *buf );
 static void showHelp( void );
 
@@ -126,9 +126,9 @@ static const char * panToStr( aafiAudioPan *pan ) {
  *	function can be called for both.
  */
 
-static void dumpVaryingValues( aafiAudioGain *Gain ) {
+static void dumpVaryingValues( aafiAudioGain *Gain, FILE *logfp ) {
 	for ( int i = 0; i < Gain->pts_cnt; i++ ) {
-		printf( "   VaryingValue:  _time: %f   _value: %f\n",
+		fprintf( logfp, "   VaryingValue:  _time: %f   _value: %f\n",
 			aafRationalToFloat( Gain->time[i] ),
 			aafRationalToFloat( Gain->value[i] ) );
 	}
@@ -207,8 +207,9 @@ static void showHelp( void ) {
 		"\n"
 		"   --pos-format <tc|hms|samples>  Position and duration display format.\n"
 		"   --show-automation              Shows track and clip automation values.\n"
-		"   --no-color                     Disable ANSI colors in output.\n"
 		"\n"
+		"   --no-color                     Disable ANSI colors in output.\n"
+		"   --log-file             <file>  Save output to file instead of stdout.\n"
 		"   --verb                  <num>  0=quiet 1=error 2=warning 3=debug.\n"
 		"\n\n"
 	);
@@ -249,6 +250,9 @@ int main( int argc, char *argv[] ) {
 	int trace_meta = 0;
 	int ansicolor = 1;
 
+	const char *logfile = NULL;
+	FILE *logfp = stdout;
+
 	const char *dump_class_aaf_properties = NULL;
 	const char *dump_class_raw_properties = NULL;
 
@@ -288,7 +292,8 @@ int main( int argc, char *argv[] ) {
 		{ "show-automation", no_argument,        0,  0x32 },
 		{ "no-color",        no_argument,        0,  0x33 },
 
-		{ "verb",            required_argument,  0,  0x34 },
+		{ "log-file",        required_argument,  0,  0x34 },
+		{ "verb",            required_argument,  0,  0x35 },
 
 		{ 0,                 0,                  0,  0x00 }
 	};
@@ -343,12 +348,13 @@ int main( int argc, char *argv[] ) {
 			case 0x32:  show_automation = 1;                     break;
 			case 0x33:  ansicolor = 0;                           break;
 
-			case 0x34:  verb = atoi(optarg);                     break;
+			case 0x34:	logfile = optarg;                        break;
+			case 0x35:  verb = atoi(optarg);                     break;
 
 			case 0xff:	showHelp();                              goto end;
 
 			default:
-				printf( "Try 'AAFInfo --help' for more informations.\n" );
+				fprintf( stderr, "Try 'AAFInfo --help' for more informations.\n" );
 				break;
 		}
 	}
@@ -390,7 +396,16 @@ int main( int argc, char *argv[] ) {
 
 	aafd = aafi->aafd;
 
-	aafi_set_debug( aafi, verb, ansicolor, stdout, NULL, NULL );
+	if ( logfile ) {
+		logfp = fopen( logfile, "w" );
+
+		if ( logfp == NULL ) {
+			fprintf( stderr, "Failed to open logfile for writting : %s\n", logfile );
+			goto err;
+		}
+	}
+
+	aafi_set_debug( aafi, verb, ansicolor, logfp, NULL, NULL );
 
 	aafi_set_option_int( aafi, "trace",      trace        );
 	aafi_set_option_int( aafi, "trace_meta", trace_meta   );
@@ -408,7 +423,7 @@ int main( int argc, char *argv[] ) {
 		goto err;
 	}
 
-	printf( "\n" );
+	fprintf( logfp, "\n" );
 
 
 	if ( get_node_str != NULL ) {
@@ -437,7 +452,7 @@ int main( int argc, char *argv[] ) {
 			}
 		}
 
-		printf( "\n\n" );
+		fprintf( logfp, "\n\n" );
 	}
 
 
@@ -482,17 +497,17 @@ int main( int argc, char *argv[] ) {
 		aaf_dump_Header( aafd );
 		aaf_dump_Identification( aafd );
 
-		printf( " Composition Name     : %ls\n", aafi->compositionName );
+		fprintf( logfp, " Composition Name     : %ls\n", aafi->compositionName );
 
-		printf( "\n" );
+		fprintf( logfp, "\n" );
 
-		printf( " TC EditRrate         : %i/%i\n", aafi->Timecode->edit_rate->numerator, aafi->Timecode->edit_rate->denominator );
-		printf( " TC FPS               : %u %s\n", aafi->Timecode->fps, (aafi->Timecode->drop) ? "DF" : "NDF" );
-		printf( " TC Start (EU)        : %"PRIi64"\n", aafi->Timecode->start );
-		printf( " TC End (EU)          : %"PRIi64"\n", aafi->Timecode->end );
+		fprintf( logfp, " TC EditRrate         : %i/%i\n", aafi->Timecode->edit_rate->numerator, aafi->Timecode->edit_rate->denominator );
+		fprintf( logfp, " TC FPS               : %u %s\n", aafi->Timecode->fps, (aafi->Timecode->drop) ? "DF" : "NDF" );
+		fprintf( logfp, " TC Start (EU)        : %"PRIi64"\n", aafi->Timecode->start );
+		fprintf( logfp, " TC End (EU)          : %"PRIi64"\n", aafi->Timecode->end );
 
-		printf( " TC Start (samples)   : %"PRIi64"\n", eu2sample( aafi->Audio->samplerate, aafi->Timecode->edit_rate, aafi->Timecode->start ) );
-		printf( " TC End (samples)     : %"PRIi64"\n", eu2sample( aafi->Audio->samplerate, aafi->Timecode->edit_rate, aafi->Timecode->end ) );
+		fprintf( logfp, " TC Start (samples)   : %"PRIi64"\n", eu2sample( aafi->Audio->samplerate, aafi->Timecode->edit_rate, aafi->Timecode->start ) );
+		fprintf( logfp, " TC End (samples)     : %"PRIi64"\n", eu2sample( aafi->Audio->samplerate, aafi->Timecode->edit_rate, aafi->Timecode->end ) );
 
 		struct timecode tc_start;
 		struct timecode tc_end;
@@ -500,51 +515,51 @@ int main( int argc, char *argv[] ) {
 		tc_set_by_unitValue( &tc_start, aafi->Timecode->start, (rational_t*)aafi->Timecode->edit_rate, tcFormat );
 		tc_set_by_unitValue( &tc_end, aafi->Timecode->end, (rational_t*)aafi->Timecode->edit_rate, tcFormat );
 
-		printf( " TC Start             : %s (%u fps %s)\n",
+		fprintf( logfp, " TC Start             : %s (%u fps %s)\n",
 			tc_start.string,
 			aafi->Timecode->fps,
 			(aafi->Timecode->drop) ? "DF" : "NDF" );
 
-		printf( " TC End               : %s (%u fps %s)\n",
+		fprintf( logfp, " TC End               : %s (%u fps %s)\n",
 			tc_end.string,
 			aafi->Timecode->fps,
 			(aafi->Timecode->drop) ? "DF" : "NDF" );
 
 
-		printf( "\n" );
+		fprintf( logfp, "\n" );
 
-		printf( " Sample Rate          : %"PRIi64"\n", aafi->Audio->samplerate );
-		printf( " Sample Size          : %i\n", aafi->Audio->samplesize );
+		fprintf( logfp, " Sample Rate          : %"PRIi64"\n", aafi->Audio->samplerate );
+		fprintf( logfp, " Sample Size          : %i\n", aafi->Audio->samplesize );
 
 
 		if ( aafi->Comments != NULL )	{
 
-			printf( "\n" );
+			fprintf( logfp, "\n" );
 
-			printf( " UserComments :\n" );
+			fprintf( logfp, " UserComments :\n" );
 
 			aafiUserComment *Comment = aafi->Comments;
 			int i = 0;
 
 			while ( Comment != NULL ) {
-				printf( "   [%i]  Name: \"%ls\"   Text: \"%ls\"\n", i++, Comment->name, Comment->text );
+				fprintf( logfp, "   [%i]  Name: \"%ls\"   Text: \"%ls\"\n", i++, Comment->name, Comment->text );
 				Comment = Comment->next;
 			}
 		}
 
-		printf( "\n\n" );
+		fprintf( logfp, "\n\n" );
 	}
 
 
 	if ( aaf_classes ) {
 		aaf_dump_Classes( aafd );
-		printf( "\n\n" );
+		fprintf( logfp, "\n\n" );
 	}
 
 
 	if ( aaf_meta ) {
 		aaf_dump_MetaDictionary( aafd );
-		printf( "\n\n" );
+		fprintf( logfp, "\n\n" );
 	}
 
 
@@ -554,17 +569,17 @@ int main( int argc, char *argv[] ) {
 
 		for ( Object = aafd->Objects; Object != NULL; Object = Object->nextObj )
 		{
-			printf( "\n\n\n%s Object%s @ %ls\n", ANSI_COLOR_MAGENTA(aafd->dbg), ANSI_COLOR_RESET(aafd->dbg), aaf_get_ObjectPath( Object ) );
+			fprintf( logfp, "\n\n\n%s Object%s @ %ls\n", ANSI_COLOR_MAGENTA(aafd->dbg), ANSI_COLOR_RESET(aafd->dbg), aaf_get_ObjectPath( Object ) );
 			aaf_dump_ObjectProperties( aafd, Object );
 		}
 
-		printf( "\n\n" );
+		fprintf( logfp, "\n\n" );
 	}
 
 
 	if ( aaf_essences ) {
 
-		printf( "Media Essences :\n"
+		fprintf( logfp, "Media Essences :\n"
 		        "================\n\n" );
 		aafiAudioEssence *audioEssence = NULL;
 
@@ -575,7 +590,7 @@ int main( int argc, char *argv[] ) {
 			char posFormatBuf[POS_FORMAT_BUFFER_LEN];
 			aafRational_t essenceSampleRate = { audioEssence->samplerate, 1 };
 
-			printf( " %s%u:  Type: %s  Length: %s   %02u Ch - %u Hz - %u bits   file : %ls  file_name : %ls%s%ls%s\n",
+			fprintf( logfp, " %s%u:  Type: %s  Length: %s   %02u Ch - %u Hz - %u bits   file : %ls  file_name : %ls%s%ls%s\n",
 				( i < 10 ) ? " " : "", i,
 				ESSENCE_TYPE_TO_STRING( audioEssence->type ),
 				formatPosValue( audioEssence->length, &essenceSampleRate, posFormat, tcFormat, audioEssence->samplerate, posFormatBuf ),
@@ -591,7 +606,7 @@ int main( int argc, char *argv[] ) {
 			i++;
 		}
 
-		printf( "\n\n" );
+		fprintf( logfp, "\n\n" );
 	}
 
 
@@ -599,7 +614,7 @@ int main( int argc, char *argv[] ) {
 
 		aafPosition_t sessionStart = 0;
 
-		printf( "Tracks & Clips :\n"
+		fprintf( logfp, "Tracks & Clips :\n"
 						"================\n\n" );
 
 		aafiVideoTrack   *videoTrack = aafi->Video->Tracks;
@@ -618,7 +633,7 @@ int main( int argc, char *argv[] ) {
 			sessionStart = convertEditUnit( aafi->compositionStart, aafi->compositionStart_editRate, *videoTrack->edit_rate );
 
 
-			printf( "VideoTrack %s(%u) - edit_rate %i/%i (%02.2f)  -  \"%ls\"\n",
+			fprintf( logfp, "VideoTrack %s(%u) - edit_rate %i/%i (%02.2f)  -  \"%ls\"\n",
 				(videoTrack->number < 10) ? " " : "",
 				videoTrack->number,
 				videoTrack->edit_rate->numerator, videoTrack->edit_rate->denominator,
@@ -635,7 +650,7 @@ int main( int argc, char *argv[] ) {
 				char posFormatBuf3[POS_FORMAT_BUFFER_LEN];
 				char posFormatBuf4[POS_FORMAT_BUFFER_LEN];
 
-				printf( " VideoClip "
+				fprintf( logfp, " VideoClip "
 				        " Start:%s  Len:%s  End:%s  SrcOffset:%s  "
 				        " SourceFile: %ls   (%ls)\n",
 					formatPosValue( (videoClip->pos + sessionStart),                  videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf1 ),
@@ -645,7 +660,7 @@ int main( int argc, char *argv[] ) {
 					(videoClip->Essence) ? videoClip->Essence->usable_file_path : L"",
 					(videoClip->Essence) ? videoClip->Essence->file_name : L"" );
 
-				printf( "\n\n\n" );
+				fprintf( logfp, "\n\n\n" );
 			}
 		}
 
@@ -667,7 +682,7 @@ int main( int argc, char *argv[] ) {
 			sessionStart = convertEditUnit( aafi->compositionStart, aafi->compositionStart_editRate, *audioTrack->edit_rate );
 
 
-			printf( "Track %s(%u) - %s - Gain: %s - Pan: %s - edit_rate: %i/%i (%02.2f)  -  \"%ls\"\n",
+			fprintf( logfp, "Track %s(%u) - %s - Gain: %s - Pan: %s - edit_rate: %i/%i (%02.2f)  -  \"%ls\"\n",
 				(audioTrack->number < 10) ? " " : "",
 				audioTrack->number,
 				(audioTrack->format == AAFI_TRACK_FORMAT_MONO)   ? "MONO  " :
@@ -681,13 +696,13 @@ int main( int argc, char *argv[] ) {
 				(audioTrack->name != NULL) ? audioTrack->name : L"" );
 
 			if ( show_automation && audioTrack->gain != NULL && audioTrack->gain->flags & AAFI_AUDIO_GAIN_VARIABLE ) {
-				printf( "TRACK GAIN AUTOMATION : \n" );
-				dumpVaryingValues( audioTrack->gain );
+				fprintf( logfp, "TRACK GAIN AUTOMATION : \n" );
+				dumpVaryingValues( audioTrack->gain, logfp );
 			}
 
 			if ( show_automation && audioTrack->pan != NULL && audioTrack->pan->flags & AAFI_AUDIO_GAIN_VARIABLE ) {
-				printf( "TRACK PAN AUTOMATION : \n" );
-				dumpVaryingValues( audioTrack->pan );
+				fprintf( logfp, "TRACK PAN AUTOMATION : \n" );
+				dumpVaryingValues( audioTrack->pan, logfp );
 			}
 
 			foreach_Item( audioItem, audioTrack ) {
@@ -699,7 +714,7 @@ int main( int argc, char *argv[] ) {
 					if ( ! ( Trans->flags & AAFI_TRANS_XFADE ) )
 						continue;
 
-					printf( " xfade:   %s\n", INTERPOL_TO_STRING( Trans ) );
+					fprintf( logfp, " xfade:   %s\n", INTERPOL_TO_STRING( Trans ) );
 					continue;
 				}
 				else if ( audioItem->type == AAFI_AUDIO_CLIP ) {
@@ -714,7 +729,7 @@ int main( int argc, char *argv[] ) {
 					char posFormatBuf3[POS_FORMAT_BUFFER_LEN];
 					char posFormatBuf4[POS_FORMAT_BUFFER_LEN];
 
-					printf( " Clip:%u%s  Gain: %s %s  GainAuto: %s "
+					fprintf( logfp, " Clip:%u%s  Gain: %s %s  GainAuto: %s "
 					        " Start:%s  Len:%s  End:%s  "
 					        " Fadein: %s  Fadeout: %s  SrcOffset: %s  SourceFile: %ls   (%ls)\n",
 						clipCount, ( clipCount < 10 ) ? " " : "",
@@ -731,20 +746,20 @@ int main( int argc, char *argv[] ) {
 						(audioClip->Essence) ? audioClip->Essence->file_name : L"" );
 
 					if ( show_automation && audioClip->automation ) {
-						printf( "CLIP GAIN AUTOMATION : \n" );
-						dumpVaryingValues( audioClip->automation );
+						fprintf( logfp, "CLIP GAIN AUTOMATION : \n" );
+						dumpVaryingValues( audioClip->automation, logfp );
 					}
 
 					clipCount++;
 				}
 			}
 
-			printf( "\n\n" );
+			fprintf( logfp, "\n\n" );
 		}
 
 
 		if ( aafi->Markers ) {
-			printf( "Markers :\n"
+			fprintf( logfp, "Markers :\n"
 							"=========\n\n" );
 		}
 
@@ -764,7 +779,7 @@ int main( int argc, char *argv[] ) {
 			char posFormatBuf1[POS_FORMAT_BUFFER_LEN];
 			char posFormatBuf2[POS_FORMAT_BUFFER_LEN];
 
-			printf( " Marker[%i]:  Start: %s  Length: %s  Color: #%02x%02x%02x  Label: \"%ls\"  Comment: \"%ls\"\n",
+			fprintf( logfp, " Marker[%i]:  Start: %s  Length: %s  Color: #%02x%02x%02x  Label: \"%ls\"  Comment: \"%ls\"\n",
 				markerCount++,
 				formatPosValue( (marker->start + sessionStart), marker->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf1 ),
 				formatPosValue(  marker->length,                marker->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf2 ),
@@ -777,7 +792,7 @@ int main( int argc, char *argv[] ) {
 	}
 
 
-	printf( "\n\n" );
+	fprintf( logfp, "\n\n" );
 
 	goto end;
 
@@ -791,6 +806,9 @@ end:
 	}
 	else if ( aafd ) {
 		aaf_release( &aafd );
+	}
+	if ( logfp != stdout ) {
+		fclose( logfp );
 	}
 
 	return rc;
