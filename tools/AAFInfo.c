@@ -230,7 +230,7 @@ int main( int argc, char *argv[] ) {
 	int cfb_difat          = 0;
 	int cfb_nodes          = 0;
 
-	char *get_node_str     = NULL;
+	const char *get_node_str = NULL;
 
 	int aaf_summary        = 0;
 	int aaf_essences       = 0;
@@ -239,7 +239,7 @@ int main( int argc, char *argv[] ) {
 	int aaf_meta           = 0;
 	int aaf_properties     = 0;
 
-	char *media_location   = NULL;
+	const char *media_location = NULL;
 
 	enum pos_format posFormat = POS_FORMAT_TC;
 	int show_automation    = 0;
@@ -249,8 +249,8 @@ int main( int argc, char *argv[] ) {
 	int trace_meta = 0;
 	int ansicolor = 1;
 
-	char *dump_class_aaf_properties = NULL;
-	char *dump_class_raw_properties = NULL;
+	const char *dump_class_aaf_properties = NULL;
+	const char *dump_class_raw_properties = NULL;
 
 	int cmd = 0;
 
