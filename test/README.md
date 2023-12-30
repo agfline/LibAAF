@@ -101,6 +101,16 @@ All essence retrieval should get proper audio attributes : samplerate, samplesiz
 	- [ ] 50 FPS
 	- [ ] 60 FPS
 
+## Misc
+
+- Comment
+- Marker
+
+## AAF Structure
+
+- [ ] Multiple TopLevel CompositionMob
+- [ ] SubLevel CompositionMob (AdjustedClip, SubClip, LowerLevel)
+
 ## Libs
 
 - [ ] URIParser
