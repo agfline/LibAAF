@@ -557,7 +557,21 @@ int aafi_parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 	}
 	else {
 
-		/* TODO: can external essence have audioEssence->summary too ? If mp3 (Resolve 18.5.aaf) ? */
+		if ( audioEssence->summary ) {
+
+			rc = riff_parseAudioFile( &RIFFAudioFile, RIFF_PARSE_ONLY_HEADER, &embeddedAudioDataReaderCallback, audioEssence->summary->val, &audioEssence->summary->len, aafi, aafi->dbg );
+
+			if ( rc < 0 ) {
+				warning( "Could not parse embedded essence summary of external essence." );
+			}
+			else {
+				audioEssence->channels   = RIFFAudioFile.channels;
+				audioEssence->samplerate = RIFFAudioFile.sampleRate;
+				audioEssence->samplesize = RIFFAudioFile.sampleSize;
+				audioEssence->length     = RIFFAudioFile.duration;
+				goto end;
+			}
+		}
 
 		externalFilePath = aafi_locate_external_essence_file( aafi, audioEssence->original_file_path, aafi->ctx.options.media_location );
 
