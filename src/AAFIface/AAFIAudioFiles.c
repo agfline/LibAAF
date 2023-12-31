@@ -569,7 +569,6 @@ int aafi_parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 				audioEssence->samplerate = RIFFAudioFile.sampleRate;
 				audioEssence->samplesize = RIFFAudioFile.sampleSize;
 				audioEssence->length     = RIFFAudioFile.duration;
-				goto end;
 			}
 		}
 
