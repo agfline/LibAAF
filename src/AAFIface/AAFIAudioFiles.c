@@ -616,6 +616,23 @@ int aafi_parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 				goto err;
 			}
 
+
+			if ( audioEssence->channels > 0 && audioEssence->channels != RIFFAudioFile.channels ) {
+				warning( "%ls : summary channel count (%i) mismatch located file (%i)", audioEssence->usable_file_path, audioEssence->channels, RIFFAudioFile.channels );
+			}
+
+			if ( audioEssence->samplerate > 0 && audioEssence->samplerate != RIFFAudioFile.sampleRate ) {
+				warning( "%ls : summary samplerate (%i) mismatch located file (%i)", audioEssence->usable_file_path, audioEssence->samplerate, RIFFAudioFile.sampleRate );
+			}
+
+			if ( audioEssence->samplesize > 0 && audioEssence->samplesize != RIFFAudioFile.sampleSize ) {
+				warning( "%ls : summary samplesize (%i) mismatch located file (%i)", audioEssence->usable_file_path, audioEssence->samplesize, RIFFAudioFile.sampleSize );
+			}
+
+			if ( audioEssence->length > 0 && audioEssence->length != RIFFAudioFile.duration ) {
+				warning( "%ls : summary duration (%"PRIi64") mismatch located file (%"PRIi64")", audioEssence->usable_file_path, audioEssence->length, RIFFAudioFile.duration );
+			}
+
 			audioEssence->channels   = RIFFAudioFile.channels;
 			audioEssence->samplerate = RIFFAudioFile.sampleRate;
 			audioEssence->samplesize = RIFFAudioFile.sampleSize;
