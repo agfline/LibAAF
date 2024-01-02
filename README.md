@@ -22,8 +22,9 @@ LibAAF was widely tested with :
 
 * Avid Media Composer 8.4.5 - 8.8.3 - 18.12.5
 * Adobe Premiere Pro (CC 2018) 12.0 - 12.1.1
-* ProTools 10.3.10
-* Logic Pro 9.1.7
+* ProTools 10.3.10 - 2023.12
+* Logic Pro 9.1.7 - 10.7.4
+* Davinci Resolve 17.4.6 - 18.5
 * Fairlight Evo/Dream 2.5.1 - 4.1.75
 
 
