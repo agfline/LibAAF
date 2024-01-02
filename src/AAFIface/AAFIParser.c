@@ -4512,169 +4512,62 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 
 int aafi_retrieveData( AAF_Iface *aafi )
 {
+	/* this __td is only here for debug/error, normal trace is printed from parse_Mob() */
+	static td __td;
+	__td.fn = __LINE__;
+	__td.pfn = 0;
+	__td.lv = 0;
+	__td.ll = calloc( 1024, sizeof(int) );
+	__td.ll[0] = 0;
+
+	int compositionMobParsed = 0;
 	aafObject *Mob = NULL;
 
+	aaf_foreach_ObjectInSet( &Mob, aafi->aafd->Mobs, NULL ) {
 
-	aaf_foreach_ObjectInSet( &Mob, aafi->aafd->Mobs, &AAFClassID_CompositionMob ) {
+		if ( aafUIDCmp( Mob->Class->ID, &AAFClassID_MasterMob ) ||
+		     aafUIDCmp( Mob->Class->ID, &AAFClassID_SourceMob ) ) {
+			// DUMP_OBJ_WARNING( aafi, Mob, &__td, "PRINTS FOR DEBUG ONLY: Will be parsed later" );
+			continue;
+		}
+
+		if ( !aafUIDCmp( Mob->Class->ID, &AAFClassID_CompositionMob ) ) {
+			/* there should not be anything other than MasterMob, SourceMob or CompositionMob */
+			DUMP_OBJ_NO_SUPPORT( aafi, Mob, &__td );
+			continue;
+		}
+
 
 		aafUID_t *UsageCode = aaf_get_propertyValue( Mob, PID_Mob_UsageCode, &AAFTypeID_UsageType );
 
 		if ( aafUIDCmp( aafi->aafd->Header.OperationalPattern, &AAFOPDef_EditProtocol ) &&
 		    !aafUIDCmp( UsageCode, &AAFUsage_TopLevel ) )
 		{
-
 			/*
 			 * If we run against AAFOPDef_EditProtocol, we process only TopLevels CompositionMobs.
 			 * If there is more than one, we have multiple Compositions in a single AAF.
 			 */
+			continue;
+		}
 
-
-			// aafi_trace_obj( aafi, Mob, ANSI_COLOR_RED );
-
-
-
-			// // aaf_dump_ObjectProperties( aafi->aafd, aafi->ctx.Mob );
-			//
-			// aafObject *MobSlots = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_Slots, &AAFTypeID_MobSlotStrongReferenceVector );
-			// aafObject *MobSlot = NULL;
-			// uint32_t SlotID = 0;
-			//
-			// aaf_foreach_ObjectInSet( &MobSlot, MobSlots, NULL ) {
-			// 	aaf_dump_ObjectProperties( aafi->aafd, MobSlot );
-			// }
-
+		if ( compositionMobParsed ) {
+			DUMP_OBJ_ERROR( aafi, Mob, &__td, "Multiple top level CompositionMob not supported yet" );
 			continue;
 		}
 
 		RESET_CONTEXT( aafi->ctx );
 
 		parse_Mob( aafi, Mob );
+
+		if ( aafUIDCmp( UsageCode, &AAFUsage_TopLevel ) ) {
+			compositionMobParsed = 1;
+		}
 	}
 
-
-
-	// aafiAudioTrack   *audioTrack = NULL;
-	// aafiTimelineItem *audioItem  = NULL;
-	// // aafiAudioClip    *audioClip  = NULL;
-	//
-	// // uint32_t i = 0;
-	//
-	// foreach_audioTrack( audioTrack, aafi ) {
-	// 	foreach_Item( audioItem, audioTrack ) {
-	//
-	// 		if ( audioItem->type == AAFI_TRANS ) {
-	// 			continue;
-	// 		}
-	//
-	// 		aafiAudioClip *audioClip = (aafiAudioClip*)&audioItem->data;
-	//
-	// 		if ( audioClip->masterMobID && !audioClip->Essence ) {
-	// 			debug( "E m p t y   C l i p" );
-	//
-	// 			aafObject *Mob = NULL;
-	//
-	// 			aaf_foreach_ObjectInSet( &Mob, aafi->aafd->Mobs, NULL ) {
-	// 				/* loops through Mobs */
-	// 				aafUID_t *UsageCode = aaf_get_propertyValue( Mob, PID_Mob_UsageCode, &AAFTypeID_ );
-	//
-	// 				aafMobID_t *MobID = aaf_get_propertyValue( Mob, PID_Mob_MobID, &AAFTypeID_MobIDType );
-	//
-	// 				if ( !aafMobIDCmp( MobID, audioClip->masterMobID ) ) {
-	// 					continue;
-	// 				}
-	//
-	// 				// aaf_dump_ObjectProperties( aafi->aafd, Mob );
-	// 				debug( "Clip SourceID      : %ls", aaft_MobIDToText(MobID) );
-	//
-	// 				debug( "PointedMob ClassID : %ls", aaft_ClassIDToText(aafi->aafd, Mob->Class->ID) );
-	// 				debug( "PointedMob UsageCd : %ls", aaft_UsageCodeToText(UsageCode) );
-	// 				debug( "PointedMob Name    : %ls", aaf_get_propertyValue(Mob, PID_Mob_Name, &AAFTypeID_String) );
-	//
-	//
-	//
-	// 				aafObject *MobSlots = aaf_get_propertyValue( Mob, PID_Mob_Slots, &AAFTypeID_MobSlotStrongReferenceVector );
-	// 				aafObject *MobSlot = NULL;
-	// 				int SlotID = 1;
-	// 				aaf_foreach_ObjectInSet( &MobSlot, MobSlots, NULL ) {
-	// 					debug( "  SlotID %u", SlotID );
-	//
-	// 					aafObject *Segment = aaf_get_propertyValue( MobSlot, PID_MobSlot_Segment, &AAFTypeID_SegmentStrongReference );
-	//
-	// 					if ( Segment == NULL ) {
-	// 						error( "Missing MobSlot::Segment." );
-	// 						return -1;
-	// 					}
-	//
-	//
-	// 					aafUID_t *DataDefinition = get_Component_DataDefinition( aafi, Segment );
-	//
-	// 					if ( DataDefinition == NULL ) {
-	// 						error( "Could not retrieve MobSlot::Segment DataDefinition." );
-	// 						return -1;
-	// 					}
-	//
-	// 					// CURRENTPOINTER
-	//
-	// 					debug( "    Segment : %ls", aaft_ClassIDToText( aafi->aafd, Segment->Class->ID ) );
-	// 					debug( "    DataDefinition : %ls", aaft_DataDefToText(aafi->aafd, DataDefinition) );
-	//
-	//
-	//
-	//
-	//
-	//
-	// 					if ( aafUIDCmp( Segment->Class->ID, &AAFClassID_SourceClip ) ) {
-	// 						aafMobID_t *SourceID = aaf_get_propertyValue( Segment, PID_SourceReference_SourceID, &AAFTypeID_MobIDType );
-	// 						debug( "     SourceID : %ls", aaft_MobIDToText(sourceID) );
-	// 					}
-	//
-	// 					SlotID++;
-	// 				}
-	//
-	//
-	// 			}
-	// 		}
-	// 	}
-	// }
+	free(__td.ll);
 
 
 
-
-
-
-	// aaf_foreach_ObjectInSet( &(aafi->ctx.Mob), aafi->aafd->Mobs, &AAFClassID_SourceMob ) {
-	//
-	// 	aafObject *MobSlots = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_Slots, &AAFTypeID_MobSlotStrongReferenceVector );
-	//
-	// 	aaf_foreach_ObjectInSet( &(aafi->ctx.MobSlot), MobSlots, NULL ) {
-	//
-	// 		/*
-	// 		 * Check if the SourceMob was parsed.
-	// 		 * If it was not, we can print the trace.
-	// 		 *
-	// 		 * NOTE We do it after the main loop, so we make sure all MasterMobs was parsed.
-	// 		 */
-	//
-	// 		aafObject *Segment = aaf_get_propertyValue( aafi->ctx.MobSlot, PID_MobSlot_Segment, &AAFTypeID_SegmentStrongReference );
-	//
-	// 		aafUID_t  *DataDefinition = get_Component_DataDefinition( aafi, Segment );
-	//
-	// 		aafMobID_t *MobID = aaf_get_propertyValue( aafi->ctx.Mob, PID_Mob_MobID, &AAFTypeID_MobIDType );
-	//
-	// 		aafiAudioEssence *audioEssence = NULL;
-	//
-	// 		foreachEssence( audioEssence, aafi->Audio->Essences ) {
-	// 			if ( aafMobIDCmp( MobID, audioEssence->sourceMobID ) )
-	// 				break;
-	// 		}
-	//
-	// 		if ( audioEssence == NULL ) {
-	// 			aafi_trace_obj( aafi, aafi->ctx.MobSlot, ANSI_COLOR_YELLOW );
-	// 			debug( "%ls", aaft_DataDefToText( aafi->aafd, DataDefinition ) );
-	// 		}
-	//
-	// 	}
-	// }
 
 	if ( aafi->Timecode == NULL ) {
 		warning( "No timecode found in file. Setting to 00:00:00:00 @ 25fps" );
