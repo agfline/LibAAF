@@ -1,5 +1,5 @@
 # LibAAF
-> [!CAUTION]
+> [!WARNING]
 >
 > While major version number remains 0, API MUST NOT be considered stable. Minor version number should reflect API changes during that time.
 >
