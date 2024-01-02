@@ -31,35 +31,27 @@ LibAAF was widely tested with :
 * Fairlight Evo/Dream 2.5.1 - 4.1.75
 
 
-|                                         |   |                                        |
-|-----------------------------------------|:-:|----------------------------------------|
-| Composition Name                        | x | *Full support*                         |
-| Track Names                             | x | *Full support*                         |
-| Clip Names                              | x | *built upon source file names*         |
-| Original essence file names             | x | *Full support*                         |
-| PCM Embedded Essences                   | x | *Full support*                         |
-| WAVE Embedded Essences                  | x | *Full support*                         |
-| WAVE External Essences                  | x | *Full support*                         |
-| AIFF Embedded Essences                  | x | *Full support*                         |
-| AIFF External Essences                  | x | *Full support*                         |
-| AES3 Embedded Essences                  | - | *Missing from the specs / Not encountered yet*               |
-| MXF External Essences                   | x | *Full support*                         |
-| Multi-channel clips out of one multichannel file | x | *Full support* |
-| Multi-channel clips out of multiple mono files | x | *Full support* |
-| Fades in/out - XFades                   | x | *Full support*                         |
-| Legacy Fades in/out - XFades            | - | *useless ? obsolete since at least AAFv1.1 - 2005* |
-| Clip based Gain (fixed/varying)         | x | *Full support*                         |
-| Track based Gain (fixed/varying)        | x | *Full support*                         |
-| Track based PAN (fixed/varying)         | x | *Full support*                         |
+|                                                |   |                                        |
+|------------------------------------------------|:-:|----------------------------------------|
+| Composition Name                               | x | *Full support*                         |
+| Track Names                                    | x | *Full support*                         |
+| Clip Names                                     | x | *built upon source file names*         |
+| Original essence file names                    | x | *Full support*                         |
+| PCM Embedded Essences                          | x | *Full support*                         |
+| WAVE Embedded Essences                         | x | *Full support*                         |
+| WAVE External Essences                         | x | *Full support*                         |
+| AIFF Embedded Essences                         | x | *Full support*                         |
+| AIFF External Essences                         | x | *Full support*                         |
+| AES3 Embedded Essences                         | - | *Missing from the specs / Not encountered yet* |
+| MXF External Essences                          | x | *Full support*                         |
+| Multi-channel clip out of a multi-channel file | x | *Full support*                         |
+| Multi-channel clip out of multiple mono files  | x | *Full support*                         |
+| Fades in/out - XFades                          | x | *Full support*                         |
+| Legacy Fades in/out - XFades                   | - | *useless ? obsolete since at least AAFv1.1 - 2005* |
+| Clip based Gain (fixed/varying)                | x | *Full support*                         |
+| Track based Gain (fixed/varying)               | x | *Full support*                         |
+| Track based PAN (fixed/varying)                | x | *Full support*                         |
 
-<!-- ## Tools
-
-Two programs are available with LibAAF :
-
-* **AAFInfo** : Parses any AAF file and provides a way to dig into them.
-* **AAFExtract** : Extracts audio essences contained in an AAF file.
-
-To build those, just run `make` -->
 
 ## Build
 
@@ -71,4 +63,4 @@ make
 
 ## Ardour Support
 
-libaaf was added to Ardour version 8.2
+LibAAF was added to Ardour version 8.2
