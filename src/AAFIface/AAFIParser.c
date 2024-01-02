@@ -302,8 +302,7 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 		DBG_BUFFER_WRITE( dbg, "%s", ANSI_COLOR_RESET(dbg) );
 
 
-		if ( aafUIDCmp( Obj->Class->ID, &AAFClassID_TimelineMobSlot ) &&
-		     aafUIDCmp( Obj->Parent->Class->ID, &AAFClassID_CompositionMob ) )
+		if ( aafUIDCmp( Obj->Class->ID, &AAFClassID_TimelineMobSlot ) )
 		{
 
 			aafObject *Segment        = aaf_get_propertyValue( Obj, PID_MobSlot_Segment, &AAFTypeID_SegmentStrongReference );
