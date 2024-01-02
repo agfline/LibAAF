@@ -1,6 +1,9 @@
 # LibAAF
-
-> *LibAAF is currently a work in progress and is not production-ready yet.*
+> [!CAUTION]
+>
+> While major version number remains 0, API MUST NOT be considered stable. Minor version number should reflect API changes during that time.
+>
+> Releases are made everytime libaaf code is updated into Ardour source tree.
 
 
 LibAAF is a C coded library for AAF file handling. The AAF beeing a quite complex file format, the main goal here is to get an easy-to-implement, audio oriented, FOSS solution.
@@ -39,11 +42,10 @@ LibAAF was widely tested with :
 | WAVE External Essences                  | x | *Full support*                         |
 | AIFF Embedded Essences                  | x | *Full support*                         |
 | AIFF External Essences                  | x | *Full support*                         |
-| AES3 Embedded Essences                  | - | *Missing from the specs*               |
-| MXF Embedded Essences                   | - | **TODO**                               |
+| AES3 Embedded Essences                  | - | *Missing from the specs / Not encountered yet*               |
 | MXF External Essences                   | x | *Full support*                         |
-| Multi-channel Essences                  | - | **TODO** (*AAFClassID_MultipleDescriptor*) |
-| Multi-channel Tracks (stereo, 5.1, 7.1) | x | *ProTools AAF with **Export Stereo, 5.1 and 7.1 tracks as multi-channel** enabled.* |
+| Multi-channel clips out of one multichannel file | x | *Full support* |
+| Multi-channel clips out of multiple mono files | x | *Full support* |
 | Fades in/out - XFades                   | x | *Full support*                         |
 | Legacy Fades in/out - XFades            | - | *useless ? obsolete since at least AAFv1.1 - 2005* |
 | Clip based Gain (fixed/varying)         | x | *Full support*                         |
@@ -65,19 +67,8 @@ To build those, just run `make` -->
 cd build
 cmake ..
 make
-sudo make install
 ```
-
-## Usage
-
-See [examples](https://github.com/agfline/LibAAF/tree/master/examples) and [tools](https://github.com/agfline/LibAAF/tree/master/tools).
-
-Note that tools will be built with `make`, however examples need to be compiled manually (instructions in files).
 
 ## Ardour Support
 
-There is an [Ardour fork](https://github.com/agfline/ardour_aaf_support) that includes an experimental [tool](https://github.com/agfline/ardour_aaf_support/tree/master/session_utils/new_aaf_session.cc) to create ardour sessions based on AAF files.
-
-You can build it using the regular ardour compilation process.
-
-Building this tool requires libaaf to be installed.
+libaaf was added to Ardour version 8.2
