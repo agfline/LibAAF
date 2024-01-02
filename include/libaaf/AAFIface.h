@@ -290,7 +290,7 @@ typedef struct aafiAudioEssence
 	wchar_t       *file_name;			// MasterMob::Name the original file name. Might be NULL if MasterMob has no name. One should always use unique_file_name which is guaranted to be set.
 	wchar_t		    *unique_file_name;	// unique name generated from file_name. Sometimes, multiple files share the same names so this unique name should be used on export.
 
-	uint16_t       clip_count; // number of clips with this essence
+	uint16_t       clip_count; // number of clips using this essence
 
 	/* total samples for 1 channel (no matter channel count). (duration / sampleRate) = duration in seconds */
 	uint64_t       length; 		// Length of Essence Data
@@ -413,17 +413,23 @@ typedef struct aafiAudioClip
 	 * Start position in source file, set from SourceClip::StartTime
 	 *
 	 * « Specifies the offset from the origin of the referenced Mob MobSlot in edit units
-	 * determined by the SourceClip object’s context.
+	 * determined by the SourceClip object’s context. »
 	 *
-	 * A SourceClip’s StartTime and Length values are in edit units determined by the slot
-	 * owning the SourceClip.
+	 * « A SourceClip’s StartTime and Length values are in edit units determined by the slot
+	 * owning the SourceClip. »
 
-	 * Informative note: If the SourceClip references a MobSlot that specifies a different
+	 * « Informative note: If the SourceClip references a MobSlot that specifies a different
 	 * edit rate than the MobSlot owning the SourceClip, the StartTime and Length are in
 	 * edit units of the slot owning the SourceClip, and not edit units of the referenced slot.»
 	 */
 
-	aafPosition_t             essence_offset; /* in edit unit, edit rate definition is aafiAudioTrack->edit_rate */
+	 /*
+	  * set with CompoMob's SourceClip::StartTime. In the case of an OperationGroup(AudioChannelCombiner),
+		* There is one SourceClip per audio channel. So even though it's very unlikely, there could possibly
+		* be one essence_offset per channel.
+	  * Value is in edit unit, edit rate definition is aafiAudioTrack->edit_rate
+	  */
+	aafPosition_t             essence_offset;
 
 	struct aafiTimelineItem  *Item; // Corresponding timeline item, currently used in ardour to retrieve fades/x-fades
 

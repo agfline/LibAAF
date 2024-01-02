@@ -580,7 +580,7 @@ int main( int argc, char *argv[] ) {
 	if ( aaf_essences ) {
 
 		fprintf( logfp, "Media Essences :\n"
-		        "================\n\n" );
+		                "================\n\n" );
 		aafiAudioEssence *audioEssence = NULL;
 
 		uint32_t i = 0;
@@ -591,7 +591,7 @@ int main( int argc, char *argv[] ) {
 			aafRational_t essenceSampleRate = { audioEssence->samplerate, 1 };
 
 			fprintf( logfp, " %s%u:  Type: %s  Length: %s   %02u Ch - %u Hz - %u bits   file : %ls  file_name : %ls%s%ls%s\n",
-				( i < 10 ) ? " " : "", i,
+				( i < 10 ) ? "  " : ( i < 100 ) ? " " : "", i,
 				ESSENCE_TYPE_TO_STRING( audioEssence->type ),
 				formatPosValue( audioEssence->length, &essenceSampleRate, posFormat, tcFormat, audioEssence->samplerate, posFormatBuf ),
 				audioEssence->channels,
@@ -615,7 +615,7 @@ int main( int argc, char *argv[] ) {
 		aafPosition_t sessionStart = 0;
 
 		fprintf( logfp, "Tracks & Clips :\n"
-						"================\n\n" );
+		                "================\n\n" );
 
 		aafiVideoTrack   *videoTrack = aafi->Video->Tracks;
 		aafiTimelineItem *videoItem  = NULL;
@@ -650,9 +650,7 @@ int main( int argc, char *argv[] ) {
 				char posFormatBuf3[POS_FORMAT_BUFFER_LEN];
 				char posFormatBuf4[POS_FORMAT_BUFFER_LEN];
 
-				fprintf( logfp, " VideoClip "
-				        " Start:%s  Len:%s  End:%s  SrcOffset:%s  "
-				        " SourceFile: %ls   (%ls)\n",
+				fprintf( logfp, " VideoClip  Start:%s  Len:%s  End:%s  SrcOffset:%s  SourceFile: %ls   (%ls)\n",
 					formatPosValue( (videoClip->pos + sessionStart),                  videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf1 ),
 					formatPosValue( (videoClip->len),                                 videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf2 ),
 					formatPosValue( (videoClip->pos + sessionStart + videoClip->len), videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf3 ),
