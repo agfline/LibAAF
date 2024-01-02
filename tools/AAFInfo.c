@@ -729,10 +729,9 @@ int main( int argc, char *argv[] ) {
 					char posFormatBuf3[POS_FORMAT_BUFFER_LEN];
 					char posFormatBuf4[POS_FORMAT_BUFFER_LEN];
 
-					fprintf( logfp, " Clip:%u%s  Gain: %s %s  GainAuto: %s "
-					        " Start:%s  Len:%s  End:%s  "
-					        " Fadein: %s  Fadeout: %s  SrcOffset: %s  SourceFile: %ls   (%ls)\n",
-						clipCount, ( clipCount < 10 ) ? " " : "",
+					fprintf( logfp, " Clip:%u%s  Channel: %i  Gain: %s %s  GainAuto: %s  Start: %s  Len: %s  End: %s  Fadein: %s  Fadeout: %s  SrcOffset: %s\n",
+						clipCount, ( clipCount < 10 ) ? "  " : ( clipCount < 100 ) ? " " : "",
+						audioClip->channels,
 						gainToStr( audioClip->gain ),
 						(audioClip->mute) ? "(mute)" : "      ",
 						(audioClip->automation) ? "(A) " : "none",
@@ -741,9 +740,15 @@ int main( int argc, char *argv[] ) {
 						formatPosValue( (audioClip->pos + sessionStart + audioClip->len), audioClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf3 ),
 						INTERPOL_TO_STRING( fadein ),
 						INTERPOL_TO_STRING( fadeout ),
-						formatPosValue( audioClip->essence_offset, audioClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf4 ),
-						(audioClip->Essence) ? audioClip->Essence->unique_file_name : L"",
-						(audioClip->Essence) ? audioClip->Essence->file_name : L"" );
+						formatPosValue( audioClip->essence_offset, audioClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf4 ) );
+
+					aafiAudioEssencePointer *audioEssencePtr = audioClip->essencePointerList;
+					while ( audioEssencePtr ) {
+						fprintf( logfp, "   SourceFile: %ls   (%ls)\n",
+							audioEssencePtr->essence->unique_file_name,
+							audioEssencePtr->essence->file_name );
+						audioEssencePtr = audioEssencePtr->next;
+					}
 
 					if ( show_automation && audioClip->automation ) {
 						fprintf( logfp, "CLIP GAIN AUTOMATION : \n" );

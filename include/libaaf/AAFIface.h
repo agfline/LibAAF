@@ -328,9 +328,24 @@ typedef struct aafiAudioEssence
 
 	void          *user;
 	// TODO peakEnveloppe
-	struct aafiAudioEssence *next;
-
+	struct aafiAudioEssence *next; // aafi->Audio->essences
 } aafiAudioEssence;
+
+
+
+typedef struct aafiAudioEssencePointer
+{
+	aafiAudioEssence               *essence; // single essence, not list !
+	int                             essenceChannel; // channel selector inside multichannel essence. If zero, then all essence channels must be used.
+
+	void                           *user;
+
+	struct aafiAudioEssencePointer *next; // audioClip->essenceGroup
+	struct aafiAudioEssencePointer *aafiNext; // aafi->Audio->essenceGroup
+
+	struct AAF_Iface               *aafi;
+
+} aafiAudioEssencePointer;
 
 
 
@@ -377,8 +392,8 @@ typedef struct aafiAudioClip
 
 	struct aafiAudioTrack    *track;
 
-	aafiAudioEssence         *Essence;
-
+	int                       channels; // channel count of clip (might be different of essence->channels)
+	aafiAudioEssencePointer  *essencePointerList;
 	/*
 	 * Some editors (like Resolve) support automation attached to a clip AND a fixed value clip gain
 	 */
@@ -411,8 +426,6 @@ typedef struct aafiAudioClip
 	aafPosition_t             essence_offset; /* in edit unit, edit rate definition is aafiAudioTrack->edit_rate */
 
 	struct aafiTimelineItem  *Item; // Corresponding timeline item, currently used in ardour to retrieve fades/x-fades
-
-	aafMobID_t               *masterMobID; // MobID of the associated MasterMob (PID_SourceReference_SourceID)
 
 } aafiAudioClip;
 
@@ -678,6 +691,7 @@ typedef struct aafiAudio
 	 */
 
 	aafiAudioEssence *Essences;
+	aafiAudioEssencePointer *essencePointerList;
 
 	/**
 	 * Holds the Track list.
@@ -885,6 +899,13 @@ typedef struct AAF_Iface
 
 
 
+#define AAFI_foreachAudioEssencePointerInFile( essencePointer, aafi ) \
+	for ( essencePointer = aafi->Audio->essencePointerList; essencePointer != NULL; essencePointer = essencePointer->aafiNext )
+
+#define AAFI_foreachAudioEssencePointer( essencePointer, essencePtrList ) \
+	for ( essencePointer = essencePtrList; essencePointer != NULL; essencePointer = essencePointer->next )
+
+
 #define foreachEssence( essence, essenceList ) \
 	for ( essence = essenceList; essence != NULL; essence = essence->next )
 
@@ -960,6 +981,8 @@ void aafi_freeAudioPan( aafiAudioPan *pan );
 
 void   aafi_freeAudioClip( aafiAudioClip *audioClip );
 
+void   aafi_freeAudioEssencePointer( aafiAudioEssencePointer *audioEssenceGroupEntry );
+
 void   aafi_freeTimelineItem( aafiTimelineItem **item );
 
 void   aafi_freeTimelineItems( aafiTimelineItem **items );
@@ -974,12 +997,15 @@ void   aafi_freeTransition( aafiTransition *trans );
 
 aafiAudioEssence * aafi_newAudioEssence( AAF_Iface *aafi );
 
+aafiAudioEssencePointer * aafi_newAudioEssencePointer( AAF_Iface *aafi, aafiAudioEssencePointer **list, aafiAudioEssence *audioEssence, uint32_t *essenceChannelNum );
+
 void   aafi_freeAudioEssences( aafiAudioEssence **essences );
 
 aafiVideoEssence * aafi_newVideoEssence( AAF_Iface *aafi );
 
 void aafi_freeVideoEssences( aafiVideoEssence **videoEssence );
 
+int aafi_getAudioEssencePointerChannelCount( aafiAudioEssencePointer *essencePointerList );
 
 
 /**

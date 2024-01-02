@@ -612,6 +612,21 @@ void aafi_freeAudioClip( aafiAudioClip *audioClip )
 	if ( audioClip->automation != NULL ) {
 		aafi_freeAudioGain( audioClip->automation );
 	}
+
+	aafi_freeAudioEssencePointer( audioClip->essencePointerList );
+}
+
+
+
+void aafi_freeAudioEssencePointer( aafiAudioEssencePointer *essencePointer )
+{
+	aafiAudioEssencePointer *next = NULL;
+
+	while ( essencePointer ) {
+		next = essencePointer->next;
+		free( essencePointer );
+		essencePointer = next;
+	}
 }
 
 
@@ -879,6 +894,39 @@ aafiAudioEssence * aafi_newAudioEssence( AAF_Iface *aafi )
 
 
 
+aafiAudioEssencePointer * aafi_newAudioEssencePointer( AAF_Iface *aafi, aafiAudioEssencePointer **list, aafiAudioEssence *audioEssence, uint32_t *essenceChannelNum )
+{
+	aafiAudioEssencePointer * essencePointer = calloc( sizeof(aafiAudioEssencePointer), sizeof(char) );
+
+	if ( essencePointer == NULL ) {
+		error( "%s.", strerror( errno ) );
+		return NULL;
+	}
+
+	essencePointer->aafi = aafi;
+	essencePointer->essence = audioEssence;
+	essencePointer->essenceChannel = ( essenceChannelNum ) ? *essenceChannelNum : 0;
+
+
+	if ( *list ) {
+		aafiAudioEssencePointer *last = *list;
+		while ( last->next != NULL ) {
+			last = last->next;
+		}
+		last->next = essencePointer;
+	}
+	else {
+		*list = essencePointer;
+
+		essencePointer->aafiNext = aafi->Audio->essencePointerList;
+		aafi->Audio->essencePointerList = essencePointer;
+	}
+
+	return *list;
+}
+
+
+
 void aafi_freeAudioEssences( aafiAudioEssence **audioEssence )
 {
 	if ( *(audioEssence) == NULL ) {
@@ -969,6 +1017,34 @@ void aafi_freeVideoEssences( aafiVideoEssence **videoEssence )
 	}
 
 	*videoEssence = NULL;
+}
+
+
+
+int aafi_getAudioEssencePointerChannelCount( aafiAudioEssencePointer *essencePointerList )
+{
+	/*
+	 * If essencePointerList holds a single multichannel essence file and if
+	 * essencePointer->essenceChannel is set, then clip is mono and audio comes
+	 * from essencePointer->essenceChannel of essencePointer->essence file.
+	 *
+	 * If essencePointerList holds a single multichannel essence file and if
+	 * essencePointer->essenceChannel is null, then clip is multichannel and
+	 * clip channel count equals essence->channels.
+	 *
+	 * If essencePointerList holds multiple pointers to multiple essence files,
+	 * then each file should be mono and describe a clip channel. Thus, clip
+	 * channel count equals pointers count.
+	 */
+
+	int essencePointerCount = 0;
+	aafiAudioEssencePointer *essencePointer = NULL;
+
+	AAFI_foreachAudioEssencePointer( essencePointer, essencePointerList ) {
+		essencePointerCount++;
+	}
+
+	return ( essencePointerCount > 1 ) ? essencePointerCount : ( essencePointerList->essenceChannel ) ? 1 : essencePointerList->essence->channels;
 }
 
 
