@@ -870,15 +870,7 @@ aafiAudioEssence * aafi_newAudioEssence( AAF_Iface *aafi )
 		return NULL;
 	}
 
-
 	audioEssence->next = aafi->Audio->Essences;
-
-	audioEssence->original_file_path = NULL;
-	audioEssence->usable_file_path = NULL;
-	audioEssence->file_name = NULL;
-	audioEssence->unique_file_name = NULL;
-	audioEssence->clip_count = 0;
-	audioEssence->user = NULL;
 
 	aafi->Audio->Essences = audioEssence;
 
