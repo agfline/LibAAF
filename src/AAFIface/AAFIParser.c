@@ -3991,14 +3991,13 @@ static int parse_Mob( AAF_Iface *aafi, aafObject *Mob )
 	__td.ll[0] = 0;
 	// aafi->ctx.trace_leveloop = __td.ll; // keep track of __td.ll for free
 
-
+	int rc = 0;
 
 	aafObject *MobSlots = aaf_get_propertyValue( Mob, PID_Mob_Slots, &AAFTypeID_MobSlotStrongReferenceVector );
 
 	if ( MobSlots == NULL ) { /* req */
 		DUMP_OBJ_ERROR( aafi, Mob, &__td, "Missing PID_Mob_Slots" );
-		free(__td.ll);
-		return -1;
+		goto err;
 	}
 
 
@@ -4008,7 +4007,7 @@ static int parse_Mob( AAF_Iface *aafi, aafObject *Mob )
 
 		if ( aafUIDCmp( UsageCode, &AAFUsage_AdjustedClip ) ) {
 			DUMP_OBJ_ERROR( aafi, Mob, &__td, "Skipping AAFUsage_AdjustedClip" );
-			return -1;
+			goto err;
 		}
 
 		parse_CompositionMob( aafi, Mob, &__td );
@@ -4034,10 +4033,15 @@ static int parse_Mob( AAF_Iface *aafi, aafObject *Mob )
 		parse_MobSlot( aafi, MobSlot, &__td );
 	}
 
+	goto end;
 
-	free(__td.ll);
+err:
+	rc = -1;
 
-	return 0;
+end:
+	free( __td.ll );
+
+	return rc;
 }
 
 
