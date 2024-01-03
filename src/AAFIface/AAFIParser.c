@@ -1252,12 +1252,8 @@ static int parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor, td *_
 		return -1;
 	}
 
-	audioEssence->samplerate = samplerate->numerator;
-
-	// if ( aafi->Audio->samplerate >= 0 ) {
-		/* Set global AAF SampleRate, if it equals preceding. Otherwise set to -1 */
-		// aafi->Audio->samplerate = ( aafi->Audio->samplerate == 0 || aafi->Audio->samplerate == *samplerate ) ? *samplerate : (unsigned)-1;
-	// }
+	audioEssence->samplerate       = samplerate->numerator;
+	audioEssence->lengthsamplerate = samplerate->numerator;
 
 
 
@@ -4561,10 +4557,10 @@ int aafi_retrieveData( AAF_Iface *aafi )
 
 	foreachEssence( audioEssence, aafi->Audio->Essences ) {
 
-		if ( audioEssence->type != AAFI_ESSENCE_TYPE_PCM ) {
+		// if ( audioEssence->type != AAFI_ESSENCE_TYPE_PCM ) {
 			/* TODO: rename (not only summary, can be external file too) */
 			aafi_parse_audio_summary( aafi, audioEssence );
-		}
+		// }
 
 		/* TODO : check samplerate / samplesize proportions accross essences, and choose the most used values as composition values */
 		if ( aafi->Audio->samplerate == 0 || aafi->Audio->samplerate == audioEssence->samplerate ) {

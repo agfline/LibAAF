@@ -45,6 +45,7 @@ enum aafiEssenceType {
 	AAFI_ESSENCE_TYPE_WAVE = 0x02,
 	AAFI_ESSENCE_TYPE_AIFC = 0x03,
 	AAFI_ESSENCE_TYPE_BWAV = 0x04,
+	AAFI_ESSENCE_TYPE_UNK  = 0xff, /* non-pcm */
 };
 
 
@@ -292,8 +293,21 @@ typedef struct aafiAudioEssence
 
 	uint16_t       clip_count; // number of clips using this essence
 
-	/* total samples for 1 channel (no matter channel count). (duration / sampleRate) = duration in seconds */
-	uint64_t       length; 		// Length of Essence Data
+	/*
+	 * total samples for 1 channel (no matter channel count).
+	 * Might be retrieved from FileDescriptor::Length property,
+	 * or from WAV/AIFF summary or file :
+	 *		(data chunk size / channels / samplesize / 8)
+	 */
+	uint64_t       length;
+
+	/*
+	 * lengthsamplerate should equals samplesize.
+	 * when we have a PCMDescriptor and a Locator to mp3 file, we set
+	 * samplerate to zero. We keep samplerate value here so we can
+	 * later make the calculation of duration out of length.
+	 */
+	uint32_t       lengthsamplerate;
 
 	cfbNode       *node;			// The node holding the audio stream if embedded
 

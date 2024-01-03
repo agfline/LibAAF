@@ -554,6 +554,7 @@ int aafi_parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 		audioEssence->samplerate = RIFFAudioFile.sampleRate;
 		audioEssence->samplesize = RIFFAudioFile.sampleSize;
 		audioEssence->length     = RIFFAudioFile.duration;
+		audioEssence->lengthsamplerate = RIFFAudioFile.sampleRate;
 	}
 	else {
 
@@ -569,6 +570,7 @@ int aafi_parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 				audioEssence->samplerate = RIFFAudioFile.sampleRate;
 				audioEssence->samplesize = RIFFAudioFile.sampleSize;
 				audioEssence->length     = RIFFAudioFile.duration;
+				audioEssence->lengthsamplerate = RIFFAudioFile.sampleRate;
 			}
 		}
 
@@ -594,11 +596,13 @@ int aafi_parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 			goto err;
 		}
 
+		warning( "%ls\n", audioEssence->usable_file_path );
+
 
 		if ( laaf_util_fop_is_wstr_fileext( audioEssence->original_file_path, L"wav"  ) ||
 		     laaf_util_fop_is_wstr_fileext( audioEssence->original_file_path, L"wave" ) ||
-				 laaf_util_fop_is_wstr_fileext( audioEssence->original_file_path, L"aif"  ) ||
-				 laaf_util_fop_is_wstr_fileext( audioEssence->original_file_path, L"aiff" ) ||
+		     laaf_util_fop_is_wstr_fileext( audioEssence->original_file_path, L"aif"  ) ||
+		     laaf_util_fop_is_wstr_fileext( audioEssence->original_file_path, L"aiff" ) ||
 		     laaf_util_fop_is_wstr_fileext( audioEssence->original_file_path, L"aifc" ) )
 		{
 			fp = fopen( externalFilePath, "rb" );
@@ -637,6 +641,29 @@ int aafi_parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 			audioEssence->samplerate = RIFFAudioFile.sampleRate;
 			audioEssence->samplesize = RIFFAudioFile.sampleSize;
 			audioEssence->length     = RIFFAudioFile.duration;
+			audioEssence->lengthsamplerate = RIFFAudioFile.sampleRate;
+		}
+		else {
+			/*
+			 * should be considered as a non-pcm audio format
+			 *
+│ 04317│├──◻ AAFClassID_TimelineMobSlot [slot:6 track:4] (DataDef : AAFDataDef_Sound) : Audio 4 - Layered Audio Editing
+│ 01943││    └──◻ AAFClassID_Sequence
+│ 02894││         └──◻ AAFClassID_SourceClip
+│ 02899││              └──◻ AAFClassID_MasterMob (UsageCode: n/a) : speech-sample
+│ 04405││                   └──◻ AAFClassID_TimelineMobSlot [slot:1 track:1] (DataDef : AAFDataDef_Sound)
+│ 03104││                        └──◻ AAFClassID_SourceClip
+│ 04140││                             └──◻ AAFClassID_SourceMob (UsageCode: n/a) : speech-sample
+│ 01287││                                  └──◻ AAFClassID_PCMDescriptor
+│ 01477││                                       └──◻ AAFClassID_NetworkLocator : file:///C:/Users/user/Desktop/libAAF/test/res/speech-sample.mp3
+			 *
+			 */
+
+			audioEssence->type = AAFI_ESSENCE_TYPE_UNK;
+
+			/* clears any wrong data previously retrieved out of AAFClassID_PCMDescriptor */
+			audioEssence->samplerate = 0;
+			audioEssence->samplesize = 0;
 		}
 	}
 

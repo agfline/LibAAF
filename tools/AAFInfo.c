@@ -60,7 +60,9 @@ enum pos_format {
 	( type == AAFI_ESSENCE_TYPE_PCM  ) ? "PCM " : \
 	( type == AAFI_ESSENCE_TYPE_WAVE ) ? "WAVE" : \
 	( type == AAFI_ESSENCE_TYPE_AIFC ) ? "AIFC" : \
-	( type == AAFI_ESSENCE_TYPE_BWAV ) ? "BWAV" : ""
+	( type == AAFI_ESSENCE_TYPE_BWAV ) ? "BWAV" : \
+	( type == AAFI_ESSENCE_TYPE_UNK  ) ? "UNK " : \
+	""
 
 
 
@@ -588,14 +590,16 @@ int main( int argc, char *argv[] ) {
 		foreachEssence( audioEssence, aafi->Audio->Essences )
 		{
 			char posFormatBuf[POS_FORMAT_BUFFER_LEN];
-			aafRational_t essenceSampleRate = { audioEssence->samplerate, 1 };
+			aafRational_t lengthSampleRate = { audioEssence->lengthsamplerate, 1 };
 
-			fprintf( logfp, " %s%u:  Type: %s  Length: %s   %02u Ch - %u Hz - %u bits   file : %ls  file_name : %ls%s%ls%s\n",
+			fprintf( logfp, " %s%u:  Type: %s  Length: %s  %02u Ch - %s%u Hz - %s%u bits  file: %ls  file_name: %ls%s%ls%s\n",
 				( i < 10 ) ? "  " : ( i < 100 ) ? " " : "", i,
 				ESSENCE_TYPE_TO_STRING( audioEssence->type ),
-				formatPosValue( audioEssence->length, &essenceSampleRate, posFormat, tcFormat, audioEssence->samplerate, posFormatBuf ),
+				formatPosValue( audioEssence->length, &lengthSampleRate, posFormat, tcFormat, audioEssence->samplerate, posFormatBuf ),
 				audioEssence->channels,
+				( audioEssence->samplerate >= 10000 ) ? "" : ( audioEssence->samplerate >= 1000 ) ? " " : ( audioEssence->samplerate >= 100 ) ? "  " : ( audioEssence->samplerate >= 10 ) ? "   " : "    ",
 				audioEssence->samplerate,
+				( audioEssence->samplerate >= 10 ) ? "" : " ",
 				audioEssence->samplesize,
 				( audioEssence->is_embedded ) ? L"EMBEDDED" : ( audioEssence->usable_file_path ) ? audioEssence->usable_file_path : audioEssence->original_file_path,
 				audioEssence->file_name,
@@ -742,9 +746,17 @@ int main( int argc, char *argv[] ) {
 
 					aafiAudioEssencePointer *audioEssencePtr = audioClip->essencePointerList;
 					while ( audioEssencePtr ) {
-						fprintf( logfp, "   SourceFile: %ls   (%ls)\n",
-							audioEssencePtr->essence->unique_file_name,
-							audioEssencePtr->essence->file_name );
+						if ( audioEssencePtr->essenceChannel ) {
+							fprintf( logfp, "   SourceFile: [ch %i] %ls   (%ls)\n",
+								audioEssencePtr->essenceChannel,
+								audioEssencePtr->essence->unique_file_name,
+								audioEssencePtr->essence->file_name );
+						}
+						else {
+							fprintf( logfp, "   SourceFile: [ch all] %ls   (%ls)\n",
+								audioEssencePtr->essence->unique_file_name,
+								audioEssencePtr->essence->file_name );
+						}
 						audioEssencePtr = audioEssencePtr->next;
 					}
 
