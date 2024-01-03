@@ -103,24 +103,14 @@ wchar_t * aafi_locate_external_essence_file( AAF_Iface *aafi, const wchar_t *ori
 	}
 
 
-	size_t uri_filepath_len = wcslen(original_uri_filepath)+1;
-
-	uri_filepath = malloc( uri_filepath_len );
+	uri_filepath = laaf_util_wstr2str( original_uri_filepath );
 
 	if ( uri_filepath == NULL ) {
-		error( "Could not allocate memory : %s", strerror(errno) );
+		error( "Could not convert original_uri_filepath from wstr to str : %ls", original_uri_filepath );
 		goto err;
 	}
 
-
-	int reqlen = snprintf( uri_filepath, uri_filepath_len, "%ls", original_uri_filepath );
-
-	if ( reqlen < 0 || (unsigned)reqlen >= uri_filepath_len ) {
-		error( "Failed converting wide char URI filepath to byte char%s", (reqlen < 0) ? " : encoding error" : "" );
-		goto err;
-	}
-
-	// debug( "Original URI filepath : %s", uri_filepath );
+	// debug( "Original URI : %s", uri_filepath );
 
 
 	uri = uriParse( uri_filepath, URI_OPT_DECODE_ALL, aafi->dbg );
@@ -135,7 +125,7 @@ wchar_t * aafi_locate_external_essence_file( AAF_Iface *aafi, const wchar_t *ori
 		goto err;
 	}
 
-	// debug( "Decoded URI's filepath : %s", uri->path );
+	// debug( "Decoded URI's path : %s", uri->path );
 
 
 
@@ -322,6 +312,12 @@ wchar_t * aafi_locate_external_essence_file( AAF_Iface *aafi, const wchar_t *ori
 
 found:
 	retpath = laaf_util_str2wstr( foundpath );
+
+	if ( retpath == NULL ) {
+		error( "Could not convert foundpath from str to wstr : %s", foundpath );
+		goto err;
+	}
+
 	goto end;
 
 err:
@@ -481,10 +477,10 @@ int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence,
 	}
 
 
-	reqlen = swprintf( audioEssence->usable_file_path, strlen(filepath)+1, L"%" WPRIs, filepath );
+	audioEssence->usable_file_path = laaf_util_str2wstr( filepath );
 
-	if ( reqlen < 0 ) {
-		error( "Failed setting usable_file_path" );
+	if ( audioEssence->usable_file_path == NULL ) {
+		error( "Could not convert usable_file_path from str to wstr : %s", filepath );
 		goto err;
 	}
 
@@ -569,7 +565,7 @@ int aafi_parse_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 		externalFilePath = laaf_util_wstr2str( audioEssence->usable_file_path );
 
 		if ( externalFilePath == NULL ) {
-			error( "Could not convert usable_file_path wstr to str for essence : %ls", audioEssence->file_name );
+			error( "Could not convert usable_file_path from wstr to str : %ls", audioEssence->usable_file_path );
 			goto err;
 		}
 

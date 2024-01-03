@@ -38,7 +38,7 @@ char * laaf_util_wstr2str( const wchar_t *wstr ) {
 		return NULL;
 	}
 
-	int strsz = wcslen( wstr ) + 1;
+	size_t strsz = wcslen( wstr ) + 1;
 	char *str = malloc( strsz );
 
 	if ( str == NULL ) {
@@ -48,8 +48,8 @@ char * laaf_util_wstr2str( const wchar_t *wstr ) {
 
 	int rc = snprintf( str, strsz, "%ls", wstr );
 
-	if ( rc < 0 || rc > strsz ) {
-		// error( "Could not snprintf wstr : %s" );
+	if ( rc < 0 || (unsigned)rc >= strsz ) {
+		// error( "Failed converting wide char str to byte char str%s", (reqlen < 0) ? " : encoding error" : "" );
 		free( str );
 		return NULL;
 	}
@@ -65,7 +65,7 @@ wchar_t * laaf_util_str2wstr( const char *str ) {
 		return NULL;
 	}
 
-	int strsz = strlen( str ) + 1;
+	size_t strsz = strlen( str ) + 1;
 	wchar_t *wstr = malloc( strsz * sizeof(wchar_t) );
 
 	if ( str == NULL ) {
@@ -75,8 +75,8 @@ wchar_t * laaf_util_str2wstr( const char *str ) {
 
 	int rc = swprintf( wstr, strsz, L"%" WPRIs, str );
 
-	if ( rc < 0 || rc > strsz ) {
-		// error( "Could not snprintf wstr : %s" );
+	if ( rc < 0 || (unsigned)rc >= strsz ) {
+		// error( "Failed converting byte char str to wide char str%s", (reqlen < 0) ? " : encoding error" : "" );
 		free( wstr );
 		return NULL;
 	}

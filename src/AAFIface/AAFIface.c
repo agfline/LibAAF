@@ -193,16 +193,15 @@ int aafi_set_option_str( AAF_Iface *aafi, const char *optname, const char *val )
 			aafi->ctx.options.dump_class_aaf_properties = NULL;
 		}
 
-		if ( val == NULL )
+		if ( val == NULL ) {
 			return 0;
+		}
 
-		aafi->ctx.options.dump_class_aaf_properties = malloc( (strlen(val)+1)*sizeof(wchar_t) );
+		aafi->ctx.options.dump_class_aaf_properties = laaf_util_str2wstr( val );
 
 		if ( aafi->ctx.options.dump_class_aaf_properties == NULL ) {
 			return -1;
 		}
-
-		swprintf( aafi->ctx.options.dump_class_aaf_properties, strlen(val)+1, L"%" WPRIs, val );
 
 		return 0;
 	}
@@ -213,16 +212,15 @@ int aafi_set_option_str( AAF_Iface *aafi, const char *optname, const char *val )
 			aafi->ctx.options.dump_class_raw_properties = NULL;
 		}
 
-		if ( val == NULL )
+		if ( val == NULL ) {
 			return 0;
+		}
 
-		aafi->ctx.options.dump_class_raw_properties = malloc( (strlen(val)+1)*sizeof(wchar_t) );
+		aafi->ctx.options.dump_class_raw_properties = laaf_util_str2wstr( val );
 
 		if ( aafi->ctx.options.dump_class_raw_properties == NULL ) {
 			return -1;
 		}
-
-		swprintf( aafi->ctx.options.dump_class_raw_properties, strlen(val)+1, L"%" WPRIs, val );
 
 		return 0;
 	}
