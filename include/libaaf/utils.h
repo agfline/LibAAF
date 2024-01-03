@@ -66,6 +66,10 @@ extern "C" {
 
 
 
+char * laaf_util_wstr2str( const wchar_t *wstr );
+
+wchar_t * laaf_util_str2wstr( const char *str );
+
 int laaf_util_wstr_contains_nonlatin( const wchar_t *str );
 
 char * laaf_util_clean_filename( char *filename );

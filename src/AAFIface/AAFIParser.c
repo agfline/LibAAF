@@ -4550,17 +4550,22 @@ int aafi_retrieveData( AAF_Iface *aafi )
 
 	/* Post processing */
 
-	/* TODO move to parse_*() */
-	/* Parse summary descriptor (WAVE/AIFC) if any */
-
 	aafiAudioEssence *audioEssence = NULL;
 
 	foreachEssence( audioEssence, aafi->Audio->Essences ) {
 
-		// if ( audioEssence->type != AAFI_ESSENCE_TYPE_PCM ) {
-			/* TODO: rename (not only summary, can be external file too) */
-			aafi_parse_audio_summary( aafi, audioEssence );
-		// }
+		if ( !audioEssence->is_embedded ) {
+
+			audioEssence->usable_file_path = aafi_locate_external_essence_file( aafi, audioEssence->original_file_path, aafi->ctx.options.media_location );
+
+			if ( audioEssence->usable_file_path == NULL ) {
+				error( "Could not locate external audio essence file '%ls'", audioEssence->original_file_path );
+			}
+		}
+
+		if ( audioEssence->summary || audioEssence->usable_file_path ) {
+			aafi_parse_audio_essence( aafi, audioEssence );
+		}
 
 		/* TODO : check samplerate / samplesize proportions accross essences, and choose the most used values as composition values */
 		if ( aafi->Audio->samplerate == 0 || aafi->Audio->samplerate == audioEssence->samplerate ) {
@@ -4588,32 +4593,12 @@ int aafi_retrieveData( AAF_Iface *aafi )
 			continue;
 		}
 
-		char *externalFilePath = aafi_locate_external_essence_file( aafi, videoEssence->original_file_path, aafi->ctx.options.media_location );
-
-		if ( externalFilePath == NULL ) {
-			error( "Could not locate external audio essence file '%ls'", videoEssence->original_file_path );
-			continue;
-		}
-
-		videoEssence->usable_file_path = malloc( (strlen(externalFilePath) + 1) * sizeof(wchar_t) );
+		videoEssence->usable_file_path = aafi_locate_external_essence_file( aafi, videoEssence->original_file_path, aafi->ctx.options.media_location );
 
 		if ( videoEssence->usable_file_path == NULL ) {
-			error( "Could not allocate memory : %s", strerror(errno) );
-			free( externalFilePath );
+			error( "Could not locate external video essence file '%ls'", videoEssence->original_file_path );
 			continue;
 		}
-
-		int rc = swprintf( videoEssence->usable_file_path, strlen(externalFilePath)+1, L"%" WPRIs, externalFilePath );
-
-		if ( rc < 0 ) {
-			error( "Failed setting usable_file_path" );
-			free( externalFilePath );
-			free( videoEssence->usable_file_path );
-			videoEssence->usable_file_path = NULL;
-			continue;
-		}
-
-		free( externalFilePath );
 	}
 
 

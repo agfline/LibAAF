@@ -32,6 +32,60 @@
 
 
 
+char * laaf_util_wstr2str( const wchar_t *wstr ) {
+
+	if ( wstr == NULL ) {
+		return NULL;
+	}
+
+	int strsz = wcslen( wstr ) + 1;
+	char *str = malloc( strsz );
+
+	if ( str == NULL ) {
+		// error( "Could not allocate memory : %s", strerror(errno) );
+		return NULL;
+	}
+
+	int rc = snprintf( str, strsz, "%ls", wstr );
+
+	if ( rc < 0 || rc > strsz ) {
+		// error( "Could not snprintf wstr : %s" );
+		free( str );
+		return NULL;
+	}
+
+	return str;
+}
+
+
+
+wchar_t * laaf_util_str2wstr( const char *str ) {
+
+	if ( str == NULL ) {
+		return NULL;
+	}
+
+	int strsz = strlen( str ) + 1;
+	wchar_t *wstr = malloc( strsz * sizeof(wchar_t) );
+
+	if ( str == NULL ) {
+		// error( "Could not allocate memory : %s", strerror(errno) );
+		return NULL;
+	}
+
+	int rc = swprintf( wstr, strsz, L"%" WPRIs, str );
+
+	if ( rc < 0 || rc > strsz ) {
+		// error( "Could not snprintf wstr : %s" );
+		free( wstr );
+		return NULL;
+	}
+
+	return wstr;
+}
+
+
+
 int laaf_util_wstr_contains_nonlatin( const wchar_t *str )
 {
 	for ( size_t i = 0; str[i] != 0x0000; i++ ) {
