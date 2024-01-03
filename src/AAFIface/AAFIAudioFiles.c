@@ -596,8 +596,6 @@ int aafi_parse_audio_summary( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 			goto err;
 		}
 
-		warning( "%ls\n", audioEssence->usable_file_path );
-
 
 		if ( laaf_util_fop_is_wstr_fileext( audioEssence->original_file_path, L"wav"  ) ||
 		     laaf_util_fop_is_wstr_fileext( audioEssence->original_file_path, L"wave" ) ||
