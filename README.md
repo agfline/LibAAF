@@ -37,13 +37,14 @@ LibAAF was widely tested with :
 | Track Names                                    | x | *Full support*                         |
 | Clip Names                                     | x | *built upon source file names*         |
 | Original essence file names                    | x | *Full support*                         |
-| PCM Embedded Essences                          | x | *Full support*                         |
-| WAVE Embedded Essences                         | x | *Full support*                         |
-| WAVE External Essences                         | x | *Full support*                         |
-| AIFF Embedded Essences                         | x | *Full support*                         |
-| AIFF External Essences                         | x | *Full support*                         |
-| AES3 Embedded Essences                         | - | *Missing from the specs / Not encountered yet* |
-| MXF External Essences                          | x | *Full support*                         |
+| Embedded PCM Essences                          | x | *Full support*                         |
+| Embedded WAV Essences                          | x | *Full support*                         |
+| Embedded AIFF Essences                         | x | *Full support*                         |
+| Embedded AES3 Essences                         | - | *Missing from the specs / Not encountered yet* |
+| External WAV Essences                          | x | *Full support*                         |
+| External AIFF Essences                         | x | *Full support*                         |
+| External MXF Essences                          | x | *Full support*                         |
+| External Non-PCM Essences (MP3, AAC, etc.)     | x | *Full support*                         |
 | Multi-channel clip out of a multi-channel file | x | *Full support*                         |
 | Multi-channel clip out of multiple mono files  | x | *Full support*                         |
 | Fades in/out - XFades                          | x | *Full support*                         |
