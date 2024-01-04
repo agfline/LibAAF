@@ -512,7 +512,7 @@ end:
 
 int aafi_parse_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 {
-	// laaf_util_dump_hex( audioEssence->summary->val, audioEssence->summary->len );
+	// aafi->dbg->_dbg_msg_pos += laaf_util_dump_hex( audioEssence->summary->val, audioEssence->summary->len, &aafi->dbg->_dbg_msg, &aafi->dbg->_dbg_msg_size, aafi->dbg->_dbg_msg_pos );
 
 	int rc = 0;
 	char *externalFilePath = NULL;
@@ -524,7 +524,7 @@ int aafi_parse_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 
 	if ( audioEssence->summary ) {
 
-		rc = riff_parseAudioFile( &RIFFAudioFile, RIFF_PARSE_ONLY_HEADER, &embeddedAudioDataReaderCallback, audioEssence->summary->val, &audioEssence->summary->len, aafi, aafi->dbg );
+		rc = riff_parseAudioFile( &RIFFAudioFile, /*RIFF_PARSE_ONLY_HEADER*/0, &embeddedAudioDataReaderCallback, audioEssence->summary->val, &audioEssence->summary->len, aafi, aafi->dbg );
 
 		if ( rc < 0 ) {
 
@@ -538,7 +538,7 @@ int aafi_parse_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 			audioEssence->channels         = RIFFAudioFile.channels;
 			audioEssence->samplerate       = RIFFAudioFile.sampleRate;
 			audioEssence->samplesize       = RIFFAudioFile.sampleSize;
-			audioEssence->length           = RIFFAudioFile.duration;
+			audioEssence->length           = RIFFAudioFile.sampleCount;
 			audioEssence->lengthsamplerate = RIFFAudioFile.sampleRate;
 
 			return 0;
@@ -600,14 +600,14 @@ int aafi_parse_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 			warning( "%ls : summary samplesize (%i) mismatch located file (%i)", audioEssence->usable_file_path, audioEssence->samplesize, RIFFAudioFile.sampleSize );
 		}
 
-		if ( audioEssence->length > 0 && audioEssence->length != RIFFAudioFile.duration ) {
-			warning( "%ls : summary duration (%"PRIi64") mismatch located file (%"PRIi64")", audioEssence->usable_file_path, audioEssence->length, RIFFAudioFile.duration );
+		if ( audioEssence->length > 0 && audioEssence->length != RIFFAudioFile.sampleCount ) {
+			warning( "%ls : summary samplecount (%"PRIi64") mismatch located file (%"PRIi64")", audioEssence->usable_file_path, audioEssence->length, RIFFAudioFile.sampleCount );
 		}
 
 		audioEssence->channels         = RIFFAudioFile.channels;
 		audioEssence->samplerate       = RIFFAudioFile.sampleRate;
 		audioEssence->samplesize       = RIFFAudioFile.sampleSize;
-		audioEssence->length           = RIFFAudioFile.duration;
+		audioEssence->length           = RIFFAudioFile.sampleCount;
 		audioEssence->lengthsamplerate = RIFFAudioFile.sampleRate;
 	}
 	else {
@@ -658,12 +658,12 @@ static size_t embeddedAudioDataReaderCallback( unsigned char *buf, size_t offset
 	size_t datasz = *(size_t*)user2;
 	AAF_Iface *aafi = (AAF_Iface*)user3;
 
-	if ( offset >= datasz ) {
+	if ( offset > datasz ) {
 		error( "Requested data starts beyond data length" );
 		return -1;
 	}
 
-	if ( offset+reqLen >= datasz ) {
+	if ( offset+reqLen > datasz ) {
 		reqLen = datasz - (offset+reqLen);
 	}
 
