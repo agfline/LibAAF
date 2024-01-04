@@ -311,11 +311,13 @@ wchar_t * aafi_locate_external_essence_file( AAF_Iface *aafi, const wchar_t *ori
 	// debug("File not found");
 
 found:
-	retpath = laaf_util_str2wstr( foundpath );
+	if ( foundpath ) {
+		retpath = laaf_util_str2wstr( foundpath );
 
-	if ( retpath == NULL ) {
-		error( "Could not convert foundpath from str to wstr : %s", foundpath );
-		goto err;
+		if ( retpath == NULL ) {
+			error( "Could not convert foundpath from str to wstr : %s", foundpath );
+			goto err;
+		}
 	}
 
 	goto end;
