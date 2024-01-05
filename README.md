@@ -1,7 +1,7 @@
 # LibAAF
 > [!WARNING]
 >
-> While major version number remains 0, API MUST NOT be considered stable. Minor version number should reflect API changes during that time.
+> While major version number remains 0, API MUST NOT be considered stable.
 >
 > Releases are made everytime libaaf code is updated into Ardour source tree.
 
