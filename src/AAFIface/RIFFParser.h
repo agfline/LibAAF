@@ -36,6 +36,7 @@
 
 enum RIFF_PARSER_FLAGS {
   RIFF_PARSE_ONLY_HEADER = (1 << 0),
+	RIFF_PARSE_AAF_SUMMARY = (1 << 1),
 };
 
 

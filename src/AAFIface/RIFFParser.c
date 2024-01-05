@@ -218,6 +218,10 @@ int riff_parseAudioFile( struct RIFFAudioFile *RIFFAudioFile, enum RIFF_PARSER_F
 				if ( RIFFAudioFile->channels > 0 && RIFFAudioFile->sampleSize > 0 ) {
 					RIFFAudioFile->sampleCount = chunk.cksz / RIFFAudioFile->channels / (RIFFAudioFile->sampleSize / 8);
 				}
+
+				if ( flags & RIFF_PARSE_AAF_SUMMARY ) {
+					return 0;
+				}
 			}
 		}
 		else { /* AIFF */
@@ -263,9 +267,12 @@ int riff_parseAudioFile( struct RIFFAudioFile *RIFFAudioFile, enum RIFF_PARSER_F
 				}
 
 				RIFFAudioFile->sampleCount = sampleCount;
+
+				if ( flags & RIFF_PARSE_AAF_SUMMARY ) {
+					return 0;
+				}
 			}
 		}
-
 
 		pos += chunk.cksz+sizeof(chunk);
 	}

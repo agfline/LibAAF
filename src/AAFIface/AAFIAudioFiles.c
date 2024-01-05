@@ -524,7 +524,7 @@ int aafi_parse_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 
 	if ( audioEssence->summary ) {
 
-		rc = riff_parseAudioFile( &RIFFAudioFile, /*RIFF_PARSE_ONLY_HEADER*/0, &embeddedAudioDataReaderCallback, audioEssence->summary->val, &audioEssence->summary->len, aafi, aafi->dbg );
+		rc = riff_parseAudioFile( &RIFFAudioFile, RIFF_PARSE_AAF_SUMMARY, &embeddedAudioDataReaderCallback, audioEssence->summary->val, &audioEssence->summary->len, aafi, aafi->dbg );
 
 		if ( rc < 0 ) {
 
