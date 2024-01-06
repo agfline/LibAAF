@@ -95,7 +95,6 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 	aafi->Audio->samplesize = 0;
 	aafi->Audio->Tracks = NULL;
 	aafi->Audio->track_count = 0;
-	aafi->Audio->length = 0;
 
 
 	aafi->Video = calloc( sizeof(aafiVideo), sizeof(unsigned char) );
@@ -106,7 +105,6 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 
 	aafi->Video->Essences = NULL;
 	aafi->Video->Tracks = NULL;
-	aafi->Video->length = 0;
 
 
 	if ( aafd != NULL ) {
@@ -883,6 +881,15 @@ aafiAudioEssence * aafi_newAudioEssence( AAF_Iface *aafi )
 		return NULL;
 	}
 
+	audioEssence->samplerateRational = malloc( sizeof(aafRational_t) );
+
+	if ( audioEssence->samplerateRational == NULL ) {
+		return NULL;
+	}
+
+	audioEssence->samplerateRational->numerator = 1;
+	audioEssence->samplerateRational->denominator = 1;
+
 	audioEssence->next = aafi->Audio->Essences;
 
 	aafi->Audio->Essences = audioEssence;
@@ -951,6 +958,10 @@ void aafi_freeAudioEssences( aafiAudioEssence **audioEssence )
 
 		if ( (*audioEssence)->unique_file_name != NULL ) {
 			free( (*audioEssence)->unique_file_name );
+		}
+
+		if ( (*audioEssence)->samplerateRational != NULL ) {
+			free( (*audioEssence)->samplerateRational );
 		}
 
 		free( *audioEssence );

@@ -32,6 +32,31 @@
 
 
 
+aafPosition_t laaf_util_converUnit( aafPosition_t value, aafRational_t *valueEditRate, aafRational_t *destEditRate ) {
+
+	if ( !valueEditRate || !destEditRate ) {
+		return value;
+	}
+
+	if ( valueEditRate->numerator   == destEditRate->numerator &&
+	     valueEditRate->denominator == destEditRate->denominator )
+	{
+		/* same rate, no conversion */
+		return value;
+	}
+
+	double valueEditRateFloat = (( valueEditRate->denominator == 0 ) ? 0.0 : ((float)valueEditRate->numerator / valueEditRate->denominator));
+	double destEditRateFloat  = (( destEditRate->denominator  == 0 ) ? 0.0 : ((float)destEditRate->numerator  / destEditRate->denominator ));
+
+	if ( valueEditRateFloat == 0 ) {
+		return 0;
+	}
+
+	return value * (destEditRateFloat / valueEditRateFloat);
+}
+
+
+
 char * laaf_util_wstr2str( const wchar_t *wstr ) {
 
 	if ( wstr == NULL ) {

@@ -447,7 +447,7 @@ int aafi_extract_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence,
 		memset( &wavBext, 0x00, sizeof(wavBext) );
 		memcpy( wavBext.umid, audioEssence->sourceMobID, sizeof(aafMobID_t) );
 		if ( audioEssence->mobSlotEditRate ) {
-			wavBext.time_reference = eu2sample( audioEssence->samplerate, audioEssence->mobSlotEditRate, audioEssence->timeReference );
+			wavBext.time_reference = laaf_util_converUnit( audioEssence->timeReference, audioEssence->mobSlotEditRate, audioEssence->samplerateRational );
 		}
 
 		if ( datasz >= (uint32_t)-1 ) {
@@ -539,7 +539,9 @@ int aafi_parse_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 			audioEssence->samplerate       = RIFFAudioFile.sampleRate;
 			audioEssence->samplesize       = RIFFAudioFile.sampleSize;
 			audioEssence->length           = RIFFAudioFile.sampleCount;
-			audioEssence->lengthsamplerate = RIFFAudioFile.sampleRate;
+
+			audioEssence->samplerateRational->numerator = audioEssence->samplerate;
+			audioEssence->samplerateRational->denominator = 1;
 
 			return 0;
 		}
@@ -608,7 +610,9 @@ int aafi_parse_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 		audioEssence->samplerate       = RIFFAudioFile.sampleRate;
 		audioEssence->samplesize       = RIFFAudioFile.sampleSize;
 		audioEssence->length           = RIFFAudioFile.sampleCount;
-		audioEssence->lengthsamplerate = RIFFAudioFile.sampleRate;
+
+		audioEssence->samplerateRational->numerator = audioEssence->samplerate;
+		audioEssence->samplerateRational->denominator = 1;
 	}
 	else {
 		/*
@@ -628,9 +632,9 @@ int aafi_parse_audio_essence( AAF_Iface *aafi, aafiAudioEssence *audioEssence )
 
 		audioEssence->type = AAFI_ESSENCE_TYPE_UNK;
 
-		/* clears any wrong data previously retrieved out of AAFClassID_PCMDescriptor */
-		audioEssence->samplerate = 0;
-		audioEssence->samplesize = 0;
+		// /* clears any wrong data previously retrieved out of AAFClassID_PCMDescriptor */
+		// audioEssence->samplerate = 0;
+		// audioEssence->samplesize = 0;
 	}
 
 

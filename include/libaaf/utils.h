@@ -23,6 +23,7 @@
 
 #include <stdarg.h>
 #include <stdint.h>
+#include <libaaf/AAFTypes.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -65,6 +66,8 @@ extern "C" {
 #define ANSI_COLOR_RESET( dbg )    (( (dbg)->ansicolor ) ? "\x1b[0m" : "")
 
 
+
+aafPosition_t laaf_util_converUnit( aafPosition_t value, aafRational_t *valueEditRate, aafRational_t *destEditRate );
 
 char * laaf_util_wstr2str( const wchar_t *wstr );
 

@@ -1252,8 +1252,10 @@ static int parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor, td *_
 		return -1;
 	}
 
-	audioEssence->samplerate       = samplerate->numerator;
-	audioEssence->lengthsamplerate = samplerate->numerator;
+	audioEssence->samplerateRational = samplerate;
+	audioEssence->samplerate         = samplerate->numerator;
+	audioEssence->samplerateRational->numerator   = samplerate->numerator;
+	audioEssence->samplerateRational->denominator = samplerate->denominator;
 
 
 
@@ -2015,10 +2017,10 @@ static int parse_Timecode( AAF_Iface *aafi, aafObject *Timecode, td *__ptd )
 		return -1;
 	}
 
-	tc->start = *tc_start;
-	tc->fps   = *tc_fps;
-	tc->drop  = *tc_drop;
-	tc->edit_rate = tc_edit_rate;
+	tc->start      = *tc_start;
+	tc->fps        = *tc_fps;
+	tc->drop       = *tc_drop;
+	tc->edit_rate  = tc_edit_rate;
 
 	aafi->Timecode = tc;
 
@@ -4188,10 +4190,6 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 
 
 
-
-	aafPosition_t  track_end = 0;
-	aafRational_t *track_editrate = NULL;
-
 	if ( aafUIDCmp( MobSlot->Class->ID, &AAFClassID_TimelineMobSlot ) ) {
 
 		/*
@@ -4309,11 +4307,6 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 				// aafi->ctx.current_track->current_pos = 0;
 
 				aafi_parse_Segment( aafi, Segment, &__td );
-
-
-				/* update session_end if needed */
-				track_end = ( aafi->ctx.current_track->current_pos > track_end ) ? aafi->ctx.current_track->current_pos : track_end;
-				track_editrate = aafi->ctx.current_track->edit_rate;
 			}
 			else if ( aafUIDCmp( DataDefinition, &AAFDataDef_Timecode ) ||
 			          aafUIDCmp( DataDefinition, &AAFDataDef_LegacyTimecode ) )
@@ -4454,10 +4447,6 @@ static int parse_MobSlot( AAF_Iface *aafi, aafObject *MobSlot, td *__ptd )
 	}
 
 
-	if ( track_end > 0 && track_editrate && aafi->Timecode && aafi->Timecode->end < track_end ) {
-		aafi->Timecode->end = convertEditUnit( track_end, *track_editrate, *(aafi->Timecode->edit_rate) );
-	}
-
 	return 0;
 }
 
@@ -4523,6 +4512,7 @@ int aafi_retrieveData( AAF_Iface *aafi )
 
 
 	if ( aafi->Timecode == NULL ) {
+		/* TODO, shouldn't we leave aafi->Timecode as NULL ? */
 		warning( "No timecode found in file. Setting to 00:00:00:00 @ 25fps" );
 
 		aafiTimecode *tc = calloc( sizeof(aafiTimecode), sizeof(unsigned char) );
@@ -4532,19 +4522,14 @@ int aafi_retrieveData( AAF_Iface *aafi )
 			return -1;
 		}
 
-		tc->start = 0;
-		tc->fps   = 25;
-		tc->drop  = 0;
-		tc->edit_rate = &AAFI_DEFAULT_TC_EDIT_RATE;
+		tc->start      = 0;
+		tc->fps        = 25;
+		tc->drop       = 0;
+		tc->edit_rate  = &AAFI_DEFAULT_TC_EDIT_RATE;
 
 		aafi->Timecode = tc;
 	}
 
-	/* aafi->Audio->tc->end is set to composition duration. Add tc->start to set composition end time */
-
-	if ( aafi->Timecode && aafi->Timecode->end ) {
-		aafi->Timecode->end += aafi->Timecode->start;
-	}
 
 
 
@@ -4570,6 +4555,7 @@ int aafi_retrieveData( AAF_Iface *aafi )
 		/* TODO : check samplerate / samplesize proportions accross essences, and choose the most used values as composition values */
 		if ( aafi->Audio->samplerate == 0 || aafi->Audio->samplerate == audioEssence->samplerate ) {
 			aafi->Audio->samplerate = audioEssence->samplerate;
+			aafi->Audio->samplerateRational = audioEssence->samplerateRational;
 		}
 		else {
 			// warning( "audioEssence '%ls' has different samplerate : %u", audioEssence->file_name, audioEssence->samplerate );
@@ -4602,9 +4588,22 @@ int aafi_retrieveData( AAF_Iface *aafi )
 	}
 
 
+	aafPosition_t trackEnd = 0;
 	aafiAudioTrack *audioTrack = NULL;
 
 	foreach_audioTrack( audioTrack, aafi ) {
+
+		if ( aafi->compositionLength_editRate ) {
+			trackEnd = laaf_util_converUnit( audioTrack->current_pos, audioTrack->edit_rate, aafi->compositionLength_editRate );
+		} else {
+			trackEnd = audioTrack->current_pos;
+		}
+
+		if ( trackEnd > aafi->compositionLength ) {
+			debug( "Setting compositionLength with audio track \"%ls\" (%u) : %lu", audioTrack->name, audioTrack->number, audioTrack->current_pos );
+			aafi->compositionLength = audioTrack->current_pos;
+			aafi->compositionLength_editRate = audioTrack->edit_rate;
+		}
 
 		aafiTimelineItem *audioItem  = NULL;
 		aafiAudioClip    *audioClip  = NULL;
@@ -4618,40 +4617,28 @@ int aafi_retrieveData( AAF_Iface *aafi )
 			audioClip = (aafiAudioClip*)audioItem->data;
 			audioClip->channels = aafi_getAudioEssencePointerChannelCount( audioClip->essencePointerList );
 		}
-
-		if ( audioTrack->current_pos > aafi->Audio->length ) {
-			aafi->Audio->length = audioTrack->current_pos;
-			aafi->Audio->length_editRate.numerator   = audioTrack->edit_rate->numerator;
-			aafi->Audio->length_editRate.denominator = audioTrack->edit_rate->denominator;
-		}
 	}
+
 
 	aafiVideoTrack *videoTrack = NULL;
 
 	foreach_videoTrack( videoTrack, aafi ) {
-		if ( videoTrack->current_pos > aafi->Video->length ) {
-			aafi->Video->length = videoTrack->current_pos;
-			aafi->Video->length_editRate.numerator   = videoTrack->edit_rate->numerator;
-			aafi->Video->length_editRate.denominator = videoTrack->edit_rate->denominator;
+
+		if ( aafi->compositionLength_editRate ) {
+			trackEnd = laaf_util_converUnit( videoTrack->current_pos, videoTrack->edit_rate, aafi->compositionLength_editRate );
+		} else {
+			trackEnd = videoTrack->current_pos;
+		}
+
+		if ( trackEnd > aafi->compositionLength ) {
+			debug( "Setting compositionLength with video track \"%ls\" (%u) : %lu", videoTrack->name, videoTrack->number, videoTrack->current_pos );
+			aafi->compositionLength = videoTrack->current_pos;
+			aafi->compositionLength_editRate = videoTrack->edit_rate;
 		}
 	}
 
-	if ( aafi->Audio->length > aafi->Video->length ) {
-		aafi->compositionLength = aafi->Audio->length;
-		aafi->compositionLength_editRate.numerator   = aafi->Audio->length_editRate.numerator;
-		aafi->compositionLength_editRate.denominator = aafi->Audio->length_editRate.denominator;
-	}
-	else {
-		aafi->compositionLength = aafi->Video->length;
-		aafi->compositionLength_editRate.numerator   = aafi->Video->length_editRate.numerator;
-		aafi->compositionLength_editRate.denominator = aafi->Video->length_editRate.denominator;
-	}
-
-
-
 	aafi->compositionStart = aafi->Timecode->start;
-	aafi->compositionStart_editRate.numerator   = aafi->Timecode->edit_rate->numerator;
-	aafi->compositionStart_editRate.denominator = aafi->Timecode->edit_rate->denominator;
+	aafi->compositionStart_editRate = aafi->Timecode->edit_rate;
 
 
 	if ( protools_AAF( aafi ) ) {

@@ -301,14 +301,6 @@ typedef struct aafiAudioEssence
 	 */
 	uint64_t       length;
 
-	/*
-	 * lengthsamplerate should equals samplesize.
-	 * when we have a PCMDescriptor and a Locator to mp3 file, we set
-	 * samplerate to zero. We keep samplerate value here so we can
-	 * later make the calculation of duration out of length.
-	 */
-	uint32_t       lengthsamplerate;
-
 	cfbNode       *node;			// The node holding the audio stream if embedded
 
 	aafMobID_t    *sourceMobID;	// Holds the SourceMob Mob::ID references this EssenceData
@@ -326,6 +318,7 @@ typedef struct aafiAudioEssence
 
 	// uint32_t       format;
 	uint32_t       samplerate;
+	aafRational_t *samplerateRational; // eg. { 48000, 1 }
 	int16_t        samplesize;
 	int16_t        channels;
 
@@ -507,13 +500,6 @@ typedef struct aafiTimecode
 	 */
 
 	aafPosition_t  start;
-
-
-	/**
-	 * Timecode end in EditUnit. (session end)
-	 */
-
-	aafPosition_t  end;
 
 
 	/**
@@ -700,11 +686,10 @@ typedef struct aafiAudio
 	 */
 
 	aafPosition_t     start;
-	aafPosition_t     length;
-	aafRational_t     length_editRate;
 
-	int64_t           samplerate;
 	int16_t           samplesize;
+	int64_t           samplerate;
+	aafRational_t    *samplerateRational; // eg. { 48000, 1 }
 
 	/**
 	 * Holds the Essence list.
@@ -731,8 +716,6 @@ typedef struct aafiVideo
 	 */
 
 	aafPosition_t     start;
-	aafPosition_t     length;
-	aafRational_t     length_editRate;
 
 
 	/**
@@ -878,11 +861,11 @@ typedef struct AAF_Iface
 
 	wchar_t          *compositionName;
 
-	aafPosition_t     compositionStart; // set from aafi->Timecode->start
-	aafRational_t     compositionStart_editRate;
+	aafPosition_t     compositionStart; // sets from aafi->Timecode->start
+	aafRational_t    *compositionStart_editRate;
 
-	aafPosition_t     compositionLength;
-	aafRational_t     compositionLength_editRate;
+	aafPosition_t     compositionLength; // sets from the longest audio or video track->current_pos
+	aafRational_t    *compositionLength_editRate;
 
 
 	aafiUserComment  *Comments;
@@ -931,30 +914,6 @@ typedef struct AAF_Iface
 
 #define foreachMarker( marker, aafi ) \
 	for ( marker = aafi->Markers; marker != NULL; marker = marker->next )
-
-
-#define aeDuration_h( audioEssence ) \
-	(( audioEssence->samplerate == 0 ) ? 0 : ((uint16_t)(audioEssence->length / audioEssence->samplerate / (audioEssence->samplesize / 8)) / 3600))
-
-#define aeDuration_m( audioEssence ) \
-	(( audioEssence->samplerate == 0 ) ? 0 : ((uint16_t)(audioEssence->length / audioEssence->samplerate / (audioEssence->samplesize / 8)) % 3600 / 60))
-
-#define aeDuration_s( audioEssence ) \
-	(( audioEssence->samplerate == 0 ) ? 0 : ((uint16_t)(audioEssence->length / audioEssence->samplerate / (audioEssence->samplesize / 8)) % 3600 % 60))
-
-#define aeDuration_ms( audioEssence ) \
-	(( audioEssence->samplerate == 0 ) ? 0 : ((uint16_t)(audioEssence->length / (audioEssence->samplerate / 1000) / (audioEssence->samplesize / 8)) % 3600000 % 60000 % 1000))
-
-
-
-
-#define convertEditUnit( val, fromRate, toRate ) \
-	(int64_t)((val) * (aafRationalToFloat((toRate)) * (1 / aafRationalToFloat((fromRate)))))
-
-
-
-#define eu2sample( samplerate, edit_rate, val ) \
-	(int64_t)(val * (samplerate * (1 / aafRationalToFloat((*edit_rate)))))
 
 
 

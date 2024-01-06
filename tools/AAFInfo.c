@@ -69,7 +69,7 @@ enum pos_format {
 static const char * gainToStr( aafiAudioGain *gain );
 static const char * panToStr( aafiAudioPan *pan );
 static void dumpVaryingValues( aafiAudioGain *Gain, FILE *logfp );
-static const char * formatPosValue( aafPosition_t pos, aafRational_t *editRate, enum pos_format posFormat, enum TC_FORMAT tcFormat, uint64_t samplerate, char *buf );
+static const char * formatPosValue( aafPosition_t pos, aafRational_t *editRate, enum pos_format posFormat, enum TC_FORMAT tcFormat, aafRational_t *samplerateRational, char *buf );
 static void showHelp( void );
 
 
@@ -138,7 +138,7 @@ static void dumpVaryingValues( aafiAudioGain *Gain, FILE *logfp ) {
 
 
 
-static const char * formatPosValue( aafPosition_t pos, aafRational_t *editRate, enum pos_format posFormat, enum TC_FORMAT tcFormat, uint64_t samplerate, char *buf ) {
+static const char * formatPosValue( aafPosition_t pos, aafRational_t *editRate, enum pos_format posFormat, enum TC_FORMAT tcFormat, aafRational_t *samplerateRational, char *buf ) {
 
 	struct timecode tc;
 
@@ -148,7 +148,7 @@ static const char * formatPosValue( aafPosition_t pos, aafRational_t *editRate, 
 		return buf;
 	}
 	else if ( posFormat == POS_FORMAT_SAMPLES ) {
-		snprintf( buf, POS_FORMAT_BUFFER_LEN, "%"PRIi64, eu2sample( samplerate, editRate, pos ) );
+		snprintf( buf, POS_FORMAT_BUFFER_LEN, "%"PRIi64, laaf_util_converUnit( pos, editRate, samplerateRational ) );
 		return buf;
 	}
 	else if ( posFormat == POS_FORMAT_HMS ) {
@@ -499,39 +499,37 @@ int main( int argc, char *argv[] ) {
 		aaf_dump_Header( aafd );
 		aaf_dump_Identification( aafd );
 
-		fprintf( logfp, " Composition Name     : %ls\n", aafi->compositionName );
-
-		fprintf( logfp, "\n" );
-
-		fprintf( logfp, " TC EditRrate         : %i/%i\n", aafi->Timecode->edit_rate->numerator, aafi->Timecode->edit_rate->denominator );
-		fprintf( logfp, " TC FPS               : %u %s\n", aafi->Timecode->fps, (aafi->Timecode->drop) ? "DF" : "NDF" );
-		fprintf( logfp, " TC Start (EU)        : %"PRIi64"\n", aafi->Timecode->start );
-		fprintf( logfp, " TC End (EU)          : %"PRIi64"\n", aafi->Timecode->end );
-
-		fprintf( logfp, " TC Start (samples)   : %"PRIi64"\n", eu2sample( aafi->Audio->samplerate, aafi->Timecode->edit_rate, aafi->Timecode->start ) );
-		fprintf( logfp, " TC End (samples)     : %"PRIi64"\n", eu2sample( aafi->Audio->samplerate, aafi->Timecode->edit_rate, aafi->Timecode->end ) );
+		aafPosition_t compoStart = laaf_util_converUnit( aafi->compositionStart, aafi->compositionStart_editRate, aafi->compositionLength_editRate );
 
 		struct timecode tc_start;
 		struct timecode tc_end;
 
+		tc_set_by_unitValue( &tc_end, compoStart + aafi->compositionLength, (rational_t*)aafi->compositionLength_editRate, tcFormat );
 		tc_set_by_unitValue( &tc_start, aafi->Timecode->start, (rational_t*)aafi->Timecode->edit_rate, tcFormat );
-		tc_set_by_unitValue( &tc_end, aafi->Timecode->end, (rational_t*)aafi->Timecode->edit_rate, tcFormat );
 
-		fprintf( logfp, " TC Start             : %s (%u fps %s)\n",
-			tc_start.string,
-			aafi->Timecode->fps,
-			(aafi->Timecode->drop) ? "DF" : "NDF" );
-
-		fprintf( logfp, " TC End               : %s (%u fps %s)\n",
-			tc_end.string,
-			aafi->Timecode->fps,
-			(aafi->Timecode->drop) ? "DF" : "NDF" );
-
+		fprintf( logfp, " Composition Name            : %ls\n", aafi->compositionName );
 
 		fprintf( logfp, "\n" );
 
-		fprintf( logfp, " Sample Rate          : %"PRIi64"\n", aafi->Audio->samplerate );
-		fprintf( logfp, " Sample Size          : %i\n", aafi->Audio->samplesize );
+		fprintf( logfp, " TC EditRrate                : %i/%i\n", aafi->Timecode->edit_rate->numerator, aafi->Timecode->edit_rate->denominator );
+		fprintf( logfp, " TC FPS                      : %u %s\n", aafi->Timecode->fps, (aafi->Timecode->drop) ? "DF" : "NDF" );
+
+		fprintf( logfp, "\n" );
+
+		fprintf( logfp, " Sample Rate                 : %"PRIi64"\n", aafi->Audio->samplerate );
+		fprintf( logfp, " Sample Size                 : %i bits\n", aafi->Audio->samplesize );
+
+		fprintf( logfp, "\n" );
+
+		fprintf( logfp, " Composition Start (EU)      : %"PRIi64"\n", aafi->compositionStart );
+		fprintf( logfp, " Composition Start (samples) : %"PRIi64"\n", laaf_util_converUnit( aafi->compositionStart, aafi->compositionStart_editRate, aafi->Audio->samplerateRational ) );
+		fprintf( logfp, " Composition Start           : %s\n", tc_start.string );
+
+		fprintf( logfp, "\n" );
+
+		fprintf( logfp, " Composition End (EU)        : %"PRIi64" (EditRate: %i/%i)\n", compoStart + aafi->compositionLength, aafi->compositionLength_editRate->numerator, aafi->compositionLength_editRate->denominator );
+		fprintf( logfp, " Composition End (samples)   : %"PRIi64"\n", laaf_util_converUnit( compoStart + aafi->compositionLength, aafi->compositionLength_editRate, aafi->Audio->samplerateRational ) );
+		fprintf( logfp, " Composition End             : %s\n", tc_end.string );
 
 
 		if ( aafi->Comments != NULL )	{
@@ -590,12 +588,11 @@ int main( int argc, char *argv[] ) {
 		foreachEssence( audioEssence, aafi->Audio->Essences )
 		{
 			char posFormatBuf[POS_FORMAT_BUFFER_LEN];
-			aafRational_t lengthSampleRate = { audioEssence->lengthsamplerate, 1 };
 
 			fprintf( logfp, " %s%u:  Type: %s  Length: %s  %02u Ch - %s%u Hz - %s%u bits  file: %ls  file_name: %ls%s%ls%s\n",
 				( i < 10 ) ? "  " : ( i < 100 ) ? " " : "", i,
 				ESSENCE_TYPE_TO_STRING( audioEssence->type ),
-				formatPosValue( audioEssence->length, &lengthSampleRate, posFormat, tcFormat, audioEssence->samplerate, posFormatBuf ),
+				formatPosValue( audioEssence->length, audioEssence->samplerateRational, posFormat, tcFormat, audioEssence->samplerateRational, posFormatBuf ),
 				audioEssence->channels,
 				( audioEssence->samplerate >= 10000 ) ? "" : ( audioEssence->samplerate >= 1000 ) ? " " : ( audioEssence->samplerate >= 100 ) ? "  " : ( audioEssence->samplerate >= 10 ) ? "   " : "    ",
 				audioEssence->samplerate,
@@ -633,8 +630,7 @@ int main( int argc, char *argv[] ) {
 			 *  For exemple, if TC is 30000/1001 and audio clips are 48000/1, then TC->start has to be converted from FPS to samples.
 			 */
 
-			// sessionStart = convertEditUnit( aafi->Timecode->start, *aafi->Timecode->edit_rate, *videoClip->track->edit_rate );
-			sessionStart = convertEditUnit( aafi->compositionStart, aafi->compositionStart_editRate, *videoTrack->edit_rate );
+			sessionStart = laaf_util_converUnit( aafi->compositionStart, aafi->compositionStart_editRate, videoTrack->edit_rate );
 
 
 			fprintf( logfp, "VideoTrack %s(%u) - edit_rate %i/%i (%02.2f)  -  \"%ls\"\n",
@@ -655,10 +651,10 @@ int main( int argc, char *argv[] ) {
 				char posFormatBuf4[POS_FORMAT_BUFFER_LEN];
 
 				fprintf( logfp, " VideoClip  Start:%s  Len:%s  End:%s  SrcOffset:%s  SourceFile: %ls   (%ls)\n",
-					formatPosValue( (videoClip->pos + sessionStart),                  videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf1 ),
-					formatPosValue( (videoClip->len),                                 videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf2 ),
-					formatPosValue( (videoClip->pos + sessionStart + videoClip->len), videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf3 ),
-					formatPosValue(  videoClip->essence_offset,                       videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf4 ),
+					formatPosValue( (videoClip->pos + sessionStart),                  videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerateRational, posFormatBuf1 ),
+					formatPosValue( (videoClip->len),                                 videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerateRational, posFormatBuf2 ),
+					formatPosValue( (videoClip->pos + sessionStart + videoClip->len), videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerateRational, posFormatBuf3 ),
+					formatPosValue(  videoClip->essence_offset,                       videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerateRational, posFormatBuf4 ),
 					(videoClip->Essence) ? videoClip->Essence->usable_file_path : L"",
 					(videoClip->Essence) ? videoClip->Essence->file_name : L"" );
 
@@ -681,7 +677,7 @@ int main( int argc, char *argv[] ) {
 			 *  For exemple, if TC is 30000/1001 and audio clips are 48000/1, then TC->start has to be converted from FPS to samples.
 			 */
 
-			sessionStart = convertEditUnit( aafi->compositionStart, aafi->compositionStart_editRate, *audioTrack->edit_rate );
+			sessionStart = laaf_util_converUnit( aafi->compositionStart, aafi->compositionStart_editRate, audioTrack->edit_rate );
 
 
 			fprintf( logfp, "Track %s(%u) - %s - Gain: %s - Pan: %s - edit_rate: %i/%i (%02.2f)  -  \"%ls\"\n",
@@ -737,12 +733,12 @@ int main( int argc, char *argv[] ) {
 						gainToStr( audioClip->gain ),
 						(audioClip->mute) ? "(mute)" : "      ",
 						(audioClip->automation) ? "(A) " : "none",
-						formatPosValue( (audioClip->pos + sessionStart),                  audioClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf1 ),
-						formatPosValue( (audioClip->len),                                 audioClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf2 ),
-						formatPosValue( (audioClip->pos + sessionStart + audioClip->len), audioClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf3 ),
+						formatPosValue( (audioClip->pos + sessionStart),                  audioClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerateRational, posFormatBuf1 ),
+						formatPosValue( (audioClip->len),                                 audioClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerateRational, posFormatBuf2 ),
+						formatPosValue( (audioClip->pos + sessionStart + audioClip->len), audioClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerateRational, posFormatBuf3 ),
 						INTERPOL_TO_STRING( fadein ),
 						INTERPOL_TO_STRING( fadeout ),
-						formatPosValue( audioClip->essence_offset, audioClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf4 ) );
+						formatPosValue( audioClip->essence_offset, audioClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerateRational, posFormatBuf4 ) );
 
 					aafiAudioEssencePointer *audioEssencePtr = audioClip->essencePointerList;
 					while ( audioEssencePtr ) {
@@ -775,7 +771,7 @@ int main( int argc, char *argv[] ) {
 
 		if ( aafi->Markers ) {
 			fprintf( logfp, "Markers :\n"
-							"=========\n\n" );
+			                "=========\n\n" );
 		}
 
 		uint32_t markerCount = 0;
@@ -789,15 +785,15 @@ int main( int argc, char *argv[] ) {
 			 *  For exemple, if TC is 30000/1001 and markers are 48000/1, then TC->start has to be converted from FPS to samples.
 			 */
 
-			sessionStart = convertEditUnit( aafi->Timecode->start, *aafi->Timecode->edit_rate, *marker->edit_rate );
+			sessionStart = laaf_util_converUnit( aafi->compositionStart, aafi->compositionStart_editRate, marker->edit_rate );
 
 			char posFormatBuf1[POS_FORMAT_BUFFER_LEN];
 			char posFormatBuf2[POS_FORMAT_BUFFER_LEN];
 
 			fprintf( logfp, " Marker[%i]:  Start: %s  Length: %s  Color: #%02x%02x%02x  Label: \"%ls\"  Comment: \"%ls\"\n",
 				markerCount++,
-				formatPosValue( (marker->start + sessionStart), marker->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf1 ),
-				formatPosValue(  marker->length,                marker->edit_rate, posFormat, tcFormat, aafi->Audio->samplerate, posFormatBuf2 ),
+				formatPosValue( (marker->start + sessionStart), marker->edit_rate, posFormat, tcFormat, aafi->Audio->samplerateRational, posFormatBuf1 ),
+				formatPosValue(  marker->length,                marker->edit_rate, posFormat, tcFormat, aafi->Audio->samplerateRational, posFormatBuf2 ),
 				marker->RGBColor[0],
 				marker->RGBColor[1],
 				marker->RGBColor[2],
