@@ -4550,21 +4550,40 @@ int aafi_retrieveData( AAF_Iface *aafi )
 		if ( audioEssence->summary || audioEssence->usable_file_path ) {
 			aafi_parse_audio_essence( aafi, audioEssence );
 		}
+	}
 
-		/* TODO : check samplerate / samplesize proportions accross essences, and choose the most used values as composition values */
-		if ( aafi->Audio->samplerate == 0 || aafi->Audio->samplerate == audioEssence->samplerate ) {
+
+
+	/*
+	 * Define AAF samplerate and samplesize with the most used values accross all audio essences.
+	 */
+
+	uint32_t maxOccurence = 0;
+
+	foreachEssence( audioEssence, aafi->Audio->Essences ) {
+
+		uint32_t count = 1;
+		aafiAudioEssence *ae = NULL;
+
+		if ( audioEssence->samplerate == aafi->Audio->samplerate &&
+		     audioEssence->samplesize == aafi->Audio->samplesize )
+		{
+			continue;
+		}
+
+		foreachEssence( ae, audioEssence->next ) {
+			if ( audioEssence->samplerate == ae->samplerate && audioEssence->samplesize == ae->samplesize ) {
+				count++;
+			}
+		}
+
+		debug( "Essence count @ %u Hz / %u bits : %i", audioEssence->samplerate, audioEssence->samplesize, count );
+
+		if ( count > maxOccurence ) {
+			maxOccurence = count;
+			aafi->Audio->samplesize = audioEssence->samplesize;
 			aafi->Audio->samplerate = audioEssence->samplerate;
 			aafi->Audio->samplerateRational = audioEssence->samplerateRational;
-		}
-		else {
-			// warning( "audioEssence '%ls' has different samplerate : %u", audioEssence->file_name, audioEssence->samplerate );
-		}
-
-		if ( aafi->Audio->samplesize == 0 || aafi->Audio->samplesize == audioEssence->samplesize ) {
-			aafi->Audio->samplesize = audioEssence->samplesize;
-		}
-		else {
-			// warning( "audioEssence '%ls' has different samplesize : %i", audioEssence->file_name, audioEssence->samplesize );
 		}
 	}
 
