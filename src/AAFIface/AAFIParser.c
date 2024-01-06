@@ -1252,8 +1252,7 @@ static int parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor, td *_
 		return -1;
 	}
 
-	audioEssence->samplerateRational = samplerate;
-	audioEssence->samplerate         = samplerate->numerator;
+	audioEssence->samplerate = samplerate->numerator;
 	audioEssence->samplerateRational->numerator   = samplerate->numerator;
 	audioEssence->samplerateRational->denominator = samplerate->denominator;
 
