@@ -80,31 +80,22 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 	aafi->dbg = laaf_new_debug();
 
 	if ( aafi->dbg == NULL ) {
-		return NULL;
+		goto err;
 	}
 
 
 	aafi->Audio = calloc( sizeof(aafiAudio), sizeof(unsigned char) );
 
 	if ( aafi->Audio == NULL ) {
-		return NULL;
+		goto err;
 	}
-
-	aafi->Audio->Essences = NULL;
-	aafi->Audio->samplerate = 0;
-	aafi->Audio->samplesize = 0;
-	aafi->Audio->Tracks = NULL;
-	aafi->Audio->track_count = 0;
 
 
 	aafi->Video = calloc( sizeof(aafiVideo), sizeof(unsigned char) );
 
 	if ( aafi->Video == NULL ) {
-		return NULL;
+		goto err;
 	}
-
-	aafi->Video->Essences = NULL;
-	aafi->Video->Tracks = NULL;
 
 
 	if ( aafd != NULL ) {
@@ -112,17 +103,18 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd )
 	}
 	else {
 		aafi->aafd = aaf_alloc( aafi->dbg );
+
+		if ( aafi->aafd == NULL ) {
+			goto err;
+		}
 	}
 
-	aafi->Markers = NULL;
-
-	aafi->compositionName = NULL;
-
-	aafi->ctx.is_inside_derivation_chain = 0;
-	aafi->ctx.options.forbid_nonlatin_filenames = 0;
-	aafi->ctx.options.trace = 0;
-
 	return aafi;
+
+err:
+	aafi_release( &aafi );
+
+	return NULL;
 }
 
 
@@ -230,9 +222,9 @@ int aafi_set_option_str( AAF_Iface *aafi, const char *optname, const char *val )
 
 void aafi_release( AAF_Iface **aafi )
 {
-	if ( *aafi == NULL )
+	if ( *aafi == NULL ) {
 		return;
-
+	}
 
 	aaf_release( &(*aafi)->aafd );
 
@@ -744,12 +736,9 @@ aafiAudioTrack * aafi_newAudioTrack( AAF_Iface *aafi )
 		return NULL;
 	}
 
-	track->Audio       = aafi->Audio;
-	track->format      = AAFI_TRACK_FORMAT_NOT_SET;
-	track->pan         = NULL;
-	track->gain        = NULL;
-	track->current_pos = 0;
-	track->next        = NULL;
+	track->Audio  = aafi->Audio;
+	track->format = AAFI_TRACK_FORMAT_NOT_SET;
+	track->next   = NULL;
 
 	/* Add to track list */
 
@@ -818,9 +807,8 @@ aafiVideoTrack * aafi_newVideoTrack( AAF_Iface *aafi )
 		return NULL;
 	}
 
-	track->Video       = aafi->Video;
-	track->current_pos = 0;
-	track->next        = NULL;
+	track->Video = aafi->Video;
+	track->next  = NULL;
 
 	/* Add to track list */
 
@@ -980,13 +968,7 @@ aafiVideoEssence * aafi_newVideoEssence( AAF_Iface *aafi )
 		return NULL;
 	}
 
-
 	videoEssence->next = aafi->Video->Essences;
-
-	videoEssence->original_file_path = NULL;
-	videoEssence->usable_file_path = NULL;
-	videoEssence->file_name = NULL;
-	videoEssence->unique_file_name = NULL;
 
 	aafi->Video->Essences = videoEssence;
 
