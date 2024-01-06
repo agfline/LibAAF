@@ -138,7 +138,7 @@ int main( int argc, char *argv[] )
 	aafi_set_option_int( aafi, "trace",                     trace       );
 	aafi_set_option_int( aafi, "forbid_nonlatin_filenames", no_nonlatin );
 
-	aafi_enable_windows_VT100_output();
+	enable_windows_VT100_output();
 
 
 	if ( aafi_load_file( aafi, argv[argc-1] ) ) {

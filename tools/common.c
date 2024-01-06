@@ -30,7 +30,7 @@
 
 
 
-void aafi_enable_windows_VT100_output( void ) {
+void enable_windows_VT100_output( void ) {
 #ifdef _WIN32
 	/* enables ANSI colors and unicode chars */
 	HANDLE hOut = GetStdHandle( STD_OUTPUT_HANDLE );

@@ -25,7 +25,7 @@
 extern "C" {
 #endif
 
-void aafi_enable_windows_VT100_output( void );
+void enable_windows_VT100_output( void );
 
 #ifdef __cplusplus
 }

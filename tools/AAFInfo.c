@@ -418,7 +418,7 @@ int main( int argc, char *argv[] ) {
 	aafi_set_option_str( aafi, "dump_class_aaf_properties", dump_class_aaf_properties );
 	aafi_set_option_str( aafi, "dump_class_raw_properties", dump_class_raw_properties );
 
-	aafi_enable_windows_VT100_output();
+	enable_windows_VT100_output();
 
 	if ( aafi_load_file( aafi, argv[argc-1] ) ) {
 		fprintf( stderr, "Failed to open %s\n", argv[argc-1] );
