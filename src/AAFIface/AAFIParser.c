@@ -1453,9 +1453,6 @@ static int parse_NetworkLocator( AAF_Iface *aafi, aafObject *NetworkLocator, td 
 		return -1;
 	}
 
-	// uriDecodeWString( original_file_path, NULL );
-	// wurl_decode( original_file_path, original_file_path ); // TODO : What about URIParser lib ?!
-
 
 	/* TODO find a better way to check if we're parsing audio */
 

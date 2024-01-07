@@ -286,7 +286,7 @@ typedef struct aafiAudioGain aafiAudioPan;
 typedef struct aafiAudioEssence
 {
 
-	wchar_t       *original_file_path;	// NetworkLocator::URLString the original URI hold in AAF
+	wchar_t       *original_file_path;	// NetworkLocator::URLString the original external essence URI holded in AAF
 	wchar_t       *usable_file_path;    // Holds a real usable file path, once an embedded essence has been extracted, or once en external essence has been found.
 	wchar_t       *file_name;			// MasterMob::Name the original file name. Might be NULL if MasterMob has no name. One should always use unique_file_name which is guaranted to be set.
 	wchar_t		    *unique_file_name;	// unique name generated from file_name. Sometimes, multiple files share the same names so this unique name should be used on export.
@@ -312,6 +312,9 @@ typedef struct aafiAudioEssence
 
 	enum aafiEssenceType type;	// depends on PCMDescriptor WAVEDescriptor AIFCDescriptor
 
+	/*
+	 * is only set if FileSourceMob contains EssenceData
+	 */
 	uint8_t        is_embedded;
 
 	aafProperty   *summary; // WAVEDescriptor AIFCDescriptor
