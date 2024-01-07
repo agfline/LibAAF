@@ -43,7 +43,8 @@
 enum pos_format {
 	POS_FORMAT_TC = 0,
 	POS_FORMAT_SAMPLES,
-	POS_FORMAT_HMS
+	POS_FORMAT_HMS,
+	POS_FORMAT_RAW
 };
 
 #define INTERPOL_TO_STRING( x ) \
@@ -166,6 +167,11 @@ static const char * formatPosValue( aafPosition_t pos, aafRational_t *editRate, 
 		snprintf( buf, POS_FORMAT_BUFFER_LEN, "%02u:%02u:%02u.%03u", h, m, s, ms );
 		return buf;
 	}
+	else if ( posFormat == POS_FORMAT_RAW ) {
+		snprintf( buf, POS_FORMAT_BUFFER_LEN, "%"PRIi64, pos );
+		return buf;
+	}
+
 
 	return "wtf ?";
 }
@@ -179,40 +185,40 @@ static void showHelp( void ) {
 		"\n"
 		" CFB Analysis :\n"
 		"\n"
-		"   --cfb-header                   Displays the CFB Header.\n"
-		"   --cfb-fat                      Displays the CFB FAT.\n"
-		"   --cfb-minifat                  Displays the CFB MiniFAT.\n"
-		"   --cfb-difat                    Displays the CFB DiFAT.\n"
-		"   --cfb-nodes                    Displays the CFB node Tree.\n"
+		"   --cfb-header                       Displays the CFB Header.\n"
+		"   --cfb-fat                          Displays the CFB FAT.\n"
+		"   --cfb-minifat                      Displays the CFB MiniFAT.\n"
+		"   --cfb-difat                        Displays the CFB DiFAT.\n"
+		"   --cfb-nodes                        Displays the CFB node Tree.\n"
 		"\n"
-		"   --get-node             <path>  Retrieves and displays the node located at the given <path>.\n"
+		"   --get-node                 <path>  Retrieves and displays the node located at the given <path>.\n"
 		"\n"
 		"\n"
 		" AAF Analysis :\n"
 		"\n"
-		"   --aaf-summary                  Displays aaf informations from both header and identification objects.\n"
-		"   --aaf-essences                 Lists aaf essences.\n"
-		"   --aaf-clips                    Lists aaf clips.\n"
-		"   --aaf-classes                  Lists aaf classes.\n"
-		"   --aaf-meta                     Lists classes and properties from the MetaDictionary.\n"
-		"   --aaf-properties               Displays all Properties.\n"
+		"   --aaf-summary                      Displays aaf informations from both header and identification objects.\n"
+		"   --aaf-essences                     Lists aaf essences.\n"
+		"   --aaf-clips                        Lists aaf clips.\n"
+		"   --aaf-classes                      Lists aaf classes.\n"
+		"   --aaf-meta                         Lists classes and properties from the MetaDictionary.\n"
+		"   --aaf-properties                   Displays all Properties.\n"
 		"\n"
-		"   --trace                        Prints file class/object tree.\n"
-		"   --show-meta                    Prints MetaProperties for each class/object.\n"
-		"   --dump-class     <AAFClassID>  Dumps aaf properties of a specific AAFClass.\n"
-		"   --dump-class-raw <AAFClassID>  Dumps raw properties of a specific AAFClass.\n"
+		"   --trace                            Prints file class/object tree.\n"
+		"   --show-meta                        Prints MetaProperties for each class/object.\n"
+		"   --dump-class         <AAFClassID>  Dumps aaf properties of a specific AAFClass.\n"
+		"   --dump-class-raw     <AAFClassID>  Dumps raw properties of a specific AAFClass.\n"
 		"\n"
 		"\n"
 		" Options :\n"
 		"\n"
-		"   --media-location       <path>  Location of audio and video essence files.\n"
+		"   --media-location           <path>  Location of audio and video essence files.\n"
 		"\n"
-		"   --pos-format <tc|hms|samples>  Position and duration display format.\n"
-		"   --show-automation              Shows track and clip automation values.\n"
+		"   --pos-format <tc|hms|samples|raw>  Position and duration display format.\n"
+		"   --show-automation                  Shows track and clip automation values.\n"
 		"\n"
-		"   --no-color                     Disable ANSI colors in output.\n"
-		"   --log-file             <file>  Save output to file instead of stdout.\n"
-		"   --verb                  <num>  0=quiet 1=error 2=warning 3=debug.\n"
+		"   --no-color                         Disable ANSI colors in output.\n"
+		"   --log-file                 <file>  Save output to file instead of stdout.\n"
+		"   --verb                      <num>  0=quiet 1=error 2=warning 3=debug.\n"
 		"\n\n"
 	);
 }
@@ -339,6 +345,7 @@ int main( int argc, char *argv[] ) {
 				if      ( strcmp( optarg, "tc"      ) == 0 ) posFormat = POS_FORMAT_TC;
 				else if ( strcmp( optarg, "samples" ) == 0 ) posFormat = POS_FORMAT_SAMPLES;
 				else if ( strcmp( optarg, "hms"     ) == 0 ) posFormat = POS_FORMAT_HMS;
+				else if ( strcmp( optarg, "raw"     ) == 0 ) posFormat = POS_FORMAT_RAW;
 				else {
 					fprintf( stderr,
 						"Command line error: wrong --pos-format <value>\n"
