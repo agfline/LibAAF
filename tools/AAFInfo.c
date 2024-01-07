@@ -822,9 +822,6 @@ end:
 	if ( aafi ) {
 		aafi_release( &aafi );
 	}
-	else if ( aafd ) {
-		aaf_release( &aafd );
-	}
 	if ( logfp != stdout ) {
 		fclose( logfp );
 	}
