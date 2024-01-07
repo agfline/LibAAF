@@ -348,6 +348,12 @@ void tc_set_by_hmsf( struct timecode *tc, uint16_t hours, uint16_t minutes, uint
 
 void tc_set_by_unitValue( struct timecode *tc, uint64_t unitValue, rational_t *unitRate, enum TC_FORMAT format )
 {
+	memset( tc, 0x00, sizeof(struct timecode) );
+
+	if ( unitRate == NULL ) {
+		return;
+	}
+
 	tc->unitValue = unitValue;
 	tc->unitRate  = *unitRate;
 

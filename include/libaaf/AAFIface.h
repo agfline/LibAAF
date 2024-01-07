@@ -868,7 +868,7 @@ typedef struct AAF_Iface
 	aafRational_t    *compositionStart_editRate;
 
 	aafPosition_t     compositionLength; // sets from the longest audio or video track->current_pos
-	aafRational_t    *compositionLength_editRate;
+	aafRational_t    *compositionLength_editRate; /* might be NULL if file empty ! */
 
 
 	aafiUserComment  *Comments;

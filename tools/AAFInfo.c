@@ -521,7 +521,7 @@ int main( int argc, char *argv[] ) {
 		struct timecode tc_start;
 		struct timecode tc_end;
 
-		tc_set_by_unitValue( &tc_end, compoStart + aafi->compositionLength, (rational_t*)aafi->compositionLength_editRate, tcFormat );
+		tc_set_by_unitValue( &tc_end, laaf_util_converUnit( compoStart + aafi->compositionLength, aafi->compositionLength_editRate, aafi->Timecode->edit_rate ), (rational_t*)aafi->Timecode->edit_rate, tcFormat );
 		tc_set_by_unitValue( &tc_start, aafi->Timecode->start, (rational_t*)aafi->Timecode->edit_rate, tcFormat );
 
 		fprintf( logfp, " Composition Name            : %ls\n", aafi->compositionName );
@@ -539,7 +539,7 @@ int main( int argc, char *argv[] ) {
 
 		fprintf( logfp, "\n" );
 
-		fprintf( logfp, " Composition End (EU)        : %"PRIi64" (EditRate: %i/%i)\n", compoStart + aafi->compositionLength, aafi->compositionLength_editRate->numerator, aafi->compositionLength_editRate->denominator );
+		fprintf( logfp, " Composition End (EU)        : %"PRIi64" (EditRate: %i/%i)\n", compoStart + aafi->compositionLength, (aafi->compositionLength_editRate) ? aafi->compositionLength_editRate->numerator : 0, (aafi->compositionLength_editRate) ? aafi->compositionLength_editRate->denominator : 0 );
 		fprintf( logfp, " Composition End (samples)   : %"PRIi64"\n", laaf_util_converUnit( compoStart + aafi->compositionLength, aafi->compositionLength_editRate, &displaySamplerate ) );
 		fprintf( logfp, " Composition End             : %s\n", tc_end.string );
 
