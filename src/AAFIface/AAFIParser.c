@@ -2807,7 +2807,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 				 * We just have to check everything match for all clips left (each clip represents a channel)
 				 */
 
-				if ( aafi->ctx.current_clip->len != *length ) {
+				if ( aafi->ctx.current_combined_clip_forced_length == 0 && aafi->ctx.current_clip->len != *length ) {
 					DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "SourceClip length does not match first one in AAFOperationDef_AudioChannelCombiner" );
 					return -1;
 				}
