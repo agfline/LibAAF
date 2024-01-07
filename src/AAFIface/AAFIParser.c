@@ -347,9 +347,29 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 
 			aafUID_t *OperationIdentification = get_OperationGroup_OperationIdentification( aafi, Obj );
 
-			DBG_BUFFER_WRITE( dbg, "(OpIdent: %s%ls%s) ",
+			int64_t *length = aaf_get_propertyValue( Obj, PID_Component_Length, &AAFTypeID_LengthType );
+
+			DBG_BUFFER_WRITE( dbg, "(OpIdent: %s%ls%s; Length: %s%li%s) ",
 				ANSI_COLOR_DARKGREY(dbg),
 				aaft_OperationDefToText( aafi->aafd, OperationIdentification ),
+				ANSI_COLOR_RESET(dbg),
+				ANSI_COLOR_DARKGREY(dbg),
+				(length) ? *length : -1,
+				ANSI_COLOR_RESET(dbg)
+			);
+		}
+		else if ( aafUIDCmp( Obj->Class->ID, &AAFClassID_Sequence ) ||
+		          aafUIDCmp( Obj->Class->ID, &AAFClassID_Filler ) ||
+		          aafUIDCmp( Obj->Class->ID, &AAFClassID_SourceClip ) ||
+		          aafUIDCmp( Obj->Class->ID, &AAFClassID_Selector ) ||
+		          aafUIDCmp( Obj->Class->ID, &AAFClassID_Transition ) )
+		{
+
+			int64_t *length = aaf_get_propertyValue( Obj, PID_Component_Length, &AAFTypeID_LengthType );
+
+			DBG_BUFFER_WRITE( dbg, "(Length: %s%li%s) ",
+				ANSI_COLOR_DARKGREY(dbg),
+				(length) ? *length : -1,
 				ANSI_COLOR_RESET(dbg)
 			);
 		}
