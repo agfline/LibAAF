@@ -103,7 +103,7 @@ static aafRational_t AAFI_DEFAULT_TC_EDIT_RATE = { 25, 1 };
 	ctx.current_clip_is_combined = 0;            \
 	ctx.current_combined_clip_total_channel = 0; \
 	ctx.current_combined_clip_channel_num = 0;   \
-
+	ctx.current_combined_clip_forced_length = 0;
 	// ctx.current_track_is_multichannel = 0;
 	// ctx.current_multichannel_track_channel = 0;
 	// ctx.current_multichannel_track_clip_length = 0;
@@ -2254,6 +2254,18 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup, td *__ptd 
 		aafi->ctx.current_clip_is_combined = 1;
 		aafi->ctx.current_combined_clip_total_channel = InputSegments->Header->_entryCount;
 		aafi->ctx.current_combined_clip_channel_num = 0;
+		aafi->ctx.current_combined_clip_forced_length = 0;
+
+		if ( resolve_AAF( aafi ) ) {
+			/*
+			 * This is clearly a violation of the standard (p 57). When Davinci Resolve
+			 * exports multichannel clips, it does not set SourceClip::Length correctly.
+			 * Insted, it's more like some sort of frame-rounded value which dosn't match
+			 * the timeline. However, the correct value is set to OperationGroup::length.
+			 */
+			int64_t *length = aaf_get_propertyValue( OpGroup, PID_Component_Length, &AAFTypeID_LengthType );
+			aafi->ctx.current_combined_clip_forced_length = (length) ? *length : 0;
+		}
 
 		aaf_foreach_ObjectInSet( &InputSegment, InputSegments, NULL ) {
 
@@ -2291,6 +2303,7 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup, td *__ptd 
 			aafi->ctx.current_clip_is_combined = 0;
 			aafi->ctx.current_combined_clip_total_channel = 0;
 			aafi->ctx.current_combined_clip_channel_num = 0;
+			aafi->ctx.current_combined_clip_forced_length = 0;
 
 			return -1;
 		}
@@ -2309,6 +2322,7 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup, td *__ptd 
 			aafi->ctx.current_clip_is_combined = 0;
 			aafi->ctx.current_combined_clip_total_channel = 0;
 			aafi->ctx.current_combined_clip_channel_num = 0;
+			aafi->ctx.current_combined_clip_forced_length = 0;
 
 			return -1;
 		}
@@ -2323,6 +2337,7 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup, td *__ptd 
 		aafi->ctx.current_clip_is_combined = 0;
 		aafi->ctx.current_combined_clip_total_channel = 0;
 		aafi->ctx.current_combined_clip_channel_num = 0;
+		aafi->ctx.current_combined_clip_forced_length = 0;
 
 
 
@@ -2702,7 +2717,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 						 * TODO: aafi->current_clip pointer to new_clip instead ?
 						 */
 
-						((aafiAudioClip*)new_clip)->len = *length;
+						((aafiAudioClip*)new_clip)->len = (aafi->ctx.current_combined_clip_forced_length) ? aafi->ctx.current_combined_clip_forced_length : *length;
 						((aafiAudioClip*)new_clip)->essence_offset = *startTime;
 						((aafiAudioClip*)new_clip)->gain = aafi->ctx.current_clip_gain;
 						((aafiAudioClip*)new_clip)->automation = aafi->ctx.current_clip_automation;
@@ -2728,7 +2743,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 						 * offset and gain with correct values.
 						 */
 
-						((aafiVideoClip*)new_clip)->len = *length;
+						((aafiVideoClip*)new_clip)->len = (aafi->ctx.current_combined_clip_forced_length) ? aafi->ctx.current_combined_clip_forced_length : *length;
 						((aafiVideoClip*)new_clip)->essence_offset = *startTime;
 
 						aafi->Video->Tracks->current_pos += ((aafiVideoClip*)new_clip)->len;
@@ -2833,7 +2848,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 				audioClip->automation = aafi->ctx.current_clip_automation;
 				audioClip->mute = aafi->ctx.current_clip_is_muted;
 				audioClip->pos  = aafi->ctx.current_track->current_pos;
-				audioClip->len  = *length;
+				audioClip->len  = (aafi->ctx.current_combined_clip_forced_length) ? aafi->ctx.current_combined_clip_forced_length : *length;
 
 				audioClip->essence_offset = *startTime;
 
@@ -2878,7 +2893,7 @@ POS NOT UPDATED HERE ------------------> └──◻ AAFClassID_SourceClip
 
 			 */
 
-				aafi->ctx.current_track->current_pos += audioClip->len;
+				aafi->ctx.current_track->current_pos += (aafi->ctx.current_combined_clip_forced_length) ? aafi->ctx.current_combined_clip_forced_length : audioClip->len;
 			}
 
 

@@ -796,7 +796,7 @@ typedef struct aafiContext
 	int               current_clip_is_combined; // Inside OperationGroup::AAFOperationDef_AudioChannelCombiner
 	int               current_combined_clip_total_channel;
 	int               current_combined_clip_channel_num; // current SourceClip represents channel num
-
+	aafPosition_t     current_combined_clip_forced_length;
 	/* Transition */
 
 	aafiTransition   *current_transition;
