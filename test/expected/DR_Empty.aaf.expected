@@ -1,0 +1,52 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2024-01-07 14:55:05.00
+ AAF ObjSpec Version  : 1.1
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFUID_NULL
+
+
+
+ CompanyName          : Blackmagic Design
+ ProductName          : DaVinci Resolve
+ ProductVersion       : 18.5.0.0 AAFVersionReleased (1)
+ ProductVersionString : Unknown version
+ ProductID            : { 0x64a8d1aa 0x7ffd 0x0000 { 0xa9 0x03 0x3a 0x01 0x00 0x00 0x00 0x00 } }
+ Date                 : 2024-01-07 14:55:05.00
+ ToolkitVersion       : 1.1.6.0 AAFVersionReleased (1)
+ Platform             : AAFSDK (Win32)
+ GenerationAUID       : { 0x37bd9469 0x68a3 0x4427 { 0xb6 0x3b 0x90 0x8b 0xe7 0x42 0x2c 0x96 } }
+
+
+
+ Composition Name            : DR_Empty
+
+ TC EditRrate                : 24/1
+ TC FPS                      : 24 NDF
+
+ Composition Start (EU)      : 86400
+ Composition Start (samples) : 0
+ Composition Start           : 01:00:00:00
+
+ Composition End (EU)        : 86400 (EditRate: 0/0)
+ Composition End (samples)   : 86400
+ Composition End             : 01:00:00:00
+
+ Dominant Sample Rate        : 0
+ Dominant Sample Size        : 0 bits
+
+
+Media Essences :
+================
+
+
+
+Tracks & Clips :
+================
+
+VideoTrack  (1) - edit_rate 24/1 (24.00)  -  ""
+Track  (1) - Unknwn - Gain: none     - Pan: none    - edit_rate: 24/1 (24.00)  -  "Audio 1"
+
+
+
+

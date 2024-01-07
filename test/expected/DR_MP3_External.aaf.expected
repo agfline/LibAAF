@@ -1,0 +1,55 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2024-01-03 23:21:03.00
+ AAF ObjSpec Version  : 1.1
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFUID_NULL
+
+
+
+ CompanyName          : Blackmagic Design
+ ProductName          : DaVinci Resolve
+ ProductVersion       : 18.5.0.0 AAFVersionReleased (1)
+ ProductVersionString : Unknown version
+ ProductID            : { 0x64a8d1aa 0x7ffd 0x0000 { 0x45 0x01 0xef 0x01 0x00 0x00 0x00 0x00 } }
+ Date                 : 2024-01-03 23:21:03.00
+ ToolkitVersion       : 1.1.6.0 AAFVersionReleased (1)
+ Platform             : AAFSDK (Win32)
+ GenerationAUID       : { 0xac94c5cd 0x6fe9 0x4b37 { 0x9e 0x6a 0x43 0x95 0xb0 0x3a 0x4a 0xd9 } }
+
+
+
+ Composition Name            : DR_MP3_External
+
+ TC EditRrate                : 24/1
+ TC FPS                      : 24 NDF
+
+ Composition Start (EU)      : 86400
+ Composition Start (samples) : 172800000
+ Composition Start           : 01:00:00:00
+
+ Composition End (EU)        : 86472 (EditRate: 24/1)
+ Composition End (samples)   : 172944000
+ Composition End             : 01:00:03:00
+
+ Dominant Sample Rate        : 48000
+ Dominant Sample Size        : 16 bits
+
+
+Media Essences :
+================
+
+   0:  Type: PCM   Length: 144000  01 Ch - 48000 Hz - 16 bits  file: file:///C:/Users/user/Desktop/LibAAFTestFiles/res/1000hz.mp3  file_name: 1000hz
+
+
+Tracks & Clips :
+================
+
+VideoTrack  (1) - edit_rate 24/1 (24.00)  -  ""
+Track  (1) - MONO   - Gain: none     - Pan: none    - edit_rate: 24/1 (24.00)  -  "Audio 1"
+ Clip:0    Channel: 1  Gain: none             GainAuto: none  Start: 172800000  Len: 144000  End: 172944000  Fadein: none      Fadeout: none      SrcOffset: 0
+   SourceFile: [ch 1] 1000hz   (1000hz)
+
+
+
+

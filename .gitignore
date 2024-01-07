@@ -8,5 +8,4 @@ include/libaaf/version.h
 AAF Structure.md
 clang-format-sample-file.c
 .clang-format
-test/res/voice-multi_data/
-test/res/voice-multi.aup
+test/private/*

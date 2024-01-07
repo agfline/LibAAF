@@ -1,0 +1,64 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2024-01-07 15:29:44.00
+ AAF ObjSpec Version  : 1.1
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFUID_NULL
+
+
+
+ CompanyName          : Blackmagic Design
+ ProductName          : DaVinci Resolve
+ ProductVersion       : 18.5.0.0 AAFVersionReleased (1)
+ ProductVersionString : Unknown version
+ ProductID            : { 0x64a8d1aa 0x7ffd 0x0000 { 0x61 0x00 0x28 0x03 0x00 0x00 0x00 0x00 } }
+ Date                 : 2024-01-07 15:29:44.00
+ ToolkitVersion       : 1.1.6.0 AAFVersionReleased (1)
+ Platform             : AAFSDK (Win32)
+ GenerationAUID       : { 0x5957dd3e 0x358c 0x44c1 { 0xb0 0x6f 0x38 0x5c 0x37 0xb5 0x2d 0xb1 } }
+
+
+
+ Composition Name            : DR_Stereo_Clip_Positioning
+
+ TC EditRrate                : 24/1
+ TC FPS                      : 24 NDF
+
+ Composition Start (EU)      : 86400
+ Composition Start (samples) : 172800000
+ Composition Start           : 01:00:00:00
+
+ Composition End (EU)        : 173554000 (EditRate: 48000/1)
+ Composition End (samples)   : 173554000
+ Composition End             : 01:00:15:17
+
+ Dominant Sample Rate        : 22050
+ Dominant Sample Size        : 16 bits
+
+
+Media Essences :
+================
+
+   0:  Type: WAVE  Length: 43117  02 Ch - 22050 Hz - 16 bits  file: file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav  file_name: sample-accuracy-173459321
+   1:  Type: WAVE  Length: 43117  02 Ch - 22050 Hz - 16 bits  file: file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav  file_name: tc-accurate-01:00:09:00-173232000
+   2:  Type: WAVE  Length: 43117  02 Ch - 22050 Hz - 16 bits  file: file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav  file_name: sample-accurate-173000000
+   3:  Type: WAVE  Length: 43117  02 Ch - 22050 Hz - 16 bits  file: file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav  file_name: stereo-identif
+
+
+Tracks & Clips :
+================
+
+VideoTrack  (1) - edit_rate 24/1 (24.00)  -  ""
+Track  (1) - STEREO - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 1"
+ Clip:0    Channel: 2  Gain: none             GainAuto: none  Start: 172800000  Len: 93860  End: 172893860  Fadein: none      Fadeout: none      SrcOffset: 0
+   SourceFile: [ch all] stereo-identif   (stereo-identif)
+ Clip:1    Channel: 2  Gain: none             GainAuto: none  Start: 173000000  Len: 93860  End: 173093860  Fadein: none      Fadeout: none      SrcOffset: 0
+   SourceFile: [ch all] sample-accurate-173000000   (sample-accurate-173000000)
+ Clip:2    Channel: 2  Gain: none             GainAuto: none  Start: 173232000  Len: 93860  End: 173325860  Fadein: none      Fadeout: none      SrcOffset: 0
+   SourceFile: [ch all] tc-accurate-01:00:09:00-173232000   (tc-accurate-01:00:09:00-173232000)
+ Clip:3    Channel: 2  Gain: none             GainAuto: none  Start: 173459321  Len: 93860  End: 173553181  Fadein: none      Fadeout: none      SrcOffset: 0
+   SourceFile: [ch all] sample-accuracy-173459321   (sample-accuracy-173459321)
+
+
+
+

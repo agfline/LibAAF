@@ -1,0 +1,64 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2024-01-07 15:20:31.00
+ AAF ObjSpec Version  : 1.1
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFUID_NULL
+
+
+
+ CompanyName          : Blackmagic Design
+ ProductName          : DaVinci Resolve
+ ProductVersion       : 18.5.0.0 AAFVersionReleased (1)
+ ProductVersionString : Unknown version
+ ProductID            : { 0x64a8d1aa 0x7ffd 0x0000 { 0xe9 0x01 0x50 0x05 0x00 0x00 0x00 0x00 } }
+ Date                 : 2024-01-07 15:20:31.00
+ ToolkitVersion       : 1.1.6.0 AAFVersionReleased (1)
+ Platform             : AAFSDK (Win32)
+ GenerationAUID       : { 0x8a25d237 0xb3c4 0x4f48 { 0x91 0xe6 0x8d 0xd0 0xaf 0x03 0xcd 0xf5 } }
+
+
+
+ Composition Name            : DR_Mono_Clip_Positioning
+
+ TC EditRrate                : 24/1
+ TC FPS                      : 24 NDF
+
+ Composition Start (EU)      : 86400
+ Composition Start (samples) : 158760000
+ Composition Start           : 01:00:00:00
+
+ Composition End (EU)        : 173604000 (EditRate: 48000/1)
+ Composition End (samples)   : 159498675
+ Composition End             : 01:00:16:18
+
+ Dominant Sample Rate        : 44100
+ Dominant Sample Size        : 16 bits
+
+
+Media Essences :
+================
+
+   0:  Type: WAVE  Length: 132300  01 Ch - 44100 Hz - 16 bits  file: file://localhost/C:/Users/user/Desktop/LibAAFTestFiles/res/1000hz-18dbs16b44.1k.wav  file_name: sample-accuracy-173459321
+   1:  Type: WAVE  Length: 132300  01 Ch - 44100 Hz - 16 bits  file: file://localhost/C:/Users/user/Desktop/LibAAFTestFiles/res/1000hz-18dbs16b44.1k.wav  file_name: tc-accurate-01:00:09:00-173232000
+   2:  Type: WAVE  Length: 132300  01 Ch - 44100 Hz - 16 bits  file: file://localhost/C:/Users/user/Desktop/LibAAFTestFiles/res/1000hz-18dbs16b44.1k.wav  file_name: sample-accurate-173000000
+   3:  Type: WAVE  Length: 132300  01 Ch - 44100 Hz - 16 bits  file: file://localhost/C:/Users/user/Desktop/LibAAFTestFiles/res/1000hz-18dbs16b44.1k.wav  file_name: 1000hz-18dbs16b44
+
+
+Tracks & Clips :
+================
+
+VideoTrack  (1) - edit_rate 24/1 (24.00)  -  ""
+Track  (1) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 1"
+ Clip:0    Channel: 1  Gain: none             GainAuto: none  Start: 158760000  Len: 132300  End: 158892300  Fadein: none      Fadeout: none      SrcOffset: 0
+   SourceFile: [ch 1] 1000hz-18dbs16b44   (1000hz-18dbs16b44)
+ Clip:1    Channel: 1  Gain: none             GainAuto: none  Start: 158943750  Len: 132300  End: 159076050  Fadein: none      Fadeout: none      SrcOffset: 0
+   SourceFile: [ch 1] sample-accurate-173000000   (sample-accurate-173000000)
+ Clip:2    Channel: 1  Gain: none             GainAuto: none  Start: 159156900  Len: 132300  End: 159289200  Fadein: none      Fadeout: none      SrcOffset: 0
+   SourceFile: [ch 1] tc-accurate-01:00:09:00-173232000   (tc-accurate-01:00:09:00-173232000)
+ Clip:3    Channel: 1  Gain: none             GainAuto: none  Start: 159365751  Len: 132300  End: 159498051  Fadein: none      Fadeout: none      SrcOffset: 0
+   SourceFile: [ch 1] sample-accuracy-173459321   (sample-accuracy-173459321)
+
+
+
+

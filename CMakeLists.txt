@@ -17,6 +17,7 @@ set( LIBAAF_LIB_OUTPUT_NAME "aaf" )
 set( LIBAAF_LIB_SRC_PATH      ${PROJECT_SOURCE_DIR}/src      )
 set( LIBAAF_TOOLS_SRC_PATH    ${PROJECT_SOURCE_DIR}/tools    )
 set( LIBAAF_EXAMPLES_SRC_PATH ${PROJECT_SOURCE_DIR}/examples )
+set( LIBAAF_TEST_PATH         ${PROJECT_SOURCE_DIR}/test )
 
 set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib )
 set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib )
@@ -238,6 +239,7 @@ endif()
 
 add_custom_target(
 	source_release
+	DEPENDS test
 	WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
 	COMMAND
 	zip -r "${CMAKE_BINARY_DIR}/LibAAF_Source.zip"
@@ -259,5 +261,8 @@ add_custom_target( clean-cmake-files
 	COMMAND rm -rf "${CMAKE_BINARY_DIR}/CMakeFiles/"
 	COMMAND rm -rf "${CMAKE_BINARY_DIR}/CMakeCache.txt"
 	COMMAND rm -rf "${CMAKE_BINARY_DIR}/Makefile"
-	COMMAND rm -rf "${CMAKE_BINARY_DIR}/*.cmake"
-)
+	COMMAND rm -rf "${CMAKE_BINARY_DIR}/*.cmake" )
+
+
+add_custom_target( test
+	COMMAND ${LIBAAF_TEST_PATH}/test.sh --run-from-cmake )

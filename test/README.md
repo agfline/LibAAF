@@ -9,9 +9,7 @@ All essences must be as short as possible to keep the overall size low. Whenever
 All essence retrieval should get proper audio attributes : samplerate, samplesize, channel count.
 
 - [ ] Retrieve PCM audio
-	- [ ] 1 channel
-	- [ ] 2 channel stereo
-<!-- [ ] - [ ] Retrieve AES3 audio -->
+<!-- - [ ] Retrieve AES3 audio -->
 - [ ] Retrieve WAV audio
 - [ ] Retrieve AIFF audio
 - [ ] Retrieve MXF audio
@@ -20,49 +18,41 @@ All essence retrieval should get proper audio attributes : samplerate, samplesiz
 
 All essence retrieval should get proper audio attributes : samplerate, samplesize, channel count.
 
-- [ ] Retrieve WAV audio
-	- [ ] Located besides AAF file
-	- [ ] Located besides AAF file in a sub directory
-	- [ ] Using user provided location
-- [ ] Retrieve AIFF audio
-	- [ ] Located besides AAF file
-	- [ ] Located besides AAF file in a sub directory
-	- [ ] Using user provided location
-- [ ] Retrieve MXF audio
-	- [ ] Located besides AAF file
-	- [ ] Located besides AAF file in a sub directory
-	- [ ] Using user provided location
+- [x] Retrieve WAV audio with summary
+- [x] Retrieve AIFF audio with summary
+- [ ] Retrieve MXF audio with PCMDescriptor
+- [x] Retrieve MP3 audio with summary
+- [ ] Locate essence besides AAF file
+- [ ] Locate essence in a sub directory besides AAF file
+- [ ] Locate essence with user path
 
 ## Track attributes
 
-- [ ] Track name
+- [x] Track name
 
 ## Clip attributes
 
-- [ ] Mono clip position
-- [ ] Stereo clip position
-- [ ] Mono clip offset in essence file
-- [ ] Stereo clip offset in essence file
-- [ ] Multiple clips sharing the same essence file
+- [x] Mono clip positioning
+- [x] Stereo clip positioning
+- [ ] Mono clip offset in source file
+- [ ] Stereo clip offset in source file
+- [-] Multiple clips sharing the same essence file
 
 ## Fades
 
 - [ ] Retrieve fade-in on a mono clip
-	- [ ] AAFI_INTERPOL_NONE
 	- [ ] AAFI_INTERPOL_LINEAR
 	- [ ] AAFI_INTERPOL_LOG
 	- [ ] AAFI_INTERPOL_CONSTANT
 	- [ ] AAFI_INTERPOL_POWER
 	- [ ] AAFI_INTERPOL_BSPLINE
 - [ ] Retrieve fade-out on a mono clip
-	- [ ] AAFI_INTERPOL_NONE
 	- [ ] AAFI_INTERPOL_LINEAR
 	- [ ] AAFI_INTERPOL_LOG
 	- [ ] AAFI_INTERPOL_CONSTANT
 	- [ ] AAFI_INTERPOL_POWER
 	- [ ] AAFI_INTERPOL_BSPLINE
 - [ ] Retrieve cross-fade on a mono clip
-	- [ ] AAFI_INTERPOL_NONE
 	- [ ] AAFI_INTERPOL_LINEAR
 	- [ ] AAFI_INTERPOL_LOG
 	- [ ] AAFI_INTERPOL_CONSTANT
@@ -103,8 +93,9 @@ All essence retrieval should get proper audio attributes : samplerate, samplesiz
 
 ## Misc
 
-- Comment
-- Marker
+- [x] Empty AAF file
+- [ ] Comment
+- [ ] Marker
 
 ## AAF Structure
 
