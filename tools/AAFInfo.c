@@ -213,6 +213,9 @@ static void showHelp( void ) {
 		"\n"
 		"   --media-location           <path>  Location of audio and video essence files.\n"
 		"\n"
+		"   --samplerate               <rate>  Sample rate used for converting displayed position\n"
+		"                                      and duration values. If not set, AAF dominant sample\n"
+		"                                      rate is used.\n"
 		"   --pos-format <tc|hms|samples|raw>  Position and duration display format.\n"
 		"   --show-automation                  Shows track and clip automation values.\n"
 		"\n"
@@ -250,6 +253,7 @@ int main( int argc, char *argv[] ) {
 
 	const char *media_location = NULL;
 
+	aafRational_t displaySamplerate = { 0, 1 };
 	enum pos_format posFormat = POS_FORMAT_TC;
 	int show_automation    = 0;
 
@@ -295,13 +299,14 @@ int main( int argc, char *argv[] ) {
 		{ "dump-class-raw",  required_argument,  0,  0x23 },
 
 		{ "media-location",  required_argument,  0,  0x30 },
-		{ "pos-format",      required_argument,  0,  0x31 },
+		{ "samplerate",      required_argument,  0,  0x31 },
+		{ "pos-format",      required_argument,  0,  0x32 },
 
-		{ "show-automation", no_argument,        0,  0x32 },
-		{ "no-color",        no_argument,        0,  0x33 },
+		{ "show-automation", no_argument,        0,  0x33 },
+		{ "no-color",        no_argument,        0,  0x34 },
 
-		{ "log-file",        required_argument,  0,  0x34 },
-		{ "verb",            required_argument,  0,  0x35 },
+		{ "log-file",        required_argument,  0,  0x35 },
+		{ "verb",            required_argument,  0,  0x36 },
 
 		{ 0,                 0,                  0,  0x00 }
 	};
@@ -341,7 +346,8 @@ int main( int argc, char *argv[] ) {
 			case 0x23:  dump_class_raw_properties = optarg;      break;
 
 			case 0x30:  media_location = optarg;                 break;
-			case 0x31:
+			case 0x31:  displaySamplerate.numerator = atoi(optarg); break;
+			case 0x32:
 				if      ( strcmp( optarg, "tc"      ) == 0 ) posFormat = POS_FORMAT_TC;
 				else if ( strcmp( optarg, "samples" ) == 0 ) posFormat = POS_FORMAT_SAMPLES;
 				else if ( strcmp( optarg, "hms"     ) == 0 ) posFormat = POS_FORMAT_HMS;
@@ -354,11 +360,11 @@ int main( int argc, char *argv[] ) {
 				}
 				break;
 
-			case 0x32:  show_automation = 1;                     break;
-			case 0x33:  ansicolor = 0;                           break;
+			case 0x33:  show_automation = 1;                     break;
+			case 0x34:  ansicolor = 0;                           break;
 
-			case 0x34:	logfile = optarg;                        break;
-			case 0x35:  verb = atoi(optarg);                     break;
+			case 0x35:	logfile = optarg;                        break;
+			case 0x36:  verb = atoi(optarg);                     break;
 
 			case 0xff:	showHelp();                              goto end;
 
@@ -430,6 +436,10 @@ int main( int argc, char *argv[] ) {
 	if ( aafi_load_file( aafi, argv[argc-1] ) ) {
 		fprintf( stderr, "Failed to open %s\n", argv[argc-1] );
 		goto err;
+	}
+
+	if ( displaySamplerate.numerator == 0 ) {
+		displaySamplerate.numerator = aafi->Audio->samplerate;
 	}
 
 	fprintf( logfp, "\n" );
@@ -523,21 +533,20 @@ int main( int argc, char *argv[] ) {
 
 		fprintf( logfp, "\n" );
 
-		fprintf( logfp, " Sample Rate                 : %"PRIi64"\n", aafi->Audio->samplerate );
-		fprintf( logfp, " Sample Size                 : %i bits\n", aafi->Audio->samplesize );
-
-		fprintf( logfp, "\n" );
-
 		fprintf( logfp, " Composition Start (EU)      : %"PRIi64"\n", aafi->compositionStart );
-		fprintf( logfp, " Composition Start (samples) : %"PRIi64"\n", laaf_util_converUnit( aafi->compositionStart, aafi->compositionStart_editRate, aafi->Audio->samplerateRational ) );
+		fprintf( logfp, " Composition Start (samples) : %"PRIi64"\n", laaf_util_converUnit( aafi->compositionStart, aafi->compositionStart_editRate, &displaySamplerate ) );
 		fprintf( logfp, " Composition Start           : %s\n", tc_start.string );
 
 		fprintf( logfp, "\n" );
 
 		fprintf( logfp, " Composition End (EU)        : %"PRIi64" (EditRate: %i/%i)\n", compoStart + aafi->compositionLength, aafi->compositionLength_editRate->numerator, aafi->compositionLength_editRate->denominator );
-		fprintf( logfp, " Composition End (samples)   : %"PRIi64"\n", laaf_util_converUnit( compoStart + aafi->compositionLength, aafi->compositionLength_editRate, aafi->Audio->samplerateRational ) );
+		fprintf( logfp, " Composition End (samples)   : %"PRIi64"\n", laaf_util_converUnit( compoStart + aafi->compositionLength, aafi->compositionLength_editRate, &displaySamplerate ) );
 		fprintf( logfp, " Composition End             : %s\n", tc_end.string );
 
+		fprintf( logfp, "\n" );
+
+		fprintf( logfp, " Dominant Sample Rate        : %"PRIi64"\n", aafi->Audio->samplerate );
+		fprintf( logfp, " Dominant Sample Size        : %i bits\n", aafi->Audio->samplesize );
 
 		if ( aafi->Comments != NULL )	{
 
@@ -658,10 +667,10 @@ int main( int argc, char *argv[] ) {
 				char posFormatBuf4[POS_FORMAT_BUFFER_LEN];
 
 				fprintf( logfp, " VideoClip  Start:%s  Len:%s  End:%s  SrcOffset:%s  SourceFile: %ls   (%ls)\n",
-					formatPosValue( (videoClip->pos + sessionStart),                  videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerateRational, posFormatBuf1 ),
-					formatPosValue( (videoClip->len),                                 videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerateRational, posFormatBuf2 ),
-					formatPosValue( (videoClip->pos + sessionStart + videoClip->len), videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerateRational, posFormatBuf3 ),
-					formatPosValue(  videoClip->essence_offset,                       videoClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerateRational, posFormatBuf4 ),
+					formatPosValue( (videoClip->pos + sessionStart),                  videoClip->track->edit_rate, posFormat, tcFormat, &displaySamplerate, posFormatBuf1 ),
+					formatPosValue( (videoClip->len),                                 videoClip->track->edit_rate, posFormat, tcFormat, &displaySamplerate, posFormatBuf2 ),
+					formatPosValue( (videoClip->pos + sessionStart + videoClip->len), videoClip->track->edit_rate, posFormat, tcFormat, &displaySamplerate, posFormatBuf3 ),
+					formatPosValue(  videoClip->essence_offset,                       videoClip->track->edit_rate, posFormat, tcFormat, &displaySamplerate, posFormatBuf4 ),
 					(videoClip->Essence) ? videoClip->Essence->usable_file_path : L"",
 					(videoClip->Essence) ? videoClip->Essence->file_name : L"" );
 
@@ -740,12 +749,12 @@ int main( int argc, char *argv[] ) {
 						gainToStr( audioClip->gain ),
 						(audioClip->mute) ? "(mute)" : "      ",
 						(audioClip->automation) ? "(A) " : "none",
-						formatPosValue( (audioClip->pos + sessionStart),                  audioClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerateRational, posFormatBuf1 ),
-						formatPosValue( (audioClip->len),                                 audioClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerateRational, posFormatBuf2 ),
-						formatPosValue( (audioClip->pos + sessionStart + audioClip->len), audioClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerateRational, posFormatBuf3 ),
+						formatPosValue( (audioClip->pos + sessionStart),                  audioClip->track->edit_rate, posFormat, tcFormat, &displaySamplerate, posFormatBuf1 ),
+						formatPosValue( (audioClip->len),                                 audioClip->track->edit_rate, posFormat, tcFormat, &displaySamplerate, posFormatBuf2 ),
+						formatPosValue( (audioClip->pos + sessionStart + audioClip->len), audioClip->track->edit_rate, posFormat, tcFormat, &displaySamplerate, posFormatBuf3 ),
 						INTERPOL_TO_STRING( fadein ),
 						INTERPOL_TO_STRING( fadeout ),
-						formatPosValue( audioClip->essence_offset, audioClip->track->edit_rate, posFormat, tcFormat, aafi->Audio->samplerateRational, posFormatBuf4 ) );
+						formatPosValue( audioClip->essence_offset, audioClip->track->edit_rate, posFormat, tcFormat, &displaySamplerate, posFormatBuf4 ) );
 
 					aafiAudioEssencePointer *audioEssencePtr = audioClip->essencePointerList;
 					while ( audioEssencePtr ) {
@@ -799,8 +808,8 @@ int main( int argc, char *argv[] ) {
 
 			fprintf( logfp, " Marker[%i]:  Start: %s  Length: %s  Color: #%02x%02x%02x  Label: \"%ls\"  Comment: \"%ls\"\n",
 				markerCount++,
-				formatPosValue( (marker->start + sessionStart), marker->edit_rate, posFormat, tcFormat, aafi->Audio->samplerateRational, posFormatBuf1 ),
-				formatPosValue(  marker->length,                marker->edit_rate, posFormat, tcFormat, aafi->Audio->samplerateRational, posFormatBuf2 ),
+				formatPosValue( (marker->start + sessionStart), marker->edit_rate, posFormat, tcFormat, &displaySamplerate, posFormatBuf1 ),
+				formatPosValue(  marker->length,                marker->edit_rate, posFormat, tcFormat, &displaySamplerate, posFormatBuf2 ),
 				marker->RGBColor[0],
 				marker->RGBColor[1],
 				marker->RGBColor[2],
