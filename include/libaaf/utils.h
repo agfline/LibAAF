@@ -37,7 +37,11 @@ extern "C" {
 	 * https://learn.microsoft.com/en-us/cpp/c-runtime-library/format-specification-syntax-printf-and-wprintf-functions?view=msvc-170#type
 	 */
 	#define WPRIs  L"S" // char*
-	#define WPRIws L"s" // wchar_t*
+	#ifdef XBUILD_WIN
+		#define WPRIws L"s" // wchar_t*
+	#else
+		#define WPRIws L"ls" // wchar_t*
+	#endif
 #else
 	#define DIR_SEP '/'
 	#define DIR_SEP_STR "/"
