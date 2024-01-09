@@ -321,7 +321,7 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 				ANSI_COLOR_DARKGREY(dbg),
 				aaft_DataDefToText( aafi->aafd, DataDefinition ),
 				ANSI_COLOR_RESET(dbg),
-				(name[0] != 0x00) ? ": " : "", (name) ? name : L""
+				(name && name[0] != 0x00) ? ": " : "", (name) ? name : L""
 			);
 
 			free( name );
