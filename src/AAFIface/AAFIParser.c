@@ -41,6 +41,7 @@
 #include <errno.h>
 #include <wchar.h>
 #include <locale.h>
+#include <inttypes.h>
 
 #include <math.h>
 
@@ -4650,7 +4651,7 @@ int aafi_retrieveData( AAF_Iface *aafi )
 		}
 
 		if ( trackEnd > aafi->compositionLength ) {
-			debug( "Setting compositionLength with audio track \"%ls\" (%u) : %lu", audioTrack->name, audioTrack->number, audioTrack->current_pos );
+			debug( "Setting compositionLength with audio track \"%ls\" (%u) : %"PRIi64, audioTrack->name, audioTrack->number, audioTrack->current_pos );
 			aafi->compositionLength = audioTrack->current_pos;
 			aafi->compositionLength_editRate = audioTrack->edit_rate;
 		}
@@ -4681,7 +4682,7 @@ int aafi_retrieveData( AAF_Iface *aafi )
 		}
 
 		if ( trackEnd > aafi->compositionLength ) {
-			debug( "Setting compositionLength with video track \"%ls\" (%u) : %lu", videoTrack->name, videoTrack->number, videoTrack->current_pos );
+			debug( "Setting compositionLength with video track \"%ls\" (%u) : %"PRIi64, videoTrack->name, videoTrack->number, videoTrack->current_pos );
 			aafi->compositionLength = videoTrack->current_pos;
 			aafi->compositionLength_editRate = videoTrack->edit_rate;
 		}
