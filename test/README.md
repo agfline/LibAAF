@@ -88,8 +88,9 @@ All essence retrieval should get proper audio attributes : samplerate, samplesiz
 ## Misc
 
 - [x] Empty AAF file
-- [ ] Comment
-- [ ] Marker
+- [x] Markers
+- [ ] Composition Comments
+
 
 ## AAF Structure
 

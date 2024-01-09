@@ -1,0 +1,54 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2024-01-09 18:59:38.00
+ AAF ObjSpec Version  : 1.1
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFUID_NULL
+
+
+
+ CompanyName          : Blackmagic Design
+ ProductName          : DaVinci Resolve
+ ProductVersion       : 18.5.0.0 AAFVersionReleased (1)
+ ProductVersionString : Unknown version
+ ProductID            : { 0x00130a4e 0x0000 0x0000 { 0x4e 0x0a 0x13 0x00 0x00 0x00 0x00 0x00 } }
+ Date                 : 2024-01-09 18:59:38.00
+ ToolkitVersion       : 1.1.6.0 AAFVersionReleased (1)
+ Platform             : AAFSDK (Win32)
+ GenerationAUID       : { 0x333dac71 0x3b84 0x4104 { 0x84 0x83 0xb4 0x96 0x3f 0xac 0x83 0x03 } }
+
+
+
+ Composition Name            : DR_Markers
+
+ TC EditRrate                : 24/1
+ TC FPS                      : 24 NDF
+
+ Composition Start (EU)      : 86400
+ Composition Start (samples) : 0
+ Composition Start           : 01:00:00:00
+
+ Composition End (EU)        : 86400 (EditRate: 0/0)
+ Composition End (samples)   : 86400
+ Composition End             : 01:00:00:00
+
+ Dominant Sample Rate        : 0
+ Dominant Sample Size        : 0 bits
+
+
+Media Essences :
+================
+
+
+
+Tracks & Clips :
+================
+
+VideoTrack  (1) - edit_rate 24/1 (24.00)  -  ""
+Markers :
+=========
+
+ Marker[0]:  EditRate: 24/1  Start: 0  Length: 0  Color: #e12401  Label: "Marker1Name"  Comment: "This is a maker note.  Marker is at position 01:01:00:00, last 1 frame and its color is red."
+ Marker[1]:  EditRate: 24/1  Start: 0  Length: 0  Color: #9013fe  Label: "Marker2Name"  Comment: "This is a maker note.  Marker is at position 01:01:30:00, last 10 frames and its color is purple."
+
+

@@ -806,8 +806,10 @@ int main( int argc, char *argv[] ) {
 			char posFormatBuf1[POS_FORMAT_BUFFER_LEN];
 			char posFormatBuf2[POS_FORMAT_BUFFER_LEN];
 
-			fprintf( logfp, " Marker[%i]:  Start: %s  Length: %s  Color: #%02x%02x%02x  Label: \"%ls\"  Comment: \"%ls\"\n",
+			fprintf( logfp, " Marker[%i]:  EditRate: %i/%i  Start: %s  Length: %s  Color: #%02x%02x%02x  Label: \"%ls\"  Comment: \"%ls\"\n",
 				markerCount++,
+				marker->edit_rate->numerator,
+				marker->edit_rate->denominator,
 				formatPosValue( (marker->start + sessionStart), marker->edit_rate, posFormat, tcFormat, &displaySamplerate, posFormatBuf1 ),
 				formatPosValue(  marker->length,                marker->edit_rate, posFormat, tcFormat, &displaySamplerate, posFormatBuf2 ),
 				marker->RGBColor[0],
