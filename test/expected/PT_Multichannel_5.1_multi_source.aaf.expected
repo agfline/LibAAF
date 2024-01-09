@@ -1,0 +1,73 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2024-01-09 21:05:59.00
+ AAF ObjSpec Version  : 1.1
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFUID_NULL
+
+
+
+ CompanyName          : Digidesign, Inc.
+ ProductName          : ProTools
+ ProductVersion       : 23.12.0.136 AAFVersionReleased (1)
+ ProductVersionString : 23.12.0.136
+ ProductID            : { 0x319414f6 0x5852 0x4050 { 0xa4 0xeb 0x98 0x1e 0x64 0x3f 0x33 0xa2 } }
+ Date                 : 2024-01-09 21:05:52.00
+ ToolkitVersion       : 1.1.6.0 AAFVersionBeta (4)
+ Platform             : AAFSDK (Win64)
+ GenerationAUID       : { 0x94b69ba8 0x52ab 0x48a9 { 0x9e 0x70 0x81 0x56 0xd4 0x57 0x4e 0x01 } }
+
+
+
+ Composition Name            : PT_Multichannel_5.1_multi_source
+
+ TC EditRrate                : 30/1
+ TC FPS                      : 30 NDF
+
+ Composition Start (EU)      : 0
+ Composition Start (samples) : 0
+ Composition Start           : 00:00:00:00
+
+ Composition End (EU)        : 9210 (EditRate: 30/1)
+ Composition End (samples)   : 9824000
+ Composition End             : 00:05:07:00
+
+ Dominant Sample Rate        : 32000
+ Dominant Sample Size        : 16 bits
+
+ UserComments :
+   [0]  Name: "Comment"   Text: ""
+
+
+Media Essences :
+================
+
+   0:  Type: WAVE  Length: 1067  01 Ch - 32000 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichapxmrVWSQqrssFPBB.wav  file_name: Sample accurate edit   (Sample accurate edit_5)
+   1:  Type: WAVE  Length: 1067  01 Ch - 32000 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichaxrqhVWSQqzrsFPBB.wav  file_name: Sample accurate edit   (Sample accurate edit_4)
+   2:  Type: WAVE  Length: 1067  01 Ch - 32000 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichargmdVWSQqprsFPBB.wav  file_name: Sample accurate edit   (Sample accurate edit_3)
+   3:  Type: WAVE  Length: 1067  01 Ch - 32000 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichasrsyTWSQzxqsFPBB.wav  file_name: Sample accurate edit   (Sample accurate edit_2)
+   4:  Type: WAVE  Length: 1067  01 Ch - 32000 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichaycrvTWSQbmqsFPBB.wav  file_name: Sample accurate edit   (Sample accurate edit_1)
+   5:  Type: WAVE  Length: 1067  01 Ch - 32000 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichavvmqTWSQzxpsFPBB.wav  file_name: Sample accurate edit
+   6:  Type: WAVE  Length: 227201  01 Ch - 32000 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichadhmpVWSQhgssFPBB.wav  file_name: 5.1-SMPTE-channel-identif-02.LFE
+   7:  Type: WAVE  Length: 227201  01 Ch - 32000 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichazrrfVWSQrsrsFPBB.wav  file_name: 5.1-SMPTE-channel-identif-02.Rs
+   8:  Type: WAVE  Length: 227201  01 Ch - 32000 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichayhhbVWSQfdrsFPBB.wav  file_name: 5.1-SMPTE-channel-identif-02.Ls
+   9:  Type: WAVE  Length: 227201  01 Ch - 32000 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichahxvwTWSQbrqsFPBB.wav  file_name: 5.1-SMPTE-channel-identif-02.R
+  10:  Type: WAVE  Length: 227201  01 Ch - 32000 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichahzrrTWSQbcqsFPBB.wav  file_name: 5.1-SMPTE-channel-identif-02.C
+  11:  Type: WAVE  Length: 227201  01 Ch - 32000 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichaqmfmTWSQhqpsFPBB.wav  file_name: 5.1-SMPTE-channel-identif-02.L
+
+
+Tracks & Clips :
+================
+
+Track  (1) - 5.1    - Gain: none     - Pan: none    - edit_rate: 30/1 (30.00)  -  "Audio 1"
+ Clip:0    Channel: 6  Gain: none             GainAuto: none  Start: 9600000  Len: 222933  End: 9822933  Fadein: none      Fadeout: none      SrcOffset: 2133
+   SourceFile: [ch 1] 5.1-SMPTE-channel-identif-02.L   (5.1-SMPTE-channel-identif-02.L)
+   SourceFile: [ch 1] 5.1-SMPTE-channel-identif-02.C   (5.1-SMPTE-channel-identif-02.C)
+   SourceFile: [ch 1] 5.1-SMPTE-channel-identif-02.R   (5.1-SMPTE-channel-identif-02.R)
+   SourceFile: [ch 1] 5.1-SMPTE-channel-identif-02.Ls   (5.1-SMPTE-channel-identif-02.Ls)
+   SourceFile: [ch 1] 5.1-SMPTE-channel-identif-02.Rs   (5.1-SMPTE-channel-identif-02.Rs)
+   SourceFile: [ch 1] 5.1-SMPTE-channel-identif-02.LFE   (5.1-SMPTE-channel-identif-02.LFE)
+
+
+
+

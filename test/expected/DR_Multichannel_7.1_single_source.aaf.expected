@@ -1,0 +1,55 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2024-01-09 22:42:26.00
+ AAF ObjSpec Version  : 1.1
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFUID_NULL
+
+
+
+ CompanyName          : Blackmagic Design
+ ProductName          : DaVinci Resolve
+ ProductVersion       : 18.5.0.0 AAFVersionReleased (1)
+ ProductVersionString : Unknown version
+ ProductID            : { 0x64a8d1aa 0x7ffd 0x0000 { 0x17 0x04 0x50 0x01 0x00 0x00 0x00 0x00 } }
+ Date                 : 2024-01-09 22:42:26.00
+ ToolkitVersion       : 1.1.6.0 AAFVersionReleased (1)
+ Platform             : AAFSDK (Win32)
+ GenerationAUID       : { 0x8b591a1e 0xea6b 0x4ad5 { 0x95 0xe5 0xe9 0x23 0x36 0x90 0x9e 0x72 } }
+
+
+
+ Composition Name            : DR_Multichannel_7.1_single_source
+
+ TC EditRrate                : 24/1
+ TC FPS                      : 24 NDF
+
+ Composition Start (EU)      : 0
+ Composition Start (samples) : 0
+ Composition Start           : 00:00:00:00
+
+ Composition End (EU)        : 14902000 (EditRate: 48000/1)
+ Composition End (samples)   : 13691212
+ Composition End             : 00:05:10:11
+
+ Dominant Sample Rate        : 44100
+ Dominant Sample Size        : 16 bits
+
+
+Media Essences :
+================
+
+   0:  Type: WAVE  Length: 481171  08 Ch - 44100 Hz - 16 bits  file: file://localhost/C:/Users/user/Desktop/res/7.1-SMPTE-channel-identif.wav  file_name: 7
+
+
+Tracks & Clips :
+================
+
+VideoTrack  (1) - edit_rate 24/1 (24.00)  -  ""
+Track  (1) - 7.1    - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 1"
+ Clip:0    Channel: 8  Gain: none             GainAuto: none  Start: 13215780  Len: 475183  End: 13690964  Fadein: none      Fadeout: none      SrcOffset: 1837
+   SourceFile: [ch all] 7   (7)
+
+
+
+

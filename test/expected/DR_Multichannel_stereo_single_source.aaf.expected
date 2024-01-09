@@ -1,0 +1,55 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2024-01-09 23:02:12.00
+ AAF ObjSpec Version  : 1.1
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFUID_NULL
+
+
+
+ CompanyName          : Blackmagic Design
+ ProductName          : DaVinci Resolve
+ ProductVersion       : 18.5.0.0 AAFVersionReleased (1)
+ ProductVersionString : Unknown version
+ ProductID            : { 0x64a8d1aa 0x7ffd 0x0000 { 0x44 0x00 0x2f 0x00 0x00 0x00 0x00 0x00 } }
+ Date                 : 2024-01-09 23:02:12.00
+ ToolkitVersion       : 1.1.6.0 AAFVersionReleased (1)
+ Platform             : AAFSDK (Win32)
+ GenerationAUID       : { 0xea1f6f4b 0xc31f 0x4880 { 0xb4 0x9c 0xbb 0xd0 0x05 0xdd 0x19 0x8a } }
+
+
+
+ Composition Name            : DR_Multichannel_stereo_single_source
+
+ TC EditRrate                : 24/1
+ TC FPS                      : 24 NDF
+
+ Composition Start (EU)      : 0
+ Composition Start (samples) : 0
+ Composition Start           : 00:00:00:00
+
+ Composition End (EU)        : 14472000 (EditRate: 48000/1)
+ Composition End (samples)   : 13296150
+ Composition End             : 00:05:01:12
+
+ Dominant Sample Rate        : 22050
+ Dominant Sample Size        : 16 bits
+
+
+Media Essences :
+================
+
+   0:  Type: WAVE  Length: 43117  02 Ch - 22050 Hz - 16 bits  file: file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav  file_name: stereo-identif
+
+
+Tracks & Clips :
+================
+
+VideoTrack  (1) - edit_rate 24/1 (24.00)  -  ""
+Track  (1) - STEREO - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 1"
+ Clip:0    Channel: 2  Gain: none             GainAuto: none  Start: 13215779  Len: 80238  End: 13296017  Fadein: none      Fadeout: none      SrcOffset: 1837
+   SourceFile: [ch all] stereo-identif   (stereo-identif)
+
+
+
+

@@ -22,14 +22,20 @@ All essence retrieval should get proper audio attributes : samplerate, samplesiz
 - [x] Retrieve MP3 audio with summary
 - [x] Locate essence besides AAF file
 - [x] Locate essence in a sub directory besides AAF file
-- [x] Locate essence with user path
+- [x] Locate essence with user path <!-- PT_WAV_External.aaf -->
 
 ## Clip attributes
 
 - [x] Mono clip positioning
-- [x] Stereo clip positioning
-- [ ] Mono clip offset in source file
-- [ ] Stereo clip offset in source file
+- [x] Multichannel clip positioning
+- [x] Multichannel stereo from multiple mono source files
+- [x] Multichannel 5.1 from multiple mono source files
+- [x] Multichannel 7.1 from multiple mono source files
+- [x] Multichannel stereo from a single multichannel source file
+- [x] Multichannel 5.1 from a single multichannel source file
+- [x] Multichannel 7.1 from a single multichannel source file
+- [x] Mono clip offset in source file <!-- PT_WAV_External.aaf and PT_AIFF_External.aaf -->
+- [x] Multichannel clip offset in source file <!-- all the above AAF has offset in source -->
 - [ ] Multiple clips sharing the same essence file <!-- Adobe Premiere pro -->
 
 ## Fades
@@ -76,14 +82,6 @@ All essence retrieval should get proper audio attributes : samplerate, samplesiz
 - [ ] RESOLVE_INCLUDE_DISABLED_CLIPS
 
 ## Video
-
-- [ ] Single external video file
-	- [ ] 24 FPS
-	- [ ] 25 FPS
-	- [ ] 29.97 FPS
-	- [ ] 30 FPS
-	- [ ] 50 FPS
-	- [ ] 60 FPS
 
 ## Misc
 

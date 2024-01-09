@@ -1,0 +1,61 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2024-01-09 21:46:06.00
+ AAF ObjSpec Version  : 1.1
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFUID_NULL
+
+
+
+ CompanyName          : Digidesign, Inc.
+ ProductName          : ProTools
+ ProductVersion       : 23.12.0.136 AAFVersionReleased (1)
+ ProductVersionString : 23.12.0.136
+ ProductID            : { 0x319414f6 0x5852 0x4050 { 0xa4 0xeb 0x98 0x1e 0x64 0x3f 0x33 0xa2 } }
+ Date                 : 2024-01-09 21:45:57.00
+ ToolkitVersion       : 1.1.6.0 AAFVersionBeta (4)
+ Platform             : AAFSDK (Win64)
+ GenerationAUID       : { 0xfb410af8 0x631d 0x4a32 { 0x97 0x0b 0x06 0xe3 0x41 0xe5 0x0a 0x4b } }
+
+
+
+ Composition Name            : PT_Multichannel_stereo_multi_source
+
+ TC EditRrate                : 30/1
+ TC FPS                      : 30 NDF
+
+ Composition Start (EU)      : 0
+ Composition Start (samples) : 0
+ Composition Start           : 00:00:00:00
+
+ Composition End (EU)        : 9054 (EditRate: 30/1)
+ Composition End (samples)   : 13309380
+ Composition End             : 00:05:01:24
+
+ Dominant Sample Rate        : 44100
+ Dominant Sample Size        : 16 bits
+
+ UserComments :
+   [0]  Name: "Comment"   Text: ""
+
+
+Media Essences :
+================
+
+   0:  Type: WAVE  Length: 1471  01 Ch - 44100 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_stereo_multi_source/PT_MultichacsgdMFRRgymmQRBB.wav  file_name: Sample accurate edit   (Sample accurate edit_1)
+   1:  Type: WAVE  Length: 1471  01 Ch - 44100 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_stereo_multi_source/PT_MultichaydzzJFRRgqmmQRBB.wav  file_name: Sample accurate edit
+   2:  Type: WAVE  Length: 88201  01 Ch - 44100 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_stereo_multi_source/PT_MultichapyccMFRRgvmmQRBB.wav  file_name: stereo-identif-01.R
+   3:  Type: WAVE  Length: 88201  01 Ch - 44100 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_stereo_multi_source/PT_MultichammsyJFRRzgmmQRBB.wav  file_name: stereo-identif-01.L
+
+
+Tracks & Clips :
+================
+
+Track  (1) - STEREO - Gain: none     - Pan: none    - edit_rate: 30/1 (30.00)  -  "Audio 1"
+ Clip:0    Channel: 2  Gain: none             GainAuto: none  Start: 13230000  Len: 77910  End: 13307910  Fadein: none      Fadeout: none      SrcOffset: 2940
+   SourceFile: [ch 1] stereo-identif-01.L   (stereo-identif-01.L)
+   SourceFile: [ch 1] stereo-identif-01.R   (stereo-identif-01.R)
+
+
+
+
