@@ -12,6 +12,7 @@ AAF_PATH="${PROJDIR}/test/aaf"
 BIN_PATH="${PROJDIR}/build/bin"
 EXPECTED_OUTPUT_PATH="${PROJDIR}/test/expected"
 OUTPUT_PATH="${PROJDIR}/test/output"
+MEDIA_PATH="${PROJDIR}/test/res"
 AAFINFO_CMD="${BIN_PATH}/AAFInfo --aaf-summary --aaf-essences --aaf-clips --pos-format samples --no-color --verb 0 --media-location \"${AAF_PATH}/res\"" # --media-location \"${AAF_PATH}/res\"
 
 VALGRIND_CMD="$VALGRIND --error-exitcode=1 --track-origins=yes --leak-check=full --show-leak-kinds=all"
@@ -141,12 +142,16 @@ update() {
 
 echo
 
-test "DR_Empty.aaf"
-test "PT_WAV_External.aaf"
+test "PT_WAV_External.aaf"                "--media-location ${MEDIA_PATH}"
+test "PT_WAV_External_sub_directory.aaf"  "--samplerate 44100"
+test "PT_WAV_External_same_directory.aaf" "--samplerate 44100"
 test "PT_AIFF_External.aaf"
+test "PT_MXF_External.aaf"
+test "PT_PCM_Internal.aaf"                "--samplerate 44100"
 test "DR_MP3_External.aaf"
 test "DR_Mono_Clip_Positioning.aaf"
-test "DR_Stereo_Clip_Positioning.aaf"   "--samplerate 48000"
+test "DR_Stereo_Clip_Positioning.aaf"     "--samplerate 48000"
+test "DR_Empty.aaf"
 
 echo
 

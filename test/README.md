@@ -8,11 +8,9 @@ All essences must be as short as possible to keep the overall size low. Whenever
 
 All essence retrieval should get proper audio attributes : samplerate, samplesize, channel count.
 
-- [ ] Retrieve PCM audio
-<!-- - [ ] Retrieve AES3 audio -->
-- [ ] Retrieve WAV audio
-- [ ] Retrieve AIFF audio
-- [ ] Retrieve MXF audio
+- [x] Retrieve PCM audio
+- [ ] Retrieve WAV audio <!-- Adobe Premiere Pro -->
+- [ ] Retrieve AIFF audio <!-- ArdourXchange, Adobe Premiere Pro "creative_post.aaf" "100_BARS.aaf" "ADP_STTRACK_CLIPGAIN_TRACKGAIN_XFADE_AIFF_AUDIOFXRENDER.aaf"  -->
 
 ## External audio essence
 
@@ -20,15 +18,11 @@ All essence retrieval should get proper audio attributes : samplerate, samplesiz
 
 - [x] Retrieve WAV audio with summary
 - [x] Retrieve AIFF audio with summary
-- [ ] Retrieve MXF audio with PCMDescriptor
+- [x] Retrieve MXF audio with PCMDescriptor
 - [x] Retrieve MP3 audio with summary
-- [ ] Locate essence besides AAF file
-- [ ] Locate essence in a sub directory besides AAF file
-- [ ] Locate essence with user path
-
-## Track attributes
-
-- [x] Track name
+- [x] Locate essence besides AAF file
+- [x] Locate essence in a sub directory besides AAF file
+- [x] Locate essence with user path
 
 ## Clip attributes
 
@@ -36,7 +30,7 @@ All essence retrieval should get proper audio attributes : samplerate, samplesiz
 - [x] Stereo clip positioning
 - [ ] Mono clip offset in source file
 - [ ] Stereo clip offset in source file
-- [-] Multiple clips sharing the same essence file
+- [ ] Multiple clips sharing the same essence file <!-- Adobe Premiere pro -->
 
 ## Fades
 

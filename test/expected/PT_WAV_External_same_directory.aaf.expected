@@ -1,6 +1,6 @@
 
  ByteOrder            : Little-Endian (0x4949)
- LastModified         : 2024-01-03 16:46:32.00
+ LastModified         : 2024-01-09 15:53:47.00
  AAF ObjSpec Version  : 1.1
  ObjectModel Version  : 1
  Operational Pattern  : AAFUID_NULL
@@ -12,14 +12,14 @@
  ProductVersion       : 23.12.0.136 AAFVersionReleased (1)
  ProductVersionString : 23.12.0.136
  ProductID            : { 0x319414f6 0x5852 0x4050 { 0xa4 0xeb 0x98 0x1e 0x64 0x3f 0x33 0xa2 } }
- Date                 : 2024-01-03 16:46:32.00
+ Date                 : 2024-01-09 15:53:45.00
  ToolkitVersion       : 1.1.6.0 AAFVersionBeta (4)
  Platform             : AAFSDK (Win64)
- GenerationAUID       : { 0x29084aad 0x2899 0x4d15 { 0xab 0xb7 0x27 0x85 0x59 0x26 0x9b 0xc9 } }
+ GenerationAUID       : { 0x40652cba 0x5087 0x4950 { 0xb5 0x72 0x31 0x8f 0x46 0x6c 0xf5 0x41 } }
 
 
 
- Composition Name            : PT_WAV_External
+ Composition Name            : PT_WAV_External_same_directory
 
  TC EditRrate                : 30/1
  TC FPS                      : 30 NDF
@@ -28,11 +28,11 @@
  Composition Start (samples) : 0
  Composition Start           : 00:00:00:00
 
- Composition End (EU)        : 158848200 (EditRate: 44100/1)
+ Composition End (EU)        : 108060 (EditRate: 30/1)
  Composition End (samples)   : 158848200
- Composition End             : 01:00:01:29
+ Composition End             : 01:00:02:00
 
- Dominant Sample Rate        : 44100
+ Dominant Sample Rate        : 32000
  Dominant Sample Size        : 16 bits
 
  UserComments :
@@ -42,14 +42,14 @@
 Media Essences :
 ================
 
-   0:  Type: WAVE  Length: 132300  01 Ch - 44100 Hz - 16 bits  file: /home/agfline/Programming/libaaf/LibAAF/test/res/1000hz-18dbs16b44.1k.wav  file_name: 1000hz-18dbs16b44.1k-01
+   0:  Type: WAVE  Length: 64001  01 Ch - 32000 Hz - 16 bits  file: /home/agfline/Programming/libaaf/LibAAF/test/aaf/PT_WAV_ExtehcrfPFTBxvdzJCBB.wav  file_name: 1000hz-18dbs16b44.1k-01
 
 
 Tracks & Clips :
 ================
 
-Track  (1) - MONO   - Gain: none     - Pan: none    - edit_rate: 44100/1 (44100.00)  -  "Audio 1"
- Clip:0    Channel: 1  Gain: none             GainAuto: none  Start: 158804100  Len: 44100  End: 158848200  Fadein: none      Fadeout: none      SrcOffset: 44100
+Track  (1) - MONO   - Gain: none     - Pan: none    - edit_rate: 30/1 (30.00)  -  "Audio 1"
+ Clip:0    Channel: 1  Gain: none             GainAuto: none  Start: 158760000  Len: 88200  End: 158848200  Fadein: none      Fadeout: none      SrcOffset: 0
    SourceFile: [ch 1] 1000hz-18dbs16b44.1k-01   (1000hz-18dbs16b44.1k-01)
 
 
