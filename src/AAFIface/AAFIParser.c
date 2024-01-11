@@ -2596,8 +2596,9 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 	 */
 
 
-	aafObject *refMob = NULL;
-	aafObject *refMobSlot = NULL;
+	aafObject *targetMob = NULL;
+	aafObject *targetMobSlot = NULL;
+	aafUID_t *targetMobUsageCode = NULL;
 
 	if ( sourceID == NULL ) {
 		/*
@@ -2612,26 +2613,30 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 		 */
 
 		// sourceID = parentMobID;
-		// refMob = ParentMob;
+		// targetMob = ParentMob;
 	}
 	else {
-		refMob = aaf_get_MobByID( aafi->aafd->Mobs, sourceID );
+		targetMob = aaf_get_MobByID( aafi->aafd->Mobs, sourceID );
 
-		if ( refMob == NULL ) {
+		if ( targetMob == NULL ) {
 			DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Could not retrieve target Mob by ID : %ls", aaft_MobIDToText(sourceID) );
 			return -1;
 		}
 
-		aafObject *refMobSlots = aaf_get_propertyValue( refMob, PID_Mob_Slots, &AAFTypeID_MobSlotStrongReferenceVector );
 
-		if ( refMobSlots == NULL ) {
+		targetMobUsageCode = aaf_get_propertyValue( targetMob, PID_Mob_UsageCode, &AAFTypeID_UsageType );
+
+
+		aafObject *targetMobSlots = aaf_get_propertyValue( targetMob, PID_Mob_Slots, &AAFTypeID_MobSlotStrongReferenceVector );
+
+		if ( targetMobSlots == NULL ) {
 			DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Missing target Mob PID_Mob_Slots" );
 			return -1;
 		}
 
-		refMobSlot = aaf_get_MobSlotBySlotID( refMobSlots, *SourceMobSlotID );
+		targetMobSlot = aaf_get_MobSlotBySlotID( targetMobSlots, *SourceMobSlotID );
 
-		if ( refMobSlot == NULL ) {
+		if ( targetMobSlot == NULL ) {
 			/* TODO check if there is a workaround :
 			 * AAFInfo --aaf-clips '/home/agfline/Developpement/libaaf_testfiles/ADP/ADP_STTRACK_CLIPGAIN_TRACKGAIN_XFADE_NOOPTONEXPORT.aaf'
 			 */
@@ -2697,7 +2702,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 			 * are at the begining (or inside) a derivation chain.
 			 */
 
-			if ( aafUIDCmp( refMob->Class->ID, &AAFClassID_CompositionMob ) ) {
+			if ( aafUIDCmp( targetMob->Class->ID, &AAFClassID_CompositionMob ) ) {
 
 				// debug( "REF TO SUBCLIP" );
 				//
@@ -2706,7 +2711,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 				// debug( "SourceClip::SourceMobSlotID : %i", *SourceMobSlotID );
 				// debug( "UsageCode                   : %ls", aaft_UsageCodeToText( UsageCode ) );
 
-				if ( refMobSlot == NULL ) {
+				if ( targetMobSlot == NULL ) {
 					/* TODO isn't it already checked above ? */
 					DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Missing target MobSlot" );
 					return -1;
@@ -2718,7 +2723,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 
 				/* Only to print trace */
 				__td.lv++;
-				DUMP_OBJ( aafi, refMob, &__td );
+				DUMP_OBJ( aafi, targetMob, &__td );
 				// __td.lv++;
 
 
@@ -2729,7 +2734,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 				aafi->ctx.current_track = ctxBackup.current_track;
 				aafi->ctx.is_inside_derivation_chain = 1;
 
-				parse_MobSlot( aafi, refMobSlot, &__td );
+				parse_MobSlot( aafi, targetMobSlot, &__td );
 
 				void *new_clip = aafi->ctx.current_clip;
 
@@ -2790,7 +2795,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 				return 0;
 
 			}
-			else if ( aafUIDCmp( refMob->Class->ID, &AAFClassID_MasterMob ) ) {
+			else if ( aafUIDCmp( targetMob->Class->ID, &AAFClassID_MasterMob ) ) {
 				/*
 				 * We are inside the derivation chain and we reached the SourceClip
 				 * pointing to MasterMob (the audio essence).
@@ -2948,9 +2953,9 @@ POS NOT UPDATED HERE ------------------> └──◻ AAFClassID_SourceClip
 
 
 
-			if ( aafUIDCmp( refMob->Class->ID, &AAFClassID_MasterMob ) ) {
+			if ( aafUIDCmp( targetMob->Class->ID, &AAFClassID_MasterMob ) ) {
 
-				if ( refMobSlot == NULL ) {
+				if ( targetMobSlot == NULL ) {
 					/* TODO isn't it already checked above ? */
 					DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Missing target MobSlot" );
 					return -1;
@@ -2961,7 +2966,7 @@ POS NOT UPDATED HERE ------------------> └──◻ AAFClassID_SourceClip
 
 				/* Only to print trace */
 				__td.lv++;
-				DUMP_OBJ( aafi, refMob, &__td );
+				DUMP_OBJ( aafi, targetMob, &__td );
 
 
 				memcpy( &ctxBackup, &(aafi->ctx), sizeof(struct aafiContext) );
@@ -2973,12 +2978,12 @@ POS NOT UPDATED HERE ------------------> └──◻ AAFClassID_SourceClip
 				aafi->ctx.current_clip = audioClip;
 
 				/* retrieve essence */
-				parse_MobSlot( aafi, refMobSlot, &__td );
+				parse_MobSlot( aafi, targetMobSlot, &__td );
 
 				memcpy( &(aafi->ctx), &ctxBackup, sizeof(struct aafiContext) );
 			}
 			else {
-				DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "RefMob isn't MasterMob : %ls", aaft_ClassIDToText( aafi->aafd, refMob->Class->ID ) );
+				DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Targeted Mob isn't MasterMob : %ls", aaft_ClassIDToText( aafi->aafd, targetMob->Class->ID ) );
 				return -1;
 			}
 
@@ -3052,9 +3057,9 @@ POS NOT UPDATED HERE ------------------> └──◻ AAFClassID_SourceClip
 			aafi->ctx.current_video_clip = videoClip;
 
 
-			if ( aafUIDCmp( refMob->Class->ID, &AAFClassID_MasterMob ) ) {
+			if ( aafUIDCmp( targetMob->Class->ID, &AAFClassID_MasterMob ) ) {
 
-				if ( refMobSlot == NULL ) {
+				if ( targetMobSlot == NULL ) {
 					/* TODO isn't it already checked above ? */
 					DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Missing target MobSlot" );
 					return -1;
@@ -3066,20 +3071,20 @@ POS NOT UPDATED HERE ------------------> └──◻ AAFClassID_SourceClip
 
 				/* Only to print trace */
 				__td.lv++;
-				DUMP_OBJ( aafi, refMob, &__td );
+				DUMP_OBJ( aafi, targetMob, &__td );
 
 
 				// memcpy( &ctxBackup, &(aafi->ctx), sizeof(struct aafiContext) );
 				//
 				// RESET_CONTEXT( aafi->ctx );
 
-				parse_MobSlot( aafi, refMobSlot, &__td );
+				parse_MobSlot( aafi, targetMobSlot, &__td );
 
 				// memcpy( &(aafi->ctx), &ctxBackup, sizeof(struct aafiContext) );
 
 			}
 			else {
-				DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "RefMob isn't MasterMob : %ls", aaft_ClassIDToText( aafi->aafd, refMob->Class->ID ) );
+				DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Targeted mob isn't MasterMob : %ls", aaft_ClassIDToText( aafi->aafd, targetMob->Class->ID ) );
 				// parse_CompositionMob( )
 				return -1;
 			}
