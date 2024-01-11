@@ -2704,13 +2704,6 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 
 			if ( aafUIDCmp( targetMob->Class->ID, &AAFClassID_CompositionMob ) ) {
 
-				// debug( "REF TO SUBCLIP" );
-				//
-				// debug( "SourceClip::SourceID        : %ls", aaft_MobIDToText( sourceID ) );
-				// debug( "CurrentMob::MobID           : %ls", aaft_MobIDToText( parentMobID ) );
-				// debug( "SourceClip::SourceMobSlotID : %i", *SourceMobSlotID );
-				// debug( "UsageCode                   : %ls", aaft_UsageCodeToText( UsageCode ) );
-
 				DUMP_OBJ( aafi, SourceClip, &__td );
 
 
