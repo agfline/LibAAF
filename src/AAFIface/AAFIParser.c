@@ -374,6 +374,25 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 				ANSI_COLOR_RESET(dbg)
 			);
 		}
+		else if ( aafUIDCmp( Obj->Class->ID, &AAFClassID_ConstantValue ) ) {
+
+			aafIndirect_t *Indirect = aaf_get_propertyValue( Obj, PID_ConstantValue_Value, &AAFTypeID_Indirect );
+
+			if ( Indirect ) {
+
+				aafRational_t *multiplier = aaf_get_indirectValue( aafi->aafd, Indirect, &AAFTypeID_Rational );
+
+				if ( multiplier ) {
+					DBG_BUFFER_WRITE( dbg, "(Value: %s%i/%i%s  %+05.1lf dB) ",
+						ANSI_COLOR_DARKGREY(dbg),
+						multiplier->numerator,
+						multiplier->denominator,
+						20 * log10( aafRationalToFloat( *multiplier ) ),
+						ANSI_COLOR_RESET(dbg)
+					);
+				}
+			}
+		}
 		// else if ( aafUIDCmp( Obj->Class->ID, &AAFClassID_TapeDescriptor ) ||
 		//           aafUIDCmp( Obj->Class->ID, &AAFClassID_FilmDescriptor ) ||
 		//           aafUIDCmp( Obj->Class->ID, &AAFClassID_CDCIDescriptor ) ||
