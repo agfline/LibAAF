@@ -2711,12 +2711,6 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 				// debug( "SourceClip::SourceMobSlotID : %i", *SourceMobSlotID );
 				// debug( "UsageCode                   : %ls", aaft_UsageCodeToText( UsageCode ) );
 
-				if ( targetMobSlot == NULL ) {
-					/* TODO isn't it already checked above ? */
-					DUMP_OBJ_ERROR( aafi, SourceClip, &__td, "Missing target MobSlot" );
-					return -1;
-				}
-
 				DUMP_OBJ( aafi, SourceClip, &__td );
 
 
