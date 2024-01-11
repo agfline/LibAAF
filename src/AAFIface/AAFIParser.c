@@ -851,7 +851,7 @@ static aafUID_t * get_Component_DataDefinition( AAF_Iface *aafi, aafObject *Comp
 
 // static aafUID_t * get_FileDescriptor_ContainerFormat( AAF_Iface *aafi, aafObject *FileDescriptor )
 // {
-// 	aafWeakRef_t *ContainerDefWeakRef = aaf_get_propertyValue( FileDescriptor, PID_FileDescriptor_ContainerFormat );
+// 	aafWeakRef_t *ContainerDefWeakRef = aaf_get_propertyValue( FileDescriptor, PID_FileDescriptor_ContainerFormat, &AAFTypeID_ClassDefinitionWeakReference );
 //
 // 	if ( ContainerDefWeakRef == NULL ) {
 // 		warning( "Missing FileDescriptor::ContainerFormat." );
@@ -866,7 +866,7 @@ static aafUID_t * get_Component_DataDefinition( AAF_Iface *aafi, aafObject *Comp
 // 	}
 //
 //
-// 	aafUID_t *ContainerIdentification = aaf_get_propertyValue( ContainerDefinition, PID_DefinitionObject_Identification );
+// 	aafUID_t *ContainerIdentification = aaf_get_propertyValue( ContainerDefinition, PID_DefinitionObject_Identification, &AAFTypeID_AUID );
 //
 // 	if ( ContainerIdentification == NULL ) {
 // 		warning( "Missing ContainerDefinition's DefinitionObject::Identification." );
