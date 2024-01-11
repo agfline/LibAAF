@@ -782,14 +782,31 @@ static aafObject * get_Object_Ancestor( AAF_Iface *aafi, aafObject *Obj, const a
 	 * should work for them too thanks to Obj != NULL.
 	 */
 
-	for (; Obj != NULL && aafUIDCmp( Obj->Class->ID, &AAFClassID_ContentStorage ) == 0; Obj = Obj->Parent ) {
-		if ( aafUIDCmp( Obj->Class->ID, ClassID ) )
+	while ( Obj != NULL && !aafUIDCmp( Obj->Class->ID, &AAFClassID_ContentStorage ) ) {
+
+		if ( aafUIDCmp( ClassID, Obj->Class->ID ) ) {
 			return Obj;
-		/* Also work with abstract class */
-		else if ( aafUIDCmp( ClassID, &AAFClassID_Mob ) && ( aafUIDCmp( Obj->Class->ID, &AAFClassID_CompositionMob ) || aafUIDCmp( Obj->Class->ID, &AAFClassID_MasterMob ) || aafUIDCmp( Obj->Class->ID, &AAFClassID_SourceMob ) ) )
+		}
+
+		/* Works also with abstract class */
+
+		if ( aafUIDCmp( ClassID, &AAFClassID_Mob ) && (
+			aafUIDCmp( Obj->Class->ID, &AAFClassID_MasterMob      ) ||
+			aafUIDCmp( Obj->Class->ID, &AAFClassID_SourceMob      ) ||
+			aafUIDCmp( Obj->Class->ID, &AAFClassID_CompositionMob ) ) )
+		{
 			return Obj;
-		else if ( aafUIDCmp( ClassID, &AAFClassID_MobSlot ) && ( aafUIDCmp( Obj->Class->ID, &AAFClassID_TimelineMobSlot ) || aafUIDCmp( Obj->Class->ID, &AAFClassID_StaticMobSlot ) || aafUIDCmp( Obj->Class->ID, &AAFClassID_EventMobSlot ) ) )
+		}
+
+		if ( aafUIDCmp( ClassID, &AAFClassID_MobSlot ) && (
+			aafUIDCmp( Obj->Class->ID, &AAFClassID_TimelineMobSlot ) ||
+			aafUIDCmp( Obj->Class->ID, &AAFClassID_StaticMobSlot   ) ||
+			aafUIDCmp( Obj->Class->ID, &AAFClassID_EventMobSlot    ) ) )
+		{
 			return Obj;
+		}
+
+		Obj = Obj->Parent;
 	}
 
 	return NULL;
