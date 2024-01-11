@@ -2422,8 +2422,8 @@ static int parse_OperationGroup( AAF_Iface *aafi, aafObject *OpGroup, td *__ptd 
 
 	}
 	else if ( aafUIDCmp( OperationIdentification, &AAFOperationDef_StereoAudioGain ) ) {
+		/* Unknown usage and implementation, not encountered yet */
 		DUMP_OBJ_NO_SUPPORT( aafi, OpGroup, &__td );
-		/* TODO Unknown usage and implementation */
 	}
 	else if ( aafUIDCmp( OperationIdentification, &AAFOperationDef_MonoAudioPan ) ) {
 		/* TODO Should Only be Track-based (first Segment of TimelineMobSlot.) */
