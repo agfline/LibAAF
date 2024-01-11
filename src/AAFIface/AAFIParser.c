@@ -3501,12 +3501,15 @@ static int parse_Parameter( AAF_Iface *aafi, aafObject *Parameter, td *__ptd )
 	struct trace_dump __td;
 	__td_set(__td, __ptd, 0);
 
-
 	if ( aafUIDCmp( Parameter->Class->ID, &AAFClassID_ConstantValue ) ) {
 		return parse_ConstantValue( aafi, Parameter, &__td );
 	}
 	else if ( aafUIDCmp( Parameter->Class->ID, &AAFClassID_VaryingValue ) ) {
 		return parse_VaryingValue( aafi, Parameter, &__td );
+	}
+	else {
+		__td_set(__td, __ptd, 1);
+		DUMP_OBJ_ERROR( aafi, Parameter, &__td, "Parameter is neither of class Constant nor Varying : %ls", aaft_ClassIDToText(aafi->aafd, Parameter->Class->ID) );
 	}
 
 	return -1;
@@ -3789,8 +3792,22 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue, td *__p
 		{
 			if ( aafRationalToFloat(Gain->value[0]) == 1.0f ) {
 				/*
-				 * gain is null, skip it. Skipping it allows not to set a useless gain then miss the real clip gain later (Resolve 18.5.AAF)
+				 * Skipping any 1:1 gain allows not to miss any other actual gain (eg. Resolve 18.5.AAF)
+				 *
+				     │ 02412││         ├──◻ AAFClassID_OperationGroup (OpIdent: AAFOperationDef_MonoAudioGain; Length: 284630)
+				 err │ 03839││         │    ├──◻ AAFClassID_VaryingValue : : Value is continuous 1:1 (0db), skipping it.
+				     │      ││         │    │
+				     │ 02412││         │    └──◻ AAFClassID_OperationGroup (OpIdent: AAFOperationDef_MonoAudioGain; Length: 284630)
+				     │ 03660││         │         ├──◻ AAFClassID_ConstantValue (Value: 6023/536870912  -99.0 dB)
+				     │ 02983││         │         └──◻ AAFClassID_SourceClip (Length: 284630)
+				     │ 02988││         │              └──◻ AAFClassID_MasterMob (UsageCode: n/a) : speech-sample.mp3 - -100db
+				     │ 04553││         │                   └──◻ AAFClassID_TimelineMobSlot [slot:1 track:1] (DataDef : AAFDataDef_Sound)
+				     │ 03193││         │                        └──◻ AAFClassID_SourceClip (Length: 284630)
+				     │ 04297││         │                             └──◻ AAFClassID_SourceMob (UsageCode: n/a) : speech-sample.mp3 - -100db
+				     │ 01342││         │                                  └──◻ AAFClassID_PCMDescriptor
+				     │ 01529││         │                                       └──◻ AAFClassID_NetworkLocator : file:///C:/Users/user/Desktop/libAAF/test/res/speech-sample.mp3
 				 */
+				DUMP_OBJ_ERROR( aafi, VaryingValue, &__td, "Value is continuous 1:1 (0db), skipping it" );
 				aafi_freeAudioGain( Gain );
 				return -1;
 			}
@@ -3843,6 +3860,7 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue, td *__p
 				else {
 					aafi->ctx.current_clip_gain = Gain;
 					aafi->ctx.clips_using_gain = 0;
+					DUMP_OBJ( aafi, VaryingValue, &__td );
 				}
 			}
 			else {
@@ -3854,6 +3872,7 @@ static int parse_VaryingValue( AAF_Iface *aafi, aafObject *VaryingValue, td *__p
 				else {
 					aafi->ctx.current_clip_automation = Gain;
 					aafi->ctx.clips_using_automation = 0;
+					DUMP_OBJ( aafi, VaryingValue, &__td );
 				}
 			}
 		}
