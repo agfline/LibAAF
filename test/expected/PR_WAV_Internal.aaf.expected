@@ -1,0 +1,55 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2024-01-13 16:37:36.00
+ AAF ObjSpec Version  : 1.2
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFOPDef_EditProtocol
+
+
+
+ CompanyName          : Adobe
+ ProductName          : Premiere Pro
+ ProductVersion       : 23.5.0.0 AAFVersionUnknown (0)
+ ProductVersionString : 23.5.0
+ ProductID            : { 0x00000000 0x0000 0x0000 { 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 } }
+ Date                 : 2024-01-13 16:37:36.00
+ ToolkitVersion       : 1.2.0.0 AAFVersionBeta (4)
+ Platform             : AAFSDK (Win64)
+ GenerationAUID       : { 0x30c5466a 0xb33e 0x470f { 0xb3 0x48 0x25 0xbc 0xd5 0xf2 0xec 0xa5 } }
+
+
+
+ Composition Name            : PR_WAV_Internal
+
+ TC EditRrate                : 30000/1001
+ TC FPS                      : 30 DF
+
+ Composition Start (EU)      : 0
+ Composition Start (samples) : 0
+ Composition Start           : 00:00:00;00
+
+ Composition End (EU)        : 107922 (EditRate: 30000/1001)
+ Composition End (samples)   : 172847876
+ Composition End             : 01:00:01;00
+
+ Dominant Sample Rate        : 48000
+ Dominant Sample Size        : 16 bits
+
+
+Media Essences :
+================
+
+   0:  Type: WAVE  Length: 51252  01 Ch - 48000 Hz - 16 bits  file: EMBEDDED  file_name: 1000hz-18dbs16b44.1k.wav
+
+
+Tracks & Clips :
+================
+
+VideoTrack  (1) - edit_rate 30000/1001 (29.97)  -  ""
+Track  (1) - MONO   - Gain: none     - Pan: none    - edit_rate: 30000/1001 (29.97)  -  "Audio 1"
+ Clip:0    Channel: 1  Gain: +00.0 dB         GainAuto: none  Start: 172799828  Len: 48048  End: 172847876  SrcOffset: 1601
+   SourceFile: [ch all] 1000hz-18dbs16b44.1k.wav   (1000hz-18dbs16b44.1k.wav)
+
+
+
+

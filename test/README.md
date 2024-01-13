@@ -1,20 +1,11 @@
-> test.sh is not operational yet
 
-There should be one AAF file for each test.
-
-All essences must be as short as possible to keep the overall size low. Whenever possible, AAF files should rely on external essence files provided in [test/res/](https://github.com/agfline/LibAAF/tree/master/test/res). Otherwise, internal essence files should be taken from [test/res/](https://github.com/agfline/LibAAF/tree/master/test/res).
-
-## Internal audio essence
-
-All essence retrieval should get proper audio attributes : samplerate, samplesize, channel count.
+## Embedded audio essence
 
 - [x] Retrieve PCM audio
-- [ ] Retrieve WAV audio <!-- Adobe Premiere Pro -->
-- [ ] Retrieve AIFF audio <!-- ArdourXchange, Adobe Premiere Pro "creative_post.aaf" "100_BARS.aaf" "ADP_STTRACK_CLIPGAIN_TRACKGAIN_XFADE_AIFF_AUDIOFXRENDER.aaf"  -->
+- [x] Retrieve WAV audio with summary
+- [x] Retrieve AIFF audio with summary
 
 ## External audio essence
-
-All essence retrieval should get proper audio attributes : samplerate, samplesize, channel count.
 
 - [x] Retrieve WAV audio with summary
 - [x] Retrieve AIFF audio with summary
@@ -36,44 +27,34 @@ All essence retrieval should get proper audio attributes : samplerate, samplesiz
 - [x] Multichannel 7.1 from a single multichannel source file
 - [x] Mono clip offset in source file <!-- PT_WAV_External.aaf and PT_AIFF_External.aaf -->
 - [x] Multichannel clip offset in source file <!-- all the above AAF has offset in source -->
-- [ ] Multiple clips sharing the same essence file <!-- Adobe Premiere pro -->
+- [x] Multiple clips sharing the same essence file <!-- PR_Fades.aaf -->
+<!-- - [ ] Skipping any 1:1 gain allows not to miss any other actual gain (eg. Resolve 18.5.AAF) -->
 
 ## Fades
 
-- [ ] Retrieve fade-in on a mono clip
-	- [ ] AAFI_INTERPOL_LINEAR
-	- [ ] AAFI_INTERPOL_LOG
-	- [ ] AAFI_INTERPOL_CONSTANT
-	- [ ] AAFI_INTERPOL_POWER
-	- [ ] AAFI_INTERPOL_BSPLINE
-- [ ] Retrieve fade-out on a mono clip
-	- [ ] AAFI_INTERPOL_LINEAR
-	- [ ] AAFI_INTERPOL_LOG
-	- [ ] AAFI_INTERPOL_CONSTANT
-	- [ ] AAFI_INTERPOL_POWER
-	- [ ] AAFI_INTERPOL_BSPLINE
-- [ ] Retrieve cross-fade on a mono clip
-	- [ ] AAFI_INTERPOL_LINEAR
-	- [ ] AAFI_INTERPOL_LOG
-	- [ ] AAFI_INTERPOL_CONSTANT
-	- [ ] AAFI_INTERPOL_POWER
-	- [ ] AAFI_INTERPOL_BSPLINE
-- [ ] Retrieve fade-in on a stereo clip
-- [ ] Retrieve fade-out on a stereo clip
-- [ ] Retrieve cross-fade on a stereo clip
+- [x] Retrieve log fade-in / fade-out / x-fade on mono clip(s)
+- [x] Retrieve log fade-in / fade-out / x-fade on stereo clip(s)
+- [x] Retrieve linear fade-in / fade-out / x-fade on mono clip(s)
+- [x] Retrieve linear fade-in / fade-out / x-fade on stereo clip(s)
+- [x] Retrieve equal power fade-in / fade-out / x-fade on mono clip(s)
+- [x] Retrieve equal power fade-in / fade-out / x-fade on stereo clip(s)
 
 ## Automation
 
-- [ ] Mono clip volume automation
-- [ ] Mono clip pan automation
-- [ ] Stereo clip volume automation
-- [ ] Stereo clip pan automation
+- [x] Mono clip gain
+- [x] Stereo clip gain
+- [x] Mono clip volume automation
+- [x] Stereo clip volume automation
 - [ ] Mono track volume automation
-- [ ] Mono track pan automation
 - [ ] Stereo track volume automation
-- [ ] Stereo track pan automation
 - [ ] Mono clip + track volume automation
-- [ ] Mono clip + track pan automation
+- [x] Mono clip gain + clip volume automation
+- [x] Stereo clip gain + clip volume automation
+
+- [ ] Mono clip pan automation
+- [ ] Stereo clip pan automation
+- [ ] Mono track pan automation
+- [ ] Stereo track pan automation
 
 ## Vendor specific implementations
 

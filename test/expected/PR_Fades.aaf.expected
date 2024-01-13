@@ -1,0 +1,91 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2024-01-13 16:18:30.00
+ AAF ObjSpec Version  : 1.2
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFOPDef_EditProtocol
+
+
+
+ CompanyName          : Adobe
+ ProductName          : Premiere Pro
+ ProductVersion       : 23.5.0.0 AAFVersionUnknown (0)
+ ProductVersionString : 23.5.0
+ ProductID            : { 0x00000000 0x0000 0x0000 { 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 } }
+ Date                 : 2024-01-13 16:18:30.00
+ ToolkitVersion       : 1.2.0.0 AAFVersionBeta (4)
+ Platform             : AAFSDK (Win64)
+ GenerationAUID       : { 0x480e2ee6 0x3981 0x47ff { 0x93 0x36 0x10 0x47 0xd4 0x68 0x50 0x6a } }
+
+
+
+ Composition Name            : PR_Fades
+
+ TC EditRrate                : 30000/1001
+ TC FPS                      : 30 DF
+
+ Composition Start (EU)      : 0
+ Composition Start (samples) : 0
+ Composition Start           : 00:00:00;00
+
+ Composition End (EU)        : 646 (EditRate: 30000/1001)
+ Composition End (samples)   : 475284
+ Composition End             : 00:00:21;16
+
+ Dominant Sample Rate        : 22050
+ Dominant Sample Size        : 16 bits
+
+
+Media Essences :
+================
+
+   0:  Type: WAVE  Length: 0  02 Ch - 22050 Hz - 16 bits  file: file://si.francetv.fr/process_limo/SDG/Utilisateurs/Adrien%20GESTA-FLINE/prjcts_prs/libaaf/fullres/stereo-identif.wav  file_name: stereo-identif.wav
+   1:  Type: WAVE  Length: 0  01 Ch - 44100 Hz - 16 bits  file: file://si.francetv.fr/process_limo/SDG/Utilisateurs/Adrien%20GESTA-FLINE/prjcts_prs/libaaf/res/1000hz-18dbs16b44.1k.wav  file_name: 1000hz-18dbs16b44.1k.wav
+
+
+Tracks & Clips :
+================
+
+VideoTrack  (1) - edit_rate 30000/1001 (29.97)  -  ""
+Track  (1) - MONO   - Gain: none     - Pan: none    - edit_rate: 30000/1001 (29.97)  -  "Audio 1"
+ Clip:0    Channel: 1  Gain: +00.0 dB         GainAuto: none  Start: 0  Len: 19129  End: 19129  SrcOffset: 19864  FadeIn: CURV_LOG (2207)  FadeOut: CURV_LOG (2207)
+   SourceFile: [ch 1] 1000hz-18dbs16b44.1k.wav   (1000hz-18dbs16b44.1k.wav)
+ Clip:1    Channel: 1  Gain: +00.0 dB         GainAuto: none  Start: 110360  Len: 19129  End: 129489  SrcOffset: 19864  FadeIn: CURV_LIN (2207)  FadeOut: CURV_LIN (2207)
+   SourceFile: [ch 1] 1000hz-18dbs16b44.1k.wav   (1000hz-18dbs16b44.1k.wav)
+ Clip:2    Channel: 1  Gain: +00.0 dB         GainAuto: none  Start: 220720  Len: 19129  End: 239849  SrcOffset: 19864  FadeIn: CURV_PWR (2207)  FadeOut: CURV_PWR (2207)
+   SourceFile: [ch 1] 1000hz-18dbs16b44.1k.wav   (1000hz-18dbs16b44.1k.wav)
+ Clip:3    Channel: 1  Gain: +00.0 dB         GainAuto: none  Start: 331080  Len: 22807  End: 353888  SrcOffset: 19864
+   SourceFile: [ch 1] 1000hz-18dbs16b44.1k.wav   (1000hz-18dbs16b44.1k.wav)
+ XFade: CURV_LOG  (7357)
+ Clip:4    Channel: 1  Gain: +00.0 dB         GainAuto: none  Start: 346531  Len: 26486  End: 373017  SrcOffset: 16186
+   SourceFile: [ch 1] 1000hz-18dbs16b44.1k.wav   (1000hz-18dbs16b44.1k.wav)
+ XFade: CURV_LIN  (8093)
+ Clip:5    Channel: 1  Gain: +00.0 dB         GainAuto: none  Start: 364924  Len: 27222  End: 392146  SrcOffset: 15450
+   SourceFile: [ch 1] 1000hz-18dbs16b44.1k.wav   (1000hz-18dbs16b44.1k.wav)
+ XFade: CURV_PWR  (7357)
+ Clip:6    Channel: 1  Gain: +00.0 dB         GainAuto: none  Start: 384789  Len: 22807  End: 407597  SrcOffset: 16186
+   SourceFile: [ch 1] 1000hz-18dbs16b44.1k.wav   (1000hz-18dbs16b44.1k.wav)
+
+
+Track  (2) - STEREO - Gain: none     - Pan: none    - edit_rate: 30000/1001 (29.97)  -  "Audio 2"
+ Clip:7    Channel: 2  Gain: +00.0 dB         GainAuto: none  Start: 0  Len: 42672  End: 42672  SrcOffset: 0  FadeIn: CURV_LOG (7357)  FadeOut: CURV_LOG (7357)
+   SourceFile: [ch all] stereo-identif.wav   (stereo-identif.wav)
+ Clip:8    Channel: 2  Gain: +00.0 dB         GainAuto: none  Start: 110360  Len: 42672  End: 153032  SrcOffset: 0  FadeIn: CURV_LIN (7357)  FadeOut: CURV_LIN (7357)
+   SourceFile: [ch all] stereo-identif.wav   (stereo-identif.wav)
+ Clip:9    Channel: 2  Gain: +00.0 dB         GainAuto: none  Start: 220720  Len: 42672  End: 263393  SrcOffset: 0  FadeIn: CURV_PWR (7357)  FadeOut: CURV_PWR (7357)
+   SourceFile: [ch all] stereo-identif.wav   (stereo-identif.wav)
+ Clip:10   Channel: 2  Gain: +00.0 dB         GainAuto: none  Start: 331080  Len: 41936  End: 373017  SrcOffset: 0
+   SourceFile: [ch all] stereo-identif.wav   (stereo-identif.wav)
+ XFade: CURV_LOG  (7357)
+ Clip:11   Channel: 2  Gain: +00.0 dB         GainAuto: none  Start: 365660  Len: 41201  End: 406861  SrcOffset: 735
+   SourceFile: [ch all] stereo-identif.wav   (stereo-identif.wav)
+ XFade: CURV_LIN  (7357)
+ Clip:12   Channel: 2  Gain: +00.0 dB         GainAuto: none  Start: 399504  Len: 41201  End: 440705  SrcOffset: 735
+   SourceFile: [ch all] stereo-identif.wav   (stereo-identif.wav)
+ XFade: CURV_PWR  (7357)
+ Clip:13   Channel: 2  Gain: +00.0 dB         GainAuto: none  Start: 433347  Len: 41936  End: 475284  SrcOffset: 735
+   SourceFile: [ch all] stereo-identif.wav   (stereo-identif.wav)
+
+
+
+

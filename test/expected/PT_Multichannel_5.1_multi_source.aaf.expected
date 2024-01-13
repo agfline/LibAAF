@@ -60,7 +60,7 @@ Tracks & Clips :
 ================
 
 Track  (1) - 5.1    - Gain: none     - Pan: none    - edit_rate: 30/1 (30.00)  -  "Audio 1"
- Clip:0    Channel: 6  Gain: none             GainAuto: none  Start: 9600000  Len: 222933  End: 9822933  Fadein: none      Fadeout: none      SrcOffset: 2133
+ Clip:0    Channel: 6  Gain: none             GainAuto: none  Start: 9600000  Len: 222933  End: 9822933  SrcOffset: 2133
    SourceFile: [ch 1] 5.1-SMPTE-channel-identif-02.L   (5.1-SMPTE-channel-identif-02.L)
    SourceFile: [ch 1] 5.1-SMPTE-channel-identif-02.C   (5.1-SMPTE-channel-identif-02.C)
    SourceFile: [ch 1] 5.1-SMPTE-channel-identif-02.R   (5.1-SMPTE-channel-identif-02.R)

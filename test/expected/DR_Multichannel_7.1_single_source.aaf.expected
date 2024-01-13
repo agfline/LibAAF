@@ -47,7 +47,7 @@ Tracks & Clips :
 
 VideoTrack  (1) - edit_rate 24/1 (24.00)  -  ""
 Track  (1) - 7.1    - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 1"
- Clip:0    Channel: 8  Gain: none             GainAuto: none  Start: 13215780  Len: 475183  End: 13690964  Fadein: none      Fadeout: none      SrcOffset: 1837
+ Clip:0    Channel: 8  Gain: none             GainAuto: none  Start: 13215780  Len: 475183  End: 13690964  SrcOffset: 1837
    SourceFile: [ch all] 7   (7)
 
 

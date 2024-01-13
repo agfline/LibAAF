@@ -148,7 +148,9 @@ test "DR_Markers.aaf"
 test "PT_WAV_External.aaf"                      "--media-location ${MEDIA_PATH}"
 test "PT_WAV_External_sub_directory.aaf"        "--samplerate 44100"
 test "PT_WAV_External_same_directory.aaf"       "--samplerate 44100"
+test "PR_WAV_Internal.aaf"
 test "PT_AIFF_External.aaf"
+test "PR_AIFF_Internal.aaf"
 test "PT_MXF_External.aaf"
 test "PT_PCM_Internal.aaf"                      "--samplerate 44100"
 test "DR_MP3_External.aaf"
@@ -160,6 +162,7 @@ test "DR_Multichannel_7.1_single_source.aaf"
 test "PT_Multichannel_stereo_multi_source.aaf"
 test "PT_Multichannel_5.1_multi_source.aaf"
 test "PT_Multichannel_7.1_multi_source.aaf"
+test "PR_Fades.aaf"
 
 echo
 

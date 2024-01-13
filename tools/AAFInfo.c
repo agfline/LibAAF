@@ -55,7 +55,7 @@ enum pos_format {
 		(x->flags & AAFI_INTERPOL_CONSTANT) ? "CURV_CST" : \
 		(x->flags & AAFI_INTERPOL_POWER)    ? "CURV_PWR" : \
 		(x->flags & AAFI_INTERPOL_BSPLINE)  ? "CURV_BSP" : \
-		"" : "none    "
+		"" : ""
 
 #define ESSENCE_TYPE_TO_STRING( type ) \
 	( type == AAFI_ESSENCE_TYPE_PCM  ) ? "PCM " : \
@@ -725,10 +725,16 @@ int main( int argc, char *argv[] ) {
 
 					aafiTransition *Trans = (aafiTransition*)audioItem->data;
 
+					char posFormatBuf[POS_FORMAT_BUFFER_LEN];
+
 					if ( ! ( Trans->flags & AAFI_TRANS_XFADE ) )
 						continue;
 
-					fprintf( logfp, " xfade:   %s\n", INTERPOL_TO_STRING( Trans ) );
+					fprintf( logfp, " XFade: %s %s%s%s\n",
+						INTERPOL_TO_STRING( Trans ),
+						(Trans) ? " (" : "",
+						(Trans) ? formatPosValue( Trans->len, audioClip->track->edit_rate, posFormat, tcFormat, &displaySamplerate, posFormatBuf ) : "",
+						(Trans) ? ")" : "" );
 					continue;
 				}
 				else if ( audioItem->type == AAFI_AUDIO_CLIP ) {
@@ -742,9 +748,12 @@ int main( int argc, char *argv[] ) {
 					char posFormatBuf2[POS_FORMAT_BUFFER_LEN];
 					char posFormatBuf3[POS_FORMAT_BUFFER_LEN];
 					char posFormatBuf4[POS_FORMAT_BUFFER_LEN];
+					char posFormatBuf5[POS_FORMAT_BUFFER_LEN];
+					char posFormatBuf6[POS_FORMAT_BUFFER_LEN];
 
-					fprintf( logfp, " Clip:%u%s  Channel: %i  Gain: %s %s  GainAuto: %s  Start: %s  Len: %s  End: %s  Fadein: %s  Fadeout: %s  SrcOffset: %s\n",
-						clipCount, ( clipCount < 10 ) ? "  " : ( clipCount < 100 ) ? " " : "",
+					fprintf( logfp, " Clip:%u%s  Channel: %i  Gain: %s %s  GainAuto: %s  Start: %s  Len: %s  End: %s  SrcOffset: %s%s%s%s%s%s%s%s%s%s%s%s%ls%s\n",
+						clipCount,
+						( clipCount < 10 ) ? "  " : ( clipCount < 100 ) ? " " : "",
 						audioClip->channels,
 						gainToStr( audioClip->gain ),
 						(audioClip->mute) ? "(mute)" : "      ",
@@ -752,9 +761,20 @@ int main( int argc, char *argv[] ) {
 						formatPosValue( (audioClip->pos + sessionStart),                  audioClip->track->edit_rate, posFormat, tcFormat, &displaySamplerate, posFormatBuf1 ),
 						formatPosValue( (audioClip->len),                                 audioClip->track->edit_rate, posFormat, tcFormat, &displaySamplerate, posFormatBuf2 ),
 						formatPosValue( (audioClip->pos + sessionStart + audioClip->len), audioClip->track->edit_rate, posFormat, tcFormat, &displaySamplerate, posFormatBuf3 ),
+						formatPosValue( audioClip->essence_offset,                        audioClip->track->edit_rate, posFormat, tcFormat, &displaySamplerate, posFormatBuf4 ),
+						(fadein) ? "  FadeIn: " : "",
 						INTERPOL_TO_STRING( fadein ),
+						(fadein) ? " (" : "",
+						(fadein) ? formatPosValue( fadein->len, audioClip->track->edit_rate, posFormat, tcFormat, &displaySamplerate, posFormatBuf5 ) : "",
+						(fadein) ? ")" : "",
+						(fadeout) ? "  FadeOut: " : "",
 						INTERPOL_TO_STRING( fadeout ),
-						formatPosValue( audioClip->essence_offset, audioClip->track->edit_rate, posFormat, tcFormat, &displaySamplerate, posFormatBuf4 ) );
+						(fadeout) ? " (" : "",
+						(fadeout) ? formatPosValue( fadeout->len, audioClip->track->edit_rate, posFormat, tcFormat, &displaySamplerate, posFormatBuf6 ) : "",
+						(fadeout) ? ")" : "",
+						(audioClip->subClipName) ? "  ClipName: \"" : "",
+						(audioClip->subClipName) ? audioClip->subClipName : L"",
+						(audioClip->subClipName) ? "\" " : "" );
 
 					aafiAudioEssencePointer *audioEssencePtr = audioClip->essencePointerList;
 					while ( audioEssencePtr ) {

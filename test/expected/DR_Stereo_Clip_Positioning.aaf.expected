@@ -50,13 +50,13 @@ Tracks & Clips :
 
 VideoTrack  (1) - edit_rate 24/1 (24.00)  -  ""
 Track  (1) - STEREO - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 1"
- Clip:0    Channel: 2  Gain: none             GainAuto: none  Start: 172800000  Len: 93860  End: 172893860  Fadein: none      Fadeout: none      SrcOffset: 0
+ Clip:0    Channel: 2  Gain: none             GainAuto: none  Start: 172800000  Len: 93860  End: 172893860  SrcOffset: 0
    SourceFile: [ch all] stereo-identif   (stereo-identif)
- Clip:1    Channel: 2  Gain: none             GainAuto: none  Start: 173000000  Len: 93860  End: 173093860  Fadein: none      Fadeout: none      SrcOffset: 0
+ Clip:1    Channel: 2  Gain: none             GainAuto: none  Start: 173000000  Len: 93860  End: 173093860  SrcOffset: 0
    SourceFile: [ch all] sample-accurate-173000000   (sample-accurate-173000000)
- Clip:2    Channel: 2  Gain: none             GainAuto: none  Start: 173232000  Len: 93860  End: 173325860  Fadein: none      Fadeout: none      SrcOffset: 0
+ Clip:2    Channel: 2  Gain: none             GainAuto: none  Start: 173232000  Len: 93860  End: 173325860  SrcOffset: 0
    SourceFile: [ch all] tc-accurate-01:00:09:00-173232000   (tc-accurate-01:00:09:00-173232000)
- Clip:3    Channel: 2  Gain: none             GainAuto: none  Start: 173459321  Len: 93860  End: 173553181  Fadein: none      Fadeout: none      SrcOffset: 0
+ Clip:3    Channel: 2  Gain: none             GainAuto: none  Start: 173459321  Len: 93860  End: 173553181  SrcOffset: 0
    SourceFile: [ch all] sample-accuracy-173459321   (sample-accuracy-173459321)
 
 

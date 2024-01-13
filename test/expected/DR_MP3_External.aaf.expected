@@ -47,7 +47,7 @@ Tracks & Clips :
 
 VideoTrack  (1) - edit_rate 24/1 (24.00)  -  ""
 Track  (1) - MONO   - Gain: none     - Pan: none    - edit_rate: 24/1 (24.00)  -  "Audio 1"
- Clip:0    Channel: 1  Gain: none             GainAuto: none  Start: 172800000  Len: 144000  End: 172944000  Fadein: none      Fadeout: none      SrcOffset: 0
+ Clip:0    Channel: 1  Gain: none             GainAuto: none  Start: 172800000  Len: 144000  End: 172944000  SrcOffset: 0
    SourceFile: [ch 1] 1000hz   (1000hz)
 
 

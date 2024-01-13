@@ -49,7 +49,7 @@ Tracks & Clips :
 ================
 
 Track  (1) - MONO   - Gain: none     - Pan: none    - edit_rate: 30/1 (30.00)  -  "Audio 1"
- Clip:0    Channel: 1  Gain: none             GainAuto: none  Start: 158804100  Len: 44100  End: 158848200  Fadein: none      Fadeout: none      SrcOffset: 44100
+ Clip:0    Channel: 1  Gain: none             GainAuto: none  Start: 158804100  Len: 44100  End: 158848200  SrcOffset: 44100
    SourceFile: [ch 1] PT_MXF_ExtepwwsVYMTxgrsYBFR-01   (PT_MXF_ExtepwwsVYMTxgrsYBFR-01)
 
 

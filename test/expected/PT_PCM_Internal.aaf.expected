@@ -49,7 +49,7 @@ Tracks & Clips :
 ================
 
 Track  (1) - MONO   - Gain: none     - Pan: none    - edit_rate: 16000/1 (16000.00)  -  "Audio 1"
- Clip:0    Channel: 1  Gain: none             GainAuto: none  Start: 158760000  Len: 88200  End: 158848200  Fadein: none      Fadeout: none      SrcOffset: 0
+ Clip:0    Channel: 1  Gain: none             GainAuto: none  Start: 158760000  Len: 88200  End: 158848200  SrcOffset: 0
    SourceFile: [ch 1] 1000hz-18dbs16b44.1k-01   (1000hz-18dbs16b44.1k-01)
 
 

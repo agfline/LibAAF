@@ -47,7 +47,7 @@ Tracks & Clips :
 
 VideoTrack  (1) - edit_rate 24/1 (24.00)  -  ""
 Track  (1) - STEREO - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 1"
- Clip:0    Channel: 2  Gain: none             GainAuto: none  Start: 13215779  Len: 80238  End: 13296017  Fadein: none      Fadeout: none      SrcOffset: 1837
+ Clip:0    Channel: 2  Gain: none             GainAuto: none  Start: 13215779  Len: 80238  End: 13296017  SrcOffset: 1837
    SourceFile: [ch all] stereo-identif   (stereo-identif)
 
 
