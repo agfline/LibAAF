@@ -1,0 +1,72 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2024-01-18 21:07:09.00
+ AAF ObjSpec Version  : 1.1
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFOPDef_EditProtocol
+
+
+
+ CompanyName          : Avid Technology, Inc.
+ ProductName          : Avid Media Composer 23.12
+ ProductVersion       : 23.12.0.0 AAFVersionReleased (1)
+ ProductVersionString : Unknown version
+ ProductID            : { 0xd0b7c06e 0xcd3d 0x4ad7 { 0xac 0xfb 0xf0 0x3a 0x4f 0x42 0xa2 0x31 } }
+ Date                 : 2024-01-18 21:07:09.00
+ ToolkitVersion       : 2.0.9.124 AAFVersionReleased (1)
+ Platform             : AAFSDK (Win64)
+ GenerationAUID       : { 0xeb663fe0 0x8cc1 0x4622 { 0xad 0xd9 0xf5 0x3a 0xb3 0x87 0x33 0xc9 } }
+
+
+
+ Composition Name            : MC_Markers.Exporté.03
+
+ TC EditRrate                : 30000/1001
+ TC FPS                      : 30 NDF
+
+ Composition Start (EU)      : 108000
+ Composition Start (samples) : 172972800
+ Composition Start           : 01:00:00:00
+
+ Composition End (EU)        : 108030 (EditRate: 30000/1001)
+ Composition End (samples)   : 173020848
+ Composition End             : 01:00:01:00
+
+ Dominant Sample Rate        : 48000
+ Dominant Sample Size        : 16 bits
+
+
+Media Essences :
+================
+
+ Audio[1] :: Format: PCM  - 01 ch - 48000 Hz - 16 bits  Length: 144144  Name: "1000hz-18dbs16b44.1k.wav"  UniqueName: "1000hz-18dbs16b44.1k.wav"
+ ├── File: "file:///D%3A/Avid%20MediaFiles/MXF/1/1000hz-18dA01.65A40B01E984A.mxf"
+ └── Metadata:
+     - Name: "Comments"    Text: "This is a Source Media Comment."
+     - Name: "UNC Path"    Text: "C:\Users\user\Desktop\LibAAFTestFiles\res\1000hz-18dbs16b44.1k.wav"
+     - Name: "Shoot Date"  Text: "2024-01-03"
+     - Name: "TapeID"      Text: "1000hz-18dbs16b44.1k.wav"
+
+
+Tracks & Clips :
+================
+
+ VideoTrack[1] ::  EditRate: 30000/1001 (29.97)
+
+
+ AudioTrack[1] ::  EditRate: 30000/1001 (29.97)  Format: MONO
+ └── Clip (1):  Start: 172972800  Len: 48048  End: 173020848  SourceOffset: 48048  Channels: 1
+     └── SourceFile [ch 1]: "1000hz-18dbs16b44.1k.wav"
+  
+
+ AudioTrack[2] ::  EditRate: 30000/1001 (29.97)  Format: MONO
+ └── Clip (1):  Start: 172972800  Len: 6406  End: 172979207  SourceOffset: 48048  Channels: 1
+     └── SourceFile [ch 1]: "1000hz-18dbs16b44.1k.wav"
+  
+
+Markers :
+=========
+
+ Marker[0]:  EditRate: 30000/1001 (29.97)  Start: 172988816  Length: 0  Color: #ffa1662fa419  Label: "ABC"  Comment: "I'm a Marker on track A1, at pos 01:00:00:10, I last 1 frame, my color is red, my name is ABC"
+ Marker[1]:  EditRate: 30000/1001 (29.97)  Start: 173019247  Length: 0  Color: #3333cccccccc  Label: "DEF"  Comment: "I'm a Marker on track A2, at pos 01:00:00:29, I last 1 frame, my color is cyan, my name is DEF"
+ Marker[2]:  EditRate: 30000/1001 (29.97)  Start: 172972800  Length: 6406  Color: #65e665e69919  Label: "XYZ"  Comment: "I'm a Marker on track TC1, at pos 01:00:00:00, I last 4 frames, my color is yellow, my name is XYZ"

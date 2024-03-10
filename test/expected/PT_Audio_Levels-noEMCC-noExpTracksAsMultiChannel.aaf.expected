@@ -1,0 +1,256 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2024-01-10 12:22:55.00
+ AAF ObjSpec Version  : 1.1
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFUID_NULL
+
+
+
+ CompanyName          : Digidesign, Inc.
+ ProductName          : ProTools
+ ProductVersion       : 23.12.0.136 AAFVersionReleased (1)
+ ProductVersionString : 23.12.0.136
+ ProductID            : { 0x319414f6 0x5852 0x4050 { 0xa4 0xeb 0x98 0x1e 0x64 0x3f 0x33 0xa2 } }
+ Date                 : 2024-01-10 12:22:51.00
+ ToolkitVersion       : 1.1.6.0 AAFVersionBeta (4)
+ Platform             : AAFSDK (Win64)
+ GenerationAUID       : { 0x74ba0939 0xe0df 0x4f6a { 0xb6 0x20 0x5c 0x0a 0xc0 0xe5 0x89 0x93 } }
+
+
+
+ Composition Name            : PT_Audio_Gain-noEMCC-noExpTracksAsMultiChannel
+
+ TC EditRrate                : 30/1
+ TC FPS                      : 30 NDF
+
+ Composition Start (EU)      : 0
+ Composition Start (samples) : 0
+ Composition Start           : 00:00:00:00
+
+ Composition End (EU)        : 6747300 (EditRate: 44100/1)
+ Composition End (samples)   : 6747300
+ Composition End             : 00:02:33:00
+
+ Dominant Sample Rate        : 44100
+ Dominant Sample Size        : 16 bits
+
+ Metadata:
+ - Name: "Comment"  Text: ""
+
+
+Media Essences :
+================
+
+ Audio[1] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 86234  Name: "stereo-identif-04.R"  UniqueName: "stereo-identif-04.R"
+ └── File: "file:///c%3a/Users/user/localshare/aaf/dumb/PT_Audio_GahzvcXVCWwpszWZFB.wav"
+
+ Audio[2] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 86234  Name: "stereo-identif-04.L"  UniqueName: "stereo-identif-04.L"
+ └── File: "file:///c%3a/Users/user/localshare/aaf/dumb/PT_Audio_GazyrbXVCWygszWZFB.wav"
+
+ Audio[3] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 132300  Name: "1000hz-18dbs16b44.1k-04"  UniqueName: "1000hz-18dbs16b44.1k-04"
+ └── File: "file:///c%3a/Users/user/localshare/aaf/dumb/PT_Audio_GayrgzWVCWpcszWZFB.wav"
+
+
+Tracks & Clips :
+================
+
+
+ AudioTrack[1] ::  EditRate: 44100/1 (44100.00)  Format: MONO  Name: "Audio 1"
+ ├── Clip (1):  Start: 0  Len: 132300  End: 132300  SourceOffset: 0  Channels: 1  VolumeAutomation: YES
+ │   ├── SourceFile [ch 1]: "1000hz-18dbs16b44.1k-04"
+ │   └── Clip Volume Automation ──────────────────────
+ │       _time: 0.000000   _value: 1.000000 (+00.0 dB)
+ │       _time: 0.999992   _value: 1.000000 (+00.0 dB)
+ │       _time: 1.000000   _value: 1.000000 (+00.0 dB)
+ │       _time: 1.000000   _value: 1.000000 (+00.0 dB)
+ │
+ ├── Clip (2):  Start: 1323000  Len: 132300  End: 1455300  SourceOffset: 0  Channels: 1  VolumeAutomation: YES
+ │   ├── SourceFile [ch 1]: "1000hz-18dbs16b44.1k-04"
+ │   └── Clip Volume Automation ──────────────────────
+ │       _time: 0.000000   _value: 1.000000 (+00.0 dB)
+ │       _time: 1.000000   _value: 1.000000 (+00.0 dB)
+ │       _time: 1.000000   _value: 1.000000 (+00.0 dB)
+ │
+ ├── Clip (3):  Start: 2646000  Len: 132300  End: 2778300  SourceOffset: 0  Channels: 1  VolumeAutomation: YES
+ │   ├── SourceFile [ch 1]: "1000hz-18dbs16b44.1k-04"
+ │   └── Clip Volume Automation ──────────────────────
+ │       _time: 0.000000   _value: 1.000000 (+00.0 dB)
+ │       _time: 1.000000   _value: 1.000000 (+00.0 dB)
+ │       _time: 1.000000   _value: 1.000000 (+00.0 dB)
+ │
+ ├── Clip (4):  Start: 3969000  Len: 132300  End: 4101300  SourceOffset: 0  Channels: 1  VolumeAutomation: YES
+ │   ├── SourceFile [ch 1]: "1000hz-18dbs16b44.1k-04"
+ │   └── Clip Volume Automation ──────────────────────
+ │       _time: 0.000000   _value: 3.935501 (+11.9 dB)
+ │       _time: 0.122086   _value: 3.981072 (+12.0 dB)
+ │       _time: 0.226092   _value: 1.000000 (+00.0 dB)
+ │       _time: 0.338806   _value: 0.010233 (-39.8 dB)
+ │       _time: 0.439426   _value: 3.981072 (+12.0 dB)
+ │       _time: 0.571005   _value: 0.012589 (-38.0 dB)
+ │       _time: 0.694845   _value: 3.273407 (+10.3 dB)
+ │       _time: 0.859320   _value: 1.000000 (+00.0 dB)
+ │       _time: 0.981224   _value: 0.053088 (-25.5 dB)
+ │       _time: 1.000000   _value: 3.548134 (+11.0 dB)
+ │       _time: 1.000000   _value: 1.995262 (+06.0 dB)
+ │
+ ├── Clip (5):  Start: 5292000  Len: 132300  End: 5424300  SourceOffset: 0  Channels: 1  VolumeAutomation: YES
+ │   ├── SourceFile [ch 1]: "1000hz-18dbs16b44.1k-04"
+ │   └── Clip Volume Automation ──────────────────────
+ │       _time: 0.000000   _value: 0.017783 (-35.0 dB)
+ │       _time: 0.045714   _value: 0.017579 (-35.1 dB)
+ │       _time: 0.199546   _value: 3.981072 (+12.0 dB)
+ │       _time: 0.303553   _value: 1.000000 (+00.0 dB)
+ │       _time: 0.416266   _value: 0.010233 (-39.8 dB)
+ │       _time: 0.516886   _value: 3.981072 (+12.0 dB)
+ │       _time: 0.648466   _value: 0.012589 (-38.0 dB)
+ │       _time: 0.772305   _value: 3.273407 (+10.3 dB)
+ │       _time: 0.936780   _value: 1.000000 (+00.0 dB)
+ │       _time: 1.000000   _value: 0.053703 (-25.4 dB)
+ │       _time: 1.000000   _value: 0.053088 (-25.5 dB)
+ │
+ └── Clip (6):  Start: 6615000  Len: 132300  End: 6747300  SourceOffset: 0  Channels: 1  VolumeAutomation: YES
+     ├── SourceFile [ch 1]: "1000hz-18dbs16b44.1k-04"
+     └── Clip Volume Automation ──────────────────────
+         _time: 0.000000   _value: 1.000000 (+00.0 dB)
+         _time: 0.023522   _value: 1.000000 (+00.0 dB)
+         _time: 0.170272   _value: 1.000000 (+00.0 dB)
+         _time: 0.170280   _value: 1.135011 (+01.1 dB)
+         _time: 0.179713   _value: 1.000000 (+00.0 dB)
+         _time: 0.292426   _value: 0.010233 (-39.8 dB)
+         _time: 0.393046   _value: 3.981072 (+12.0 dB)
+         _time: 0.524626   _value: 0.012589 (-38.0 dB)
+         _time: 0.648466   _value: 3.273407 (+10.3 dB)
+         _time: 0.812940   _value: 1.000000 (+00.0 dB)
+         _time: 0.822079   _value: 0.812831 (-01.8 dB)
+         _time: 0.822086   _value: 1.000000 (+00.0 dB)
+         _time: 0.987143   _value: 1.000000 (+00.0 dB)
+         _time: 1.000000   _value: 1.000000 (+00.0 dB)
+  
+
+ AudioTrack[2] ::  EditRate: 44100/1 (44100.00)  Format: MONO  Name: "Audio 2"
+ ├── Clip (1):  Start: 0  Len: 85260  End: 85260  SourceOffset: 0  Channels: 1  VolumeAutomation: YES
+ │   ├── SourceFile [ch 1]: "stereo-identif-04.L"
+ │   └── Clip Volume Automation ──────────────────────
+ │       _time: 0.000000   _value: 1.000000 (+00.0 dB)
+ │       _time: 0.999988   _value: 1.000000 (+00.0 dB)
+ │       _time: 1.000000   _value: 1.000000 (+00.0 dB)
+ │       _time: 1.000000   _value: 1.000000 (+00.0 dB)
+ │
+ ├── Clip (2):  Start: 1323000  Len: 85260  End: 1408260  SourceOffset: 0  Channels: 1  VolumeAutomation: YES
+ │   ├── SourceFile [ch 1]: "stereo-identif-04.L"
+ │   └── Clip Volume Automation ──────────────────────
+ │       _time: 0.000000   _value: 1.000000 (+00.0 dB)
+ │       _time: 1.000000   _value: 1.000000 (+00.0 dB)
+ │       _time: 1.000000   _value: 1.000000 (+00.0 dB)
+ │
+ ├── Clip (3):  Start: 2646000  Len: 85260  End: 2731260  SourceOffset: 0  Channels: 1  VolumeAutomation: YES
+ │   ├── SourceFile [ch 1]: "stereo-identif-04.L"
+ │   └── Clip Volume Automation ──────────────────────
+ │       _time: 0.000000   _value: 1.000000 (+00.0 dB)
+ │       _time: 1.000000   _value: 1.000000 (+00.0 dB)
+ │       _time: 1.000000   _value: 1.000000 (+00.0 dB)
+ │
+ ├── Clip (4):  Start: 3969000  Len: 83790  End: 4052790  SourceOffset: 0  Channels: 1  VolumeAutomation: YES
+ │   ├── SourceFile [ch 1]: "stereo-identif-04.L"
+ │   └── Clip Volume Automation ──────────────────────
+ │       _time: 0.000000   _value: 3.935501 (+11.9 dB)
+ │       _time: 0.168326   _value: 3.981072 (+12.0 dB)
+ │       _time: 0.332546   _value: 1.000000 (+00.0 dB)
+ │       _time: 0.510514   _value: 0.010233 (-39.8 dB)
+ │       _time: 0.669388   _value: 3.981072 (+12.0 dB)
+ │       _time: 0.877145   _value: 0.012589 (-38.0 dB)
+ │       _time: 1.000000   _value: 3.273407 (+10.3 dB)
+ │       _time: 1.000000   _value: 1.995262 (+06.0 dB)
+ │
+ ├── Clip (5):  Start: 5292000  Len: 85260  End: 5377260  SourceOffset: 0  Channels: 1  VolumeAutomation: YES
+ │   ├── SourceFile [ch 1]: "stereo-identif-04.L"
+ │   └── Clip Volume Automation ──────────────────────
+ │       _time: 0.000000   _value: 1.000000 (+00.0 dB)
+ │       _time: 0.014638   _value: 1.000000 (+00.0 dB)
+ │       _time: 0.189538   _value: 0.010233 (-39.8 dB)
+ │       _time: 0.345672   _value: 3.981072 (+12.0 dB)
+ │       _time: 0.549848   _value: 0.012589 (-38.0 dB)
+ │       _time: 0.742013   _value: 3.273407 (+10.3 dB)
+ │       _time: 0.997232   _value: 1.000000 (+00.0 dB)
+ │       _time: 1.000000   _value: 0.053703 (-25.4 dB)
+ │       _time: 1.000000   _value: 0.053088 (-25.5 dB)
+ │
+ └── Clip (6):  Start: 6615000  Len: 85260  End: 6700260  SourceOffset: 0  Channels: 1  VolumeAutomation: YES
+     ├── SourceFile [ch 1]: "stereo-identif-04.L"
+     └── Clip Volume Automation ──────────────────────
+         _time: 0.000000   _value: 1.135011 (+01.1 dB)
+         _time: 0.014638   _value: 1.000000 (+00.0 dB)
+         _time: 0.189538   _value: 0.010233 (-39.8 dB)
+         _time: 0.345672   _value: 3.981072 (+12.0 dB)
+         _time: 0.549848   _value: 0.012589 (-38.0 dB)
+         _time: 0.742013   _value: 3.273407 (+10.3 dB)
+         _time: 0.997232   _value: 1.000000 (+00.0 dB)
+         _time: 0.999988   _value: 0.954993 (-00.4 dB)
+         _time: 1.000000   _value: 1.000000 (+00.0 dB)
+         _time: 1.000000   _value: 1.000000 (+00.0 dB)
+  
+
+ AudioTrack[3] ::  EditRate: 44100/1 (44100.00)  Format: MONO  Name: "Audio 2"
+ ├── Clip (1):  Start: 0  Len: 85260  End: 85260  SourceOffset: 0  Channels: 1  VolumeAutomation: YES
+ │   ├── SourceFile [ch 1]: "stereo-identif-04.R"
+ │   └── Clip Volume Automation ──────────────────────
+ │       _time: 0.000000   _value: 1.000000 (+00.0 dB)
+ │       _time: 0.999988   _value: 1.000000 (+00.0 dB)
+ │       _time: 1.000000   _value: 1.000000 (+00.0 dB)
+ │       _time: 1.000000   _value: 1.000000 (+00.0 dB)
+ │
+ ├── Clip (2):  Start: 1323000  Len: 85260  End: 1408260  SourceOffset: 0  Channels: 1  VolumeAutomation: YES
+ │   ├── SourceFile [ch 1]: "stereo-identif-04.R"
+ │   └── Clip Volume Automation ──────────────────────
+ │       _time: 0.000000   _value: 1.000000 (+00.0 dB)
+ │       _time: 1.000000   _value: 1.000000 (+00.0 dB)
+ │       _time: 1.000000   _value: 1.000000 (+00.0 dB)
+ │
+ ├── Clip (3):  Start: 2646000  Len: 85260  End: 2731260  SourceOffset: 0  Channels: 1  VolumeAutomation: YES
+ │   ├── SourceFile [ch 1]: "stereo-identif-04.R"
+ │   └── Clip Volume Automation ──────────────────────
+ │       _time: 0.000000   _value: 1.000000 (+00.0 dB)
+ │       _time: 1.000000   _value: 1.000000 (+00.0 dB)
+ │       _time: 1.000000   _value: 1.000000 (+00.0 dB)
+ │
+ ├── Clip (4):  Start: 3969000  Len: 83790  End: 4052790  SourceOffset: 0  Channels: 1  VolumeAutomation: YES
+ │   ├── SourceFile [ch 1]: "stereo-identif-04.R"
+ │   └── Clip Volume Automation ──────────────────────
+ │       _time: 0.000000   _value: 3.935501 (+11.9 dB)
+ │       _time: 0.168326   _value: 3.981072 (+12.0 dB)
+ │       _time: 0.332546   _value: 1.000000 (+00.0 dB)
+ │       _time: 0.510514   _value: 0.010233 (-39.8 dB)
+ │       _time: 0.669388   _value: 3.981072 (+12.0 dB)
+ │       _time: 0.877145   _value: 0.012589 (-38.0 dB)
+ │       _time: 1.000000   _value: 3.273407 (+10.3 dB)
+ │       _time: 1.000000   _value: 1.995262 (+06.0 dB)
+ │
+ ├── Clip (5):  Start: 5292000  Len: 85260  End: 5377260  SourceOffset: 0  Channels: 1  VolumeAutomation: YES
+ │   ├── SourceFile [ch 1]: "stereo-identif-04.R"
+ │   └── Clip Volume Automation ──────────────────────
+ │       _time: 0.000000   _value: 1.000000 (+00.0 dB)
+ │       _time: 0.014638   _value: 1.000000 (+00.0 dB)
+ │       _time: 0.189538   _value: 0.010233 (-39.8 dB)
+ │       _time: 0.345672   _value: 3.981072 (+12.0 dB)
+ │       _time: 0.549848   _value: 0.012589 (-38.0 dB)
+ │       _time: 0.742013   _value: 3.273407 (+10.3 dB)
+ │       _time: 0.997232   _value: 1.000000 (+00.0 dB)
+ │       _time: 1.000000   _value: 0.053703 (-25.4 dB)
+ │       _time: 1.000000   _value: 0.053088 (-25.5 dB)
+ │
+ └── Clip (6):  Start: 6615000  Len: 85260  End: 6700260  SourceOffset: 0  Channels: 1  VolumeAutomation: YES
+     ├── SourceFile [ch 1]: "stereo-identif-04.R"
+     └── Clip Volume Automation ──────────────────────
+         _time: 0.000000   _value: 1.135011 (+01.1 dB)
+         _time: 0.014638   _value: 1.000000 (+00.0 dB)
+         _time: 0.189538   _value: 0.010233 (-39.8 dB)
+         _time: 0.345672   _value: 3.981072 (+12.0 dB)
+         _time: 0.549848   _value: 0.012589 (-38.0 dB)
+         _time: 0.742013   _value: 3.273407 (+10.3 dB)
+         _time: 0.997232   _value: 1.000000 (+00.0 dB)
+         _time: 0.999988   _value: 0.954993 (-00.4 dB)
+         _time: 1.000000   _value: 1.000000 (+00.0 dB)
+         _time: 1.000000   _value: 1.000000 (+00.0 dB)
+  
+

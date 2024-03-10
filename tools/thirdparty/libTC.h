@@ -1,54 +1,68 @@
+/*
+ * Copyright (C) 2017-2024 Adrien Gesta-Fline
+ *
+ * This file is part of libAAF.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #ifndef __libTC_h__
 #define __libTC_h__
 
-/*
- *	This file is part of LibAAF.
- *
- *	Copyright (c) 2017 Adrien Gesta-Fline
- *
- *	LibAAF is free software: you can redistribute it and/or modify
- *	it under the terms of the GNU Affero General Public License as published by
- *	the Free Software Foundation, either version 3 of the License, or
- *	any later version.
- *
- *	LibAAF is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU Affero General Public License for more details.
- *
- *	You should have received a copy of the GNU Affero General Public License
- *	along with LibAAF. If not, see <http://www.gnu.org/licenses/>.
- */
 
 #include <stdio.h>
 #include <stdint.h>
 
+#if defined(__linux__)
+	#include <limits.h>
+	#include <linux/limits.h>
+#elif defined(__APPLE__)
+	#include <sys/syslimits.h>
+#elif defined(_WIN32)
+	#include <windows.h> // MAX_PATH
+	#include <limits.h>
+#endif
 
-#define TC_SEP          ':'
-#define TC_SEP_DROP     ';'
+
+#define TC_SEP_CHAR          ':'
+#define TC_SEP_DROP_CHAR     ';'
+#define TC_SEP_STR           ":"
+#define TC_SEP_DROP_STR      ";"
 
 
 /*
- *	SMPTE ST12-1 p6 :
- *	This Standard specifies a time and control code for use in television and
- *	accompanying audio systems operating at nominal rates of 60, 59.94, 50,
- *	48, 47.95, 30, 29.97, 25, 24, and 23.98 frames per second.
+ * SMPTE ST12-1 p6 :
+ * This Standard specifies a time and control code for use in television and
+ * accompanying audio systems operating at nominal rates of 60, 59.94, 50,
+ * 48, 47.95, 30, 29.97, 25, 24, and 23.98 frames per second.
  *
- *	SMPTE ST428-11:2013 p3 :
- *	This first part defines the additional frame rates individually at 25, 30,
- *	50, 60, 96, 100 and 120 frames per second.
+ * SMPTE ST428-11:2013 p3 :
+ * This first part defines the additional frame rates individually at 25, 30,
+ * 50, 60, 96, 100 and 120 frames per second.
  *
- *	NOTE about 30 DF and 60 DF (from "Pro Tools for Video, Film and Multimedia" p45) :
- *	Many manufacturers, including Digidesign, label one time code format as 30 fps
- *	drop-frame. This is not a real format. The term is commonly misused as a name
- *	for 29.97 drop-frame. If you think about it, 30 fps does not need to drop frame
- *	numbers in order to be in sync with the real-time clock.
- *	There would be no normal use for 30 drop-frame time code. In Pro Tools, the time
- *	code options include both 29.97 drop-frame and 30 drop-frame. The 30 drop-frame
- *	is a true 30fps with skipped frame numbers. In relation to the real-time clock,
- *	this format runs faster, and after one hour of real-time, reads: 01:00:03:18.
- *	This format is very misleading and should only be used when correcting errors
- *	in existing time code. Beware, and double check your time code format!
+ * NOTE about 30 DF and 60 DF (from "Pro Tools for Video, Film and Multimedia" p45) :
+ * Many manufacturers, including Digidesign, label one time code format as 30 fps
+ * drop-frame. This is not a real format. The term is commonly misused as a name
+ * for 29.97 drop-frame. If you think about it, 30 fps does not need to drop frame
+ * numbers in order to be in sync with the real-time clock.
+ * There would be no normal use for 30 drop-frame time code. In Pro Tools, the time
+ * code options include both 29.97 drop-frame and 30 drop-frame. The 30 drop-frame
+ * is a true 30fps with skipped frame numbers. In relation to the real-time clock,
+ * this format runs faster, and after one hour of real-time, reads: 01:00:03:18.
+ * This format is very misleading and should only be used when correcting errors
+ * in existing time code. Beware, and double check your time code format!
  *
  */
 
@@ -61,143 +75,69 @@ enum TC_FORMAT {
 	TC_25,
 	TC_29_97_NDF,
 	TC_29_97_DF,
-	TC_30,
+	TC_30_NDF,
+	TC_30_DF,
 	TC_47_95,
 	TC_48,
 	TC_50,
 	TC_59_94_NDF,
 	TC_59_94_DF,
-	TC_60,
+	TC_60_NDF,
+	TC_60_DF,
 	TC_72,
 	TC_96,
 	TC_100,
-	TC_120,
+	TC_119_88_NDF,
+	TC_119_88_DF,
+	TC_120_NDF,
+	TC_120_DF,
 
 	TC_FORMAT_LEN
 };
 
+extern const char *TC_FORMAT_STR[];
 
+enum TC_ROLLOVER_OPT {
+	TC_ROLLOVER = 0,
+	TC_NO_ROLLOVER
+};
 
-// typedef uint64_t rational_t;
-typedef struct rational_t
-{
+typedef struct rational_t {
 	int32_t           numerator;
 	int32_t           denominator;
-
-} /*__attribute__((packed))*/ rational_t;
-
-// static rational_t TC_FPS[] = {
-// 	0x0000000000000001,  // UNKNOWN       0/1
-// 	0x00005dc0000003e9,  // TC_23_976     24000/1001
-// 	0x0000001800000001,  // TC_24         24/1
-// 	0x0000001900000001,  // TC_25         25/1
-// 	0x00007530000003e9,  // TC_29_97_NDF  30000/1001
-// 	0x00007530000003e9,  // TC_29_97_DF   30000/1001
-// 	0x0000001e00000001,  // TC_30         30/1
-// 	0x0000001e00000001,  // TC_30_DF      30/1
-// 	0x0000003200000001,  // TC_50         50/1
-// 	0x0000ea60000003e9,  // TC_59_94_NDF  60000/1001
-// 	0x0000ea60000003e9,  // TC_59_94_DF   60000/1001
-// 	0x0000003c00000001,  // TC_60         60/1
-// 	0x0000003c00000001,  // TC_60_DF      60/1
-// 	0x0000006000000001,  // TC_96         96/1
-// 	0x0000006400000001,  // TC_100        100/1
-// 	0x0000007800000001   // TC_120        120/1
-// };
-
-// static rational_t TC_FPS[] = {
-// 	{0x00000000, 0x00000001},  // UNKNOWN       0/1
-// 	{0x00005dc0, 0x000003e9},  // TC_23_976     24000/1001
-// 	{0x00000018, 0x00000001},  // TC_24         24/1
-// 	{0x00000019, 0x00000001},  // TC_25         25/1
-// 	{0x00007530, 0x000003e9},  // TC_29_97_NDF  30000/1001
-// 	{0x00007530, 0x000003e9},  // TC_29_97_DF   30000/1001
-// 	{0x0000001e, 0x00000001},  // TC_30         30/1
-// 	{0x0000001e, 0x00000001},  // TC_30_DF      30/1
-// 	{0x00000032, 0x00000001},  // TC_50         50/1
-// 	{0x0000ea60, 0x000003e9},  // TC_59_94_NDF  60000/1001
-// 	{0x0000ea60, 0x000003e9},  // TC_59_94_DF   60000/1001
-// 	{0x0000003c, 0x00000001},  // TC_60         60/1
-// 	{0x0000003c, 0x00000001},  // TC_60_DF      60/1
-// 	{0x00000060, 0x00000001},  // TC_96         96/1
-// 	{0x00000064, 0x00000001},  // TC_100        100/1
-// 	{0x00000078, 0x00000001}   // TC_120        120/1
-// };
+} rational_t;
 
 
-#define inttorational( n, d ) \
-	{n, d}
-	// ( ((uint64_t)n << 32) | (d & 0xffffffff) )
-/*
-#define aafRationalToFloat( n ) \
-	(float)(( (n & 0xffffffff) == 0 ) ? 0 : ( (float)(n >> 32) / (n & 0xffffffff) ) )
-*/
-
-#ifndef aafRationalToFloat
-#define aafRationalToFloat( r ) \
-	(( r.denominator == 0 ) ? 0 : ((float)r.numerator/r.denominator))
-#endif
-
-struct timecode
-{
-	uint64_t   unitValue;	// some value of unknown unit (eg. samples)
-
-	rational_t unitRate;	// value units per second (eg. 48000)
-
-
-
-	int32_t    frameNumber;
-
-
-	uint16_t   hours;
-
-	uint16_t   minutes;
-
-	uint16_t   seconds;
-
-	uint16_t   frames;
-
+struct timecode {
 
 	enum TC_FORMAT format;
 
-	uint8_t    noRollover;  // disable rollover if TC is bigger than day limit
+	int64_t        unitValue;	// some value of unknown unit (eg. samples)
+	rational_t     unitRate;	// value units per second (eg. 48000/1)
 
-	// rational_t framePerSecond;
-    //
-	// uint8_t    isDropFrame;
+	int32_t        frameNumber;
 
-	/**
-	 *	Holds the timecode as a null terminated string.
-	 */
+	int32_t        hours;
+	int32_t        minutes;
+	int32_t        seconds;
+	int32_t        frames;
 
-	char       string[32];
-
+	char           string[32];
 };
 
 
-int tc_add( struct timecode *tc_a, struct timecode *tc_b );
+enum TC_FORMAT tc_get_format_by_fps( float fps, uint8_t isDrop );
 
-int tc_sub( struct timecode *tc_a, struct timecode *tc_b );
+void tc_set_by_unitValue( struct timecode *tc, int64_t unitValue, rational_t *unitRate, enum TC_FORMAT format, enum TC_ROLLOVER_OPT rollover );
+void tc_set_by_frames( struct timecode *tc, int32_t frameNumber, enum TC_FORMAT format, enum TC_ROLLOVER_OPT rollover );
+void tc_set_by_hmsf( struct timecode *tc, int hours, int minutes, int seconds, int frames, enum TC_FORMAT format, enum TC_ROLLOVER_OPT rollover );
+void tc_set_by_string( struct timecode *tc, const char *str, enum TC_FORMAT format, enum TC_ROLLOVER_OPT rollover );
 
+void tc_set_format( struct timecode *tc, enum TC_FORMAT format, enum TC_ROLLOVER_OPT rollover );
+void tc_convert( struct timecode *tc, enum TC_FORMAT format, enum TC_ROLLOVER_OPT rollover );
 
-void tc_convert( struct timecode *tc, enum TC_FORMAT format );
-
-void tc_convert_frames( struct timecode *tc, enum TC_FORMAT format );
-
-
-enum TC_FORMAT tc_fps2format( float fps, uint8_t isDrop );
-
-
-void tc_set_by_string( struct timecode *tc, const char *str, enum TC_FORMAT format );
-
-void tc_set_by_frames( struct timecode *tc, uint32_t frameNumber, enum TC_FORMAT format );
-
-void tc_set_by_hmsf( struct timecode *tc, uint16_t hours, uint16_t minutes, uint16_t seconds, uint16_t frames, enum TC_FORMAT format );
-
-void tc_set_by_unitValue( struct timecode *tc, uint64_t unitValue, rational_t *unitRate, enum TC_FORMAT format );
-
-
-// int oldTCbyFrames( struct timecode *tc, uint32_t frameNumber, rational_t framePerSecond, uint8_t isDropFrame );
+int tc_add( struct timecode *tc_a, struct timecode *tc_b, enum TC_ROLLOVER_OPT rollover );
+int tc_sub( struct timecode *tc_a, struct timecode *tc_b, enum TC_ROLLOVER_OPT rollover );
 
 
 /*

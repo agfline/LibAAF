@@ -1,0 +1,57 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2024-02-11 22:04:52.00
+ AAF ObjSpec Version  : 1.1
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFUID_NULL
+
+
+
+ CompanyName          : Digidesign, Inc.
+ ProductName          : ProTools
+ ProductVersion       : 23.12.0.136 AAFVersionReleased (1)
+ ProductVersionString : 23.12.0.136
+ ProductID            : { 0x319414f6 0x5852 0x4050 { 0xa4 0xeb 0x98 0x1e 0x64 0x3f 0x33 0xa2 } }
+ Date                 : 2024-02-11 22:04:47.00
+ ToolkitVersion       : 1.1.6.0 AAFVersionBeta (4)
+ Platform             : AAFSDK (Win64)
+ GenerationAUID       : { 0x79fa772d 0x0bc7 0x4c82 { 0xb4 0x94 0x10 0x51 0xa5 0x7b 0x57 0x43 } }
+
+
+
+ Composition Name            : PT_UTF8_EssencePath
+
+ TC EditRrate                : 30/1
+ TC FPS                      : 30 NDF
+
+ Composition Start (EU)      : 0
+ Composition Start (samples) : 0
+ Composition Start           : 00:00:00:00
+
+ Composition End (EU)        : 2493952 (EditRate: 44100/1)
+ Composition End (samples)   : 2493952
+ Composition End             : 00:00:56:16
+
+ Dominant Sample Rate        : 44100
+ Dominant Sample Size        : 16 bits
+
+ Metadata:
+ - Name: "Comment"  Text: ""
+
+
+Media Essences :
+================
+
+ Audio[1] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 3444  Name: "1000hz-18dbs16b44.1k-01"  UniqueName: "1000hz-18dbs16b44.1k-01"
+ └── File: "./الفوضى/PT_UTF8_EsszxcxBYZCdpbxHBBB.wav"
+
+
+Tracks & Clips :
+================
+
+
+ AudioTrack[1] ::  EditRate: 44100/1 (44100.00)  Format: MONO
+ └── Clip (1):  Start: 2490508  Len: 3444  End: 2493952  SourceOffset: 0  Channels: 1
+     └── SourceFile [ch 1]: "1000hz-18dbs16b44.1k-01"
+  
+

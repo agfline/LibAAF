@@ -35,45 +35,75 @@
  Dominant Sample Rate        : 44100
  Dominant Sample Size        : 16 bits
 
- UserComments :
-   [0]  Name: "Comment"   Text: ""
+ Metadata:
+ - Name: "Comment"  Text: ""
 
 
 Media Essences :
 ================
 
-   0:  Type: WAVE  Length: 1471  01 Ch - 44100 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichabbdvJMHRfxfcVQBB.wav  file_name: Sample accurate edit   (Sample accurate edit_7)
-   1:  Type: WAVE  Length: 1471  01 Ch - 44100 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichahdwqJMHRdpfcVQBB.wav  file_name: Sample accurate edit   (Sample accurate edit_6)
-   2:  Type: WAVE  Length: 1471  01 Ch - 44100 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichaqppmJMHRgcfcVQBB.wav  file_name: Sample accurate edit   (Sample accurate edit_5)
-   3:  Type: WAVE  Length: 1471  01 Ch - 44100 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichacmfgJMHRqvdcVQBB.wav  file_name: Sample accurate edit   (Sample accurate edit_4)
-   4:  Type: WAVE  Length: 1471  01 Ch - 44100 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichamsycJMHRshdcVQBB.wav  file_name: Sample accurate edit   (Sample accurate edit_3)
-   5:  Type: WAVE  Length: 1471  01 Ch - 44100 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichabzrzHMHRwzccVQBB.wav  file_name: Sample accurate edit   (Sample accurate edit_2)
-   6:  Type: WAVE  Length: 1471  01 Ch - 44100 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichawggxHMHRwrccVQBB.wav  file_name: Sample accurate edit   (Sample accurate edit_1)
-   7:  Type: WAVE  Length: 1471  01 Ch - 44100 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichabhzsHMHRxfccVQBB.wav  file_name: Sample accurate edit
-   8:  Type: WAVE  Length: 482161  01 Ch - 44100 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichaxrzrJMHRgsfcVQBB.wav  file_name: 7.1-SMPTE-channel-identif.1-01.LFE
-   9:  Type: WAVE  Length: 482161  01 Ch - 44100 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichaqprpJMHRdgfcVQBB.wav  file_name: 7.1-SMPTE-channel-identif.1-01.Rs
-  10:  Type: WAVE  Length: 482161  01 Ch - 44100 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichaychhJMHRhydcVQBB.wav  file_name: 7.1-SMPTE-channel-identif.1-01.Ls
-  11:  Type: WAVE  Length: 482161  01 Ch - 44100 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichafwbfJMHRqqdcVQBB.wav  file_name: 7.1-SMPTE-channel-identif.1-01.R
-  12:  Type: WAVE  Length: 482161  01 Ch - 44100 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichawzvbJMHRsddcVQBB.wav  file_name: 7.1-SMPTE-channel-identif.1-01.Rc
-  13:  Type: WAVE  Length: 482161  01 Ch - 44100 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichawrmyHMHRswccVQBB.wav  file_name: 7.1-SMPTE-channel-identif.1-01.C
-  14:  Type: WAVE  Length: 482161  01 Ch - 44100 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichabxcwHMHRwmccVQBB.wav  file_name: 7.1-SMPTE-channel-identif.1-01.Lc
-  15:  Type: WAVE  Length: 482161  01 Ch - 44100 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichaypsrHMHRqbccVQBB.wav  file_name: 7.1-SMPTE-channel-identif.1-01.L
+ Audio[1] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 1471  Name: "Sample accurate edit"  UniqueName: "Sample accurate edit_7"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichabbdvJMHRfxfcVQBB.wav"
+
+ Audio[2] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 1471  Name: "Sample accurate edit"  UniqueName: "Sample accurate edit_6"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichahdwqJMHRdpfcVQBB.wav"
+
+ Audio[3] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 1471  Name: "Sample accurate edit"  UniqueName: "Sample accurate edit_5"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichaqppmJMHRgcfcVQBB.wav"
+
+ Audio[4] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 1471  Name: "Sample accurate edit"  UniqueName: "Sample accurate edit_4"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichacmfgJMHRqvdcVQBB.wav"
+
+ Audio[5] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 1471  Name: "Sample accurate edit"  UniqueName: "Sample accurate edit_3"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichamsycJMHRshdcVQBB.wav"
+
+ Audio[6] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 1471  Name: "Sample accurate edit"  UniqueName: "Sample accurate edit_2"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichabzrzHMHRwzccVQBB.wav"
+
+ Audio[7] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 1471  Name: "Sample accurate edit"  UniqueName: "Sample accurate edit_1"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichawggxHMHRwrccVQBB.wav"
+
+ Audio[8] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 1471  Name: "Sample accurate edit"  UniqueName: "Sample accurate edit"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichabhzsHMHRxfccVQBB.wav"
+
+ Audio[9] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 482161  Name: "7.1-SMPTE-channel-identif.1-01.LFE"  UniqueName: "7.1-SMPTE-channel-identif.1-01.LFE"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichaxrzrJMHRgsfcVQBB.wav"
+
+ Audio[10] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 482161  Name: "7.1-SMPTE-channel-identif.1-01.Rs"  UniqueName: "7.1-SMPTE-channel-identif.1-01.Rs"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichaqprpJMHRdgfcVQBB.wav"
+
+ Audio[11] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 482161  Name: "7.1-SMPTE-channel-identif.1-01.Ls"  UniqueName: "7.1-SMPTE-channel-identif.1-01.Ls"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichaychhJMHRhydcVQBB.wav"
+
+ Audio[12] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 482161  Name: "7.1-SMPTE-channel-identif.1-01.R"  UniqueName: "7.1-SMPTE-channel-identif.1-01.R"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichafwbfJMHRqqdcVQBB.wav"
+
+ Audio[13] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 482161  Name: "7.1-SMPTE-channel-identif.1-01.Rc"  UniqueName: "7.1-SMPTE-channel-identif.1-01.Rc"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichawzvbJMHRsddcVQBB.wav"
+
+ Audio[14] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 482161  Name: "7.1-SMPTE-channel-identif.1-01.C"  UniqueName: "7.1-SMPTE-channel-identif.1-01.C"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichawrmyHMHRswccVQBB.wav"
+
+ Audio[15] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 482161  Name: "7.1-SMPTE-channel-identif.1-01.Lc"  UniqueName: "7.1-SMPTE-channel-identif.1-01.Lc"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichabxcwHMHRwmccVQBB.wav"
+
+ Audio[16] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 482161  Name: "7.1-SMPTE-channel-identif.1-01.L"  UniqueName: "7.1-SMPTE-channel-identif.1-01.L"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_7.1_multi_source/PT_MultichaypsrHMHRqbccVQBB.wav"
 
 
 Tracks & Clips :
 ================
 
-Track  (1) - 7.1    - Gain: none     - Pan: none    - edit_rate: 30/1 (30.00)  -  "Audio 1"
- Clip:0    Channel: 8  Gain: none             GainAuto: none  Start: 13230000  Len: 473340  End: 13703340  SrcOffset: 4410
-   SourceFile: [ch 1] 7.1-SMPTE-channel-identif.1-01.L   (7.1-SMPTE-channel-identif.1-01.L)
-   SourceFile: [ch 1] 7.1-SMPTE-channel-identif.1-01.Lc   (7.1-SMPTE-channel-identif.1-01.Lc)
-   SourceFile: [ch 1] 7.1-SMPTE-channel-identif.1-01.C   (7.1-SMPTE-channel-identif.1-01.C)
-   SourceFile: [ch 1] 7.1-SMPTE-channel-identif.1-01.Rc   (7.1-SMPTE-channel-identif.1-01.Rc)
-   SourceFile: [ch 1] 7.1-SMPTE-channel-identif.1-01.R   (7.1-SMPTE-channel-identif.1-01.R)
-   SourceFile: [ch 1] 7.1-SMPTE-channel-identif.1-01.Ls   (7.1-SMPTE-channel-identif.1-01.Ls)
-   SourceFile: [ch 1] 7.1-SMPTE-channel-identif.1-01.Rs   (7.1-SMPTE-channel-identif.1-01.Rs)
-   SourceFile: [ch 1] 7.1-SMPTE-channel-identif.1-01.LFE   (7.1-SMPTE-channel-identif.1-01.LFE)
 
-
-
+ AudioTrack[1] ::  EditRate: 30/1 (30.00)  Format: 7.1  Name: "Audio 1"
+ └── Clip (1):  Start: 13230000  Len: 474810  End: 13704810  SourceOffset: 4410  Channels: 8
+     ├── SourceFile [ch 1]: "7.1-SMPTE-channel-identif.1-01.L"
+     ├── SourceFile [ch 1]: "7.1-SMPTE-channel-identif.1-01.Lc"
+     ├── SourceFile [ch 1]: "7.1-SMPTE-channel-identif.1-01.C"
+     ├── SourceFile [ch 1]: "7.1-SMPTE-channel-identif.1-01.Rc"
+     ├── SourceFile [ch 1]: "7.1-SMPTE-channel-identif.1-01.R"
+     ├── SourceFile [ch 1]: "7.1-SMPTE-channel-identif.1-01.Ls"
+     ├── SourceFile [ch 1]: "7.1-SMPTE-channel-identif.1-01.Rs"
+     └── SourceFile [ch 1]: "7.1-SMPTE-channel-identif.1-01.LFE"
+  
 

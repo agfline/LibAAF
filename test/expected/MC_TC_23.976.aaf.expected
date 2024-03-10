@@ -1,0 +1,62 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2024-01-18 21:48:32.00
+ AAF ObjSpec Version  : 1.1
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFOPDef_EditProtocol
+
+
+
+ CompanyName          : Avid Technology, Inc.
+ ProductName          : Avid Media Composer 23.12
+ ProductVersion       : 23.12.0.0 AAFVersionReleased (1)
+ ProductVersionString : Unknown version
+ ProductID            : { 0xd0b7c06e 0xcd3d 0x4ad7 { 0xac 0xfb 0xf0 0x3a 0x4f 0x42 0xa2 0x31 } }
+ Date                 : 2024-01-18 21:48:32.00
+ ToolkitVersion       : 2.0.9.124 AAFVersionReleased (1)
+ Platform             : AAFSDK (Win64)
+ GenerationAUID       : { 0x128eead1 0x3f28 0x4440 { 0x97 0xdb 0x3b 0xc8 0x93 0xb4 0x1b 0x8e } }
+
+
+
+ Composition Name            : MC_TC_23.976.Exporté.01
+
+ TC EditRrate                : 24000/1001
+ TC FPS                      : 24 NDF
+
+ Composition Start (EU)      : 86400
+ Composition Start (samples) : 172972795
+ Composition Start           : 01:00:00:00
+
+ Composition End (EU)        : 86712 (EditRate: 24000/1001)
+ Composition End (samples)   : 173597419
+ Composition End             : 01:00:13:00
+
+ Dominant Sample Rate        : 48000
+ Dominant Sample Size        : 16 bits
+
+
+Media Essences :
+================
+
+ Audio[1] :: Format: PCM  - 01 ch - 48000 Hz - 16 bits  Length: 00:00:03:00  Name: "1000hz-18dbs16b44.1k.wav"  UniqueName: "1000hz-18dbs16b44.1k.wav"
+ ├── File: "file:///D%3A/Avid%20MediaFiles/MXF/1/1000hz-18dA01.65A91EF8D674A.mxf"
+ └── Metadata:
+     - Name: "UNC Path"    Text: "C:\Users\user\Desktop\LibAAFTestFiles\res\1000hz-18dbs16b44.1k.wav"
+     - Name: "Shoot Date"  Text: "2024-01-03"
+     - Name: "TapeID"      Text: "1000hz-18dbs16b44.1k.wav"
+
+
+Tracks & Clips :
+================
+
+ VideoTrack[1] ::  EditRate: 24000/1001 (23.98)
+
+
+ AudioTrack[1] ::  EditRate: 24000/1001 (23.98)  Format: MONO
+ └── Clip (1):  Start: 01:00:10:00  Len: 00:00:03:00  End: 01:00:13:00  SourceOffset: 00:00:00:00  Channels: 1
+     └── SourceFile [ch 1]: "1000hz-18dbs16b44.1k.wav"
+  
+
+ AudioTrack[2] ::  EditRate: 24000/1001 (23.98)  Format: Unknwn
+

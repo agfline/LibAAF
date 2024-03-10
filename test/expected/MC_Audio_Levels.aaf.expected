@@ -1,0 +1,98 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2024-01-27 17:46:27.00
+ AAF ObjSpec Version  : 1.1
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFOPDef_EditProtocol
+
+
+
+ CompanyName          : Avid Technology, Inc.
+ ProductName          : Avid Media Composer 23.12
+ ProductVersion       : 23.12.0.0 AAFVersionReleased (1)
+ ProductVersionString : Unknown version
+ ProductID            : { 0xd0b7c06e 0xcd3d 0x4ad7 { 0xac 0xfb 0xf0 0x3a 0x4f 0x42 0xa2 0x31 } }
+ Date                 : 2024-01-27 17:46:27.00
+ ToolkitVersion       : 2.0.9.124 AAFVersionReleased (1)
+ Platform             : AAFSDK (Win64)
+ GenerationAUID       : { 0xbb3d8e34 0x8494 0x4a2d { 0x9a 0xfa 0x17 0xdd 0x02 0xa7 0x9b 0xe7 } }
+
+
+
+ Composition Name            : MC_Audio_Levels.Exporté.14
+
+ TC EditRrate                : 30000/1001
+ TC FPS                      : 30 NDF
+
+ Composition Start (EU)      : 108000
+ Composition Start (samples) : 172972800
+ Composition Start           : 01:00:00:00
+
+ Composition End (EU)        : 108090 (EditRate: 30000/1001)
+ Composition End (samples)   : 173116944
+ Composition End             : 01:00:03:00
+
+ Dominant Sample Rate        : 48000
+ Dominant Sample Size        : 16 bits
+
+
+Media Essences :
+================
+
+ Audio[1] :: Format: PCM  - 01 ch - 48000 Hz - 16 bits  Length: 144144  Name: "A1000hz-18dbs16b44.1k.wav"  UniqueName: "A1000hz-18dbs16b44.1k.wav"
+ └── File: "file:///D%3A/Avid%20MediaFiles/MXF/1/A1000hz-18A01.65A40B55B067A.mxf"
+
+ Audio[2] :: Format: PCM  - 01 ch - 48000 Hz - 16 bits  Length: 144144  Name: "1000hz-18dbs16b44.1k.wav"  UniqueName: "1000hz-18dbs16b44.1k.wav"
+ ├── File: "file:///D%3A/Avid%20MediaFiles/MXF/1/1000hz-18dA01.65A40B01E984A.mxf"
+ └── Metadata:
+     - Name: "Comments"    Text: "This is a Source Media Comment."
+     - Name: "UNC Path"    Text: "C:\Users\user\Desktop\LibAAFTestFiles\res\1000hz-18dbs16b44.1k.wav"
+     - Name: "Shoot Date"  Text: "2024-01-03"
+     - Name: "TapeID"      Text: "1000hz-18dbs16b44.1k.wav"
+
+
+Tracks & Clips :
+================
+
+ VideoTrack[1] ::  EditRate: 30000/1001 (29.97)
+
+
+ AudioTrack[1] ::  EditRate: 30000/1001 (29.97)  Format: MONO
+ ├── Clip (1):  Start: 172972800  Len: 48048  End: 173020848  SourceOffset: 48048  Channels: 1  VolumeAutomation: YES
+ │   ├── SourceFile [ch 1]: "1000hz-18dbs16b44.1k.wav"
+ │   └── Clip Volume Automation ──────────────────────
+ │       _time: 0.000000   _value: 1.000000 (+00.0 dB)
+ │       _time: 0.433333   _value: 0.004842 (-46.3 dB)
+ │       _time: 0.966667   _value: 1.000000 (+00.0 dB)
+ │
+ └── Clip (2):  Start: 173020848  Len: 48048  End: 173068896  SourceOffset: 64064  Channels: 1  Gain: +03.0 dB  VolumeAutomation: YES
+     ├── SourceFile [ch 1]: "1000hz-18dbs16b44.1k.wav"
+     └── Clip Volume Automation ──────────────────────
+         _time: 0.000000   _value: 1.000000 (+00.0 dB)
+         _time: 0.366667   _value: 0.000030 (-90.4 dB)
+         _time: 0.666667   _value: 2.871290 (+09.2 dB)
+         _time: 0.966667   _value: 1.000000 (+00.0 dB)
+  
+
+ AudioTrack[2] ::  EditRate: 30000/1001 (29.97)  Format: MONO
+ └── Clip (1):  Start: 172972800  Len: 48048  End: 173020848  SourceOffset: 48048  Channels: 1  VolumeAutomation: YES
+     ├── SourceFile [ch 1]: "1000hz-18dbs16b44.1k.wav"
+     └── Clip Volume Automation ──────────────────────
+         _time: 0.433333   _value: 2.511886 (+08.0 dB)
+  
+
+ AudioTrack[3] ::  EditRate: 30000/1001 (29.97)  Format: MONO  Solo: SOLO
+ └── Clip (1):  Start: 172972800  Len: 48048  End: 173020848  SourceOffset: 0  Channels: 1  Gain: +02.0 dB  ClipName: "1000hz-18dbs16b44.1k.wav.Sub.01"
+     └── SourceFile [ch 1]: "1000hz-18dbs16b44.1k.wav"
+  
+
+ AudioTrack[4] ::  EditRate: 30000/1001 (29.97)  Format: MONO
+ └── Clip (1):  Start: 172972800  Len: 144144  End: 173116944  SourceOffset: 0  Channels: 1  Gain: +01.5 dB
+     └── SourceFile [ch 1]: "A1000hz-18dbs16b44.1k.wav"
+  
+
+ AudioTrack[5] ::  EditRate: 30000/1001 (29.97)  Format: MONO
+ └── Clip (1):  Start: 172972800  Len: 144144  End: 173116944  SourceOffset: 0  Channels: 1  Gain: +06.0 dB
+     └── SourceFile [ch 1]: "A1000hz-18dbs16b44.1k.wav"
+  
+

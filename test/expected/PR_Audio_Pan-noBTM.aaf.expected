@@ -1,0 +1,91 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2024-01-14 17:20:47.00
+ AAF ObjSpec Version  : 1.2
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFOPDef_EditProtocol
+
+
+
+ CompanyName          : Adobe
+ ProductName          : Premiere Pro
+ ProductVersion       : 23.5.0.0 AAFVersionUnknown (0)
+ ProductVersionString : 23.5.0
+ ProductID            : { 0x00000000 0x0000 0x0000 { 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 } }
+ Date                 : 2024-01-14 17:20:47.00
+ ToolkitVersion       : 1.2.0.0 AAFVersionBeta (4)
+ Platform             : AAFSDK (Win64)
+ GenerationAUID       : { 0xc601c2f3 0xc254 0x4f2a { 0xa8 0x09 0x3b 0xec 0xde 0x0e 0xee 0x3b } }
+
+
+
+ Composition Name            : PR_Audio_Pan
+
+ TC EditRrate                : 25/1
+ TC FPS                      : 25 NDF
+
+ Composition Start (EU)      : 0
+ Composition Start (samples) : 0
+ Composition Start           : 00:00:00:00
+
+ Composition End (EU)        : 198 (EditRate: 25/1)
+ Composition End (samples)   : 174636
+ Composition End             : 00:00:07:23
+
+ Dominant Sample Rate        : 22050
+ Dominant Sample Size        : 16 bits
+
+
+Media Essences :
+================
+
+ Audio[1] :: Format: WAVE - 02 ch - 22050 Hz - 16 bits  Length: 0  Name: "stereo-identif.wav"  UniqueName: "stereo-identif.wav_1"
+ ├── File: "file://si.francetv.fr/process_limo/SDG/Utilisateurs/Adrien%20GESTA-FLINE/prjcts_prs/libaaf/fullres/stereo-identif.wav"
+ └── Metadata:
+     - Name: "Take"   Text: ""
+     - Name: "Scene"  Text: ""
+
+ Audio[2] :: Format: WAVE - 02 ch - 22050 Hz - 16 bits  Length: 0  Name: "stereo-identif.wav"  UniqueName: "stereo-identif.wav"
+ ├── File: "file://si.francetv.fr/process_limo/SDG/Utilisateurs/Adrien%20GESTA-FLINE/prjcts_prs/libaaf/fullres/stereo-identif.wav"
+ └── Metadata:
+     - Name: "Take"   Text: ""
+     - Name: "Scene"  Text: ""
+
+ Audio[3] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 0  Name: "1000hz-18dbs16b44.1k.wav"  UniqueName: "1000hz-18dbs16b44.1k.wav"
+ ├── File: "file://si.francetv.fr/process_limo/SDG/Utilisateurs/Adrien%20GESTA-FLINE/prjcts_prs/libaaf/res/1000hz-18dbs16b44.1k.wav"
+ └── Metadata:
+     - Name: "Take"   Text: ""
+     - Name: "Scene"  Text: ""
+
+
+Tracks & Clips :
+================
+
+ VideoTrack[1] ::  EditRate: 25/1 (25.00)
+
+
+ AudioTrack[1] ::  EditRate: 25/1 (25.00)  Format: MONO  Pan: 0.25       Name: "Audio 1"
+ ├── Clip (1):  Start: 0  Len: 42336  End: 42336  SourceOffset: 0  Channels: 1
+ │   └── SourceFile [ch 1]: "1000hz-18dbs16b44.1k.wav"
+ │
+ ├── Clip (2):  Start: 66150  Len: 42336  End: 108486  SourceOffset: 0  Channels: 1
+ │   └── SourceFile [ch 1]: "1000hz-18dbs16b44.1k.wav"
+ │
+ └── Clip (3):  Start: 132300  Len: 42336  End: 174636  SourceOffset: 0  Channels: 1  Gain: +00.0 dB
+     └── SourceFile [ch 1]: "1000hz-18dbs16b44.1k.wav"
+  
+
+ AudioTrack[2] ::  EditRate: 25/1 (25.00)  Format: STEREO  Name: "Audio 2"
+ ├── Clip (1):  Start: 0  Len: 42336  End: 42336  SourceOffset: 0  Channels: 2
+ │   ├── SourceFile [ch 1]: "stereo-identif.wav"
+ │   └── SourceFile [ch 2]: "stereo-identif.wav_1"
+ │
+ ├── Clip (2):  Start: 66150  Len: 42336  End: 108486  SourceOffset: 0  Channels: 2
+ │   ├── SourceFile [ch 1]: "stereo-identif.wav"
+ │   └── SourceFile [ch 2]: "stereo-identif.wav_1"
+ │
+ └── Clip (3):  Start: 132300  Len: 42336  End: 174636  SourceOffset: 0  Channels: 2
+     ├── SourceFile [ch 1]: "stereo-identif.wav"
+     └── SourceFile [ch 2]: "stereo-identif.wav_1"
+  
+

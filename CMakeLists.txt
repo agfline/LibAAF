@@ -7,17 +7,20 @@ project( "libaaf"
 	HOMEPAGE_URL "https://github.com/agfline/LibAAF" )
 
 option( BUILD_STATIC_LIB "Build the static library"                  OFF )
-option( BUILD_SHARED_LIB "Build the shared library"                  ON )
-option( BUILD_TOOLS      "Build AAFInfo and AAFExtract programs"     ON )
+option( BUILD_SHARED_LIB "Build the shared library"                  ON  )
+option( BUILD_TOOLS      "Build aaftool"                             ON  )
 option( XBUILD_WIN       "Cross compile libaaf on Linux for Windows" OFF )
+option( BUILD_DOC        "Build documentation"                       ON  )
+option( BUILD_UNIT_TEST  "Build unit test programs"                  ON  )
 
 set( LIBAAF_VERSION "GIT" CACHE STRING "Set version manualy, git version used otherwise" )
 set( LIBAAF_LIB_OUTPUT_NAME "aaf" )
 
-set( LIBAAF_LIB_SRC_PATH      ${PROJECT_SOURCE_DIR}/src      )
-set( LIBAAF_TOOLS_SRC_PATH    ${PROJECT_SOURCE_DIR}/tools    )
-set( LIBAAF_EXAMPLES_SRC_PATH ${PROJECT_SOURCE_DIR}/examples )
-set( LIBAAF_TEST_PATH         ${PROJECT_SOURCE_DIR}/test )
+set( LIBAAF_LIB_SRC_PATH      ${PROJECT_SOURCE_DIR}/src       )
+set( LIBAAF_TOOLS_SRC_PATH    ${PROJECT_SOURCE_DIR}/tools     )
+set( LIBAAF_DOC_INPUT_PATH    ${PROJECT_SOURCE_DIR}/doc       )
+set( LIBAAF_DOC_OUTPUT_PATH   ${PROJECT_SOURCE_DIR}/build/doc )
+set( LIBAAF_TEST_PATH         ${PROJECT_SOURCE_DIR}/test      )
 
 set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib )
 set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib )
@@ -26,7 +29,6 @@ set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
 if ( NOT BUILD_SHARED_LIB AND NOT BUILD_STATIC_LIB )
 	message( FATAL_ERROR "You need to enable at least one lib build (BUILD_STATIC_LIB or BUILD_SHARED_LIB)." )
 endif()
-
 
 
 
@@ -70,6 +72,36 @@ endif()
 
 message( "libaaf version: ${LIBAAF_VERSION}" )
 
+
+if ( BUILD_DOC )
+	find_package(Doxygen)
+	if ( DOXYGEN_FOUND )
+
+		set( DOXYGEN_PROJECT_NAME ${PROJECT_NAME} )
+		set( DOXYGEN_PROJECT_NUMBER ${LIBAAF_VERSION} )
+		set( DOXYGEN_PROJECT_BRIEF ${PROJECT_BRIEF} )
+
+		set( DOXYGEN_USE_MDFILE_AS_MAINPAGE ${PROJECT_SOURCE_DIR}/README.md )
+		set( DOXYGEN_INPUT_DIR "${PROJECT_SOURCE_DIR}/include/ ${PROJECT_SOURCE_DIR}/src/ ${PROJECT_SOURCE_DIR}/README.md" )
+		set( DOXYGEN_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/doxygen )
+
+		configure_file( ${LIBAAF_DOC_INPUT_PATH}/doxygen.in ${PROJECT_SOURCE_DIR}/build/doxygen.conf @ONLY )
+
+		FILE( MAKE_DIRECTORY ${DOXYGEN_OUTPUT_DIR} )
+
+		# note the option ALL which allows to build the docs together with the application
+		add_custom_target( doc
+			COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_SOURCE_DIR}/build/doxygen.conf
+			WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+			COMMENT "Generating API documentation with Doxygen"
+			VERBATIM )
+
+	else (DOXYGEN_FOUND)
+	  message( "Doxygen need to be installed to generate the documentation" )
+	endif (DOXYGEN_FOUND)
+endif (BUILD_DOC)
+
+
 configure_file( ${PROJECT_SOURCE_DIR}/libaaf.pc.in ${CMAKE_BINARY_DIR}/libaaf.pc @ONLY )
 
 
@@ -78,12 +110,16 @@ if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
 	set( LIBAAF_COMPILE_OPTIONS
 		-W -Wstrict-prototypes -Wmissing-prototypes
 		-Wall -Wcast-qual -Wcast-align -Wextra -Wwrite-strings -Wunsafe-loop-optimizations -Wlogical-op -std=c99 -pedantic -Wshadow # = Ardour's Waf --strict --c-strict
-		# -Wconversion
+		-Wsign-conversion
+		-Wconversion
 		-Wcast-align=strict
 		-O3
 		-g
+		-D_XOPEN_SOURCE=500
+		# -pg
 		-fdebug-prefix-map=${SRC_PATH}=.
 	)
+	# set( LIBAAF_LINK_OPTIONS -pg )
 	if ( XBUILD_WIN )
 		message( "┌─────────────────────────────┐" )
 		message( "│ Cross compiling for Windows │" )
@@ -113,7 +149,7 @@ elseif ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows" )
 	set( PROG_SUFFIX ".exe" )
 endif()
 
-# TODO: not required when compiling on linux but "missing header" when x-compiling
+# TODO: not required with gcc but "missing header" whith mingw-w64
 include_directories( ${PROJECT_SOURCE_DIR}/include )
 
 
@@ -133,20 +169,23 @@ set( LIBAAF_LIB_SOURCES
 
 	${LIBAAF_LIB_SRC_PATH}/AAFIface/AAFIface.c
 	${LIBAAF_LIB_SRC_PATH}/AAFIface/AAFIParser.c
-	${LIBAAF_LIB_SRC_PATH}/AAFIface/AAFIAudioFiles.c
+	${LIBAAF_LIB_SRC_PATH}/AAFIface/AAFIEssenceFile.c
 	${LIBAAF_LIB_SRC_PATH}/AAFIface/RIFFParser.c
 	${LIBAAF_LIB_SRC_PATH}/AAFIface/URIParser.c
 	${LIBAAF_LIB_SRC_PATH}/AAFIface/ProTools.c
 	${LIBAAF_LIB_SRC_PATH}/AAFIface/Resolve.c
+	${LIBAAF_LIB_SRC_PATH}/AAFIface/MediaComposer.c
 
 	${LIBAAF_LIB_SRC_PATH}/common/utils.c
-	${LIBAAF_LIB_SRC_PATH}/debug.c
+	# ${LIBAAF_LIB_SRC_PATH}/common/ConvertUTF.c
+	${LIBAAF_LIB_SRC_PATH}/common/log.c
 )
 
 
 if ( BUILD_SHARED_LIB )
 	add_library( aaf-shared SHARED ${LIBAAF_LIB_SOURCES} )
 	target_compile_options( aaf-shared PUBLIC ${LIBAAF_COMPILE_OPTIONS} )
+	target_link_options( aaf-shared PUBLIC ${LIBAAF_LINK_OPTIONS} )
 	target_include_directories( aaf-shared PUBLIC "${CMAKE_BINARY_DIR}/include/" )
 	set_target_properties( aaf-shared PROPERTIES
 		OUTPUT_NAME ${LIBAAF_LIB_OUTPUT_NAME}
@@ -160,6 +199,7 @@ endif( BUILD_SHARED_LIB )
 if ( BUILD_STATIC_LIB )
 	add_library( aaf-static STATIC ${LIBAAF_LIB_SOURCES} )
 	target_compile_options( aaf-static PUBLIC ${LIBAAF_COMPILE_OPTIONS} )
+	target_link_options( aaf-static PUBLIC ${LIBAAF_LINK_OPTIONS} )
 	target_include_directories( aaf-static PUBLIC "${CMAKE_BINARY_DIR}/include/" )
 	set_target_properties( aaf-static PROPERTIES
 		OUTPUT_NAME ${LIBAAF_LIB_OUTPUT_NAME}
@@ -179,9 +219,9 @@ endif( BUILD_STATIC_LIB )
 if ( BUILD_TOOLS )
 
 	if ( ${LINK_LIB} MATCHES "aaf-static" )
-		message( "Building AAFIface and AAFExtract upon static library" )
+		message( "Building aaftool upon static library" )
 	elseif( ${LINK_LIB} MATCHES "aaf-shared" )
-		message( "Building AAFIface and AAFExtract upon shared library" )
+		message( "Building aaftool upon shared library" )
 	endif()
 
 	if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
@@ -190,28 +230,44 @@ if ( BUILD_TOOLS )
 		link_libraries( ${LINK_LIB} )
 	endif()
 
-	add_executable( AAFInfo
-		${LIBAAF_TOOLS_SRC_PATH}/AAFInfo.c
-		${LIBAAF_TOOLS_SRC_PATH}/common.c
+	add_executable( aaftool
+		${LIBAAF_TOOLS_SRC_PATH}/AAFTool.c
 		${LIBAAF_TOOLS_SRC_PATH}/thirdparty/libTC.c
 	)
 
-	add_executable( AAFExtract
-		${LIBAAF_TOOLS_SRC_PATH}/AAFExtract.c
-		${LIBAAF_TOOLS_SRC_PATH}/common.c
-	)
 
-	target_include_directories( AAFInfo    PRIVATE "${CMAKE_BINARY_DIR}/include/" )
-	target_include_directories( AAFExtract PRIVATE "${CMAKE_BINARY_DIR}/include/" )
+	set_target_properties( aaftool PROPERTIES SUFFIX "${PROG_SUFFIX}" )
 
-	set_target_properties( AAFInfo    PROPERTIES SUFFIX "${PROG_SUFFIX}" )
-	set_target_properties( AAFExtract PROPERTIES SUFFIX "${PROG_SUFFIX}" )
-
-	target_compile_options( AAFInfo    PUBLIC ${LIBAAF_COMPILE_OPTIONS} )
-	target_compile_options( AAFExtract PUBLIC ${LIBAAF_COMPILE_OPTIONS} )
+	target_include_directories( aaftool PRIVATE "${CMAKE_BINARY_DIR}/include/" )
+	target_compile_options( aaftool PUBLIC ${LIBAAF_COMPILE_OPTIONS} )
+	target_link_options( aaftool PUBLIC ${LIBAAF_LINK_OPTIONS} )
 
 endif( BUILD_TOOLS )
 
+
+if ( BUILD_UNIT_TEST )
+
+	if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
+		link_libraries( ${LINK_LIB} "-lm" )
+	else()
+		link_libraries( ${LINK_LIB} )
+	endif()
+
+	add_executable( test_utils
+		${LIBAAF_TEST_PATH}/units/test_utils.c )
+
+	add_executable( test_libtc
+		${LIBAAF_TEST_PATH}/units/test_libtc.c
+		${LIBAAF_TOOLS_SRC_PATH}/thirdparty/libTC.c )
+
+	add_executable( test_uri
+		${LIBAAF_TEST_PATH}/units/test_uri.c )
+
+	set_target_properties( test_utils PROPERTIES SUFFIX "${PROG_SUFFIX}" )
+	set_target_properties( test_libtc PROPERTIES SUFFIX "${PROG_SUFFIX}" )
+	set_target_properties( test_uri   PROPERTIES SUFFIX "${PROG_SUFFIX}" )
+
+endif( BUILD_UNIT_TEST )
 
 
 if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
@@ -226,8 +282,7 @@ if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
 	endif()
 
 	if ( BUILD_TOOLS )
-		install( TARGETS AAFInfo    DESTINATION ${CMAKE_INSTALL_FULL_BINDIR} )
-		install( TARGETS AAFExtract DESTINATION ${CMAKE_INSTALL_FULL_BINDIR} )
+		install( TARGETS aaftool DESTINATION ${CMAKE_INSTALL_FULL_BINDIR} )
 	endif()
 
 	install( DIRECTORY ${PROJECT_SOURCE_DIR}/include/ DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR} FILES_MATCHING PATTERN "*.h*" )
@@ -249,7 +304,6 @@ add_custom_target(
 		./src
 		./include
 		./tools
-		# ./examples
 		# ./test
 	COMMAND
 	cd "${CMAKE_BINARY_DIR}" &&
@@ -264,5 +318,22 @@ add_custom_target( clean-cmake-files
 	COMMAND rm -rf "${CMAKE_BINARY_DIR}/*.cmake" )
 
 
-add_custom_target( test
-	COMMAND ${LIBAAF_TEST_PATH}/test.sh --run-from-cmake )
+if ( XBUILD_WIN )
+	add_custom_target( test
+		COMMAND wine ${CMAKE_BINARY_DIR}/bin/test_libtc${PROG_SUFFIX}
+		COMMAND wine ${CMAKE_BINARY_DIR}/bin/test_uri${PROG_SUFFIX}
+		COMMAND wine ${CMAKE_BINARY_DIR}/bin/test_utils${PROG_SUFFIX}
+	COMMAND ${LIBAAF_TEST_PATH}/test.py --wine )
+elseif ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows" )
+	add_custom_target( test
+		COMMAND ${CMAKE_BINARY_DIR}/bin/test_libtc${PROG_SUFFIX}
+		COMMAND ${CMAKE_BINARY_DIR}/bin/test_uri${PROG_SUFFIX}
+		COMMAND ${CMAKE_BINARY_DIR}/bin/test_utils${PROG_SUFFIX}
+		COMMAND ${LIBAAF_TEST_PATH}/test.py --run-from-cmake )
+else()
+	add_custom_target( test
+		COMMAND ${CMAKE_BINARY_DIR}/bin/test_libtc
+		COMMAND ${CMAKE_BINARY_DIR}/bin/test_uri
+		COMMAND ${CMAKE_BINARY_DIR}/bin/test_utils
+		COMMAND ${LIBAAF_TEST_PATH}/test.py --run-from-cmake )
+endif()

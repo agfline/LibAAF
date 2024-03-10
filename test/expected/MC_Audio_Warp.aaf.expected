@@ -1,0 +1,104 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2024-01-31 00:25:06.00
+ AAF ObjSpec Version  : 1.1
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFOPDef_EditProtocol
+
+
+
+ CompanyName          : Avid Technology, Inc.
+ ProductName          : Avid Media Composer 23.12
+ ProductVersion       : 23.12.0.0 AAFVersionReleased (1)
+ ProductVersionString : Unknown version
+ ProductID            : { 0xd0b7c06e 0xcd3d 0x4ad7 { 0xac 0xfb 0xf0 0x3a 0x4f 0x42 0xa2 0x31 } }
+ Date                 : 2024-01-31 00:25:06.00
+ ToolkitVersion       : 2.0.9.124 AAFVersionReleased (1)
+ Platform             : AAFSDK (Win64)
+ GenerationAUID       : { 0xc29f777b 0x15c2 0x4650 { 0x9e 0xf1 0xec 0xf7 0xdb 0xc9 0xe9 0xec } }
+
+
+
+ Composition Name            : MC_Audio_Warp.Exporté.02
+
+ TC EditRrate                : 25/1
+ TC FPS                      : 25 NDF
+
+ Composition Start (EU)      : 90000
+ Composition Start (samples) : 172800000
+ Composition Start           : 01:00:00:00
+
+ Composition End (EU)        : 90121 (EditRate: 25/1)
+ Composition End (samples)   : 173032320
+ Composition End             : 01:00:04:21
+
+ Dominant Sample Rate        : 48000
+ Dominant Sample Size        : 16 bits
+
+
+Media Essences :
+================
+
+ Video[1] :: Length: 0  Name: "bbb_sunflower_1080p_30fps_normal"  UniqueName: "bbb_sunflower_1080p_30fps_normal"
+ └── File: "file:///C%3A/Users/user/Downloads/bbb_sunflower_1080p_30fps_normal.mp4"
+
+
+ Audio[1] :: Format: PCM  - 06 ch - 48000 Hz - 16 bits  Length: 30457600  Name: "bbb_sunflower_1080p_30fps_normal"  UniqueName: "bbb_sunflower_1080p_30fps_normal_1"
+ ├── File: "file:///C%3A/Users/user/Downloads/bbb_sunflower_1080p_30fps_normal.mp4"
+ └── Metadata:
+     - Name: "Video"  Text: "QTFF"
+
+ Audio[2] :: Format:  - 00 ch -     0 Hz -  0 bits  Length: 0  Name: "bbb_sunflower_1080p_30fps_normal"  UniqueName: "bbb_sunflower_1080p_30fps_normal"
+ ├── File: "file:///C%3A/Users/user/Downloads/bbb_sunflower_1080p_30fps_normal.mp4"
+ └── Metadata:
+     - Name: "Video"  Text: "QTFF"
+
+
+Tracks & Clips :
+================
+
+ VideoTrack[1] ::  EditRate: 25/1 (25.00)
+ └── Clip (1): Start: 172800000  Len: 232320  End: 173032320  SourceOffset: 12506880
+
+
+
+ AudioTrack[1] ::  EditRate: 25/1 (25.00)  Format: MONO
+ └── Clip (1):  Start: 172800000  Len: 192000  End: 172992000  SourceOffset: 10421760  Channels: 1
+     └── SourceFile [ch 1]: "bbb_sunflower_1080p_30fps_normal"
+  
+
+ AudioTrack[2] ::  EditRate: 25/1 (25.00)  Format: MONO
+ └── Clip (1):  Start: 172800000  Len: 192000  End: 172992000  SourceOffset: 10421760  Channels: 1
+     └── SourceFile [ch 2]: "bbb_sunflower_1080p_30fps_normal"
+  
+
+ AudioTrack[3] ::  EditRate: 25/1 (25.00)  Format: MONO
+ └── Clip (1):  Start: 172800000  Len: 192000  End: 172992000  SourceOffset: 10421760  Channels: 1
+     └── SourceFile [ch 3]: "bbb_sunflower_1080p_30fps_normal_1"
+  
+
+ AudioTrack[4] ::  EditRate: 25/1 (25.00)  Format: MONO
+ └── Clip (1):  Start: 172800000  Len: 192000  End: 172992000  SourceOffset: 10421760  Channels: 1
+     └── SourceFile [ch 4]: "bbb_sunflower_1080p_30fps_normal_1"
+  
+
+ AudioTrack[5] ::  EditRate: 25/1 (25.00)  Format: MONO
+ └── Clip (1):  Start: 172800000  Len: 192000  End: 172992000  SourceOffset: 10421760  Channels: 1
+     └── SourceFile [ch 5]: "bbb_sunflower_1080p_30fps_normal_1"
+  
+
+ AudioTrack[6] ::  EditRate: 25/1 (25.00)  Format: MONO
+ └── Clip (1):  Start: 172800000  Len: 192000  End: 172992000  SourceOffset: 10421760  Channels: 1
+     └── SourceFile [ch 6]: "bbb_sunflower_1080p_30fps_normal_1"
+  
+
+ AudioTrack[7] ::  EditRate: 25/1 (25.00)  Format: MONO
+ └── Clip (1):  Start: 172800000  Len: 192000  End: 172992000  SourceOffset: 10421760  Channels: 1
+     └── SourceFile [ch 7]: "bbb_sunflower_1080p_30fps_normal_1"
+  
+
+ AudioTrack[8] ::  EditRate: 25/1 (25.00)  Format: MONO
+ └── Clip (1):  Start: 172800000  Len: 192000  End: 172992000  SourceOffset: 10421760  Channels: 1
+     └── SourceFile [ch 8]: "bbb_sunflower_1080p_30fps_normal_1"
+  
+

@@ -1,0 +1,46 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2024-01-18 20:56:25.00
+ AAF ObjSpec Version  : 1.1
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFOPDef_EditProtocol
+
+
+
+ CompanyName          : Avid Technology, Inc.
+ ProductName          : Avid Media Composer 23.12
+ ProductVersion       : 23.12.0.0 AAFVersionReleased (1)
+ ProductVersionString : Unknown version
+ ProductID            : { 0xd0b7c06e 0xcd3d 0x4ad7 { 0xac 0xfb 0xf0 0x3a 0x4f 0x42 0xa2 0x31 } }
+ Date                 : 2024-01-18 20:56:25.00
+ ToolkitVersion       : 2.0.9.124 AAFVersionReleased (1)
+ Platform             : AAFSDK (Win64)
+ GenerationAUID       : { 0xc38cdb19 0xa46d 0x4bdc { 0xbc 0xec 0xb7 0xc3 0xd3 0xeb 0xf4 0x69 } }
+
+
+
+ Composition Name            : MC_Empty.Exporté.02
+
+ TC EditRrate                : 30000/1001
+ TC FPS                      : 30 NDF
+
+ Composition Start (EU)      : 108000
+ Composition Start (samples) : 0
+ Composition Start           : 01:00:00:00
+
+ Composition End (EU)        : 108000 (EditRate: 0/0)
+ Composition End (samples)   : 108000
+ Composition End             : 01:00:00:00
+
+ Dominant Sample Rate        : 0
+ Dominant Sample Size        : 0 bits
+
+
+Media Essences :
+================
+
+
+Tracks & Clips :
+================
+
+

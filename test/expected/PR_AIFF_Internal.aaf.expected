@@ -39,17 +39,21 @@
 Media Essences :
 ================
 
-   0:  Type: AIFC  Length: 0  01 Ch - 48000 Hz - 16 bits  file: EMBEDDED  file_name: 1000hz-18dbs16b44.1k.wav
+ Audio[1] :: Format: AIFC - 01 ch - 48000 Hz - 16 bits  Length: 51260  Name: "1000hz-18dbs16b44.1k.wav"  UniqueName: "1000hz-18dbs16b44.1k.wav"
+ ├── File: "EMBEDDED"
+ └── Metadata:
+     - Name: "Take"   Text: ""
+     - Name: "Scene"  Text: ""
 
 
 Tracks & Clips :
 ================
 
-VideoTrack  (1) - edit_rate 30000/1001 (29.97)  -  ""
-Track  (1) - MONO   - Gain: none     - Pan: none    - edit_rate: 30000/1001 (29.97)  -  "Audio 1"
- Clip:0    Channel: 1  Gain: +00.0 dB         GainAuto: none  Start: 172799828  Len: 48048  End: 172847876  SrcOffset: 1601
-   SourceFile: [ch all] 1000hz-18dbs16b44.1k.wav   (1000hz-18dbs16b44.1k.wav)
+ VideoTrack[1] ::  EditRate: 30000/1001 (29.97)
 
 
-
+ AudioTrack[1] ::  EditRate: 30000/1001 (29.97)  Format: MONO  Name: "Audio 1"
+ └── Clip (1):  Start: 172799828  Len: 48048  End: 172847876  SourceOffset: 1601  Channels: 1  Gain: +00.0 dB
+     └── SourceFile [ch ALL]: "1000hz-18dbs16b44.1k.wav"
+  
 

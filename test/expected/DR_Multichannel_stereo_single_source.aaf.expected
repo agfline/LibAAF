@@ -39,17 +39,22 @@
 Media Essences :
 ================
 
-   0:  Type: WAVE  Length: 43117  02 Ch - 22050 Hz - 16 bits  file: file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav  file_name: stereo-identif
+ Audio[1] :: Format: WAVE - 02 ch - 22050 Hz - 16 bits  Length: 43117  Name: "stereo-identif"  UniqueName: "stereo-identif_1"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav"
+
+ Audio[2] :: Format: WAVE - 02 ch - 22050 Hz - 16 bits  Length: 43117  Name: "stereo-identif"  UniqueName: "stereo-identif"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav"
 
 
 Tracks & Clips :
 ================
 
-VideoTrack  (1) - edit_rate 24/1 (24.00)  -  ""
-Track  (1) - STEREO - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 1"
- Clip:0    Channel: 2  Gain: none             GainAuto: none  Start: 13215779  Len: 80238  End: 13296017  SrcOffset: 1837
-   SourceFile: [ch all] stereo-identif   (stereo-identif)
+ VideoTrack[1] ::  EditRate: 24/1 (24.00)
 
 
-
+ AudioTrack[1] ::  EditRate: 48000/1 (48000.00)  Format: STEREO  Name: "Audio 1"
+ └── Clip (1):  Start: 13215779  Len: 80238  End: 13296017  SourceOffset: 1837  Channels: 2
+     ├── SourceFile [ch 1]: "stereo-identif"
+     └── SourceFile [ch 2]: "stereo-identif_1"
+  
 

@@ -39,17 +39,46 @@
 Media Essences :
 ================
 
-   0:  Type: WAVE  Length: 481171  08 Ch - 44100 Hz - 16 bits  file: file://localhost/C:/Users/user/Desktop/res/7.1-SMPTE-channel-identif.wav  file_name: 7
+ Audio[1] :: Format: WAVE - 08 ch - 44100 Hz - 16 bits  Length: 481171  Name: "7"  UniqueName: "7_7"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/7.1-SMPTE-channel-identif.wav"
+
+ Audio[2] :: Format: WAVE - 08 ch - 44100 Hz - 16 bits  Length: 481171  Name: "7"  UniqueName: "7_6"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/7.1-SMPTE-channel-identif.wav"
+
+ Audio[3] :: Format: WAVE - 08 ch - 44100 Hz - 16 bits  Length: 481171  Name: "7"  UniqueName: "7_5"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/7.1-SMPTE-channel-identif.wav"
+
+ Audio[4] :: Format: WAVE - 08 ch - 44100 Hz - 16 bits  Length: 481171  Name: "7"  UniqueName: "7_4"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/7.1-SMPTE-channel-identif.wav"
+
+ Audio[5] :: Format: WAVE - 08 ch - 44100 Hz - 16 bits  Length: 481171  Name: "7"  UniqueName: "7_3"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/7.1-SMPTE-channel-identif.wav"
+
+ Audio[6] :: Format: WAVE - 08 ch - 44100 Hz - 16 bits  Length: 481171  Name: "7"  UniqueName: "7_2"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/7.1-SMPTE-channel-identif.wav"
+
+ Audio[7] :: Format: WAVE - 08 ch - 44100 Hz - 16 bits  Length: 481171  Name: "7"  UniqueName: "7_1"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/7.1-SMPTE-channel-identif.wav"
+
+ Audio[8] :: Format: WAVE - 08 ch - 44100 Hz - 16 bits  Length: 481171  Name: "7"  UniqueName: "7"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/7.1-SMPTE-channel-identif.wav"
 
 
 Tracks & Clips :
 ================
 
-VideoTrack  (1) - edit_rate 24/1 (24.00)  -  ""
-Track  (1) - 7.1    - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 1"
- Clip:0    Channel: 8  Gain: none             GainAuto: none  Start: 13215780  Len: 475183  End: 13690964  SrcOffset: 1837
-   SourceFile: [ch all] 7   (7)
+ VideoTrack[1] ::  EditRate: 24/1 (24.00)
 
 
-
+ AudioTrack[1] ::  EditRate: 48000/1 (48000.00)  Format: 7.1  Name: "Audio 1"
+ └── Clip (1):  Start: 13215780  Len: 475183  End: 13690964  SourceOffset: 1837  Channels: 8
+     ├── SourceFile [ch 1]: "7"
+     ├── SourceFile [ch 2]: "7_1"
+     ├── SourceFile [ch 3]: "7_2"
+     ├── SourceFile [ch 4]: "7_3"
+     ├── SourceFile [ch 5]: "7_4"
+     ├── SourceFile [ch 6]: "7_5"
+     ├── SourceFile [ch 7]: "7_6"
+     └── SourceFile [ch 8]: "7_7"
+  
 

@@ -1,0 +1,75 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2024-01-09 22:06:39.00
+ AAF ObjSpec Version  : 1.1
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFUID_NULL
+
+
+
+ CompanyName          : Digidesign, Inc.
+ ProductName          : ProTools
+ ProductVersion       : 23.12.0.136 AAFVersionReleased (1)
+ ProductVersionString : 23.12.0.136
+ ProductID            : { 0x319414f6 0x5852 0x4050 { 0xa4 0xeb 0x98 0x1e 0x64 0x3f 0x33 0xa2 } }
+ Date                 : 2024-01-09 22:06:36.00
+ ToolkitVersion       : 1.1.6.0 AAFVersionBeta (4)
+ Platform             : AAFSDK (Win64)
+ GenerationAUID       : { 0x3e79665b 0x9628 0x42fd { 0x96 0x44 0xdc 0xdc 0xbe 0x59 0xc3 0xdf } }
+
+
+
+ Composition Name            : PT_lang_ko
+
+ TC EditRrate                : 30/1
+ TC FPS                      : 30 NDF
+
+ Composition Start (EU)      : 0
+ Composition Start (samples) : 0
+ Composition Start           : 00:00:00:00
+
+ Composition End (EU)        : 9055 (EditRate: 30/1)
+ Composition End (samples)   : 13310850
+ Composition End             : 00:05:01:25
+
+ Dominant Sample Rate        : 44100
+ Dominant Sample Size        : 16 bits
+
+ Metadata:
+ - Name: "Comment"  Text: ""
+
+
+Media Essences :
+================
+
+ Audio[1] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 1471  Name: "샘플 단위 정밀 편집"  UniqueName: "샘플 단위 정밀 편집_3"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/dumb/PT_lang_kosphrYQZRqxxsBBBB.wav"
+
+ Audio[2] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 19111  Name: "페이드"  UniqueName: "페이드_1"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/dumb/PT_lang_koczrpYQZRcrxsBBBB.wav"
+
+ Audio[3] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 1471  Name: "샘플 단위 정밀 편집"  UniqueName: "샘플 단위 정밀 편집_2"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/dumb/PT_lang_kobmpmYQZRdmxsBBBB.wav"
+
+ Audio[4] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 130831  Name: "1000hz-18dbs16b44.1k-01"  UniqueName: "1000hz-18dbs16b44.1k-01"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/dumb/PT_lang_kocdhhYQZRffxsBBBB.wav"
+
+ Audio[5] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 1471  Name: "샘플 단위 정밀 편집"  UniqueName: "샘플 단위 정밀 편집_1"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/dumb/PT_lang_kofsdgYQZRgbxsBBBB.wav"
+
+ Audio[6] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 16171  Name: "페이드"  UniqueName: "페이드"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/dumb/PT_lang_kowgbfYQZRhxwsBBBB.wav"
+
+ Audio[7] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 1471  Name: "샘플 단위 정밀 편집"  UniqueName: "샘플 단위 정밀 편집"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/dumb/PT_lang_korsrcYQZRvrwsBBBB.wav"
+
+
+Tracks & Clips :
+================
+
+
+ AudioTrack[1] ::  EditRate: 30/1 (30.00)  Format: MONO
+ └── Clip (1):  Start: 13232940  Len: 77910  End: 13310850  SourceOffset: 29400  Channels: 1  FadeIn: CURV_LIN (16170)  FadeOut: CURV_LIN (17640)
+     └── SourceFile [ch 1]: "1000hz-18dbs16b44.1k-01"
+  
+

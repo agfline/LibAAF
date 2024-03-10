@@ -39,26 +39,36 @@
 Media Essences :
 ================
 
-   0:  Type: WAVE  Length: 132300  01 Ch - 44100 Hz - 16 bits  file: file://localhost/C:/Users/user/Desktop/LibAAFTestFiles/res/1000hz-18dbs16b44.1k.wav  file_name: sample-accuracy-173459321
-   1:  Type: WAVE  Length: 132300  01 Ch - 44100 Hz - 16 bits  file: file://localhost/C:/Users/user/Desktop/LibAAFTestFiles/res/1000hz-18dbs16b44.1k.wav  file_name: tc-accurate-01:00:09:00-173232000
-   2:  Type: WAVE  Length: 132300  01 Ch - 44100 Hz - 16 bits  file: file://localhost/C:/Users/user/Desktop/LibAAFTestFiles/res/1000hz-18dbs16b44.1k.wav  file_name: sample-accurate-173000000
-   3:  Type: WAVE  Length: 132300  01 Ch - 44100 Hz - 16 bits  file: file://localhost/C:/Users/user/Desktop/LibAAFTestFiles/res/1000hz-18dbs16b44.1k.wav  file_name: 1000hz-18dbs16b44
+ Audio[1] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 132300  Name: "sample-accuracy-173459321"  UniqueName: "sample-accuracy-173459321"
+ └── File: "file://localhost/C:/Users/user/Desktop/LibAAFTestFiles/res/1000hz-18dbs16b44.1k.wav"
+
+ Audio[2] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 132300  Name: "tc-accurate-01:00:09:00-173232000"  UniqueName: "tc-accurate-01:00:09:00-173232000"
+ └── File: "file://localhost/C:/Users/user/Desktop/LibAAFTestFiles/res/1000hz-18dbs16b44.1k.wav"
+
+ Audio[3] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 132300  Name: "sample-accurate-173000000"  UniqueName: "sample-accurate-173000000"
+ └── File: "file://localhost/C:/Users/user/Desktop/LibAAFTestFiles/res/1000hz-18dbs16b44.1k.wav"
+
+ Audio[4] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 132300  Name: "1000hz-18dbs16b44"  UniqueName: "1000hz-18dbs16b44"
+ └── File: "file://localhost/C:/Users/user/Desktop/LibAAFTestFiles/res/1000hz-18dbs16b44.1k.wav"
 
 
 Tracks & Clips :
 ================
 
-VideoTrack  (1) - edit_rate 24/1 (24.00)  -  ""
-Track  (1) - MONO   - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 1"
- Clip:0    Channel: 1  Gain: none             GainAuto: none  Start: 158760000  Len: 132300  End: 158892300  SrcOffset: 0
-   SourceFile: [ch 1] 1000hz-18dbs16b44   (1000hz-18dbs16b44)
- Clip:1    Channel: 1  Gain: none             GainAuto: none  Start: 158943750  Len: 132300  End: 159076050  SrcOffset: 0
-   SourceFile: [ch 1] sample-accurate-173000000   (sample-accurate-173000000)
- Clip:2    Channel: 1  Gain: none             GainAuto: none  Start: 159156900  Len: 132300  End: 159289200  SrcOffset: 0
-   SourceFile: [ch 1] tc-accurate-01:00:09:00-173232000   (tc-accurate-01:00:09:00-173232000)
- Clip:3    Channel: 1  Gain: none             GainAuto: none  Start: 159365751  Len: 132300  End: 159498051  SrcOffset: 0
-   SourceFile: [ch 1] sample-accuracy-173459321   (sample-accuracy-173459321)
+ VideoTrack[1] ::  EditRate: 24/1 (24.00)
 
 
-
+ AudioTrack[1] ::  EditRate: 48000/1 (48000.00)  Format: MONO  Name: "Audio 1"
+ ├── Clip (1):  Start: 158760000  Len: 132300  End: 158892300  SourceOffset: 0  Channels: 1
+ │   └── SourceFile [ch 1]: "1000hz-18dbs16b44"
+ │
+ ├── Clip (2):  Start: 158943750  Len: 132300  End: 159076050  SourceOffset: 0  Channels: 1
+ │   └── SourceFile [ch 1]: "sample-accurate-173000000"
+ │
+ ├── Clip (3):  Start: 159156900  Len: 132300  End: 159289200  SourceOffset: 0  Channels: 1
+ │   └── SourceFile [ch 1]: "tc-accurate-01:00:09:00-173232000"
+ │
+ └── Clip (4):  Start: 159365751  Len: 132300  End: 159498051  SourceOffset: 0  Channels: 1
+     └── SourceFile [ch 1]: "sample-accuracy-173459321"
+  
 

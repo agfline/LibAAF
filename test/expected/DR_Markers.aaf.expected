@@ -40,15 +40,14 @@ Media Essences :
 ================
 
 
-
 Tracks & Clips :
 ================
 
-VideoTrack  (1) - edit_rate 24/1 (24.00)  -  ""
+ VideoTrack[1] ::  EditRate: 24/1 (24.00)
+
+
 Markers :
 =========
 
- Marker[0]:  EditRate: 24/1  Start: 0  Length: 0  Color: #e12401  Label: "Marker1Name"  Comment: "This is a maker note.  Marker is at position 01:01:00:00, last 1 frame and its color is red."
- Marker[1]:  EditRate: 24/1  Start: 0  Length: 0  Color: #9013fe  Label: "Marker2Name"  Comment: "This is a maker note.  Marker is at position 01:01:30:00, last 10 frames and its color is purple."
-
-
+ Marker[0]:  EditRate: 24/1 (24.00)  Start: 0  Length: 0  Color: #e12401  Label: "Marker1Name"  Comment: "This is a maker note.  Marker is at position 01:01:00:00, last 1 frame and its color is red."
+ Marker[1]:  EditRate: 24/1 (24.00)  Start: 0  Length: 0  Color: #9013fe  Label: "Marker2Name"  Comment: "This is a maker note.  Marker is at position 01:01:30:00, last 10 frames and its color is purple."

@@ -35,39 +35,61 @@
  Dominant Sample Rate        : 32000
  Dominant Sample Size        : 16 bits
 
- UserComments :
-   [0]  Name: "Comment"   Text: ""
+ Metadata:
+ - Name: "Comment"  Text: ""
 
 
 Media Essences :
 ================
 
-   0:  Type: WAVE  Length: 1067  01 Ch - 32000 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichapxmrVWSQqrssFPBB.wav  file_name: Sample accurate edit   (Sample accurate edit_5)
-   1:  Type: WAVE  Length: 1067  01 Ch - 32000 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichaxrqhVWSQqzrsFPBB.wav  file_name: Sample accurate edit   (Sample accurate edit_4)
-   2:  Type: WAVE  Length: 1067  01 Ch - 32000 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichargmdVWSQqprsFPBB.wav  file_name: Sample accurate edit   (Sample accurate edit_3)
-   3:  Type: WAVE  Length: 1067  01 Ch - 32000 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichasrsyTWSQzxqsFPBB.wav  file_name: Sample accurate edit   (Sample accurate edit_2)
-   4:  Type: WAVE  Length: 1067  01 Ch - 32000 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichaycrvTWSQbmqsFPBB.wav  file_name: Sample accurate edit   (Sample accurate edit_1)
-   5:  Type: WAVE  Length: 1067  01 Ch - 32000 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichavvmqTWSQzxpsFPBB.wav  file_name: Sample accurate edit
-   6:  Type: WAVE  Length: 227201  01 Ch - 32000 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichadhmpVWSQhgssFPBB.wav  file_name: 5.1-SMPTE-channel-identif-02.LFE
-   7:  Type: WAVE  Length: 227201  01 Ch - 32000 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichazrrfVWSQrsrsFPBB.wav  file_name: 5.1-SMPTE-channel-identif-02.Rs
-   8:  Type: WAVE  Length: 227201  01 Ch - 32000 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichayhhbVWSQfdrsFPBB.wav  file_name: 5.1-SMPTE-channel-identif-02.Ls
-   9:  Type: WAVE  Length: 227201  01 Ch - 32000 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichahxvwTWSQbrqsFPBB.wav  file_name: 5.1-SMPTE-channel-identif-02.R
-  10:  Type: WAVE  Length: 227201  01 Ch - 32000 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichahzrrTWSQbcqsFPBB.wav  file_name: 5.1-SMPTE-channel-identif-02.C
-  11:  Type: WAVE  Length: 227201  01 Ch - 32000 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichaqmfmTWSQhqpsFPBB.wav  file_name: 5.1-SMPTE-channel-identif-02.L
+ Audio[1] :: Format: WAVE - 01 ch - 32000 Hz - 16 bits  Length: 1067  Name: "Sample accurate edit"  UniqueName: "Sample accurate edit_5"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichapxmrVWSQqrssFPBB.wav"
+
+ Audio[2] :: Format: WAVE - 01 ch - 32000 Hz - 16 bits  Length: 1067  Name: "Sample accurate edit"  UniqueName: "Sample accurate edit_4"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichaxrqhVWSQqzrsFPBB.wav"
+
+ Audio[3] :: Format: WAVE - 01 ch - 32000 Hz - 16 bits  Length: 1067  Name: "Sample accurate edit"  UniqueName: "Sample accurate edit_3"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichargmdVWSQqprsFPBB.wav"
+
+ Audio[4] :: Format: WAVE - 01 ch - 32000 Hz - 16 bits  Length: 1067  Name: "Sample accurate edit"  UniqueName: "Sample accurate edit_2"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichasrsyTWSQzxqsFPBB.wav"
+
+ Audio[5] :: Format: WAVE - 01 ch - 32000 Hz - 16 bits  Length: 1067  Name: "Sample accurate edit"  UniqueName: "Sample accurate edit_1"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichaycrvTWSQbmqsFPBB.wav"
+
+ Audio[6] :: Format: WAVE - 01 ch - 32000 Hz - 16 bits  Length: 1067  Name: "Sample accurate edit"  UniqueName: "Sample accurate edit"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichavvmqTWSQzxpsFPBB.wav"
+
+ Audio[7] :: Format: WAVE - 01 ch - 32000 Hz - 16 bits  Length: 227201  Name: "5.1-SMPTE-channel-identif-02.LFE"  UniqueName: "5.1-SMPTE-channel-identif-02.LFE"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichadhmpVWSQhgssFPBB.wav"
+
+ Audio[8] :: Format: WAVE - 01 ch - 32000 Hz - 16 bits  Length: 227201  Name: "5.1-SMPTE-channel-identif-02.Rs"  UniqueName: "5.1-SMPTE-channel-identif-02.Rs"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichazrrfVWSQrsrsFPBB.wav"
+
+ Audio[9] :: Format: WAVE - 01 ch - 32000 Hz - 16 bits  Length: 227201  Name: "5.1-SMPTE-channel-identif-02.Ls"  UniqueName: "5.1-SMPTE-channel-identif-02.Ls"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichayhhbVWSQfdrsFPBB.wav"
+
+ Audio[10] :: Format: WAVE - 01 ch - 32000 Hz - 16 bits  Length: 227201  Name: "5.1-SMPTE-channel-identif-02.R"  UniqueName: "5.1-SMPTE-channel-identif-02.R"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichahxvwTWSQbrqsFPBB.wav"
+
+ Audio[11] :: Format: WAVE - 01 ch - 32000 Hz - 16 bits  Length: 227201  Name: "5.1-SMPTE-channel-identif-02.C"  UniqueName: "5.1-SMPTE-channel-identif-02.C"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichahzrrTWSQbcqsFPBB.wav"
+
+ Audio[12] :: Format: WAVE - 01 ch - 32000 Hz - 16 bits  Length: 227201  Name: "5.1-SMPTE-channel-identif-02.L"  UniqueName: "5.1-SMPTE-channel-identif-02.L"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/tmp/PT_Multichannel_5.1_multi_source/PT_MultichaqmfmTWSQhqpsFPBB.wav"
 
 
 Tracks & Clips :
 ================
 
-Track  (1) - 5.1    - Gain: none     - Pan: none    - edit_rate: 30/1 (30.00)  -  "Audio 1"
- Clip:0    Channel: 6  Gain: none             GainAuto: none  Start: 9600000  Len: 222933  End: 9822933  SrcOffset: 2133
-   SourceFile: [ch 1] 5.1-SMPTE-channel-identif-02.L   (5.1-SMPTE-channel-identif-02.L)
-   SourceFile: [ch 1] 5.1-SMPTE-channel-identif-02.C   (5.1-SMPTE-channel-identif-02.C)
-   SourceFile: [ch 1] 5.1-SMPTE-channel-identif-02.R   (5.1-SMPTE-channel-identif-02.R)
-   SourceFile: [ch 1] 5.1-SMPTE-channel-identif-02.Ls   (5.1-SMPTE-channel-identif-02.Ls)
-   SourceFile: [ch 1] 5.1-SMPTE-channel-identif-02.Rs   (5.1-SMPTE-channel-identif-02.Rs)
-   SourceFile: [ch 1] 5.1-SMPTE-channel-identif-02.LFE   (5.1-SMPTE-channel-identif-02.LFE)
 
-
-
+ AudioTrack[1] ::  EditRate: 30/1 (30.00)  Format: 5.1  Name: "Audio 1"
+ └── Clip (1):  Start: 9600000  Len: 224000  End: 9824000  SourceOffset: 2133  Channels: 6
+     ├── SourceFile [ch 1]: "5.1-SMPTE-channel-identif-02.L"
+     ├── SourceFile [ch 1]: "5.1-SMPTE-channel-identif-02.C"
+     ├── SourceFile [ch 1]: "5.1-SMPTE-channel-identif-02.R"
+     ├── SourceFile [ch 1]: "5.1-SMPTE-channel-identif-02.Ls"
+     ├── SourceFile [ch 1]: "5.1-SMPTE-channel-identif-02.Rs"
+     └── SourceFile [ch 1]: "5.1-SMPTE-channel-identif-02.LFE"
+  
 

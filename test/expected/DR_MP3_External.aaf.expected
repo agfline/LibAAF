@@ -39,17 +39,18 @@
 Media Essences :
 ================
 
-   0:  Type: PCM   Length: 144000  01 Ch - 48000 Hz - 16 bits  file: file:///C:/Users/user/Desktop/LibAAFTestFiles/res/1000hz.mp3  file_name: 1000hz
+ Audio[1] :: Format: PCM  - 01 ch - 48000 Hz - 16 bits  Length: 144000  Name: "1000hz"  UniqueName: "1000hz"
+ └── File: "file:///C:/Users/user/Desktop/LibAAFTestFiles/res/1000hz.mp3"
 
 
 Tracks & Clips :
 ================
 
-VideoTrack  (1) - edit_rate 24/1 (24.00)  -  ""
-Track  (1) - MONO   - Gain: none     - Pan: none    - edit_rate: 24/1 (24.00)  -  "Audio 1"
- Clip:0    Channel: 1  Gain: none             GainAuto: none  Start: 172800000  Len: 144000  End: 172944000  SrcOffset: 0
-   SourceFile: [ch 1] 1000hz   (1000hz)
+ VideoTrack[1] ::  EditRate: 24/1 (24.00)
 
 
-
+ AudioTrack[1] ::  EditRate: 24/1 (24.00)  Format: MONO  Name: "Audio 1"
+ └── Clip (1):  Start: 172800000  Len: 144000  End: 172944000  SourceOffset: 0  Channels: 1
+     └── SourceFile [ch 1]: "1000hz"
+  
 

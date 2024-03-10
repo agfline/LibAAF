@@ -50,7 +50,6 @@
 - [ ] Mono clip + track volume automation
 - [x] Mono clip gain + clip volume automation
 - [x] Stereo clip gain + clip volume automation
-
 - [ ] Mono clip pan automation
 - [ ] Stereo clip pan automation
 - [ ] Mono track pan automation

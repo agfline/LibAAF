@@ -39,17 +39,38 @@
 Media Essences :
 ================
 
-   0:  Type: WAVE  Length: 311952  06 Ch - 44100 Hz - 16 bits  file: file://localhost/C:/Users/user/Desktop/res/5.1-SMPTE-channel-identif.wav  file_name: 5
+ Audio[1] :: Format: WAVE - 06 ch - 44100 Hz - 16 bits  Length: 311952  Name: "5"  UniqueName: "5_5"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/5.1-SMPTE-channel-identif.wav"
+
+ Audio[2] :: Format: WAVE - 06 ch - 44100 Hz - 16 bits  Length: 311952  Name: "5"  UniqueName: "5_4"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/5.1-SMPTE-channel-identif.wav"
+
+ Audio[3] :: Format: WAVE - 06 ch - 44100 Hz - 16 bits  Length: 311952  Name: "5"  UniqueName: "5_3"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/5.1-SMPTE-channel-identif.wav"
+
+ Audio[4] :: Format: WAVE - 06 ch - 44100 Hz - 16 bits  Length: 311952  Name: "5"  UniqueName: "5_2"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/5.1-SMPTE-channel-identif.wav"
+
+ Audio[5] :: Format: WAVE - 06 ch - 44100 Hz - 16 bits  Length: 311952  Name: "5"  UniqueName: "5_1"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/5.1-SMPTE-channel-identif.wav"
+
+ Audio[6] :: Format: WAVE - 06 ch - 44100 Hz - 16 bits  Length: 311952  Name: "5"  UniqueName: "5"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/5.1-SMPTE-channel-identif.wav"
 
 
 Tracks & Clips :
 ================
 
-VideoTrack  (1) - edit_rate 24/1 (24.00)  -  ""
-Track  (1) - 5.1    - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 1"
- Clip:0    Channel: 6  Gain: none             GainAuto: none  Start: 13215779  Len: 306787  End: 13522566  SrcOffset: 1837
-   SourceFile: [ch all] 5   (5)
+ VideoTrack[1] ::  EditRate: 24/1 (24.00)
 
 
-
+ AudioTrack[1] ::  EditRate: 48000/1 (48000.00)  Format: 5.1  Name: "Audio 1"
+ └── Clip (1):  Start: 13215779  Len: 306787  End: 13522566  SourceOffset: 1837  Channels: 6
+     ├── SourceFile [ch 1]: "5"
+     ├── SourceFile [ch 2]: "5_1"
+     ├── SourceFile [ch 3]: "5_2"
+     ├── SourceFile [ch 4]: "5_3"
+     ├── SourceFile [ch 5]: "5_4"
+     └── SourceFile [ch 6]: "5_5"
+  
 

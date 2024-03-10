@@ -35,23 +35,23 @@
  Dominant Sample Rate        : 44100
  Dominant Sample Size        : 16 bits
 
- UserComments :
-   [0]  Name: "Comment"   Text: ""
+ Metadata:
+ - Name: "Comment"  Text: ""
 
 
 Media Essences :
 ================
 
-   0:  Type: AIFC  Length: 132304  01 Ch - 44100 Hz - 16 bits  file: file:///c%3a/Users/user/Desktop/LibAAFTestFiles/res/1000hz-18dbs16b44.1k.aiff  file_name: 1000hz-18dbs16b44.1k-01
+ Audio[1] :: Format: AIFC - 01 ch - 44100 Hz - 16 bits  Length: 132304  Name: "1000hz-18dbs16b44.1k-01"  UniqueName: "1000hz-18dbs16b44.1k-01"
+ └── File: "file:///c%3a/Users/user/Desktop/LibAAFTestFiles/res/1000hz-18dbs16b44.1k.aiff"
 
 
 Tracks & Clips :
 ================
 
-Track  (1) - MONO   - Gain: none     - Pan: none    - edit_rate: 44100/1 (44100.00)  -  "Audio 1"
- Clip:0    Channel: 1  Gain: none             GainAuto: none  Start: 158804100  Len: 44100  End: 158848200  SrcOffset: 44100
-   SourceFile: [ch 1] 1000hz-18dbs16b44.1k-01   (1000hz-18dbs16b44.1k-01)
 
-
-
+ AudioTrack[1] ::  EditRate: 44100/1 (44100.00)  Format: MONO  Name: "Audio 1"
+ └── Clip (1):  Start: 158804100  Len: 44100  End: 158848200  SourceOffset: 44100  Channels: 1
+     └── SourceFile [ch 1]: "1000hz-18dbs16b44.1k-01"
+  
 

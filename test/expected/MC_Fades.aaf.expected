@@ -1,0 +1,115 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2024-01-27 14:15:59.00
+ AAF ObjSpec Version  : 1.1
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFOPDef_EditProtocol
+
+
+
+ CompanyName          : Avid Technology, Inc.
+ ProductName          : Avid Media Composer 23.12
+ ProductVersion       : 23.12.0.0 AAFVersionReleased (1)
+ ProductVersionString : Unknown version
+ ProductID            : { 0xd0b7c06e 0xcd3d 0x4ad7 { 0xac 0xfb 0xf0 0x3a 0x4f 0x42 0xa2 0x31 } }
+ Date                 : 2024-01-27 14:15:59.00
+ ToolkitVersion       : 2.0.9.124 AAFVersionReleased (1)
+ Platform             : AAFSDK (Win64)
+ GenerationAUID       : { 0x84487039 0x1959 0x41f6 { 0x99 0x0d 0xe7 0xf5 0x16 0xae 0x62 0xb9 } }
+
+
+
+ Composition Name            : MC_Fades.Exporté.05
+
+ TC EditRrate                : 30000/1001
+ TC FPS                      : 30 NDF
+
+ Composition Start (EU)      : 108000
+ Composition Start (samples) : 172972800
+ Composition Start           : 01:00:00:00
+
+ Composition End (EU)        : 108256 (EditRate: 30000/1001)
+ Composition End (samples)   : 173382810
+ Composition End             : 01:00:08:16
+
+ Dominant Sample Rate        : 48000
+ Dominant Sample Size        : 16 bits
+
+
+Media Essences :
+================
+
+ Audio[1] :: Format: PCM  - 01 ch - 48000 Hz - 16 bits  Length: 94496  Name: "stereo-identif.wav"  UniqueName: "stereo-identif.wav_1"
+ ├── File: "file:///D%3A/Avid%20MediaFiles/MXF/1/stereo-ideA02.65B526B69235A.mxf"
+ └── Metadata:
+     - Name: "UNC Path"  Text: "C:\Users\user\Desktop\res\stereo-identif.wav"
+
+ Audio[2] :: Format: PCM  - 01 ch - 48000 Hz - 16 bits  Length: 94496  Name: "stereo-identif.wav"  UniqueName: "stereo-identif.wav"
+ ├── File: "file:///D%3A/Avid%20MediaFiles/MXF/1/stereo-ideA01.65B526B69015A.mxf"
+ └── Metadata:
+     - Name: "UNC Path"  Text: "C:\Users\user\Desktop\res\stereo-identif.wav"
+
+ Audio[3] :: Format: PCM  - 01 ch - 48000 Hz - 16 bits  Length: 144144  Name: "1000hz-18dbs16b44.1k.wav"  UniqueName: "1000hz-18dbs16b44.1k.wav"
+ ├── File: "file:///D%3A/Avid%20MediaFiles/MXF/1/1000hz-18dA01.65A40B01E984A.mxf"
+ └── Metadata:
+     - Name: "Comments"    Text: "This is a Source Media Comment."
+     - Name: "UNC Path"    Text: "C:\Users\user\Desktop\LibAAFTestFiles\res\1000hz-18dbs16b44.1k.wav"
+     - Name: "Shoot Date"  Text: "2024-01-03"
+     - Name: "TapeID"      Text: "1000hz-18dbs16b44.1k.wav"
+
+
+Tracks & Clips :
+================
+
+ VideoTrack[1] ::  EditRate: 30000/1001 (29.97)
+
+
+ AudioTrack[1] ::  EditRate: 30000/1001 (29.97)  Format: MONO
+ ├── Clip (1):  Start: 172972800  Len: 48048  End: 173020848  SourceOffset: 48048  Channels: 1  FadeIn: CURV_LIN (8008)  FadeOut: CURV_LIN (8008)
+ │   └── SourceFile [ch 1]: "1000hz-18dbs16b44.1k.wav"
+ │
+ ├── Clip (2):  Start: 173036864  Len: 32032  End: 173068896  SourceOffset: 48048  Channels: 1
+ │   └── SourceFile [ch 1]: "1000hz-18dbs16b44.1k.wav"
+ │
+ ├── X-FADE: CURV_LIN  Length: 8008  CutPoint: 3203
+ │
+ ├── Clip (3):  Start: 173060888  Len: 40040  End: 173100928  SourceOffset: 52852  Channels: 1
+ │   └── SourceFile [ch 1]: "1000hz-18dbs16b44.1k.wav"
+ │
+ ├── X-FADE: CURV_PWR  Length: 8008  CutPoint: 3203
+ │
+ └── Clip (4):  Start: 173092920  Len: 24024  End: 173116944  SourceOffset: 51251  Channels: 1
+     └── SourceFile [ch 1]: "1000hz-18dbs16b44.1k.wav"
+  
+
+ AudioTrack[2] ::  EditRate: 30000/1001 (29.97)  Format: MONO
+ └── Clip (1):  Start: 172972800  Len: 48048  End: 173020848  SourceOffset: 48048  Channels: 1  FadeIn: CURV_PWR (8008)  FadeOut: CURV_PWR (8008)
+     └── SourceFile [ch 1]: "1000hz-18dbs16b44.1k.wav"
+  
+
+ AudioTrack[3] ::  EditRate: 30000/1001 (29.97)  Format: STEREO
+ ├── Clip (1):  Start: 172972800  Len: 94494  End: 173067295  SourceOffset: 0  Channels: 2  FadeIn: CURV_LIN (8008)  FadeOut: CURV_LIN (8008)
+ │   ├── SourceFile [ch 1]: "stereo-identif.wav"
+ │   └── SourceFile [ch 2]: "stereo-identif.wav_1"
+ │
+ ├── Clip (2):  Start: 173068896  Len: 94494  End: 173163391  SourceOffset: 0  Channels: 2  FadeIn: CURV_PWR (8008)  FadeOut: CURV_PWR (8008)
+ │   ├── SourceFile [ch 1]: "stereo-identif.wav"
+ │   └── SourceFile [ch 2]: "stereo-identif.wav_1"
+ │
+ ├── Clip (3):  Start: 173166594  Len: 83283  End: 173249877  SourceOffset: 0  Channels: 2
+ │   ├── SourceFile [ch 1]: "stereo-identif.wav"
+ │   └── SourceFile [ch 2]: "stereo-identif.wav_1"
+ │
+ ├── X-FADE: CURV_LIN  Length: 16016  CutPoint: 8008
+ │
+ ├── Clip (4):  Start: 173233861  Len: 80080  End: 173313941  SourceOffset: 3203  Channels: 2
+ │   ├── SourceFile [ch 1]: "stereo-identif.wav"
+ │   └── SourceFile [ch 2]: "stereo-identif.wav_1"
+ │
+ ├── X-FADE: CURV_PWR  Length: 16016  CutPoint: 8008
+ │
+ └── Clip (5):  Start: 173297925  Len: 84884  End: 173382810  SourceOffset: 9609  Channels: 2
+     ├── SourceFile [ch 1]: "stereo-identif.wav"
+     └── SourceFile [ch 2]: "stereo-identif.wav_1"
+  
+

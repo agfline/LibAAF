@@ -3,9 +3,9 @@ counter.sh
 ardour/
 ardour_old/
 old/
-test/private_aaf
 include/libaaf/version.h
 AAF Structure.md
 clang-format-sample-file.c
 .clang-format
-test/private/*
+test/private
+test/private_aaf

@@ -35,23 +35,23 @@
  Dominant Sample Rate        : 16000
  Dominant Sample Size        : 16 bits
 
- UserComments :
-   [0]  Name: "Comment"   Text: ""
+ Metadata:
+ - Name: "Comment"  Text: ""
 
 
 Media Essences :
 ================
 
-   0:  Type: PCM   Length: 32000  01 Ch - 16000 Hz - 16 bits  file: EMBEDDED  file_name: 1000hz-18dbs16b44.1k-01
+ Audio[1] :: Format: PCM  - 01 ch - 16000 Hz - 16 bits  Length: 32000  Name: "1000hz-18dbs16b44.1k-01"  UniqueName: "1000hz-18dbs16b44.1k-01"
+ └── File: "EMBEDDED"
 
 
 Tracks & Clips :
 ================
 
-Track  (1) - MONO   - Gain: none     - Pan: none    - edit_rate: 16000/1 (16000.00)  -  "Audio 1"
- Clip:0    Channel: 1  Gain: none             GainAuto: none  Start: 158760000  Len: 88200  End: 158848200  SrcOffset: 0
-   SourceFile: [ch 1] 1000hz-18dbs16b44.1k-01   (1000hz-18dbs16b44.1k-01)
 
-
-
+ AudioTrack[1] ::  EditRate: 16000/1 (16000.00)  Format: MONO  Name: "Audio 1"
+ └── Clip (1):  Start: 158760000  Len: 88200  End: 158848200  SourceOffset: 0  Channels: 1
+     └── SourceFile [ch 1]: "1000hz-18dbs16b44.1k-01"
+  
 

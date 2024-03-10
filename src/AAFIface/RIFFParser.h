@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Adrien Gesta-Fline
+ * Copyright (C) 2023-2024 Adrien Gesta-Fline
  *
  * This file is part of libAAF.
  *
@@ -21,8 +21,17 @@
 #ifndef __RIFFParser__
 #define __RIFFParser__
 
-#include <libaaf/debug.h>
+#include <libaaf/log.h>
 
+#if defined(__linux__)
+	#include <limits.h>
+	#include <linux/limits.h>
+#elif defined(__APPLE__)
+	#include <sys/syslimits.h>
+#elif defined(_WIN32)
+	#include <windows.h> // MAX_PATH
+	#include <limits.h>
+#endif
 
 
 #ifdef __GNUC__
@@ -32,6 +41,10 @@
 #ifdef _MSC_VER
   #define PACK( __Declaration__ ) __pragma( pack(push, 1) ) __Declaration__ __pragma( pack(pop))
 #endif
+
+
+
+#define RIFF_READER_ERROR SIZE_MAX
 
 
 enum RIFF_PARSER_FLAGS {
@@ -47,6 +60,7 @@ struct RIFFAudioFile {
   uint16_t sampleSize;
   uint16_t channels;
   uint64_t sampleCount; /* total samples for 1 channel (no matter channel count). (sampleCount / sampleRate) = duration in seconds */
+	size_t   pcm_audio_start_offset;
 };
 
 
@@ -71,7 +85,7 @@ PACK(struct riffChunk {
 
 
 PACK(struct wavFmtChunk {
-	char ckid[4]; //'fmt '
+	char ckid[4]; /* 'fmt ' */
 	uint32_t cksz;
 
 	uint16_t format_tag;
@@ -85,7 +99,7 @@ PACK(struct wavFmtChunk {
 
 
 PACK(struct wavBextChunk {
-	char     ckid[4]; //'bext'
+	char     ckid[4]; /* 'bext' */
 	uint32_t cksz;
 
   char 	   description[256];
@@ -129,7 +143,7 @@ PACK(struct wavBextChunk {
 
 
 PACK(struct aiffCOMMChunk {
-  char ckid[4]; //'COMM'
+  char ckid[4]; /* 'COMM' */
   uint32_t cksz;
 
   uint16_t numChannels;
@@ -139,10 +153,19 @@ PACK(struct aiffCOMMChunk {
 });
 
 
+PACK(struct aiffSSNDChunk {
+  char ckid[4]; /* 'SSND' */
+  uint32_t cksz;
 
-int riff_parseAudioFile( struct RIFFAudioFile *RIFFAudioFile, enum RIFF_PARSER_FLAGS flags, size_t (*readerCallback)(unsigned char *, size_t, size_t, void*, void*, void*), void *user1, void *user2, void *user3, struct dbg *dbg );
+  uint32_t offset;
+  uint32_t blockSize;
+});
 
-int riff_writeWavFileHeader( FILE *fp, struct wavFmtChunk *wavFmt, struct wavBextChunk *wavBext, uint32_t audioDataSize, struct dbg *dbg );
+
+
+int laaf_riff_parseAudioFile( struct RIFFAudioFile *RIFFAudioFile, enum RIFF_PARSER_FLAGS flags, size_t (*readerCallback)(unsigned char *, size_t, size_t, void*, void*, void*), void *user1, void *user2, void *user3, struct aafLog *log );
+
+int laaf_riff_writeWavFileHeader( FILE *fp, struct wavFmtChunk *wavFmt, struct wavBextChunk *wavBext, uint32_t audioDataSize, struct aafLog *log );
 
 
 #endif // ! __RIFFParser__

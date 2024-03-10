@@ -39,26 +39,52 @@
 Media Essences :
 ================
 
-   0:  Type: WAVE  Length: 43117  02 Ch - 22050 Hz - 16 bits  file: file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav  file_name: sample-accuracy-173459321
-   1:  Type: WAVE  Length: 43117  02 Ch - 22050 Hz - 16 bits  file: file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav  file_name: tc-accurate-01:00:09:00-173232000
-   2:  Type: WAVE  Length: 43117  02 Ch - 22050 Hz - 16 bits  file: file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav  file_name: sample-accurate-173000000
-   3:  Type: WAVE  Length: 43117  02 Ch - 22050 Hz - 16 bits  file: file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav  file_name: stereo-identif
+ Audio[1] :: Format: WAVE - 02 ch - 22050 Hz - 16 bits  Length: 43117  Name: "sample-accuracy-173459321"  UniqueName: "sample-accuracy-173459321_1"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav"
+
+ Audio[2] :: Format: WAVE - 02 ch - 22050 Hz - 16 bits  Length: 43117  Name: "sample-accuracy-173459321"  UniqueName: "sample-accuracy-173459321"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav"
+
+ Audio[3] :: Format: WAVE - 02 ch - 22050 Hz - 16 bits  Length: 43117  Name: "tc-accurate-01:00:09:00-173232000"  UniqueName: "tc-accurate-01:00:09:00-173232000_1"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav"
+
+ Audio[4] :: Format: WAVE - 02 ch - 22050 Hz - 16 bits  Length: 43117  Name: "tc-accurate-01:00:09:00-173232000"  UniqueName: "tc-accurate-01:00:09:00-173232000"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav"
+
+ Audio[5] :: Format: WAVE - 02 ch - 22050 Hz - 16 bits  Length: 43117  Name: "sample-accurate-173000000"  UniqueName: "sample-accurate-173000000_1"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav"
+
+ Audio[6] :: Format: WAVE - 02 ch - 22050 Hz - 16 bits  Length: 43117  Name: "sample-accurate-173000000"  UniqueName: "sample-accurate-173000000"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav"
+
+ Audio[7] :: Format: WAVE - 02 ch - 22050 Hz - 16 bits  Length: 43117  Name: "stereo-identif"  UniqueName: "stereo-identif_1"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav"
+
+ Audio[8] :: Format: WAVE - 02 ch - 22050 Hz - 16 bits  Length: 43117  Name: "stereo-identif"  UniqueName: "stereo-identif"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav"
 
 
 Tracks & Clips :
 ================
 
-VideoTrack  (1) - edit_rate 24/1 (24.00)  -  ""
-Track  (1) - STEREO - Gain: none     - Pan: none    - edit_rate: 48000/1 (48000.00)  -  "Audio 1"
- Clip:0    Channel: 2  Gain: none             GainAuto: none  Start: 172800000  Len: 93860  End: 172893860  SrcOffset: 0
-   SourceFile: [ch all] stereo-identif   (stereo-identif)
- Clip:1    Channel: 2  Gain: none             GainAuto: none  Start: 173000000  Len: 93860  End: 173093860  SrcOffset: 0
-   SourceFile: [ch all] sample-accurate-173000000   (sample-accurate-173000000)
- Clip:2    Channel: 2  Gain: none             GainAuto: none  Start: 173232000  Len: 93860  End: 173325860  SrcOffset: 0
-   SourceFile: [ch all] tc-accurate-01:00:09:00-173232000   (tc-accurate-01:00:09:00-173232000)
- Clip:3    Channel: 2  Gain: none             GainAuto: none  Start: 173459321  Len: 93860  End: 173553181  SrcOffset: 0
-   SourceFile: [ch all] sample-accuracy-173459321   (sample-accuracy-173459321)
+ VideoTrack[1] ::  EditRate: 24/1 (24.00)
 
 
-
+ AudioTrack[1] ::  EditRate: 48000/1 (48000.00)  Format: STEREO  Name: "Audio 1"
+ ├── Clip (1):  Start: 172800000  Len: 93860  End: 172893860  SourceOffset: 0  Channels: 2
+ │   ├── SourceFile [ch 1]: "stereo-identif"
+ │   └── SourceFile [ch 2]: "stereo-identif_1"
+ │
+ ├── Clip (2):  Start: 173000000  Len: 93860  End: 173093860  SourceOffset: 0  Channels: 2
+ │   ├── SourceFile [ch 1]: "sample-accurate-173000000"
+ │   └── SourceFile [ch 2]: "sample-accurate-173000000_1"
+ │
+ ├── Clip (3):  Start: 173232000  Len: 93860  End: 173325860  SourceOffset: 0  Channels: 2
+ │   ├── SourceFile [ch 1]: "tc-accurate-01:00:09:00-173232000"
+ │   └── SourceFile [ch 2]: "tc-accurate-01:00:09:00-173232000_1"
+ │
+ └── Clip (4):  Start: 173459321  Len: 93860  End: 173553181  SourceOffset: 0  Channels: 2
+     ├── SourceFile [ch 1]: "sample-accuracy-173459321"
+     └── SourceFile [ch 2]: "sample-accuracy-173459321_1"
+  
 

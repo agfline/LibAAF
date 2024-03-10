@@ -1,0 +1,84 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2024-01-27 13:54:16.00
+ AAF ObjSpec Version  : 1.1
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFOPDef_EditProtocol
+
+
+
+ CompanyName          : Avid Technology, Inc.
+ ProductName          : Avid Media Composer 23.12
+ ProductVersion       : 23.12.0.0 AAFVersionReleased (1)
+ ProductVersionString : Unknown version
+ ProductID            : { 0xd0b7c06e 0xcd3d 0x4ad7 { 0xac 0xfb 0xf0 0x3a 0x4f 0x42 0xa2 0x31 } }
+ Date                 : 2024-01-27 13:54:16.00
+ ToolkitVersion       : 2.0.9.124 AAFVersionReleased (1)
+ Platform             : AAFSDK (Win64)
+ GenerationAUID       : { 0x8638c4e7 0x1d69 0x4ed4 { 0xb3 0x70 0xb5 0xa8 0xf4 0xe6 0xd6 0x6d } }
+
+
+
+ Composition Name            : MC_Metadata.Exporté.02
+
+ TC EditRrate                : 30000/1001
+ TC FPS                      : 30 NDF
+
+ Composition Start (EU)      : 108000
+ Composition Start (samples) : 172972800
+ Composition Start           : 01:00:00:00
+
+ Composition End (EU)        : 108090 (EditRate: 30000/1001)
+ Composition End (samples)   : 173116944
+ Composition End             : 01:00:03:00
+
+ Dominant Sample Rate        : 48000
+ Dominant Sample Size        : 16 bits
+
+ Metadata:
+ - Name: "Comments"  Text: "This is a composition comment"
+ - Name: "TapeID"    Text: "compo. tapeid"
+
+
+Media Essences :
+================
+
+ Audio[1] :: Format: PCM  - 01 ch - 48000 Hz - 16 bits  Length: 144144  Name: "1000hz-18dbs16b44.1k.wav"  UniqueName: "1000hz-18dbs16b44.1k.wav"
+ ├── File: "file:///D%3A/Avid%20MediaFiles/MXF/1/1000hz-18dA01.65B20470E378A.mxf"
+ └── Metadata:
+     - Name: "Comments"    Text: "This is a source file comment"
+     - Name: "Journalist"  Text: "M. Bakounine"
+     - Name: "Scene"       Text: "P21"
+     - Name: "Take"        Text: "3"
+     - Name: "Production"  Text: "horlaprod"
+     - Name: "UNC Path"    Text: "C:\Users\user\Desktop\LibAAFTestFiles\res\1000hz-18dbs16b44.1k.wav"
+     - Name: "Shoot Date"  Text: "2024-01-03"
+     - Name: "TapeID"      Text: "1000hz-18dbs16b44.1k.wav"
+
+
+Tracks & Clips :
+================
+
+ VideoTrack[1] ::  EditRate: 30000/1001 (29.97)
+
+
+ AudioTrack[1] ::  EditRate: 30000/1001 (29.97)  Format: MONO
+ └── Clip (1):  Start: 172972800  Len: 144144  End: 173116944  SourceOffset: 0  Channels: 1
+     └── SourceFile [ch 1]: "1000hz-18dbs16b44.1k.wav"
+  
+
+ AudioTrack[2] ::  EditRate: 30000/1001 (29.97)  Format: MONO
+ └── Clip (1):  Start: 173020848  Len: 48048  End: 173068896  SourceOffset: 48048  Channels: 1
+     └── SourceFile [ch 1]: "1000hz-18dbs16b44.1k.wav"
+  
+
+ AudioTrack[3] ::  EditRate: 30000/1001 (29.97)  Format: MONO
+ └── Clip (1):  Start: 173020848  Len: 48048  End: 173068896  SourceOffset: 0  Channels: 1  ClipName: "1000hz-18dbs16b44.1k.wav.Sub.01"
+     ├── SourceFile [ch 1]: "1000hz-18dbs16b44.1k.wav"
+     └── Metadata ────────────────────────────────────
+         - Name: "Comments"     Text: "sub. This is a sub clip comment"
+         - Name: "Production"   Text: "sub. horlaprod"
+         - Name: "Journalist"   Text: "sub. M. Bakounine"
+         - Name: "_COMMENT"     Text: "This is a timeline clip note"
+  
+

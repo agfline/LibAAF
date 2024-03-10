@@ -1,0 +1,264 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2024-01-10 11:31:23.00
+ AAF ObjSpec Version  : 1.1
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFUID_NULL
+
+
+
+ CompanyName          : Blackmagic Design
+ ProductName          : DaVinci Resolve
+ ProductVersion       : 18.5.0.0 AAFVersionReleased (1)
+ ProductVersionString : Unknown version
+ ProductID            : { 0x64a8d1aa 0x7ffd 0x0000 { 0x01 0x00 0x87 0x01 0x00 0x00 0x00 0x00 } }
+ Date                 : 2024-01-10 11:31:23.00
+ ToolkitVersion       : 1.1.6.0 AAFVersionReleased (1)
+ Platform             : AAFSDK (Win32)
+ GenerationAUID       : { 0x48f08870 0x3cf0 0x4aba { 0xb0 0x65 0x9f 0x76 0x82 0x2e 0x7b 0x41 } }
+
+
+
+ Composition Name            : DR_Audio_Levels
+
+ TC EditRrate                : 24/1
+ TC FPS                      : 24 NDF
+
+ Composition Start (EU)      : 86400
+ Composition Start (samples) : 79380000
+ Composition Start           : 01:00:00:00
+
+ Composition End (EU)        : 89352 (EditRate: 24/1)
+ Composition End (samples)   : 82092150
+ Composition End             : 01:02:03:00
+
+ Dominant Sample Rate        : 22050
+ Dominant Sample Size        : 16 bits
+
+
+Media Essences :
+================
+
+ Audio[1] :: Format: WAVE - 02 ch - 22050 Hz - 16 bits  Length: 43117  Name: "stereo-identif"  UniqueName: "stereo-identif_7"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav"
+
+ Audio[2] :: Format: WAVE - 02 ch - 22050 Hz - 16 bits  Length: 43117  Name: "stereo-identif"  UniqueName: "stereo-identif_6"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav"
+
+ Audio[3] :: Format: WAVE - 02 ch - 22050 Hz - 16 bits  Length: 43117  Name: "stereo-identif"  UniqueName: "stereo-identif_5"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav"
+
+ Audio[4] :: Format: WAVE - 02 ch - 22050 Hz - 16 bits  Length: 43117  Name: "stereo-identif"  UniqueName: "stereo-identif_4"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav"
+
+ Audio[5] :: Format: WAVE - 02 ch - 22050 Hz - 16 bits  Length: 43117  Name: "stereo-identif"  UniqueName: "stereo-identif_3"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav"
+
+ Audio[6] :: Format: WAVE - 02 ch - 22050 Hz - 16 bits  Length: 43117  Name: "stereo-identif"  UniqueName: "stereo-identif_2"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav"
+
+ Audio[7] :: Format: WAVE - 02 ch - 22050 Hz - 16 bits  Length: 43117  Name: "stereo-identif"  UniqueName: "stereo-identif_1"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav"
+
+ Audio[8] :: Format: WAVE - 02 ch - 22050 Hz - 16 bits  Length: 43117  Name: "stereo-identif"  UniqueName: "stereo-identif"
+ └── File: "file://localhost/C:/Users/user/Desktop/res/stereo-identif.wav"
+
+ Audio[9] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 132300  Name: "1000hz-18dbs16b44"  UniqueName: "1000hz-18dbs16b44_3"
+ └── File: "file://localhost/C:/Users/user/Desktop/LibAAFTestFiles/res/1000hz-18dbs16b44.1k.wav"
+
+ Audio[10] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 132300  Name: "1000hz-18dbs16b44"  UniqueName: "1000hz-18dbs16b44_2"
+ └── File: "file://localhost/C:/Users/user/Desktop/LibAAFTestFiles/res/1000hz-18dbs16b44.1k.wav"
+
+ Audio[11] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 132300  Name: "1000hz-18dbs16b44"  UniqueName: "1000hz-18dbs16b44_1"
+ └── File: "file://localhost/C:/Users/user/Desktop/LibAAFTestFiles/res/1000hz-18dbs16b44.1k.wav"
+
+ Audio[12] :: Format: WAVE - 01 ch - 44100 Hz - 16 bits  Length: 132300  Name: "1000hz-18dbs16b44"  UniqueName: "1000hz-18dbs16b44"
+ └── File: "file://localhost/C:/Users/user/Desktop/LibAAFTestFiles/res/1000hz-18dbs16b44.1k.wav"
+
+
+Tracks & Clips :
+================
+
+ VideoTrack[1] ::  EditRate: 24/1 (24.00)
+
+
+ AudioTrack[1] ::  EditRate: 24/1 (24.00)  Format: MONO  Name: "Audio 1"
+ ├── Clip (1):  Start: 80041500  Len: 66150  End: 80107650  SourceOffset: 0  Channels: 1  Gain: -99.0 dB
+ │   └── SourceFile [ch 1]: "1000hz-18dbs16b44"
+ │
+ ├── Clip (2):  Start: 80703000  Len: 66150  End: 80769150  SourceOffset: 0  Channels: 1  Gain: +06.0 dB
+ │   └── SourceFile [ch 1]: "1000hz-18dbs16b44_1"
+ │
+ ├── Clip (3):  Start: 81364500  Len: 66150  End: 81430650  SourceOffset: 0  Channels: 1  VolumeAutomation: YES
+ │   ├── SourceFile [ch 1]: "1000hz-18dbs16b44_2"
+ │   └── Clip Volume Automation ──────────────────────
+ │       _time: 0.000000   _value: 1.000000 (+00.0 dB)
+ │       _time: 0.013889   _value: 1.000000 (+00.0 dB)
+ │       _time: 0.027778   _value: 0.966051 (-00.3 dB)
+ │       _time: 0.041667   _value: 0.668344 (-03.5 dB)
+ │       _time: 0.055556   _value: 0.384592 (-08.3 dB)
+ │       _time: 0.069444   _value: 0.102329 (-19.8 dB)
+ │       _time: 0.083333   _value: 0.000207 (-73.7 dB)
+ │       _time: 0.263889   _value: 0.000011 (-99.0 dB)
+ │       _time: 0.277778   _value: 0.000136 (-77.3 dB)
+ │       _time: 0.291667   _value: 0.005188 (-45.7 dB)
+ │       _time: 0.305556   _value: 0.014622 (-36.7 dB)
+ │       _time: 0.319444   _value: 0.086099 (-21.3 dB)
+ │       _time: 0.333333   _value: 0.151356 (-16.4 dB)
+ │       _time: 0.347222   _value: 0.354813 (-09.0 dB)
+ │       _time: 0.361111   _value: 0.473151 (-06.5 dB)
+ │       _time: 0.375000   _value: 0.741310 (-02.6 dB)
+ │       _time: 0.388889   _value: 1.174898 (+01.4 dB)
+ │       _time: 0.402778   _value: 1.445440 (+03.2 dB)
+ │       _time: 0.416667   _value: 1.883649 (+05.5 dB)
+ │       _time: 0.430556   _value: 3.162278 (+10.0 dB)
+ │       _time: 0.527778   _value: 3.162278 (+10.0 dB)
+ │       _time: 0.541667   _value: 2.691535 (+08.6 dB)
+ │       _time: 0.555556   _value: 1.778279 (+05.0 dB)
+ │       _time: 0.569444   _value: 1.303167 (+02.3 dB)
+ │       _time: 0.583333   _value: 1.083927 (+00.7 dB)
+ │       _time: 0.597222   _value: 0.851138 (-01.4 dB)
+ │       _time: 0.611111   _value: 0.707946 (-03.0 dB)
+ │       _time: 0.625000   _value: 0.668344 (-03.5 dB)
+ │       _time: 0.638889   _value: 0.623735 (-04.1 dB)
+ │       _time: 0.652778   _value: 0.602560 (-04.4 dB)
+ │       _time: 0.666667   _value: 0.543250 (-05.3 dB)
+ │       _time: 0.680556   _value: 0.501187 (-06.0 dB)
+ │       _time: 0.694444   _value: 0.451856 (-06.9 dB)
+ │       _time: 0.708333   _value: 0.375837 (-08.5 dB)
+ │       _time: 0.722222   _value: 0.354813 (-09.0 dB)
+ │       _time: 0.763889   _value: 0.334965 (-09.5 dB)
+ │       _time: 0.777778   _value: 0.375837 (-08.5 dB)
+ │       _time: 0.902778   _value: 0.375837 (-08.5 dB)
+ │       _time: 0.916667   _value: 0.384592 (-08.3 dB)
+ │       _time: 0.930556   _value: 0.384592 (-08.3 dB)
+ │       _time: 0.944444   _value: 1.000000 (+00.0 dB)
+ │       _time: 1.000000   _value: 1.000000 (+00.0 dB)
+ │
+ └── Clip (4):  Start: 82026000  Len: 66150  End: 82092150  SourceOffset: 0  Channels: 1  Gain: +03.0 dB  VolumeAutomation: YES
+     ├── SourceFile [ch 1]: "1000hz-18dbs16b44_3"
+     └── Clip Volume Automation ──────────────────────
+         _time: 0.000000   _value: 1.000000 (+00.0 dB)
+         _time: 0.013889   _value: 1.000000 (+00.0 dB)
+         _time: 0.027778   _value: 0.966051 (-00.3 dB)
+         _time: 0.041667   _value: 0.668344 (-03.5 dB)
+         _time: 0.055556   _value: 0.384592 (-08.3 dB)
+         _time: 0.069444   _value: 0.102329 (-19.8 dB)
+         _time: 0.083333   _value: 0.000207 (-73.7 dB)
+         _time: 0.263889   _value: 0.000011 (-99.0 dB)
+         _time: 0.277778   _value: 0.000136 (-77.3 dB)
+         _time: 0.291667   _value: 0.005188 (-45.7 dB)
+         _time: 0.305556   _value: 0.014622 (-36.7 dB)
+         _time: 0.319444   _value: 0.086099 (-21.3 dB)
+         _time: 0.333333   _value: 0.151356 (-16.4 dB)
+         _time: 0.347222   _value: 0.354813 (-09.0 dB)
+         _time: 0.361111   _value: 0.473151 (-06.5 dB)
+         _time: 0.375000   _value: 0.741310 (-02.6 dB)
+         _time: 0.388889   _value: 1.174898 (+01.4 dB)
+         _time: 0.402778   _value: 1.445440 (+03.2 dB)
+         _time: 0.416667   _value: 1.883649 (+05.5 dB)
+         _time: 0.430556   _value: 3.162278 (+10.0 dB)
+         _time: 0.527778   _value: 3.162278 (+10.0 dB)
+         _time: 0.541667   _value: 2.691535 (+08.6 dB)
+         _time: 0.555556   _value: 1.778279 (+05.0 dB)
+         _time: 0.569444   _value: 1.303167 (+02.3 dB)
+         _time: 0.583333   _value: 1.083927 (+00.7 dB)
+         _time: 0.597222   _value: 0.851138 (-01.4 dB)
+         _time: 0.611111   _value: 0.707946 (-03.0 dB)
+         _time: 0.625000   _value: 0.668344 (-03.5 dB)
+         _time: 0.638889   _value: 0.623735 (-04.1 dB)
+         _time: 0.652778   _value: 0.602560 (-04.4 dB)
+         _time: 0.666667   _value: 0.543250 (-05.3 dB)
+         _time: 0.680556   _value: 0.501187 (-06.0 dB)
+         _time: 0.694444   _value: 0.451856 (-06.9 dB)
+         _time: 0.708333   _value: 0.375837 (-08.5 dB)
+         _time: 0.722222   _value: 0.354813 (-09.0 dB)
+         _time: 0.763889   _value: 0.334965 (-09.5 dB)
+         _time: 0.777778   _value: 0.375837 (-08.5 dB)
+         _time: 0.902778   _value: 0.375837 (-08.5 dB)
+         _time: 0.916667   _value: 0.384592 (-08.3 dB)
+         _time: 0.930556   _value: 0.384592 (-08.3 dB)
+         _time: 0.944444   _value: 1.000000 (+00.0 dB)
+         _time: 1.000000   _value: 1.000000 (+00.0 dB)
+  
+
+ AudioTrack[2] ::  EditRate: 24/1 (24.00)  Format: STEREO  Name: "Audio 2"
+ ├── Clip (1):  Start: 80041500  Len: 42262  End: 80083762  SourceOffset: 0  Channels: 2  Gain: -99.0 dB
+ │   ├── SourceFile [ch 1]: "stereo-identif"
+ │   └── SourceFile [ch 2]: "stereo-identif_1"
+ │
+ ├── Clip (2):  Start: 80703000  Len: 42262  End: 80745262  SourceOffset: 0  Channels: 2  Gain: +06.0 dB
+ │   ├── SourceFile [ch 1]: "stereo-identif_2"
+ │   └── SourceFile [ch 2]: "stereo-identif_3"
+ │
+ ├── Clip (3):  Start: 81364500  Len: 42262  End: 81406762  SourceOffset: 0  Channels: 2  VolumeAutomation: YES
+ │   ├── SourceFile [ch 1]: "stereo-identif_4"
+ │   ├── SourceFile [ch 2]: "stereo-identif_5"
+ │   └── Clip Volume Automation ──────────────────────
+ │       _time: 0.000000   _value: 1.000000 (+00.0 dB)
+ │       _time: 0.130435   _value: 1.000000 (+00.0 dB)
+ │       _time: 0.152174   _value: 0.966051 (-00.3 dB)
+ │       _time: 0.173913   _value: 0.803526 (-01.9 dB)
+ │       _time: 0.195652   _value: 0.426580 (-07.4 dB)
+ │       _time: 0.217391   _value: 0.260016 (-11.7 dB)
+ │       _time: 0.239130   _value: 0.118850 (-18.5 dB)
+ │       _time: 0.260870   _value: 0.024547 (-32.2 dB)
+ │       _time: 0.282609   _value: 0.000741 (-62.6 dB)
+ │       _time: 0.304348   _value: 0.000011 (-99.0 dB)
+ │       _time: 0.434783   _value: 0.000011 (-99.0 dB)
+ │       _time: 0.456522   _value: 0.000207 (-73.7 dB)
+ │       _time: 0.478261   _value: 0.002512 (-52.0 dB)
+ │       _time: 0.500000   _value: 0.009661 (-40.3 dB)
+ │       _time: 0.521739   _value: 0.030200 (-30.4 dB)
+ │       _time: 0.543478   _value: 0.102329 (-19.8 dB)
+ │       _time: 0.565217   _value: 0.167880 (-15.5 dB)
+ │       _time: 0.586957   _value: 0.327341 (-09.7 dB)
+ │       _time: 0.608696   _value: 0.384592 (-08.3 dB)
+ │       _time: 0.630435   _value: 0.501187 (-06.0 dB)
+ │       _time: 0.652174   _value: 0.588844 (-04.6 dB)
+ │       _time: 0.673913   _value: 0.683912 (-03.3 dB)
+ │       _time: 0.695652   _value: 0.803526 (-01.9 dB)
+ │       _time: 0.717391   _value: 0.912011 (-00.8 dB)
+ │       _time: 0.739130   _value: 1.000000 (+00.0 dB)
+ │       _time: 0.782609   _value: 1.059254 (+00.5 dB)
+ │       _time: 0.804348   _value: 1.083927 (+00.7 dB)
+ │       _time: 0.826087   _value: 1.109175 (+00.9 dB)
+ │       _time: 0.847826   _value: 1.174898 (+01.4 dB)
+ │       _time: 1.000000   _value: 1.174898 (+01.4 dB)
+ │
+ └── Clip (4):  Start: 82026000  Len: 42262  End: 82068262  SourceOffset: 0  Channels: 2  Gain: +03.0 dB  VolumeAutomation: YES
+     ├── SourceFile [ch 1]: "stereo-identif_6"
+     ├── SourceFile [ch 2]: "stereo-identif_7"
+     └── Clip Volume Automation ──────────────────────
+         _time: 0.000000   _value: 1.000000 (+00.0 dB)
+         _time: 0.130435   _value: 1.000000 (+00.0 dB)
+         _time: 0.152174   _value: 0.966051 (-00.3 dB)
+         _time: 0.173913   _value: 0.803526 (-01.9 dB)
+         _time: 0.195652   _value: 0.426580 (-07.4 dB)
+         _time: 0.217391   _value: 0.260016 (-11.7 dB)
+         _time: 0.239130   _value: 0.118850 (-18.5 dB)
+         _time: 0.260870   _value: 0.024547 (-32.2 dB)
+         _time: 0.282609   _value: 0.000741 (-62.6 dB)
+         _time: 0.304348   _value: 0.000011 (-99.0 dB)
+         _time: 0.434783   _value: 0.000011 (-99.0 dB)
+         _time: 0.456522   _value: 0.000207 (-73.7 dB)
+         _time: 0.478261   _value: 0.002512 (-52.0 dB)
+         _time: 0.500000   _value: 0.009661 (-40.3 dB)
+         _time: 0.521739   _value: 0.030200 (-30.4 dB)
+         _time: 0.543478   _value: 0.102329 (-19.8 dB)
+         _time: 0.565217   _value: 0.167880 (-15.5 dB)
+         _time: 0.586957   _value: 0.327341 (-09.7 dB)
+         _time: 0.608696   _value: 0.384592 (-08.3 dB)
+         _time: 0.630435   _value: 0.501187 (-06.0 dB)
+         _time: 0.652174   _value: 0.588844 (-04.6 dB)
+         _time: 0.673913   _value: 0.683912 (-03.3 dB)
+         _time: 0.695652   _value: 0.803526 (-01.9 dB)
+         _time: 0.717391   _value: 0.912011 (-00.8 dB)
+         _time: 0.739130   _value: 1.000000 (+00.0 dB)
+         _time: 0.782609   _value: 1.059254 (+00.5 dB)
+         _time: 0.804348   _value: 1.083927 (+00.7 dB)
+         _time: 0.826087   _value: 1.109175 (+00.9 dB)
+         _time: 0.847826   _value: 1.174898 (+01.4 dB)
+         _time: 1.000000   _value: 1.174898 (+01.4 dB)
+  
+
