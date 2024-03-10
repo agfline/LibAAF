@@ -1,10 +1,4 @@
 # libaaf
-> [!WARNING]
->
-> While major version number remains 0, API MUST NOT be considered stable.
->
-> Releases are made everytime libaaf code is updated into Ardour source tree.
-
 
 libaaf is a C coded library for **AAF file reading**. The AAF beeing a quite complex file format, libaaf provides an easy-to-implement, audio-oriented, FLOSS solution.
 
@@ -16,7 +10,7 @@ libaaf runs under Linux, Windows and OSX.
 
 ```
 aaftool Copyright (c) 2017-2024 Adrien Gesta-Fline
-libaaf v0.6-45-g9171e40-dirty
+libaaf v1.0
 
 usage: aaftool [analysis|extraction] [options] [AAFFILE]
 
@@ -76,7 +70,7 @@ usage: aaftool [analysis|extraction] [options] [AAFFILE]
    --show-automation                  Show track and clip automation values when --aaf-clips is set.
    --show-metadata                    Show source and clip metadata when --aaf-essences or --aaf-clips is set.
 
-   --hide-path                        Don't print full path to located essences when --aaf-essences is set.
+   --relative-path                    Prints AAF's relative essence path when --aaf-essences is set.
 
    --no-color                         Disable colored output.
    --log-file                 <file>  Save output to file instead of stdout.
