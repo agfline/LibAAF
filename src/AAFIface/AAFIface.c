@@ -51,12 +51,6 @@
 #include <libaaf/AAFIface.h>
 #include <libaaf/AAFIParser.h>
 
-#ifdef _WIN32
-	#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
-		#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
-	#endif
-#endif
-
 
 #define debug( ... ) \
 	AAF_LOG( aafi->log, aafi, DEBUG_SRC_ID_AAF_IFACE, VERB_DEBUG, __VA_ARGS__ )
