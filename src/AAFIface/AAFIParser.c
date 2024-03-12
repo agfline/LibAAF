@@ -41,6 +41,7 @@
 #include <errno.h>
 #include <locale.h>
 #include <math.h>
+#include <limits.h>
 #include <assert.h>
 
 #include  <libaaf/AAFDefs/AAFClassDefUIDs.h>

@@ -101,6 +101,7 @@
 #include <errno.h>
 #include <math.h>	// ceil()
 #include <wchar.h>
+#include <limits.h>
 
 #include <libaaf/CFBDump.h>
 #include <libaaf/LibCFB.h>

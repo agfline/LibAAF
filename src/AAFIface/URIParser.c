@@ -24,6 +24,7 @@
 #include <ctype.h>
 #include <stdarg.h>
 #include <stdint.h>
+#include <limits.h>
 #include <assert.h>
 
 #ifdef _MSC_VER

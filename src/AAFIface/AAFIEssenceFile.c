@@ -22,6 +22,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <limits.h>
 #include <assert.h>
 
 #include <libaaf/AAFIface.h>

@@ -44,6 +44,7 @@
 #include <string.h>
 #include <errno.h>
 #include <math.h>
+#include <limits.h>
 
 #include <libaaf/utils.h>
 #include <libaaf/log.h>
