@@ -65,38 +65,38 @@ static void _uri_dump_diff( struct uri *a, struct uri *b, int totalDifferencies 
 	}
 
 	if ( (strcmp((a->scheme) ? a->scheme : "", (b->scheme) ? b->scheme : "") != 0 ) ) {
-	  TEST_LOG( "      \x1b[38;5;242m\u2502\x1b[0m   \x1b[38;5;124m%s .scheme : \"%s\" (expected: \"%s\")\n", (++differenciesCount < totalDifferencies) ? TREE_ENTRY : TREE_LAST_ENTRY, a->scheme, b->scheme );
+	  TEST_LOG( "      \x1b[38;5;242m"TREE_LINE"\x1b[0m   \x1b[38;5;124m%s .scheme : \"%s\" (expected: \"%s\")\n", (++differenciesCount < totalDifferencies) ? TREE_ENTRY : TREE_LAST_ENTRY, a->scheme, b->scheme );
 	}
 	if ( (strcmp((a->userinfo) ? a->userinfo : "", (b->userinfo) ? b->userinfo : "") != 0 ) ) {
-		TEST_LOG( "      \x1b[38;5;242m\u2502\x1b[0m   \x1b[38;5;124m%s .userinfo : \"%s\" (expected: \"%s\")\n", (++differenciesCount < totalDifferencies) ? TREE_ENTRY : TREE_LAST_ENTRY, a->userinfo, b->userinfo );
+		TEST_LOG( "      \x1b[38;5;242m"TREE_LINE"\x1b[0m   \x1b[38;5;124m%s .userinfo : \"%s\" (expected: \"%s\")\n", (++differenciesCount < totalDifferencies) ? TREE_ENTRY : TREE_LAST_ENTRY, a->userinfo, b->userinfo );
 	}
 	if ( (strcmp((a->user) ? a->user : "", (b->user) ? b->user : "") != 0 ) ) {
-		TEST_LOG( "      \x1b[38;5;242m\u2502\x1b[0m   \x1b[38;5;124m%s .user : \"%s\" (expected: \"%s\")\n", (++differenciesCount < totalDifferencies) ? TREE_ENTRY : TREE_LAST_ENTRY, a->user, b->user );
+		TEST_LOG( "      \x1b[38;5;242m"TREE_LINE"\x1b[0m   \x1b[38;5;124m%s .user : \"%s\" (expected: \"%s\")\n", (++differenciesCount < totalDifferencies) ? TREE_ENTRY : TREE_LAST_ENTRY, a->user, b->user );
 	}
 	if ( (strcmp((a->pass) ? a->pass : "", (b->pass) ? b->pass : "") != 0 ) ) {
-		TEST_LOG( "      \x1b[38;5;242m\u2502\x1b[0m   \x1b[38;5;124m%s .pass : \"%s\" (expected: \"%s\")\n", (++differenciesCount < totalDifferencies) ? TREE_ENTRY : TREE_LAST_ENTRY, a->pass, b->pass );
+		TEST_LOG( "      \x1b[38;5;242m"TREE_LINE"\x1b[0m   \x1b[38;5;124m%s .pass : \"%s\" (expected: \"%s\")\n", (++differenciesCount < totalDifferencies) ? TREE_ENTRY : TREE_LAST_ENTRY, a->pass, b->pass );
 	}
 	if ( (strcmp((a->host) ? a->host : "", (b->host) ? b->host : "") != 0 ) ) {
-		TEST_LOG( "      \x1b[38;5;242m\u2502\x1b[0m   \x1b[38;5;124m%s .host : \"%s\" (expected: \"%s\")\n", (++differenciesCount < totalDifferencies) ? TREE_ENTRY : TREE_LAST_ENTRY, a->host, b->host );
+		TEST_LOG( "      \x1b[38;5;242m"TREE_LINE"\x1b[0m   \x1b[38;5;124m%s .host : \"%s\" (expected: \"%s\")\n", (++differenciesCount < totalDifferencies) ? TREE_ENTRY : TREE_LAST_ENTRY, a->host, b->host );
 	}
 	if ( (strcmp((a->path) ? a->path : "", (b->path) ? b->path : "") != 0 ) ) {
-		TEST_LOG( "      \x1b[38;5;242m\u2502\x1b[0m   \x1b[38;5;124m%s .path : \"%s\" (expected: \"%s\")\n", (++differenciesCount < totalDifferencies) ? TREE_ENTRY : TREE_LAST_ENTRY, a->path, b->path );
+		TEST_LOG( "      \x1b[38;5;242m"TREE_LINE"\x1b[0m   \x1b[38;5;124m%s .path : \"%s\" (expected: \"%s\")\n", (++differenciesCount < totalDifferencies) ? TREE_ENTRY : TREE_LAST_ENTRY, a->path, b->path );
 	}
 	if ( (strcmp((a->query) ? a->query : "", (b->query) ? b->query : "") != 0 ) ) {
-		TEST_LOG( "      \x1b[38;5;242m\u2502\x1b[0m   \x1b[38;5;124m%s .query : \"%s\" (expected: \"%s\")\n", (++differenciesCount < totalDifferencies) ? TREE_ENTRY : TREE_LAST_ENTRY, a->query, b->query );
+		TEST_LOG( "      \x1b[38;5;242m"TREE_LINE"\x1b[0m   \x1b[38;5;124m%s .query : \"%s\" (expected: \"%s\")\n", (++differenciesCount < totalDifferencies) ? TREE_ENTRY : TREE_LAST_ENTRY, a->query, b->query );
 	}
 	if ( (strcmp((a->fragment) ? a->fragment : "", (b->fragment) ? b->fragment : "") != 0 ) ) {
-		TEST_LOG( "      \x1b[38;5;242m\u2502\x1b[0m   \x1b[38;5;124m%s .fragment : \"%s\" (expected: \"%s\")\n", (++differenciesCount < totalDifferencies) ? TREE_ENTRY : TREE_LAST_ENTRY, a->fragment, b->fragment );
+		TEST_LOG( "      \x1b[38;5;242m"TREE_LINE"\x1b[0m   \x1b[38;5;124m%s .fragment : \"%s\" (expected: \"%s\")\n", (++differenciesCount < totalDifferencies) ? TREE_ENTRY : TREE_LAST_ENTRY, a->fragment, b->fragment );
 	}
 
 	if ( a->port != b->port ) {
-		TEST_LOG( "      \x1b[38;5;242m\u2502\x1b[0m   \x1b[38;5;124m%s .port : %i (expected: %i)\n", (++differenciesCount < totalDifferencies) ? TREE_ENTRY : TREE_LAST_ENTRY, a->port, b->port );
+		TEST_LOG( "      \x1b[38;5;242m"TREE_LINE"\x1b[0m   \x1b[38;5;124m%s .port : %i (expected: %i)\n", (++differenciesCount < totalDifferencies) ? TREE_ENTRY : TREE_LAST_ENTRY, a->port, b->port );
 	}
 	if ( a->scheme_t != b->scheme_t ) {
-		TEST_LOG( "      \x1b[38;5;242m\u2502\x1b[0m   \x1b[38;5;124m%s .scheme_t : %i (expected: %i)\n", (++differenciesCount < totalDifferencies) ? TREE_ENTRY : TREE_LAST_ENTRY, a->scheme_t, b->scheme_t );
+		TEST_LOG( "      \x1b[38;5;242m"TREE_LINE"\x1b[0m   \x1b[38;5;124m%s .scheme_t : %i (expected: %i)\n", (++differenciesCount < totalDifferencies) ? TREE_ENTRY : TREE_LAST_ENTRY, a->scheme_t, b->scheme_t );
 	}
 	if ( a->flags != b->flags ) {
-		TEST_LOG( "      \x1b[38;5;242m\u2502\x1b[0m   \x1b[38;5;124m%s .flags : %i (expected: %i)\n", (++differenciesCount < totalDifferencies) ? TREE_ENTRY : TREE_LAST_ENTRY, a->flags, b->flags );
+		TEST_LOG( "      \x1b[38;5;242m"TREE_LINE"\x1b[0m   \x1b[38;5;124m%s .flags : %i (expected: %i)\n", (++differenciesCount < totalDifferencies) ? TREE_ENTRY : TREE_LAST_ENTRY, a->flags, b->flags );
 	}
 }
 
@@ -119,7 +119,7 @@ static int _uri_test( const char *uristr, enum uri_option optflags, struct uri e
 		_uri_dump_diff( uri, &expectedRes, differenciesCount );
 		TEST_LOG( "\x1b[0m");
 
-		TEST_LOG( "      \x1b[38;5;242m\u2502\x1b[0m\n");
+		TEST_LOG( "      \x1b[38;5;242m"TREE_LINE"\x1b[0m\n");
 	}
 
 	laaf_uri_free(uri);
