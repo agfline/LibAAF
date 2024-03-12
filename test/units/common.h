@@ -21,6 +21,7 @@
 #ifdef _WIN32
 	#include <windows.h>
 	#include <fcntl.h> // _O_U8TEXT
+	#include <io.h>
 #endif
 
 #include <locale.h>
