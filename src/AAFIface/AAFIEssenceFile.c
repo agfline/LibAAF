@@ -262,22 +262,6 @@ char * aafi_locate_external_essence_file( AAF_Iface *aafi, const char *original_
 	}
 
 
-	if ( uri->flags & URI_T_LOCALHOST ) {
-		// debug( "URI targets localhost : %s", uri_filepath );
-	}
-	else {
-		if ( uri->flags & URI_T_HOST_IPV4 ) {
-			// debug( "URI targets IPV4 : %s", uri_filepath );
-		}
-		else if ( uri->flags & URI_T_HOST_IPV6 ) {
-			// debug( "URI targets IPV6 : %s", uri_filepath );
-		}
-		else if ( uri->flags & URI_T_HOST_REGNAME ) {
-			// debug( "URI targets hostname : %s", uri_filepath );
-		}
-	}
-
-
 	/*
 	 * Try to locate essence file from the AAF file location.
 	 *
