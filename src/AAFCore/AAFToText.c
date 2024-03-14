@@ -73,10 +73,6 @@ const char * aaft_MobIDToText( aafMobID_t *mobid )
 				rc = snprintf( str+offset, strsz-offset, " - " );
 
 				assert( rc > 0 && (size_t)rc < strsz-offset );
-				// if ( rc < 0 || (size_t)rc >= strsz-offset ) {
-				// 	fprintf( stderr, "snprintf() error" );
-				// 	return NULL;
-				// }
 
 				offset += (uint32_t)rc;
 
@@ -90,11 +86,6 @@ const char * aaft_MobIDToText( aafMobID_t *mobid )
 
 		assert( rc > 0 && (size_t)rc < strsz-offset );
 
-		// if ( rc < 0 || (size_t)rc >= strsz-offset ) {
-		// 	fprintf( stderr, "snprintf() error" );
-		// 	return "NULL";
-		// }
-
 		offset += (uint32_t)rc;
 
 
@@ -102,11 +93,6 @@ const char * aaft_MobIDToText( aafMobID_t *mobid )
 			rc = snprintf( str+offset, strsz-offset, " - " );
 
 			assert( rc > 0 && (size_t)rc < strsz-offset );
-
-			// if ( rc < 0 || (size_t)rc >= strsz-offset ) {
-			// 	fprintf( stderr, "snprintf() error" );
-			// 	return "NULL";
-			// }
 
 			offset += (uint32_t)rc;
 
@@ -121,11 +107,6 @@ const char * aaft_MobIDToText( aafMobID_t *mobid )
 	rc = snprintf( str+offset, strsz-offset, "%s", AUIDToText(&material) );
 
 	assert( rc >= 0 && (size_t)rc < strsz-offset );
-
-	// if ( rc < 0 || (size_t)rc >= strsz-offset ) {
-	// 	fprintf( stderr, "snprintf() error" );
-	// 	return "NULL";
-	// }
 
 	return str;
 }
@@ -153,11 +134,6 @@ const char * aaft_TimestampToText( aafTimeStamp_t *ts )
 			ts->time.fraction );
 
 		assert( rc > 0 && (size_t)rc < sizeof(str) );
-
-		// if ( rc < 0 || (size_t)rc >= sizeof(str) ) {
-		// 	fprintf( stderr, "snprintf() error" );
-		// 	return "NULL";
-		// }
 	}
 
 	return str;
@@ -181,11 +157,6 @@ const char * aaft_VersionToText( aafVersionType_t *vers )
 			vers->minor );
 
 		assert( rc > 0 && (size_t)rc < sizeof(str) );
-
-		// if ( rc < 0 || (size_t)rc >= sizeof(str) ) {
-		// 	fprintf( stderr, "snprintf() error" );
-		// 	return "NULL";
-		// }
 	}
 
 	return str;
@@ -213,11 +184,6 @@ const char * aaft_ProductVersionToText( aafProductVersion_t *vers )
 			vers->type );
 
 		assert( rc > 0 && (size_t)rc < sizeof(str) );
-
-		// if ( rc < 0 || (size_t)rc >= sizeof(str) ) {
-		// 	fprintf( stderr, "snprintf() error" );
-		// 	return "NULL";
-		// }
 	}
 
 	return str;
@@ -753,11 +719,6 @@ const char * aaft_DataDefToText( AAF_Data *aafd, const aafUID_t *auid )
 
 			assert( rc >= 0 && (size_t)rc < sizeof(TEXTDataDef) );
 
-			// if ( rc < 0 || (size_t)rc >= 1024 ) {
-			// 	error( "snprintf() error" );
-			// 	return NULL;
-			// }
-
 			free( name );
 
 			return TEXTDataDef;
@@ -830,11 +791,6 @@ const char * aaft_OperationDefToText( AAF_Data *aafd, const aafUID_t *auid )
 			int rc = snprintf( TEXTOperationDef, sizeof(TEXTOperationDef), "%s", name );
 
 			assert( rc >= 0 && (size_t)rc < sizeof(TEXTOperationDef) );
-
-			// if ( rc < 0 || (size_t)rc >= 1024 ) {
-			// 	fprintf( stderr, "snprintf() error" );
-			// 	return NULL;
-			// }
 
 			free( name );
 
@@ -961,11 +917,6 @@ const char * aaft_ParameterToText( AAF_Data *aafd, const aafUID_t *auid )
 			int rc = snprintf( TEXTParameterDef, sizeof(TEXTParameterDef), "%s", name );
 
 			assert( rc >= 0 && (size_t)rc < sizeof(TEXTParameterDef) );
-
-			// if ( rc < 0 || (size_t)rc >= 1024 ) {
-			// 	fprintf( stderr, "snprintf() error" );
-			// 	return NULL;
-			// }
 
 			free( name );
 
@@ -1398,11 +1349,6 @@ const char * aaft_PIDToText( AAF_Data *aafd, aafPID_t pid )
 
 				assert( rc >= 0 && (size_t)rc < sizeof(PIDText) );
 
-				// if ( rc < 0 || (size_t)rc >= 1024 ) {
-				// 	fprintf( stderr, "snprintf() error" );
-				// 	return NULL;
-				// }
-
 				return PIDText;
 			}
 		}
@@ -1542,11 +1488,6 @@ const char * aaft_ClassIDToText( AAF_Data *aafd, const aafUID_t *auid )
 
 			assert( rc >= 0 && (size_t)rc < sizeof(ClassIDText) );
 
-			// if ( rc < 0 || (size_t)rc >= 1024 ) {
-			// 	fprintf( stderr, "snprintf() error" );
-			// 	return NULL;
-			// }
-
 			return ClassIDText;
 		}
 	}
@@ -1602,11 +1543,6 @@ const char * aaft_IndirectValueToText( AAF_Data *aafd, aafIndirect_t *Indirect )
 	}
 
 	assert( rc >= 0 && (size_t)rc < sizeof(buf) );
-
-	// if ( rc < 0 || (size_t)rc >= sizeof(buf) ) {
-	// 	fprintf( stderr, "snprintf() error" );
-	// 	return NULL;
-	// }
 
 	return buf;
 }

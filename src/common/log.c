@@ -38,7 +38,7 @@
  * swprintf() specific string format identifiers
  * https://learn.microsoft.com/en-us/cpp/c-runtime-library/format-specification-syntax-printf-and-wprintf-functions?view=msvc-170#size-prefixes-for-printf-and-wprintf-format-type-specifiers
  */
- #ifdef __MINGW32__
+#ifdef __MINGW32__
 	#define WPRIws L"ls" // wchar_t*
 	#define WPRIs  L"s" // char*
 #else

@@ -182,9 +182,9 @@ void cfb_dump_nodePaths( CFB_Data *cfbd, uint32_t prevPath, char *strArray[], ui
 {
 	struct aafLog *log = cfbd->log;
 
-	// if ( !node ) {
+	/* initial function call */
 	if ( firstIteration ) {
-		/* initial function call */
+
 		node = &cfbd->nodes[0];
 
 		if ( !node ) {
@@ -202,7 +202,6 @@ void cfb_dump_nodePaths( CFB_Data *cfbd, uint32_t prevPath, char *strArray[], ui
 
 	uint32_t thisPath = (*str_i);
 
-	/* TODO snprintf_realloc() ? */
 	char *nodeName = cfb_w16toUTF8( node->_ab, node->_cb );
 
 	laaf_util_snprintf_realloc( &strArray[thisPath], 0, 0, "%s/%s", strArray[prevPath], nodeName );
@@ -223,7 +222,6 @@ void cfb_dump_nodePaths( CFB_Data *cfbd, uint32_t prevPath, char *strArray[], ui
 
 
 	/* the end of the first function call, recursion is over. */
-	// if ( node == &cfbd->nodes[0] ) {
 	if ( firstIteration ) {
 
 		/* commented out because output seems proper this way... why did we call qsort() in the first place ?! */

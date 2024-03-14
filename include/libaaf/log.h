@@ -88,6 +88,7 @@ struct aafLog {
 	log->_msg_pos = 0;
 
 
+
 struct aafLog * laaf_new_log( void );
 
 void laaf_free_log( struct aafLog *log );

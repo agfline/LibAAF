@@ -288,22 +288,12 @@ static int parse_SourceMob( AAF_Iface *aafi, aafObject *SourceMob, td *__ptd )
 
 		assert( rc > 0 && (size_t)rc < sizeof(((aafiAudioEssenceFile *)0)->originationDate) );
 
-		// if ( rc < 0 || (size_t)rc >= sizeof(((aafiAudioEssenceFile *)0)->originationDate) ) {
-		// 	fprintf( stderr, "snprintf() error" );
-		// 	return -1;
-		// }
-
 		rc = snprintf( audioEssenceFile->originationTime, sizeof(((aafiAudioEssenceFile *)0)->originationTime), "%02u:%02u:%02u",
 			(CreationTime->time.hour   <= 99) ? CreationTime->time.hour   : 0,
 			(CreationTime->time.minute <= 99) ? CreationTime->time.minute : 0,
 			(CreationTime->time.second <= 99) ? CreationTime->time.second : 0 );
 
 		assert( rc > 0 && (size_t)rc < sizeof(((aafiAudioEssenceFile *)0)->originationTime) );
-
-		// if ( rc < 0 || (size_t)rc >= sizeof(((aafiAudioEssenceFile *)0)->originationTime) ) {
-		// 	fprintf( stderr, "snprintf() error" );
-		// 	return -1;
-		// }
 	}
 
 	__td.ll[__td.lv] = 2;
@@ -1171,7 +1161,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 			else if ( aafUIDCmp( parentMobUsageCode, &AAFUsage_AdjustedClip ) ) {
 
 				// if ( aafi->ctx.current_adjusted_clip_gain ) {
-				// 	applyGainOffset( aafi, &aafi->ctx.current_clip->gain, aafi->ctx.current_adjusted_clip_gain );
+				// 	aafi_applyGainOffset( aafi, &aafi->ctx.current_clip->gain, aafi->ctx.current_adjusted_clip_gain );
 				// 	aafi_freeAudioGain( aafi->ctx.current_adjusted_clip_gain );
 				// 	aafi->ctx.current_adjusted_clip_gain = NULL;
 				// }

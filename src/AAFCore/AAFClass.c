@@ -175,8 +175,6 @@ int aafclass_setDefaultClasses( AAF_Data *aafd )
 {
 	aafPropertyDef *prop = NULL;
 
-	/* TODO test ENOMEM after each class alloc */
-
 
 	aafClass *IOC = aafclass_defineNewClass( aafd, &AAFClassID_InterchangeObject, ABSTRACT, NULL );
 

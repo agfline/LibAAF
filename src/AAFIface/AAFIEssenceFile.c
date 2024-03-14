@@ -246,7 +246,7 @@ char * aafi_locate_external_essence_file( AAF_Iface *aafi, const char *original_
 	}
 
 
-	/* Try AAF essence's URI */
+	/* Try raw essence's URI, just in case... */
 
 	if ( laaf_util_file_exists( original_uri_filepath ) == 1 ) {
 		foundpath = original_uri_filepath;
@@ -282,8 +282,8 @@ char * aafi_locate_external_essence_file( AAF_Iface *aafi, const char *original_
 	 * Try to locate essence file from the AAF file location.
 	 *
 	 * e.g.
-	 *    - AAF filepath : /home/user/AAFFile.aaf
-	 *    - Essence URI  : file://localhost/C:/Users/user/Desktop/AudioFiles/essence.wav
+	 *      AAF filepath : /home/user/AAFFile.aaf
+	 *    + Essence URI  : file://localhost/C:/Users/user/Desktop/AudioFiles/essence.wav
 	 *    = /home/user/AudioFiles/essence.file
 	 */
 
@@ -361,7 +361,6 @@ found:
 		 * So even if foundpath is already absolute, we need that drive letter at it
 		 * start.
 		 */
-		// retpath = laaf_util_c99strdup(foundpath);
 		retpath = laaf_util_absolute_path(foundpath);
 
 		if ( !retpath ) {
@@ -384,27 +383,6 @@ end:
 	free( aaf_path );
 
 	return retpath;
-
-
-	/*
-		* AAFInfo --aaf-clips ../libaaf_testfiles/fonk_2.AAF
-		file://localhost/Users/horlaprod/Music/Logic/fonk_2/Audio Files_1/fonk_2_3#04.wav
-
-		* AAFInfo --aaf-clips ../libaaf_testfiles/ADP/ADP3_51-ST-MONO-NOBREAKOUT.aaf
-		file:///C:/Users/Loviniou/Downloads/ChID-BLITS-EBU-Narration441-16b.wav
-
-		* AAFInfo --aaf-clips ../libaaf_testfiles/ADP/ADP2_SEQ-FULL.aaf
-		file://?/E:/Adrien/ADPAAF/Sequence A Rendu.mxf
-
-		* AAFInfo --aaf-clips ../libaaf_testfiles/TEST-AVID_COMP2977052\ \ -\ \ OFF\ PODIUM\ ETAPE\ 2.aaf
-		file:////C:/Users/mix_limo/Desktop/TEST2977052  -  OFF PODIUM ETAPE 2.aaf
-
-		* AAFInfo --aaf-clips ../ardio/watchfolder/3572607_RUGBY_F_1_1.aaf
-		file://10.87.230.71/mixage/DR2/Avid MediaFiles/MXF/1/3572607_RUGBY_F2_S65CFA3D0V.mxf
-
-		* AAFInfo --aaf-clips ../libaaf_testfiles/ProTools/pt2MCC.aaf
-		file:///_system/Users/horlaprod/pt2MCCzmhsFRHQgdgsTMQX.mxf
-	*/
 }
 
 
@@ -591,28 +569,13 @@ int aafi_extractAudioEssenceFile( AAF_Iface *aafi, aafiAudioEssenceFile *audioEs
 
 		assert( tmp > 0 && (size_t)tmp < sizeof(((struct wavBextChunk *)0)->originator) );
 
-		// if ( tmp < 0 || (size_t)tmp >= sizeof(((struct wavBextChunk *)0)->originator) ) {
-		// 	fprintf( stderr, "snprintf() error" );
-		// 	goto err;
-		// }
-
 		tmp = snprintf( wavBext.originator_reference, sizeof(((struct wavBextChunk *)0)->originator_reference), "libAAF %s", LIBAAF_VERSION );
 
 		assert( tmp > 0 && (size_t)tmp < sizeof(((struct wavBextChunk *)0)->originator_reference) );
 
-		// if ( tmp < 0 || (size_t)tmp >= sizeof(((struct wavBextChunk *)0)->originator_reference) ) {
-		// 	fprintf( stderr, "snprintf() error" );
-		// 	goto err;
-		// }
-
 		tmp = snprintf( wavBext.description, sizeof(((struct wavBextChunk *)0)->description), "%s\n%s.aaf", audioEssenceFile->name, aafi->compositionName );
 
 		assert( tmp > 0 && (size_t)tmp < sizeof(((struct wavBextChunk *)0)->description) );
-
-		// if ( tmp < 0 || (size_t)tmp >= sizeof(((struct wavBextChunk *)0)->description) ) {
-		// 	fprintf( stderr, "snprintf() error" );
-		// 	goto err;
-		// }
 
 		memcpy( wavBext.origination_date, audioEssenceFile->originationDate, sizeof(((struct wavBextChunk *)0)->origination_date) );
 		memcpy( wavBext.origination_time, audioEssenceFile->originationTime, sizeof(((struct wavBextChunk *)0)->origination_time) );
@@ -761,10 +724,6 @@ static int set_audioEssenceWithRIFF( AAF_Iface *aafi, const char *filename, aafi
 	if ( audioEssenceFile->channels > 0 && audioEssenceFile->channels != RIFFAudioFile->channels ) {
 		warning( "%s : summary channel count (%i) mismatch %s (%i)", filename, audioEssenceFile->channels, ((isExternalFile) ? "located file" : "previously retrieved data"), RIFFAudioFile->channels );
 	}
-	// else {
-	// 	/* In Davinci Resolve embedded multichannel WAV, summary channel is always 1 */
-	// 	audioEssenceFile->channels = RIFFAudioFile->channels;
-	// }
 
 	if ( audioEssenceFile->samplerate > 0 && audioEssenceFile->samplerate != RIFFAudioFile->sampleRate ) {
 		warning( "%s : summary samplerate (%i) mismatch %s (%i)", filename, audioEssenceFile->samplerate, ((isExternalFile) ? "located file" : "previously retrieved data"), RIFFAudioFile->sampleRate );

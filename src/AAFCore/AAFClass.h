@@ -36,7 +36,6 @@
 #include <libaaf/AAFCore.h>
 
 
-
 #define foreachClass( Class, Classes ) \
 	for( Class = Classes; Class != NULL; Class = Class->next )
 

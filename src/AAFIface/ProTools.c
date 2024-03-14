@@ -24,6 +24,17 @@
 #include <libaaf/ProTools.h>
 
 
+#define debug( ... ) \
+	AAF_LOG( aafi->log, aafi, DEBUG_SRC_ID_AAF_IFACE, VERB_DEBUG, __VA_ARGS__ )
+
+#define warning( ... ) \
+	AAF_LOG( aafi->log, aafi, DEBUG_SRC_ID_AAF_IFACE, VERB_WARNING, __VA_ARGS__ )
+
+#define error( ... ) \
+	AAF_LOG( aafi->log, aafi, DEBUG_SRC_ID_AAF_IFACE, VERB_ERROR, __VA_ARGS__ )
+
+
+
 /* English : "Fade "	(Same as JA and DE)	 */
 static const char PROTOOLS_CLIP_NAME_FADE_EN[] = "\x46\x61\x64\x65\x20";
 /* French : "Fondu "	*/
@@ -56,16 +67,6 @@ static const char PROTOOLS_CLIP_NAME_SAMPLE_ACCURATE_EDIT_ZH_CN[] = "\xe7\xb2\xb
 static const char PROTOOLS_CLIP_NAME_SAMPLE_ACCURATE_EDIT_ZH_TW[] = "\xe7\xb2\xbe\xe7\xa2\xba\xe5\x8f\x96\xe6\xa8\xa3\xe7\xb7\xa8\xe8\xbc\xaf";
 
 
-#define debug( ... ) \
-	AAF_LOG( aafi->log, aafi, DEBUG_SRC_ID_AAF_IFACE, VERB_DEBUG, __VA_ARGS__ )
-
-#define warning( ... ) \
-	AAF_LOG( aafi->log, aafi, DEBUG_SRC_ID_AAF_IFACE, VERB_WARNING, __VA_ARGS__ )
-
-#define error( ... ) \
-	AAF_LOG( aafi->log, aafi, DEBUG_SRC_ID_AAF_IFACE, VERB_ERROR, __VA_ARGS__ )
-
-
 
 static int is_rendered_fade( const char *clipName );
 static int is_sample_accurate_edit( const char *clipName );
@@ -79,7 +80,7 @@ int protools_AAF( struct AAF_Iface *aafi )
 {
 	int probe = 0;
 
-	/* NOTE: CompanyName is "Digidesign, Inc." at least since ProTools 10.3.10.613, and still today */
+	/* NOTE: CompanyName is "Digidesign, Inc." at least since ProTools 10.3.10.613, and still today (2024) */
 
 	if ( aafi->aafd->Identification.CompanyName && strcmp( aafi->aafd->Identification.CompanyName, "Digidesign, Inc." ) == 0 ) {
 	  probe++;
@@ -160,7 +161,7 @@ static int remove_sampleAccurateEditClip( AAF_Iface *aafi, aafiAudioTrack *audio
 					return 1;
 				}
 				// else {
-				// 	warning( L"Can't remove SAE \"%s\" : left clip \"%s\" has not enough right handle : %lu but %lu is required",
+				// 	debug( L"SAE \"%s\" : left clip \"%s\" has not enough right handle : %lu but %lu is required",
 				// 		saeClip->essencePointerList->essenceFile->unique_name,
 				// 		leftClip->essencePointerList->essenceFile->unique_name,
 				// 		(essenceLength - leftClip->essence_offset - leftClip->len),
@@ -199,7 +200,7 @@ static int remove_sampleAccurateEditClip( AAF_Iface *aafi, aafiAudioTrack *audio
 					return 1;
 				}
 				// else {
-				// 	warning( L"Can't remove SAE \"%s\" : right clip \"%s\" has not enough left handle : %lu but %lu is required",
+				// 	debug( L"SAE \"%s\" : right clip \"%s\" has not enough left handle : %lu but %lu is required",
 				// 		saeClip->essencePointerList->essenceFile->unique_name,
 				// 		rightClip->essencePointerList->essenceFile->unique_name,
 				// 		rightClip->essence_offset,
