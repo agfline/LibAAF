@@ -88,7 +88,7 @@ static void showHelp( void );
 
 #define log( log, ... ) \
 	LOG_BUFFER_WRITE( log, __VA_ARGS__ ); \
-	(log)->debug_callback( log, (void*)aafi, DEBUG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
+	(log)->log_callback( log, (void*)aafi, LOG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
 
 
 

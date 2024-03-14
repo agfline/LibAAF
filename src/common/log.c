@@ -55,7 +55,7 @@ struct aafLog * laaf_new_log( void )
 		return NULL;
 	}
 
-	log->debug_callback = &laaf_log_callback;
+	log->log_callback = &laaf_log_callback;
 	log->fp = stdout;
 	log->ansicolor = 0;
 
@@ -87,16 +87,16 @@ void laaf_log_callback( struct aafLog *log, void *ctxdata, int libid, int type, 
 	const char *color = "";
 
 	if ( log->fp == NULL ) {
-		DBG_BUFFER_RESET( log );
+		LOG_BUFFER_RESET( log );
 		return;
 	}
 
 	switch ( libid ) {
-		case DEBUG_SRC_ID_LIB_CFB:    lib = "libCFB";    aafi = (AAF_Iface*)ctxdata;  break;
-		case DEBUG_SRC_ID_AAF_CORE:   lib = "AAFCore";   aafd = (AAF_Data*)ctxdata;   break;
-		case DEBUG_SRC_ID_AAF_IFACE:  lib = "AAFIface";  cfbd = (CFB_Data*)ctxdata;   break;
-		case DEBUG_SRC_ID_TRACE:      lib = "trace";     aafi = (AAF_Iface*)ctxdata;  break;
-		case DEBUG_SRC_ID_DUMP:       lib = "dump";      break;
+		case LOG_SRC_ID_LIB_CFB:    lib = "libCFB";    aafi = (AAF_Iface*)ctxdata;  break;
+		case LOG_SRC_ID_AAF_CORE:   lib = "AAFCore";   aafd = (AAF_Data*)ctxdata;   break;
+		case LOG_SRC_ID_AAF_IFACE:  lib = "AAFIface";  cfbd = (CFB_Data*)ctxdata;   break;
+		case LOG_SRC_ID_TRACE:      lib = "trace";     aafi = (AAF_Iface*)ctxdata;  break;
+		case LOG_SRC_ID_DUMP:       lib = "dump";      break;
 	}
 
 	switch ( type ) {
@@ -108,7 +108,7 @@ void laaf_log_callback( struct aafLog *log, void *ctxdata, int libid, int type, 
 
 	const char *eol = "";
 
-	if ( libid != DEBUG_SRC_ID_TRACE && libid != DEBUG_SRC_ID_DUMP ) {
+	if ( libid != LOG_SRC_ID_TRACE && libid != LOG_SRC_ID_DUMP ) {
 #ifdef __MINGW32__
 		fwprintf( log->fp, L"[%"WPRIs"%"WPRIs"%"WPRIs"] %"WPRIs"%"WPRIs":%i in %"WPRIs"()%"WPRIs" : ",
 			color,
@@ -132,7 +132,7 @@ void laaf_log_callback( struct aafLog *log, void *ctxdata, int libid, int type, 
 #endif
 	}
 
-	if ( libid != DEBUG_SRC_ID_DUMP ) {
+	if ( libid != LOG_SRC_ID_DUMP ) {
 		eol = "\n";
 	}
 
@@ -149,7 +149,7 @@ void laaf_log_callback( struct aafLog *log, void *ctxdata, int libid, int type, 
 
 	fflush( log->fp );
 
-	DBG_BUFFER_RESET( log );
+	LOG_BUFFER_RESET( log );
 
 	/* avoids -Wunused-parameter -Wunused-but-set-variable */
 	(void)aafi;
@@ -161,13 +161,13 @@ void laaf_log_callback( struct aafLog *log, void *ctxdata, int libid, int type, 
 
 
 
-void laaf_write_log( struct aafLog *log, void *ctxdata, enum debug_source_id lib, enum verbosityLevel_e type, const char *dbgfile, const char *dbgfunc, int dbgline, const char *format, ... )
+void laaf_write_log( struct aafLog *log, void *ctxdata, enum log_source_id lib, enum verbosityLevel_e type, const char *srcfile, const char *srcfunc, int srcline, const char *format, ... )
 {
 	if ( !log ) {
 		return;
 	}
 
-	if ( !log->debug_callback ) {
+	if ( !log->log_callback ) {
 		return;
 	}
 
@@ -256,7 +256,7 @@ void laaf_write_log( struct aafLog *log, void *ctxdata, enum debug_source_id lib
 		return;
 	}
 
-	log->debug_callback( log, (void*)ctxdata, lib, type, dbgfile, dbgfunc, dbgline, log->_msg, log->user );
+	log->log_callback( log, (void*)ctxdata, lib, type, srcfile, srcfunc, srcline, log->_msg, log->user );
 
 	va_end( ap );
 

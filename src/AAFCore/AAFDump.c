@@ -46,7 +46,7 @@ void aaf_dump_Header( AAF_Data *aafd, const char *padding )
 
 	LOG_BUFFER_WRITE( log, "\n\n" );
 
-	log->debug_callback( log, (void*)aafd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
+	log->log_callback( log, (void*)aafd, LOG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
 }
 
 
@@ -67,7 +67,7 @@ void aaf_dump_Identification( AAF_Data *aafd, const char *padding )
 
 	LOG_BUFFER_WRITE( log, "\n\n" );
 
-	log->debug_callback( log, (void*)aafd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
+	log->log_callback( log, (void*)aafd, LOG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
 }
 
 
@@ -103,7 +103,7 @@ void aaf_dump_ObjectProperty( AAF_Data *aafd, aafProperty *Prop, const char *pad
 		aafd->log->_msg_pos += (size_t)rc;
 	}
 
-	log->debug_callback( log, (void*)aafd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
+	log->log_callback( log, (void*)aafd, LOG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
 }
 
 
@@ -146,7 +146,7 @@ void aaf_dump_TaggedValueSet( AAF_Data *aafd, aafObject *ObjCollection, const ch
 			( aafUIDCmp( &indirect->TypeDef, &AAFTypeID_String ) ) ? "\"" : "",
 			ANSI_COLOR_RESET(log) );
 
-		log->debug_callback( log, (void*)aafd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
+		log->log_callback( log, (void*)aafd, LOG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
 
 		free( name );
 	}
@@ -235,7 +235,7 @@ void aaf_dump_rawProperties( AAF_Data *aafd, aafByte_t *propStream, const char *
 		LOG_BUFFER_WRITE( log, "\n" );
 	}
 
-	log->debug_callback( log, (void*)aafd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
+	log->log_callback( log, (void*)aafd, LOG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
 }
 
 
@@ -310,7 +310,7 @@ void aaf_dump_MetaDictionary( AAF_Data *aafd, const char *padding )
 
 	LOG_BUFFER_WRITE( log, "\n\n" );
 
-	log->debug_callback( log, (void*)aafd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
+	log->log_callback( log, (void*)aafd, LOG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
 }
 
 
@@ -344,5 +344,5 @@ void aaf_dump_Classes( AAF_Data *aafd, const char *padding )
 
 	LOG_BUFFER_WRITE( log, "\n\n" );
 
-	log->debug_callback( log, (void*)aafd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
+	log->log_callback( log, (void*)aafd, LOG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
 }

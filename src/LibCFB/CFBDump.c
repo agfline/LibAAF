@@ -30,13 +30,13 @@
 
 
 #define debug( ... ) \
-	AAF_LOG( cfbd->log, cfbd, DEBUG_SRC_ID_LIB_CFB, VERB_DEBUG, __VA_ARGS__ )
+	AAF_LOG( cfbd->log, cfbd, LOG_SRC_ID_LIB_CFB, VERB_DEBUG, __VA_ARGS__ )
 
 #define warning( ... ) \
-	AAF_LOG( cfbd->log, cfbd, DEBUG_SRC_ID_LIB_CFB, VERB_WARNING, __VA_ARGS__ )
+	AAF_LOG( cfbd->log, cfbd, LOG_SRC_ID_LIB_CFB, VERB_WARNING, __VA_ARGS__ )
 
 #define error( ... ) \
-	AAF_LOG( cfbd->log, cfbd, DEBUG_SRC_ID_LIB_CFB, VERB_ERROR, __VA_ARGS__ )
+	AAF_LOG( cfbd->log, cfbd, LOG_SRC_ID_LIB_CFB, VERB_ERROR, __VA_ARGS__ )
 
 
 
@@ -105,7 +105,7 @@ void cfb_dump_node( CFB_Data *cfbd, cfbNode *node, int print_stream, const char 
 
 	LOG_BUFFER_WRITE( log, "\n\n" );
 
-	log->debug_callback( log, (void*)cfbd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
+	log->log_callback( log, (void*)cfbd, LOG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
 
 
 	if ( print_stream == 1 ) {
@@ -146,7 +146,7 @@ void cfb_dump_nodeStream( CFB_Data *cfbd, cfbNode *node, const char *padding )
 
 	laaf_util_dump_hex( stream, stream_sz, &log->_msg, &log->_msg_size, log->_msg_pos, padding );
 
-	log->debug_callback( log, (void*)cfbd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
+	log->log_callback( log, (void*)cfbd, LOG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
 
 	free( stream );
 }
@@ -171,7 +171,7 @@ void cfb_dump_nodePathStream( CFB_Data *cfbd, const char *path, const char *padd
 
 	laaf_util_dump_hex( stream, stream_sz, &log->_msg, &log->_msg_size, log->_msg_pos, padding );
 
-	log->debug_callback( log, (void*)cfbd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
+	log->log_callback( log, (void*)cfbd, LOG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
 
 	free( stream );
 }
@@ -247,7 +247,7 @@ void cfb_dump_nodePaths( CFB_Data *cfbd, uint32_t prevPath, char *strArray[], ui
 
 		LOG_BUFFER_WRITE( log, "\n\n" );
 
-		log->debug_callback( log, (void*)cfbd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
+		log->log_callback( log, (void*)cfbd, LOG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
 	}
 }
 
@@ -300,7 +300,7 @@ void cfb_dump_header( CFB_Data *cfbd, const char *padding )
 
 	LOG_BUFFER_WRITE( log, "\n" );
 
-	log->debug_callback( log, (void*)cfbd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
+	log->log_callback( log, (void*)cfbd, LOG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
 }
 
 
@@ -346,7 +346,7 @@ void cfb_dump_FAT( CFB_Data *cfbd, const char *padding )
 
 	LOG_BUFFER_WRITE( log, "\n\n" );
 
-	log->debug_callback( log, (void*)cfbd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
+	log->log_callback( log, (void*)cfbd, LOG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
 }
 
 
@@ -393,7 +393,7 @@ void cfb_dump_MiniFAT( CFB_Data *cfbd, const char *padding )
 
 	LOG_BUFFER_WRITE( log, "\n\n" );
 
-	log->debug_callback( log, (void*)cfbd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
+	log->log_callback( log, (void*)cfbd, LOG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
 }
 
 
@@ -440,5 +440,5 @@ void cfb_dump_DiFAT( CFB_Data *cfbd, const char *padding )
 
 	LOG_BUFFER_WRITE( log, "\n\n" );
 
-	log->debug_callback( log, (void*)cfbd, DEBUG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
+	log->log_callback( log, (void*)cfbd, LOG_SRC_ID_DUMP, 0, "", "", 0, log->_msg, log->user );
 }

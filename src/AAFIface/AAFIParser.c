@@ -70,13 +70,13 @@
 
 
 #define debug( ... ) \
-	AAF_LOG( aafi->log, aafi, DEBUG_SRC_ID_AAF_IFACE, VERB_DEBUG, __VA_ARGS__ )
+	AAF_LOG( aafi->log, aafi, LOG_SRC_ID_AAF_IFACE, VERB_DEBUG, __VA_ARGS__ )
 
 #define warning( ... ) \
-	AAF_LOG( aafi->log, aafi, DEBUG_SRC_ID_AAF_IFACE, VERB_WARNING, __VA_ARGS__ )
+	AAF_LOG( aafi->log, aafi, LOG_SRC_ID_AAF_IFACE, VERB_WARNING, __VA_ARGS__ )
 
 #define error( ... ) \
-	AAF_LOG( aafi->log, aafi, DEBUG_SRC_ID_AAF_IFACE, VERB_ERROR, __VA_ARGS__ )
+	AAF_LOG( aafi->log, aafi, LOG_SRC_ID_AAF_IFACE, VERB_ERROR, __VA_ARGS__ )
 
 
 
@@ -3549,7 +3549,7 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 			return;
 		}
 
-		laaf_write_log( aafi->log, aafi, DEBUG_SRC_ID_AAF_IFACE, VERB_ERROR, __FILENAME__, func, line, buf );
+		laaf_write_log( aafi->log, aafi, LOG_SRC_ID_AAF_IFACE, VERB_ERROR, __FILENAME__, func, line, buf );
 
 		free( buf );
 
@@ -3971,7 +3971,7 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 	}
 
 
-	log->debug_callback( log, (void*)aafi, DEBUG_SRC_ID_TRACE, 0, "", "", 0, log->_msg, log->user );
+	log->log_callback( log, (void*)aafi, LOG_SRC_ID_TRACE, 0, "", "", 0, log->_msg, log->user );
 
 
 	/* if end of branch, print one line padding */
