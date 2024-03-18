@@ -1124,9 +1124,8 @@ int cfb__foreachSectorInStream( CFB_Data *cfbd, cfbNode *node, unsigned char **b
 	if ( node == NULL )
 		return 0;
 
-	if ( *sectID >= CFB_MAX_REG_SID )
+	if ( *sectID >= CFB_MAX_REG_SECT )
 		return 0;
-
 
 	/* free the previously allocated buf, if any */
 	free( *buf );
@@ -1788,7 +1787,7 @@ cfbNode * cfb_getChildNode( CFB_Data *cfbd, const char *name, cfbNode *startNode
 		 * Not found
 		 */
 
-		if ( id >= CFB_MAX_REG_SID )
+		if ( id >= CFB_MAX_REG_SECT )
 			break;
 	}
 
@@ -1829,7 +1828,7 @@ static cfbSID_t getNodeCount( CFB_Data *cfbd )
 	uint32_t      cnt = ( 1<<cfbd->hdr->_uSectorShift );
 	cfbSectorID_t id  = cfbd->hdr->_sectDirStart;
 
-	while ( id < CFB_MAX_REG_SID ) {
+	while ( id < CFB_MAX_REG_SECT ) {
 
 		if ( id >= cfbd->fat_sz ) {
 			error( "index (%u) > FAT size (%u).", id, cfbd->fat_sz );
