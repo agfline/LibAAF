@@ -836,7 +836,7 @@ typedef struct CFBStreamDescriptor
  * When 512 bytes sectors we don't care about _ulSizeHigh.
  */
 
-#define CFB_getNodeStreamLen( cfbd, node )                                       \
+#define CFB_getNodeStreamLen( cfbd, node )                                     \
 	(( cfbd->hdr->_uSectorShift > 9 ) ?                                          \
 	(uint64_t)(( (uint64_t)(node->_ulSizeHigh) << 32 ) | ( node->_ulSizeLow )) : \
 	node->_ulSizeLow)
@@ -844,7 +844,7 @@ typedef struct CFBStreamDescriptor
 
 
 
-#define CFB_getStreamSectorShift( cfbd, node )                                 \
+#define CFB_getStreamSectorShift( cfbd, node )                               \
 	(( CFB_getNodeStreamLen( cfbd, node ) < cfbd->hdr->_ulMiniSectorCutoff ) ? \
 	cfbd->hdr->_uMiniSectorShift :                                             \
 	cfbd->hdr->_uSectorShift)
