@@ -271,7 +271,6 @@ int cfb_load_file( CFB_Data **cfbd_p, const char *file )
 {
 	CFB_Data *cfbd = *cfbd_p;
 
-	// laaf_util_snprintf_realloc( &cfbd->file, NULL, 0, "%s", file );
 	cfbd->file = laaf_util_absolute_path( file );
 
 
@@ -319,12 +318,6 @@ int cfb_load_file( CFB_Data **cfbd_p, const char *file )
 		cfb_release( cfbd_p );
 		return -1;
 	}
-
-
-	// debug( "FAT size: %u", cfbd->fat_sz );
-	// debug( "DiFAT size: %u", cfbd->DiFAT_sz );
-	// debug( "MiniFAT size: %u", cfbd->miniFat_sz );
-	// debug( "MiniFAT sector (%u) per FAT setor (%u): %u", (1 << cfbd->hdr->_uMiniSectorShift), (1 << cfbd->hdr->_uSectorShift), (1 << cfbd->hdr->_uSectorShift) / (1 << cfbd->hdr->_uMiniSectorShift) );
 
 	return 0;
 }
@@ -1284,9 +1277,8 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 
 
 		/*
-		 * If we count more DiFAT sector when parsing than
-		 * there should be, it means the sector list does
-		 * not end by a proper CFB_END_OF_CHAIN.
+		 * sector list should end with CFB_END_OF_CHAIN, but sometimes it does not,
+		 * like in Fairlight's AAF. So we must count.
 		 */
 
 		if ( cnt >= cfbd->hdr->_csectDif )
@@ -1301,8 +1293,9 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 	 * however it has been observed that some files end with CFB_FREE_SECT.
 	 * So we consider it ok.
 	 */
-	if ( id != CFB_END_OF_CHAIN /*&& id != CFB_FREE_SECT*/ )
-		warning( "Incorrect end of DiFAT Chain 0x%08x (%d)", id, id );
+	if ( id != CFB_END_OF_CHAIN ) {
+		debug( "Incorrect end of DiFAT Chain %u (0x%08x) : should be CFB_END_OF_CHAIN (0x%08x)", id, id, CFB_END_OF_CHAIN );
+	}
 
 	cfbd->DiFAT    = DiFAT;
 	cfbd->DiFAT_sz = (uint32_t)DiFAT_sz;
@@ -1352,10 +1345,9 @@ static int cfb_retrieveFAT( CFB_Data * cfbd )
 
 	CFB_foreachFATSectorIDInDiFAT( cfbd, id ) {
 
-		if ( cfbd->DiFAT[id] == CFB_FREE_SECT )
+		if ( cfbd->DiFAT[id] == CFB_FREE_SECT ) {
 			continue;
-
-		// debug( "cfbd->DiFAT[id]: %u", cfbd->DiFAT[id] );
+		}
 
 		/* observed in fairlight's AAFs.. */
 		if ( cfbd->DiFAT[id] == 0x00000000 && id > 0 ) {
@@ -1364,8 +1356,6 @@ static int cfb_retrieveFAT( CFB_Data * cfbd )
 		}
 
 		buf = cfb_getSector( cfbd, cfbd->DiFAT[id] );
-
-		// laaf_util_dump_hex( buf, (1<<cfbd->hdr->_uSectorShift), &cfbd->log->_msg, &cfbd->log->_msg_size, cfbd->log->_msg_pos, "" );
 
 		if ( buf == NULL ) {
 			error( "Error retrieving FAT sector %u (0x%08x).", id, id );
