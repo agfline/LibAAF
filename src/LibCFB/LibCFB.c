@@ -273,6 +273,10 @@ int cfb_load_file( CFB_Data **cfbd_p, const char *file )
 
 	cfbd->file = laaf_util_absolute_path( file );
 
+	if ( !cfbd->file ) {
+		error( "Could not resolve absolute file path" );
+		return -1;
+	}
 
 	if ( cfb_openFile( cfbd ) < 0 ) {
 		cfb_release( cfbd_p );
