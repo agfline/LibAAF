@@ -102,6 +102,7 @@
 #include <math.h>	// ceil()
 #include <wchar.h>
 #include <limits.h>
+#include <assert.h>
 
 #include <libaaf/CFBDump.h>
 #include <libaaf/LibCFB.h>
@@ -126,9 +127,17 @@ static int cfb_getFileSize( CFB_Data *cfbd );
 
 static int cfb_openFile( CFB_Data *cfbd );
 
-static uint64_t cfb_readFile( CFB_Data *cfbd, unsigned char *buf, size_t offset, size_t len );
+static ssize_t cfb_readFile( CFB_Data *cfbd, unsigned char *buf, size_t offset, size_t len );
 
 static void cfb_closeFile( CFB_Data *cfbd );
+
+static cfbSectorID_t cfb_getStreamSectorIDBySectorPosition( CFB_Data *cfbd, cfbSectorID_t start, cfbSectorID_t pos );
+
+static cfbSectorID_t cfb_getStreamMiniSectorIDBySectorPosition( CFB_Data *cfbd, cfbSectorID_t start, cfbSectorID_t pos );
+
+static ssize_t cfb_getSectorOffset( CFB_Data *cfbd, cfbSectorID_t id );
+
+static ssize_t cfb_getMiniSectorOffset( CFB_Data *cfbd, cfbSectorID_t id );
 
 static int cfb_is_valid( CFB_Data *cfbd );
 
@@ -507,7 +516,7 @@ static int cfb_openFile( CFB_Data *cfbd )
  * @param len    Number of bytes to read from the offset position.
  */
 
-static uint64_t cfb_readFile( CFB_Data *cfbd, unsigned char *buf, size_t offset, size_t reqlen )
+static ssize_t cfb_readFile( CFB_Data *cfbd, unsigned char *buf, size_t offset, size_t reqlen )
 {
 	FILE *fp = cfbd->fp;
 
@@ -515,19 +524,19 @@ static uint64_t cfb_readFile( CFB_Data *cfbd, unsigned char *buf, size_t offset,
 
 	if ( offset >= LONG_MAX ) {
 		error( "Requested data offset is bigger than LONG_MAX" );
-		return 0;
+		return -1;
 	}
 
 	if ( reqlen + offset > cfbd->file_sz ) {
 		error( "Requested data goes %"PRIu64" bytes beyond the EOF : offset %"PRIu64" | length %"PRIu64"", (reqlen + offset) - cfbd->file_sz, offset, reqlen );
-		return 0;
+		return -1;
 	}
 
 	int rc = fseek( fp, (long)offset, SEEK_SET );
 
 	if ( rc < 0 ) {
 		error( "%s.", strerror(errno) );
-		return 0;
+		return -1;
 	}
 
 
@@ -548,7 +557,7 @@ static uint64_t cfb_readFile( CFB_Data *cfbd, unsigned char *buf, size_t offset,
 		}
 	}
 
-	return byteRead;
+	return (ssize_t)byteRead;
 }
 
 
@@ -573,6 +582,117 @@ static void cfb_closeFile( CFB_Data *cfbd )
 
 
 
+/*
+ * Retrieves a sector ID by its position in a stream.
+ *
+ * For example :
+ *    Sectors:    |   | 5 |   | 1 | E | 4 | ...
+ *    SectorIDs:    0   1   2   3   4   5   ...
+ *
+ * A stream is composed of sectorIDs 3, 1, 5 and ends with sector 4.
+ * A request for the ID of sector at position 3 (third sector in the stream)
+ * returns 5.
+ */
+static cfbSectorID_t cfb_getStreamSectorIDBySectorPosition( CFB_Data *cfbd, cfbSectorID_t start, cfbSectorID_t pos )
+{
+	if ( start >= cfbd->fat_sz ) {
+		error( "FAT sector %u is out of range (Maximum FAT index is %u)", start, cfbd->fat_sz );
+		return CFB_SECT_ERROR;
+	}
+
+	cfbSectorID_t id = start;
+
+	/* loop condition is just here for safety, just in case... */
+	for ( cfbSectorID_t i = 0; i < cfbd->fat_sz; i++ ) {
+
+		if ( i == pos ) {
+			return id;
+		}
+
+		if ( id >= CFB_MAX_REG_SECT ) {
+			error( "Invalid FAT index %u (0x%08x) at pos %u", id, id, i );
+			return CFB_SECT_ERROR;
+		}
+
+		if ( id >= cfbd->fat_sz ) {
+			error( "FAT index %u (0x%08x) at pos %i is out of range (Maximum FAT index is %u)", id, id, i, cfbd->fat_sz );
+			return CFB_SECT_ERROR;
+		}
+
+		id = cfbd->fat[id];
+	}
+
+	/* should never be reached */
+	return CFB_SECT_ERROR;
+}
+
+
+
+/*
+ * Retrieves a sector ID by its position in a mini-stream.
+ *
+ * For example :
+ *    Sectors:    |   | 5 |   | 1 | E | 4 | ...
+ *    SectorIDs:    0   1   2   3   4   5   ...
+ *
+ * A stream is composed of sectorIDs 3, 1, 5 and ends with sector 4.
+ * A request for the ID of sector at position 3 (third sector in the stream)
+ * returns 5.
+ */
+static cfbSectorID_t cfb_getStreamMiniSectorIDBySectorPosition( CFB_Data *cfbd, cfbSectorID_t start, cfbSectorID_t pos )
+{
+	if ( start >= cfbd->miniFat_sz ) {
+		error( "MiniFAT sector %u is out of range (Maximum MiniFAT index is %u)", start, cfbd->miniFat_sz );
+		return CFB_SECT_ERROR;
+	}
+
+	cfbSectorID_t id = start;
+
+	/* loop condition is just here for safety, just in case... */
+	for ( cfbSectorID_t i = 0; i < cfbd->miniFat_sz; i++ ) {
+
+		if ( i == pos ) {
+			return id;
+		}
+
+		if ( id >= CFB_MAX_REG_SECT ) {
+			error( "Invalid miniFAT index %u (0x%08x) at pos %u", id, id, i );
+			return CFB_SECT_ERROR;
+		}
+
+		if ( id >= cfbd->miniFat_sz ) {
+			error( "MiniFAT index %u (0x%08x) at pos %i is out of range (Maximum MiniFAT index is %u)", id, id, i, cfbd->miniFat_sz );
+			return CFB_SECT_ERROR;
+		}
+
+		id = cfbd->miniFat[id];
+	}
+
+	/* should never be reached */
+	return CFB_SECT_ERROR;
+}
+
+
+
+static ssize_t cfb_getSectorOffset( CFB_Data *cfbd, cfbSectorID_t id )
+{
+	/*
+	 * foreachSectorInChain() calls cfb_getSector() before
+	 * testing the ID, so we have to ensure the ID is valid
+	 * before we try to actualy get the sector.
+	 */
+
+	/* Note: fat_sz is zero when retrieving DiFAT */
+	if ( (cfbd->fat_sz && id >= cfbd->fat_sz) || id >= CFB_MAX_REG_SECT ) {
+		error( "FAT index %u (0x%08x) is out of range : max FAT index is %u", id, id, cfbd->fat_sz );
+		return -1;
+	}
+
+	return (id + 1) << cfbd->hdr->_uSectorShift;
+}
+
+
+
 /**
  * Retrieves a sector content from the FAT.
  *
@@ -589,17 +709,18 @@ unsigned char * cfb_getSector( CFB_Data *cfbd, cfbSectorID_t id )
 	 * before we try to actualy get the sector.
 	 */
 
-	if ( id >= CFB_MAX_REG_SID )
-		return NULL;
-
-	if ( cfbd->fat_sz > 0 && id >= cfbd->fat_sz ) {
-		error( "Asking for an out of range FAT sector @ index %u (max FAT index is %u)", id, cfbd->fat_sz );
+	if ( id == CFB_END_OF_CHAIN ) {
 		return NULL;
 	}
 
+	ssize_t fileOffset = cfb_getSectorOffset( cfbd, id );
+
+	if ( fileOffset < 0 ) {
+		error( "Could not get file offset of mini sector ID %u (0x%08x)", id, id );
+		return NULL;
+	}
 
 	uint64_t sectorSize = (1 << cfbd->hdr->_uSectorShift);
-	uint64_t fileOffset = (id + 1) << cfbd->hdr->_uSectorShift;
 
 
 	unsigned char *buf = calloc( 1, sectorSize );
@@ -610,7 +731,7 @@ unsigned char * cfb_getSector( CFB_Data *cfbd, cfbSectorID_t id )
 	}
 
 
-	if ( cfb_readFile( cfbd, buf, fileOffset, sectorSize ) == 0 ) {
+	if ( cfb_readFile( cfbd, buf, (size_t)fileOffset, sectorSize ) < 0 ) {
 		free( buf );
 		return NULL;
 	}
@@ -618,6 +739,52 @@ unsigned char * cfb_getSector( CFB_Data *cfbd, cfbSectorID_t id )
 	// laaf_util_dump_hex( buf, (1<<cfbd->hdr->_uSectorShift), &cfbd->log->_msg, &cfbd->log->_msg_size, cfbd->log->_msg_pos, "" );
 
 	return buf;
+}
+
+
+
+ssize_t cfb_getMiniSectorOffset( CFB_Data *cfbd, cfbSectorID_t id )
+{
+	/*
+	 * foreachMiniSectorInChain() calls cfb_getMiniSector() before
+	 * testing the ID, so we have to ensure the ID is valid before
+	 * we try to actualy get the sector.
+	 */
+
+	if ( id >= cfbd->miniFat_sz || id >= CFB_MAX_REG_SECT ) {
+		error( "MiniFAT index %u (0x%08x) is out of range : max MiniFAT index is %u", id, id, cfbd->miniFat_sz );
+		return -1;
+	}
+
+	uint32_t SectorSize     = 1 << cfbd->hdr->_uSectorShift;
+	uint32_t MiniSectorSize = 1 << cfbd->hdr->_uMiniSectorShift;
+
+	cfbSectorID_t miniFatSectorsPerFATSector = SectorSize / MiniSectorSize;
+
+	/*
+	 * « The mini stream is chained within the FAT in exactly the same fashion
+	 * as any normal stream. The mini stream's starting sector is referenced in
+	 * the first directory entry (SID 0). »
+	 */
+
+	cfbSectorID_t fatID = cfbd->nodes[0]._sectStart;
+
+	for ( cfbSectorID_t i = 0; i < id/miniFatSectorsPerFATSector; i++ ) {
+
+		if ( fatID >= cfbd->fat_sz || fatID >= CFB_MAX_REG_SECT ) {
+			error( "FAT index (%i/%i) is out of range: %u (0x%08x)", i, (id/miniFatSectorsPerFATSector), fatID, fatID );
+			return -1;
+		}
+
+		fatID = cfbd->fat[fatID];
+	}
+
+	size_t offset = 0;
+
+	offset  = ((fatID + 1) << cfbd->hdr->_uSectorShift);
+	offset += ((id % miniFatSectorsPerFATSector ) << cfbd->hdr->_uMiniSectorShift);
+
+	return (ssize_t)offset;
 }
 
 
@@ -638,18 +805,18 @@ unsigned char * cfb_getMiniSector( CFB_Data *cfbd, cfbSectorID_t id )
 	 * we try to actualy get the sector.
 	 */
 
-	if ( id >= CFB_MAX_REG_SID )
-		return NULL;
-
-
-	if ( cfbd->fat_sz > 0 && id >= cfbd->miniFat_sz ) {
-		error( "Asking for an out of range MiniFAT sector @ index %u (0x%x) (Maximum MiniFAT index is %u)", id, id, cfbd->miniFat_sz );
+	if ( id == CFB_END_OF_CHAIN ) {
 		return NULL;
 	}
 
-	uint32_t SectorSize     = 1 << cfbd->hdr->_uSectorShift;
-	uint32_t MiniSectorSize = 1 << cfbd->hdr->_uMiniSectorShift;
+	ssize_t fileOffset = cfb_getMiniSectorOffset( cfbd, id );
 
+	if ( fileOffset < 0 ) {
+		error( "Could not get file offset of mini sector ID %u (0x%08x)", id, id );
+		return NULL;
+	}
+
+	uint32_t MiniSectorSize = 1 << cfbd->hdr->_uMiniSectorShift;
 
 
 	unsigned char * buf = calloc( 1, MiniSectorSize );
@@ -660,46 +827,7 @@ unsigned char * cfb_getMiniSector( CFB_Data *cfbd, cfbSectorID_t id )
 	}
 
 
-
-	/* Retrieve the MiniSector file offset */
-	cfbSectorID_t fatId  = cfbd->nodes[0]._sectStart;
-	uint64_t      offset = 0;
-	uint32_t      i      = 0;
-
-	// debug( "Requesting fatID: %u (%u)", fatId, id );
-
-	/* Fat Divisor: allow to guess the number of mini-stream sectors per standard FAT sector */
-	unsigned int fatDiv = SectorSize / MiniSectorSize;
-
-	/* move forward in the FAT's mini-stream chain to retrieve the sector we want. */
-
-	for ( i = 0; i < id/fatDiv; i++ )
-	{
-		if ( cfbd->fat[fatId] == 0 ) {
-			error( "Next FAT index (%i/%i) is null.", i, (id/fatDiv) );
-			goto err;
-		}
-
-		if ( cfbd->fat[fatId] >= CFB_MAX_REG_SID ) {
-			error( "Next FAT index (%i/%i) is invalid: %u (%08x)", i, (id/fatDiv), cfbd->fat[fatId], cfbd->fat[fatId] );
-			goto err;
-		}
-
-		if ( cfbd->fat[fatId] >= cfbd->fat_sz ) {
-			error( "Next FAT index (%i/%i) is bigger than FAT size (%u): %u (%08x)", i, (id/fatDiv), cfbd->fat_sz, cfbd->fat[fatId], cfbd->fat[fatId] );
-			goto err;
-		}
-
-		// debug( "sectorCount: %i / %u fatId: %u", i, id/fatDiv, cfbd->fat[fatId] );
-		fatId = cfbd->fat[fatId];
-	}
-
-	offset  = ((fatId + 1) << cfbd->hdr->_uSectorShift);
-	offset += ((id % fatDiv ) << cfbd->hdr->_uMiniSectorShift);
-
-
-
-	if ( cfb_readFile( cfbd, buf, offset, MiniSectorSize ) == 0 ) {
+	if ( cfb_readFile( cfbd, buf, (size_t)fileOffset, MiniSectorSize ) < 0 ) {
 		goto err;
 	}
 
@@ -795,6 +923,184 @@ uint64_t cfb_getStream( CFB_Data *cfbd, cfbNode *node, unsigned char **stream, u
 
 
 
+CFBStreamDescriptor * cfb_openStream( CFB_Data *cfbd, cfbNode *node )
+{
+	CFBStreamDescriptor *sd = calloc( 1, sizeof(CFBStreamDescriptor) );
+
+	if ( !sd ) {
+		return NULL;
+	}
+
+	sd->cfbd = cfbd;
+	sd->node = node;
+	sd->stream_sz = CFB_getNodeStreamLen( cfbd, node );
+
+	if ( sd->stream_sz < cfbd->hdr->_ulMiniSectorCutoff ) {
+		sd->is_ministream = 1;
+	}
+
+	if ( sd->stream_sz == 0 ) {
+		free( sd );
+		return NULL;
+	}
+
+	return sd;
+}
+
+
+
+void cfb_closeStream( CFBStreamDescriptor *sd )
+{
+	if ( !sd ) {
+		return;
+	}
+
+	free( sd );
+}
+
+
+
+
+ssize_t cfb_readStream( CFBStreamDescriptor *sd, void* buf, size_t nbytes, size_t offset )
+{
+	if ( !sd || !sd->cfbd || !buf ) {
+		return -1;
+	}
+
+	CFB_Data *cfbd = sd->cfbd;
+	cfbNode *node = sd->node;
+	int isMiniStream = sd->is_ministream;
+
+	if ( !node ) {
+		error( "StreamDescriptor node is not set" );
+		return -1;
+	}
+
+	if ( offset >= sd->stream_sz ) {
+		error( "Requested offset %lu goes beyond stream size %lu", offset, sd->stream_sz );
+		return -1;
+	}
+
+
+	uint32_t sectorSize = 0;
+
+	if ( isMiniStream ) {
+		sectorSize = 1 << cfbd->hdr->_uMiniSectorShift;
+	}
+	else {
+		sectorSize = 1 << cfbd->hdr->_uSectorShift;
+	}
+
+	if ( nbytes < sectorSize ) {
+		error( "nbytes must be > 4096" );
+		return -1;
+	}
+
+
+	size_t sectorOffset = offset % sectorSize;
+
+
+	cfbSectorID_t id = node->_sectStart; /* start of stream */
+
+	if ( offset ) {
+
+		size_t sectorPos = (offset/sectorSize);
+
+		assert( sectorPos < CFB_MAX_REG_SECT );
+
+		if ( isMiniStream ) {
+			id = cfb_getStreamMiniSectorIDBySectorPosition( cfbd, id, (cfbSectorID_t)sectorPos );
+		}
+		else {
+			id = cfb_getStreamSectorIDBySectorPosition( cfbd, id, (cfbSectorID_t)sectorPos );
+		}
+
+		if ( id == CFB_SECT_ERROR ) {
+			error( "Could not retrieve sector ID at pos %zd out of %s", sectorPos, (isMiniStream) ? "miniFAT" : "FAT" );
+			return -1;
+		}
+	}
+
+	debug( "Requesting stream [size: %lu / sectorsize: %u] : offset: %lu  nbytes: %lu  sectoroffset: %lu", sd->stream_sz, sectorSize, offset, nbytes, sectorOffset );
+
+
+	size_t totalBytesRead = 0;
+	ssize_t fileOffset = 0;
+
+	while ( totalBytesRead < nbytes ) {
+
+		if ( isMiniStream ) {
+			fileOffset = cfb_getMiniSectorOffset( cfbd, id );
+		}
+		else {
+			fileOffset = cfb_getSectorOffset( cfbd, id );
+		}
+
+		if ( fileOffset < 0 ) {
+			error("fileOffset error");
+			return (ssize_t)totalBytesRead;
+		}
+
+		size_t reqBytes = sectorSize;
+
+		if ( sectorOffset && totalBytesRead == 0 ) {
+			fileOffset += (ssize_t)sectorOffset;
+			reqBytes -= sectorOffset;
+			debug( "Reading a portion of the first requested sector : %lu", reqBytes );
+		}
+
+		if ( offset+totalBytesRead+reqBytes >= sd->stream_sz ) {
+			reqBytes = sd->stream_sz - (offset+totalBytesRead);
+			debug( "Reading the last portion of the last sector in stream : %lu", reqBytes );
+		}
+		else if ( totalBytesRead+reqBytes > nbytes ) {
+			reqBytes = nbytes - totalBytesRead;
+			debug( "Reading a portion of the last requested sector : %lu", reqBytes );
+		}
+
+		ssize_t bytesRead = cfb_readFile( cfbd, (unsigned char*)buf+totalBytesRead, (size_t)fileOffset, reqBytes );
+
+		if ( bytesRead < 0 ) {
+			error( "cfb_readFile()" );
+			return (ssize_t)totalBytesRead;
+		}
+
+		debug( "Read %lu bytes out of sector %i.  totalread: %li   streampos: %li", bytesRead, id, totalBytesRead+(size_t)bytesRead, offset+totalBytesRead+(size_t)bytesRead );
+
+		totalBytesRead += (size_t)bytesRead;
+
+		if ( offset+totalBytesRead == sd->stream_sz ) {
+			debug( "End of stream : %li", offset+totalBytesRead );
+			return (ssize_t)totalBytesRead;
+		}
+
+		/* get next sector id */
+
+		if ( isMiniStream ) {
+
+			id = cfbd->miniFat[id];
+
+			if ( id >= cfbd->miniFat_sz || id >= CFB_MAX_REG_SECT ) {
+				error( "Invalid miniFAT index %u (0x%08x) at pos %zd", id, id, offset+totalBytesRead );
+				return (ssize_t)totalBytesRead;
+			}
+		}
+		else {
+
+			id = cfbd->fat[id];
+
+			if ( id >= cfbd->fat_sz || id >= CFB_MAX_REG_SECT ) {
+				error( "Invalid FAT index %u (0x%08x) at pos %zd", id, id, offset+totalBytesRead );
+				return (ssize_t)totalBytesRead;
+			}
+		}
+	}
+
+	return (ssize_t)totalBytesRead;
+}
+
+
+
 /**
  * Loops through all the sectors that compose a stream
  * and retrieve their content.
@@ -871,7 +1177,7 @@ static int cfb_retrieveFileHeader( CFB_Data *cfbd )
 		return -1;
 	}
 
-	if ( cfb_readFile( cfbd, (unsigned char*)cfbd->hdr, 0, sizeof(cfbHeader) ) == 0 ) {
+	if ( cfb_readFile( cfbd, (unsigned char*)cfbd->hdr, 0, sizeof(cfbHeader) ) < 0 ) {
 		goto err;
 	}
 

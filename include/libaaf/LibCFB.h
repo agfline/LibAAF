@@ -24,6 +24,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/types.h>
 
 #include <libaaf/log.h>
 
@@ -152,6 +153,14 @@ typedef uint32_t cfbSID_t;
  */
 
 #define CFB_NO_STREAM     0xffffffff
+
+
+/**
+ * Used by some functions to return error.
+ * Note: non-standard
+ */
+
+#define CFB_SECT_ERROR    CFB_MAX_REG_SECT
 
 
 // typedef enum cfbSpecialSectorID_e
@@ -726,6 +735,18 @@ typedef struct CFB_Data
 
 
 
+typedef struct CFBStreamDescriptor
+{
+	CFB_Data     *cfbd;
+
+	cfbNode      *node;
+	uint64_t      stream_sz;
+
+	char          is_ministream;
+
+	cfbSectorID_t id;
+
+} CFBStreamDescriptor;
 
 
 
@@ -881,6 +902,12 @@ unsigned char * cfb_getSector( CFB_Data *cfbd, cfbSectorID_t id );
 unsigned char * cfb_getMiniSector( CFB_Data *cfbd, cfbSectorID_t id );
 
 uint64_t cfb_getStream( CFB_Data*cfbd, cfbNode*node, unsigned char **stream, uint64_t *stream_sz );
+
+CFBStreamDescriptor * cfb_openStream( CFB_Data *cfbd, cfbNode *node );
+
+void cfb_closeStream( CFBStreamDescriptor *sd );
+
+ssize_t cfb_readStream( CFBStreamDescriptor *sd, void* buf, size_t nbytes, size_t offset );
 
 int cfb__foreachSectorInStream( CFB_Data *cfbd, cfbNode *node, unsigned char **buf, size_t *bytesRead, cfbSectorID_t *sectID );
 
