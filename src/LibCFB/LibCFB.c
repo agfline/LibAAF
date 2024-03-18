@@ -1219,11 +1219,11 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 	}
 
 	if ( csectDif != cfbd->hdr->_csectDif ) {
-		warning( "cfbd->hdr->_csectDif value (%u) does not match calculated csectDif (%u)", cfbd->hdr->_csectDif, csectDif );
+		warning( "_csectDif value (%u) does not match calculation : %u", cfbd->hdr->_csectDif, csectDif );
 	}
 
 	if ( csectDif == 0 && cfbd->hdr->_sectDifStart != CFB_END_OF_CHAIN ) {
-		warning( "cfbd->hdr->_sectDifStart is 0x%08x (%u) but should be CFB_END_OF_CHAIN. Correcting.", cfbd->hdr->_sectDifStart, cfbd->hdr->_sectDifStart );
+		debug( "_sectDifStart is %u (0x%08x) : should be CFB_END_OF_CHAIN (0x%08x)", cfbd->hdr->_sectDifStart, cfbd->hdr->_sectDifStart, CFB_END_OF_CHAIN );
 		cfbd->hdr->_sectDifStart = CFB_END_OF_CHAIN;
 	}
 
@@ -1656,7 +1656,7 @@ cfbNode * cfb_getNodeByPath( CFB_Data *cfbd, const char *path, cfbSID_t id )
 	while ( 1 ) {
 
 		if ( id >= cfbd->nodes_cnt ) {
-			error( "Out of range Node index %d, max %u.", id, cfbd->nodes_cnt );
+			error( "Out of range Node index %u, max %u.", id, cfbd->nodes_cnt );
 			return NULL;
 		}
 
