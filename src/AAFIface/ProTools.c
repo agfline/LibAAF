@@ -439,7 +439,7 @@ int protools_post_processing( AAF_Iface *aafi ) {
 			aafiTimelineItem *audioItemNext = audioItem->next;
 
 			if ( audioItem->type != AAFI_AUDIO_CLIP ) {
-				audioItem = audioItem->next;
+				audioItem = audioItemNext;
 				continue;
 			}
 
@@ -447,10 +447,14 @@ int protools_post_processing( AAF_Iface *aafi ) {
 
 			char *clipName = audioClip->essencePointerList->essenceFile->name;
 
+			int previousClipCount = audioTrack->clipCount;
+
 			if ( (aafi->ctx.options.protools & AAFI_PROTOOLS_OPT_REPLACE_CLIP_FADES) &&
 			      is_rendered_fade( clipName ) )
 			{
-				if ( replace_clipFade( aafi, audioTrack, audioItem ) > 0 ) {
+				replace_clipFade( aafi, audioTrack, audioItem );
+
+				if ( previousClipCount != audioTrack->clipCount ) {
 					audioItem = audioTrack->timelineItems;
 					continue;
 				}
@@ -459,7 +463,9 @@ int protools_post_processing( AAF_Iface *aafi ) {
 			if ( (aafi->ctx.options.protools & AAFI_PROTOOLS_OPT_REMOVE_SAMPLE_ACCURATE_EDIT) &&
 			      is_sample_accurate_edit( clipName ) )
 			{
-				if ( remove_sampleAccurateEditClip( aafi, audioTrack, audioItem ) ) {
+				remove_sampleAccurateEditClip( aafi, audioTrack, audioItem );
+				
+				if ( previousClipCount != audioTrack->clipCount ) {
 					audioItem = audioTrack->timelineItems;
 					continue;
 				}
