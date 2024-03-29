@@ -8,9 +8,9 @@ project( "libaaf"
 
 option( BUILD_STATIC_LIB "Build the static library"                  OFF )
 option( BUILD_SHARED_LIB "Build the shared library"                  ON  )
-option( BUILD_TOOLS      "Build aaftool"                             ON  )
 option( BUILD_DOC        "Build documentation"                       ON  )
 option( BUILD_UNIT_TEST  "Build unit test programs"                  ON  )
+option( BUILD_AAFTOOL           "Build aaftool"                             ON  )
 option( BUILD_WINDOWS_ON_LINUX  "Cross compile libaaf on Linux for Windows" OFF )
 
 set( LIBAAF_VERSION "GIT" CACHE STRING "Set version manualy, git version used otherwise" )
@@ -216,7 +216,7 @@ endif( BUILD_STATIC_LIB )
 #    P r o g r a m s    #
 #########################
 
-if ( BUILD_TOOLS )
+if ( BUILD_AAFTOOL )
 
 	if ( ${LINK_LIB} MATCHES "aaf-static" )
 		message( "Building aaftool upon static library" )
@@ -235,14 +235,13 @@ if ( BUILD_TOOLS )
 		${LIBAAF_TOOLS_SRC_PATH}/thirdparty/libTC.c
 	)
 
-
 	set_target_properties( aaftool PROPERTIES SUFFIX "${PROG_SUFFIX}" )
 
 	target_include_directories( aaftool PRIVATE "${CMAKE_BINARY_DIR}/include/" )
 	target_compile_options( aaftool PUBLIC ${LIBAAF_COMPILE_OPTIONS} )
 	target_link_options( aaftool PUBLIC ${LIBAAF_LINK_OPTIONS} )
 
-endif( BUILD_TOOLS )
+endif( BUILD_AAFTOOL )
 
 
 if ( BUILD_UNIT_TEST )
@@ -281,7 +280,7 @@ if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
 		install( TARGETS aaf-static DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR} )
 	endif()
 
-	if ( BUILD_TOOLS )
+	if ( BUILD_AAFTOOL )
 		install( TARGETS aaftool DESTINATION ${CMAKE_INSTALL_FULL_BINDIR} )
 	endif()
 
