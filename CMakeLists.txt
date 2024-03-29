@@ -9,9 +9,9 @@ project( "libaaf"
 option( BUILD_STATIC_LIB "Build the static library"                  OFF )
 option( BUILD_SHARED_LIB "Build the shared library"                  ON  )
 option( BUILD_TOOLS      "Build aaftool"                             ON  )
-option( XBUILD_WIN       "Cross compile libaaf on Linux for Windows" OFF )
 option( BUILD_DOC        "Build documentation"                       ON  )
 option( BUILD_UNIT_TEST  "Build unit test programs"                  ON  )
+option( BUILD_WINDOWS_ON_LINUX  "Cross compile libaaf on Linux for Windows" OFF )
 
 set( LIBAAF_VERSION "GIT" CACHE STRING "Set version manualy, git version used otherwise" )
 set( LIBAAF_LIB_OUTPUT_NAME "aaf" )
@@ -120,7 +120,7 @@ if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
 		-fdebug-prefix-map=${SRC_PATH}=.
 	)
 	# set( LIBAAF_LINK_OPTIONS -pg )
-	if ( XBUILD_WIN )
+	if ( BUILD_WINDOWS_ON_LINUX )
 		message( "┌─────────────────────────────┐" )
 		message( "│ Cross compiling for Windows │" )
 		message( "└─────────────────────────────┘" )
@@ -318,7 +318,7 @@ add_custom_target( clean-cmake-files
 	COMMAND rm -rf "${CMAKE_BINARY_DIR}/*.cmake" )
 
 
-if ( XBUILD_WIN )
+if ( BUILD_WINDOWS_ON_LINUX )
 	add_custom_target( test
 		COMMAND wine ${CMAKE_BINARY_DIR}/bin/test_libtc${PROG_SUFFIX}
 		COMMAND wine ${CMAKE_BINARY_DIR}/bin/test_uri${PROG_SUFFIX}
