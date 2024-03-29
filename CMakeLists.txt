@@ -177,7 +177,6 @@ set( LIBAAF_LIB_SOURCES
 	${LIBAAF_LIB_SRC_PATH}/AAFIface/MediaComposer.c
 
 	${LIBAAF_LIB_SRC_PATH}/common/utils.c
-	# ${LIBAAF_LIB_SRC_PATH}/common/ConvertUTF.c
 	${LIBAAF_LIB_SRC_PATH}/common/log.c
 )
 
