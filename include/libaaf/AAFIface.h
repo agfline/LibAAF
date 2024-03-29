@@ -49,12 +49,6 @@ enum aafiEssenceType {
 };
 
 
-enum aafiExtractFormat {
-	AAFI_EXTRACT_DEFAULT = 0,
-	AAFI_EXTRACT_WAV,
-	AAFI_EXTRACT_BWAV
-};
-
 
 /**
  * Flags for aafiAudioGain.flags.

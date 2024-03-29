@@ -34,6 +34,19 @@
  */
 
 #include <libaaf/AAFIface.h>
+/**
+ * Define extract format when calling aafi_extract_audioEssenceFile() or aafi_extract_audioClip()
+ */
+
+enum aafiExtractFormat {
+	AAFI_EXTRACT_DEFAULT = 0, /**< keeps original format, but not a byte-for-byte copy */
+	AAFI_EXTRACT_ORIGINAL, /**< byte-for-byte copy of the original file */
+	AAFI_EXTRACT_ORIGINAL_PCM, /**< byte-for-byte copy of the original PCM audio stream */
+	AAFI_EXTRACT_WAV, /**< output wav file */
+	AAFI_EXTRACT_BWAV, /**< output wav file with bext chunk */
+	AAFI_EXTRACT_AIFF, /**< output aiff file */
+	AAFI_EXTRACT_PCM /**< output raw PCM file */
+};
 
 
 
