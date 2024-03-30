@@ -3651,6 +3651,8 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 			char      *name           = aaf_get_propertyValue( Obj, PID_MobSlot_SlotName, &AAFTypeID_String );
 			uint32_t  *slotID         = aaf_get_propertyValue( Obj, PID_MobSlot_SlotID, &AAFTypeID_UInt32 );
 			uint32_t  *trackNo        = aaf_get_propertyValue( Obj, PID_MobSlot_PhysicalTrackNumber, &AAFTypeID_UInt32 );
+			aafRational_t *edit_rate  = aaf_get_propertyValue( Obj, PID_TimelineMobSlot_EditRate, &AAFTypeID_Rational );
+
 			aafUID_t  *DataDefinition = NULL;
 
 			aafWeakRef_t *dataDefWeakRef = aaf_get_propertyValue( Segment, PID_Component_DataDefinition, &AAFTypeID_DataDefinitionWeakReference );
@@ -3659,12 +3661,16 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 				DataDefinition = aaf_get_DataIdentificationByWeakRef( aafi->aafd, dataDefWeakRef );
 			}
 
-			LOG_BUFFER_WRITE( log, "[slot:%s%i%s track:%s%i%s] (DataDef: %s%s%s) %s%s ",
+			LOG_BUFFER_WRITE( log, "[slot:%s%i%s track:%s%i%s editrate:%s%i/%i%s] (DataDef: %s%s%s) %s%s ",
 				ANSI_COLOR_BOLD(log),
 				(slotID) ? (int)(*slotID) : -1,
 				ANSI_COLOR_RESET(log),
 				ANSI_COLOR_BOLD(log),
 				(trackNo) ? (int)(*trackNo) : -1,
+				ANSI_COLOR_RESET(log),
+				ANSI_COLOR_BOLD(log),
+				(edit_rate) ? edit_rate->numerator : -1,
+				(edit_rate) ? edit_rate->denominator : -1,
 				ANSI_COLOR_RESET(log),
 				(state == TD_NOT_SUPPORTED) ? ANSI_COLOR_ORANGE(log) : ANSI_COLOR_DARKGREY(log),
 				aaft_DataDefToText( aafi->aafd, DataDefinition ),
