@@ -3723,6 +3723,18 @@ void aafi_dump_obj( AAF_Iface *aafi, aafObject *Obj, struct trace_dump *__td, in
 					);
 				}
 			}
+			else if ( aafUIDCmp( Obj->Class->ID, &AAFClassID_SourceClip ) ) {
+
+				int64_t *startTime = aaf_get_propertyValue( Obj, PID_SourceClip_StartTime, &AAFTypeID_PositionType );
+
+				if ( startTime ) {
+					LOG_BUFFER_WRITE( log, "; StartTime: %s%"PRIi64"%s",
+						ANSI_COLOR_DARKGREY(log),
+						*startTime,
+						ANSI_COLOR_RESET(log)
+					);
+				}
+			}
 
 			LOG_BUFFER_WRITE( log, ")" );
 		}
