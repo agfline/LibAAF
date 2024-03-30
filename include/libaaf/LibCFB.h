@@ -744,7 +744,11 @@ typedef struct CFBStreamDescriptor
 
 	char          is_ministream;
 
-	cfbSectorID_t id;
+	cfbSectorID_t sectorPos; /* current position in stream sector chain */
+	cfbSectorID_t id; /* current sector ID */
+	size_t        sectorOffset; /* current byte offset in current sector */
+
+	size_t        offset; /* overall stream current offset */
 
 } CFBStreamDescriptor;
 
