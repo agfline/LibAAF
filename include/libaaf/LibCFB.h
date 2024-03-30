@@ -910,7 +910,10 @@ uint64_t cfb_getStream( CFB_Data*cfbd, cfbNode*node, unsigned char **stream, uin
 CFBStreamDescriptor * cfb_open_stream( CFB_Data *cfbd, cfbNode *node );
 void cfb_close_stream( CFBStreamDescriptor *sd );
 
-ssize_t cfb_readStream( CFBStreamDescriptor *sd, void* buf, size_t nbytes, size_t offset );
+size_t  cfb_stream_size( CFBStreamDescriptor *sd );
+size_t  cfb_stream_tell( CFBStreamDescriptor *sd );
+ssize_t cfb_stream_seek( CFBStreamDescriptor *sd, int whence, int64_t pos );
+ssize_t cfb_stream_read( CFBStreamDescriptor *sd, void* buf, size_t nbytes );
 
 int cfb__foreachSectorInStream( CFB_Data *cfbd, cfbNode *node, unsigned char **buf, size_t *bytesRead, cfbSectorID_t *sectID );
 
