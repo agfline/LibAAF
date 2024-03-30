@@ -920,7 +920,7 @@ uint64_t cfb_getStream( CFB_Data *cfbd, cfbNode *node, unsigned char **stream, u
 
 
 
-CFBStreamDescriptor * cfb_openStream( CFB_Data *cfbd, cfbNode *node )
+CFBStreamDescriptor * cfb_open_stream( CFB_Data *cfbd, cfbNode *node )
 {
 	CFBStreamDescriptor *sd = calloc( 1, sizeof(CFBStreamDescriptor) );
 
@@ -946,7 +946,7 @@ CFBStreamDescriptor * cfb_openStream( CFB_Data *cfbd, cfbNode *node )
 
 
 
-void cfb_closeStream( CFBStreamDescriptor *sd )
+void cfb_close_stream( CFBStreamDescriptor *sd )
 {
 	if ( !sd ) {
 		return;

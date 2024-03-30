@@ -903,9 +903,8 @@ unsigned char * cfb_getMiniSector( CFB_Data *cfbd, cfbSectorID_t id );
 
 uint64_t cfb_getStream( CFB_Data*cfbd, cfbNode*node, unsigned char **stream, uint64_t *stream_sz );
 
-CFBStreamDescriptor * cfb_openStream( CFB_Data *cfbd, cfbNode *node );
-
-void cfb_closeStream( CFBStreamDescriptor *sd );
+CFBStreamDescriptor * cfb_open_stream( CFB_Data *cfbd, cfbNode *node );
+void cfb_close_stream( CFBStreamDescriptor *sd );
 
 ssize_t cfb_readStream( CFBStreamDescriptor *sd, void* buf, size_t nbytes, size_t offset );
 
