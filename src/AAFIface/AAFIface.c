@@ -894,6 +894,8 @@ aafiAudioEssenceFile * aafi_newAudioEssence( AAF_Iface *aafi )
 		goto err;
 	}
 
+	audioEssenceFile->aafi = aafi;
+
 	audioEssenceFile->samplerateRational->numerator = 1;
 	audioEssenceFile->samplerateRational->denominator = 1;
 
@@ -1161,6 +1163,8 @@ void aafi_freeAudioEssences( aafiAudioEssenceFile **audioEssenceFile )
 		free( (*audioEssenceFile)->name );
 		free( (*audioEssenceFile)->unique_name );
 		free( (*audioEssenceFile)->samplerateRational );
+
+		cfb_close_stream( (*audioEssenceFile)->sd );
 
 		aafi_freeMetadata( &((*audioEssenceFile)->metadata) );
 

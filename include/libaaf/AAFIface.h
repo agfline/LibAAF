@@ -400,6 +400,10 @@ typedef struct aafiAudioEssenceFile
 	void          *user;
 
 
+	struct AAF_Iface *aafi;
+
+	CFBStreamDescriptor *sd;
+
 	/**
 	 * Pointer to the next essence in global essence list #aafiAudio.essenceFiles
 	 */

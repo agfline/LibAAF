@@ -3116,6 +3116,7 @@ static int parse_EssenceData( AAF_Iface *aafi, aafObject *EssenceData, td *__ptd
 	audioEssenceFile->node = DataNode;
 	audioEssenceFile->is_embedded = 1;
 
+	audioEssenceFile->sd = cfb_open_stream( aafi->aafd->cfbd, audioEssenceFile->node );
 
 	rc = 0;
 
