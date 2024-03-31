@@ -1061,6 +1061,11 @@ typedef struct AAF_Iface
 	      essencePointer != NULL;                                          \
 	      essencePointer = essencePointer->next )                          \
 
+#define AAFI_foreachClipEssencePointer( clip, essencePointer ) \
+	for ( essencePointer = clip->essencePointerList;             \
+	      essencePointer != NULL;                                \
+	      essencePointer = essencePointer->next )                \
+
 #define AAFI_foreachEssence( essenceFileList, essenceFile ) \
 	for ( essenceFile = essenceFileList;                      \
 	      essenceFile != NULL;                                \

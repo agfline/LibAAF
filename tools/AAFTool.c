@@ -1243,12 +1243,12 @@ int main( int argc, char *argv[] ) {
 
 					aafiAudioEssencePointer *audioEssencePtr = NULL;
 
-					AAFI_foreachEssencePointer( audioClip->essencePointerList, audioEssencePtr ) {
+					AAFI_foreachClipEssencePointer( audioClip, audioEssencePtr ) {
 						totalClipLineItems++;
 					}
 
 
-					AAFI_foreachEssencePointer( audioClip->essencePointerList, audioEssencePtr ) {
+					AAFI_foreachClipEssencePointer( audioClip, audioEssencePtr ) {
 						if ( audioEssencePtr->essenceChannel ) {
 							log( aafi->log, " %s   %s SourceFile [ch %i]: %s\"%s\"%s\n",
 								( trackLineItemCounter < totalTrackLineItems ) ? TREE_LINE : " ",
