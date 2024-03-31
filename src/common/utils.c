@@ -122,7 +122,7 @@ char * laaf_util_windows_utf16toutf8( const wchar_t *wstr ) {
 
 
 
-char * laaf_util_clean_filename( char *fname )
+char * laaf_util_clean_filename( char *fname, int clean_channel_identif )
 {
 	/*
 	 * sanitize file/dir name
@@ -157,6 +157,24 @@ char * laaf_util_clean_filename( char *fname )
 
 	while ( *p && (*p == ' ' || *p == '.') ) {
 		*p = '\0'; p--;
+	}
+
+
+	if ( clean_channel_identif && *fname ) {
+
+		size_t namelen = strlen( fname );
+		p = fname + namelen;
+
+		/* protools */
+
+		if ( namelen > 2 && strcmp( p-2, ".L"   ) == 0 ) { *(p-2) = '\0'; }
+		if ( namelen > 3 && strcmp( p-3, ".Lc"  ) == 0 ) { *(p-3) = '\0'; }
+		if ( namelen > 2 && strcmp( p-2, ".C"   ) == 0 ) { *(p-2) = '\0'; }
+		if ( namelen > 3 && strcmp( p-3, ".Rc"  ) == 0 ) { *(p-3) = '\0'; }
+		if ( namelen > 2 && strcmp( p-2, ".R"   ) == 0 ) { *(p-2) = '\0'; }
+		if ( namelen > 3 && strcmp( p-3, ".Ls"  ) == 0 ) { *(p-3) = '\0'; }
+		if ( namelen > 3 && strcmp( p-3, ".Rs"  ) == 0 ) { *(p-3) = '\0'; }
+		if ( namelen > 4 && strcmp( p-4, ".LFE" ) == 0 ) { *(p-4) = '\0'; }
 	}
 
 	if ( *fname == '\0' )

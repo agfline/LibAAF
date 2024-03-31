@@ -93,7 +93,7 @@ static int test_clean_filename( int line, const char *fname, const char *expecte
 		snprintf( buf, sizeof(buf), "%s", fname );
 	}
 
-	char *res = laaf_util_clean_filename( (fname) ? buf : NULL );
+	char *res = laaf_util_clean_filename( (fname) ? buf : NULL, 1 );
 
 	if ( expected == NULL && res != NULL ) {
 		TEST_LOG( TEST_ERROR_STR "laaf_util_clean_filename(): \"%s\"%*s   res:   \"%s\"\n", line, fname, pad1len, " ", res );
@@ -162,6 +162,14 @@ int main( int argc, char *argv[] ) {
 	errors += test_clean_filename( __LINE__, " abc", " abc" );
 	errors += test_clean_filename( __LINE__, "/<>:\"|?*\\ ", "_________" );
 	errors += test_clean_filename( __LINE__, "サンプル", "サンプル" );
+	errors += test_clean_filename( __LINE__, "abc.L", "abc" );
+	errors += test_clean_filename( __LINE__, "abc.Lc", "abc" );
+	errors += test_clean_filename( __LINE__, "abc.C", "abc" );
+	errors += test_clean_filename( __LINE__, "abc.Rc", "abc" );
+	errors += test_clean_filename( __LINE__, "abc.R", "abc" );
+	errors += test_clean_filename( __LINE__, "abc.Ls", "abc" );
+	errors += test_clean_filename( __LINE__, "abc.Rs", "abc" );
+	errors += test_clean_filename( __LINE__, "abc.LFE", "abc" );
 
 	TEST_LOG("\n");
 
