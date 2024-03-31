@@ -52,6 +52,11 @@ enum aafiExtractFormat {
 
 char * aafi_locate_external_essence_file( AAF_Iface *aafi, const char *original_uri_filepath, const char *search_location );
 
+size_t  aafi_embeddedAudioEssenceFile_size( aafiAudioEssenceFile *audioEssenceFile );
+size_t  aafi_embeddedAudioEssenceFile_tell( aafiAudioEssenceFile *audioEssenceFile );
+ssize_t aafi_embeddedAudioEssenceFile_seek( aafiAudioEssenceFile *audioEssenceFile, int whence, int64_t pos );
+ssize_t aafi_embeddedAudioEssenceFile_read( aafiAudioEssenceFile *audioEssenceFile, void* buf, size_t nbyte );
+#ifdef HAVE_SNDFILE
 /**
  * Extract audio essence file.
  *
