@@ -34,6 +34,18 @@
  */
 
 #include <libaaf/AAFIface.h>
+
+#ifdef HAVE_SNDFILE
+#include <sndfile.h>
+#endif
+
+/**
+ * Buffer size for embedded audio essence/clip file extraction.
+ */
+
+#define AAF_EXTRACT_FILE_BUFFER_SZ 4096
+
+
 /**
  * Define extract format when calling aafi_extract_audioEssenceFile() or aafi_extract_audioClip()
  */
@@ -52,23 +64,126 @@ enum aafiExtractFormat {
 
 char * aafi_locate_external_essence_file( AAF_Iface *aafi, const char *original_uri_filepath, const char *search_location );
 
+#ifdef HAVE_SNDFILE
+/**
+ * Maximum number of input files when combining multiple mono files to a
+ * single multichannel clip. Consequently, this also defines the maximum
+ * channel count in output file.
+ */
+#define MAX_AUDIO_FILES_MERGE 16
+#endif
+
 size_t  aafi_embeddedAudioEssenceFile_size( aafiAudioEssenceFile *audioEssenceFile );
 size_t  aafi_embeddedAudioEssenceFile_tell( aafiAudioEssenceFile *audioEssenceFile );
 ssize_t aafi_embeddedAudioEssenceFile_seek( aafiAudioEssenceFile *audioEssenceFile, int whence, int64_t pos );
 ssize_t aafi_embeddedAudioEssenceFile_read( aafiAudioEssenceFile *audioEssenceFile, void* buf, size_t nbyte );
-#ifdef HAVE_SNDFILE
-/**
- * Extract audio essence file.
- *
- * @param aafi XXXXXX
- */
-int aafi_extractAudioEssenceFile( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenceFile, enum aafiExtractFormat extractFormat, const char *outfilepath, uint64_t sampleOffset, uint64_t sampleLength, const char *forcedFileName, char **usable_file_path );
 
-int aafi_extractAudioClip( AAF_Iface *aafi, aafiAudioClip *audioClip, enum aafiExtractFormat extractFormat, const char *outfilepath );
+#ifdef HAVE_SNDFILE
+
+sf_count_t aafi_sf_embeddedAudioEssenceFile_size( void *audioEssenceFile );
+sf_count_t aafi_sf_embeddedAudioEssenceFile_tell( void *audioEssenceFile );
+sf_count_t aafi_sf_embeddedAudioEssenceFile_seek( sf_count_t pos, int whence, void *audioEssenceFile );
+sf_count_t aafi_sf_embeddedAudioEssenceFile_read( void* buf, sf_count_t nbyte, void *audioEssenceFile );
+
+/**
+ * Fill SF_INFO structure with correct values and open the embedded audio essence
+ * file, even if essence is raw PCM.
+ */
+SNDFILE * aafi_sf_open_virtual_audioEssenceFile( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenceFile, SF_INFO *sfinfo );
+
+
+
+/**
+ * @note Requires libaaf to be compiled with `-DHAVE_SNDFILE`
+ *
+ * Extract audio essence file using libsndfile, with the ability to choose the
+ * output format, sample rate and sample size.
+ *
+ * Function allows to extract a portion of essence file, using frameOffset and
+ * frameLength.
+ *
+ * Function will set output file extension if needed.
+ *
+ * Function will set aafiAudioEssenceFile.usable_file_path on success.
+ *
+ * Function does not check if output file already exists and any existing file will
+ * be overwritten.
+ *
+ * @param aafi              Pointer to the current AAF_Iface struct.
+ * @param audioEssenceFile  Pointer to the aafiAudioEssenceFile to extract.
+ * @param outpath           Location where the file should be extracted.
+ * @param rename            If not NULL, overrides original file name.
+ * @param frameOffset       If > 0, sets the offset of audio sample frame to extract.
+ * @param frameLength       If > 0, sets the length of audio sample frame to extract.
+ * @param format            If not AAFI_EXTRACT_DEFAULT, sets output format.
+ * @param samplerate        If > 0, sets sample rate of output file (without performing any conversion).
+ * @param samplesize        If > 0, sets sample size of output file.
+ * @param usable_file_path  If not NULL, then pointer will be allocated and store the essence file path.
+ *
+ * @return                  0 on success, -1 on error
+ */
+
+int aafi_extract_audioEssenceFile( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenceFile, const char *outpath, const char *rename, uint64_t frameOffset, uint64_t frameLength, enum aafiExtractFormat format, int samplerate, int samplesize, char **usable_file_path );
+
+/**
+ * @note Requires libaaf to be compiled with `-DHAVE_SNDFILE`
+ *
+ * Extract audio essence clip using libsndfile, with the ability to choose the
+ * output format, sample rate, sample size.
+ *
+ * If clip is multichannel, a single multichannel file is created, even if all
+ * channels are stored as separate file in AAF.
+ *
+ * Function does not check if output file already exists and any existing file will
+ * be overwritten.
+ *
+ * @param aafi              Pointer to the current AAF_Iface struct.
+ * @param audioClip         Pointer to the aafiAudioClip to extract.
+ * @param outpath           Location where the file should be extracted.
+ * @param format            If not AAFI_EXTRACT_DEFAULT, sets output format.
+ * @param samplerate        If > 0, sets sample rate of output file (without performing any conversion).
+ * @param samplesize        If > 0, sets sample size of output file.
+ * @param usable_file_path  If not NULL, then pointer will be allocated and store the clip file path.
+ *
+ * @return                  0 on success, -1 on error
+ */
+
+int aafi_extract_audioClip( AAF_Iface *aafi, aafiAudioClip *audioClip, const char *outpath, enum aafiExtractFormat format, int samplerate, int samplesize, char **usable_file_path );
+
+#endif
+
+
+/**
+ * Extract audio essence file as it is stored in AAF file (WAV, BWAV, AIFF or raw
+ * PCM). The extraction is a byte-for-byte copy of the original file. As an option,
+ * one can choose to extract only raw PCM data by skipping any file header.
+ *
+ * Function will set output file extension if needed.
+ *
+ * Function will set aafiAudioEssenceFile.usable_file_path on success.
+ *
+ * Function does not check if output file already exists and any existing file will
+ * be overwritten.
+ *
+ * @param aafi              Pointer to the current AAF_Iface struct.
+ * @param audioEssenceFile  Pointer to the aafiAudioEssenceFile to extract.
+ * @param outpath           Location where the file should be extracted.
+ * @param rename            Optional name to override orginal file name.
+ * @param skipHeader        Optional boolean to extract only raw PCM.
+ *
+ * @return                  0 on success, -1 on error
+ */
+
+int aafi_extract_original_audioEssenceFile( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenceFile, const char *outpath, const char *rename, int skipHeader );
+
 
 int aafi_parse_audio_essence( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenceFile );
 
 int aafi_build_unique_audio_essence_name( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenceFile );
+
+char * aafi_build_audioEssenceFilePath( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenceFile, const char *outpath, const char *rename, int format, int clean_channel_identif );
+
+const char * aafi_extractFormatToText( enum aafiExtractFormat fmt );
 
 /**
  * @}

@@ -15,6 +15,7 @@ parser.add_argument('--aaftool')
 parser.add_argument('--update', action='store_true')
 parser.add_argument('--wine', action='store_true')
 parser.add_argument('--run-from-cmake', action='store_true')
+parser.add_argument('--no-libsndfile', action='store_true')
 args = parser.parse_args()
 
 if sys.platform.startswith('win32'):
@@ -430,25 +431,37 @@ test("PT_lang_zh_CN.aaf",        "--pt-true-fades")
 
 print("")
 
-extract("PR_WAV_Internal.aaf",  "--extract-clips --extract-format wav", [
-	[ "3089dbaa3d9e03b820695504d5334d7c", "1_1_1000hz-18dbs16b44.1k.wav" ]
-])
+if not args.no_libsndfile:
+	extract("PR_WAV_Internal.aaf",  "--extract-clips --extract-format wav", [
+		[ "3089dbaa3d9e03b820695504d5334d7c", "1_1_1000hz-18dbs16b44.1k.wav" ]
+	])
+	extract("PR_WAV_Internal.aaf",  "--extract-mono-clips --extract-format wav", [
+		[ "3089dbaa3d9e03b820695504d5334d7c", "1_1_1000hz-18dbs16b44.1k.wav" ]
+	])
 extract("PR_WAV_Internal.aaf",  "--extract-essences", [
 	[ "b49538965723bb1840e01b6710da20b8", "1000hz-18dbs16b44.1k.wav" ]
 ])
 
-extract("PR_AIFF_Internal.aaf", "--extract-clips --extract-format wav", [
-	[ "44b9acf682cb12fa9c692f4e3c591079", "1_1_1000hz-18dbs16b44.1k.wav" ]
-])
-extract("PR_AIFF_Internal.aaf", "--extract-essences", [
+if not args.no_libsndfile:
+	extract("PR_AIFF_Internal.aaf", "--extract-clips --extract-format pcm", [
+		[ "296004e033752ec40569e8fc7e629135", "1_1_1000hz-18dbs16b44.1k.wav.pcm" ]
+	])
+	extract("PR_AIFF_Internal.aaf", "--extract-mono-clips --extract-format pcm", [
+		[ "296004e033752ec40569e8fc7e629135", "1_1_1000hz-18dbs16b44.1k.wav.pcm" ]
+	])
+extract("PR_AIFF_Internal.aaf", "--extract-essences --extract-format origin", [
 	[ "694634f1af77e1c23e76b0b41d2b223f", "1000hz-18dbs16b44.1k.wav.aif" ]
 ])
 
-extract("PT_PCM_Internal.aaf",  "--extract-clips --extract-format wav", [
-	[ "2a8f46cf946e44973a4a73f84504a4c5", "1_1_1000hz-18dbs16b44.1k-01.wav" ]
-])
-extract("PT_PCM_Internal.aaf",  "--extract-essences --extract-format wav", [
-	[ "2a8f46cf946e44973a4a73f84504a4c5", "1000hz-18dbs16b44.1k-01.wav" ]
+if not args.no_libsndfile:
+	extract("PT_PCM_Internal.aaf",  "--extract-clips --extract-format pcm", [
+		[ "dfa6cce364b4f4676740976a8729cceb", "1_1_1000hz-18dbs16b44.1k-01.pcm" ]
+	])
+	extract("PT_PCM_Internal.aaf",  "--extract-mono-clips --extract-format pcm", [
+		[ "dfa6cce364b4f4676740976a8729cceb", "1_1_1000hz-18dbs16b44.1k-01.pcm" ]
+	])
+extract("PT_PCM_Internal.aaf",  "--extract-essences --extract-format origin", [
+	[ "dfa6cce364b4f4676740976a8729cceb", "1000hz-18dbs16b44.1k-01.pcm" ]
 ])
 
 print("")

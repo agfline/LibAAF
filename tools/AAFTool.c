@@ -38,6 +38,10 @@
 #include <libaaf.h>
 #include <libaaf/utils.h> // ANSI colors, laaf_util_c99strdup()
 
+#ifdef HAVE_SNDFILE
+	#include <sndfile.h>
+#endif
+
 #include "./thirdparty/libTC.h"
 
 
@@ -251,7 +255,9 @@ static void showHelp( void ) {
 
 	fprintf( stderr,
 		"usage: %s [analysis|extraction] [options] [AAFFILE]\n"
-		"\n"
+		"\n", BIN_NAME );
+
+	fprintf( stderr,
 		" CFB Analysis:\n"
 		"\n"
 		"   --cfb-header                       Display CFB Header.\n"
@@ -262,7 +268,9 @@ static void showHelp( void ) {
 		"\n"
 		"   --cfb-node                 <path>  Display node located at the given <path>.\n"
 		"\n"
-		"\n"
+		"\n" );
+
+	fprintf( stderr,
 		" AAF Analysis:\n"
 		"\n"
 		"   --aaf-summary                      Display informations from both header and identification objects.\n"
@@ -281,19 +289,45 @@ static void showHelp( void ) {
 		"\n"
 		" Embedded Media Extraction:\n"
 		"\n"
-		"   --extract-essences                 Extract all embedded audio essences as they are stored (wav or aiff),\n"
-		"                                      unless --extract-format is set. Raw PCM is extracted as wav file.\n"
-		"   --extract-clips                    Extract all embedded audio clips (trimed essences) as wav files.\n"
+#ifdef HAVE_SNDFILE
+		// "   --extract-essences                 Extract all embedded audio essences in their original format (wav, bwav,\n"
+		// "                                      aiff or raw PCM), unless --extract-format is set.\n"
+		"   --extract-essences                 Extract all embedded audio essences byte-for-byte in their original format\n"
+		"                                      unless --extract-format is set.\n"
+		"   --extract-clips                    Extract all embedded audio clips (portion of essence). If a multichannel clip\n"
+		"                                      is composed of multiple mono files, they are all interleaved in a single\n"
+		"                                      multichannel output file.\n"
+		"   --extract-mono-clips               Extract all embedded audio clips (portion of essence). If a multichannel clip\n"
+		"                                      is composed of multiple mono files, they are all exported as separate files.\n"
+#else
+		"   --extract-essences                 Extract all embedded audio essences byte-for-byte in their original format\n"
+		"                                      unless --extract-format is set to originpcm, in which case no file header is\n"
+		"                                      written.\n"
+#endif
+		"\n"
 		"   --extract-path             <path>  Location where embedded files are extracted.\n"
-		"   --extract-format       <bwav|wav>  Force extract format to wav or broadcast wav.\n"
 		"   --extract-mobid                    Name extracted files with their MobID. This also prevents any non-latin\n"
 		"                                      character in filename.\n"
+		"\n"
+#ifdef HAVE_SNDFILE
+		"   --extract-format            <fmt>  Force extract format. Possible <fmt> values are: wav, bwav, aiff, pcm, origin\n"
+		"                                      (byte-for-byte copy of original file, same as no --extract-format) and originpcm\n"
+		"                                      (byte-for-byte copy of raw original pcm stream, without file header)\n"
+		"\n"
+		"   --extract-samplesize       <bits>  Force extract sample size. Possible <bits> values are: s8, s16, s24, s32, f32\n"
+		"   --extract-samplerate       <rate>  Force extract sample rate. Only sets output file sample rate without conversion.\n"
+		"\n"
+#else
+		"   --extract-format            <fmt>  Force extract format. Possible <fmt> vlaues are: origin (byte-for-byte copy of\n"
+		"                                      original file, same as no --extract-format) and originpcm (byte-for-byte copy\n"
+		"                                      of raw original pcm stream, without file header)\n"
+#endif
 		"\n"
 		"\n"
 		" Software Specific Options:\n"
 		"\n"
-		"   --pt-true-fades                    Replace rendered ProTools fade clips with real fades when possible,\n"
-		"                                      when surrounding clips has enough handle size.\n"
+		"   --pt-true-fades                    Replace rendered ProTools fade clips with real fades when possible, when\n"
+		"                                      surrounding clips has enough handle size.\n"
 		"   --pt-remove-sae                    Remove all ProTools \"sample accurate edit\" small clips.\n"
 		"\n"
 		"\n"
@@ -301,9 +335,8 @@ static void showHelp( void ) {
 		"\n"
 		"   --media-location           <path>  Location of external audio and video essence files.\n"
 		"\n"
-		"   --samplerate               <rate>  Sample rate used for converting displayed position\n"
-		"                                      and duration values. If not set, AAF dominant sample\n"
-		"                                      rate is used.\n"
+		"   --samplerate               <rate>  Sample rate used for converting displayed position and duration values. If not\n"
+		"                                      set, AAF dominant sample rate is used.\n"
 		"   --pos-format <tc|hms|samples|raw>  Position and duration display format.\n"
 		"   --show-automation                  Show track and clip automation values when --aaf-clips is set.\n"
 		"   --show-metadata                    Show source and clip metadata when --aaf-essences or --aaf-clips is set.\n"
@@ -314,8 +347,7 @@ static void showHelp( void ) {
 		"   --log-file                 <file>  Save output to file instead of stdout.\n"
 		"\n"
 		"   --verb                      <num>  0=quiet 1=error 2=warning 3=debug.\n"
-		"\n\n", BIN_NAME
-	);
+		"\n\n" );
 }
 
 
@@ -365,8 +397,11 @@ int main( int argc, char *argv[] ) {
 	int extract_essences   = 0;
 	int extract_clips      = 0;
 	const char *extract_path = NULL;
-	int extract_format     = AAFI_EXTRACT_DEFAULT;
 	int extract_mobid_filename = 0;
+	int extract_format     = AAFI_EXTRACT_ORIGINAL;
+	int extract_samplesize = 0;
+	int extract_samplerate = 0;
+	int extract_mono_clips = 0;
 
 	int protools_options   = 0;
 
@@ -395,57 +430,68 @@ int main( int argc, char *argv[] ) {
 	int cmd = 0;
 	int cmderror = 0;
 
-	fprintf( logfp, "\n%s Copyright (c) 2017-%s Adrien Gesta-Fline\nlibaaf %s\n\n", BIN_NAME, BUILD_YEAR, LIBAAF_VERSION );
+	fprintf( logfp, "\n%s Copyright (c) 2017-%s Adrien Gesta-Fline\nlibaaf %s\n", BIN_NAME, BUILD_YEAR, LIBAAF_VERSION );
+#ifdef HAVE_SNDFILE
+	fprintf( logfp, "Using: %s\n", sf_version_string() );
+#endif
+	fprintf( logfp, "\n" );
 
 
 	static struct option long_options[] = {
 
-		{ "help",              no_argument,        0,   'h' },
+		{ "help",                 no_argument,        0,   'h' },
 
-		{ "cfb-header",        no_argument,        0,  0x01 },
-		{ "cfb-fat",           no_argument,        0,  0x02 },
-		{ "cfb-minifat",       no_argument,        0,  0x03 },
-		{ "cfb-difat",         no_argument,        0,  0x04 },
-		{ "cfb-nodes",         no_argument,        0,  0x05 },
+		{ "cfb-header",           no_argument,        0,  0x01 },
+		{ "cfb-fat",              no_argument,        0,  0x02 },
+		{ "cfb-minifat",          no_argument,        0,  0x03 },
+		{ "cfb-difat",            no_argument,        0,  0x04 },
+		{ "cfb-nodes",            no_argument,        0,  0x05 },
 
-		{ "cfb-node",          required_argument,  0,  0x06 },
+		{ "cfb-node",             required_argument,  0,  0x06 },
 
-		{ "aaf-summary",       no_argument,        0,  0x10 },
-		{ "aaf-essences",      no_argument,        0,  0x11 },
-		{ "aaf-clips",         no_argument,        0,  0x12 },
-		{ "aaf-classes",       no_argument,        0,  0x13 },
-		{ "aaf-meta",          no_argument,        0,  0x14 },
-		{ "aaf-properties",    no_argument,        0,  0x15 },
+		{ "aaf-summary",          no_argument,        0,  0x10 },
+		{ "aaf-essences",         no_argument,        0,  0x11 },
+		{ "aaf-clips",            no_argument,        0,  0x12 },
+		{ "aaf-classes",          no_argument,        0,  0x13 },
+		{ "aaf-meta",             no_argument,        0,  0x14 },
+		{ "aaf-properties",       no_argument,        0,  0x15 },
 
-		{ "trace",             no_argument,        0,  0x20 },
-		{ "dump-meta",         no_argument,        0,  0x21 },
-		{ "dump-tagged-value", no_argument,        0,  0x22 },
-		{ "dump-class",        required_argument,  0,  0x23 },
-		{ "dump-class-raw",    required_argument,  0,  0x24 },
+		{ "trace",                no_argument,        0,  0x20 },
+		{ "dump-meta",            no_argument,        0,  0x21 },
+		{ "dump-tagged-value",    no_argument,        0,  0x22 },
+		{ "dump-class",           required_argument,  0,  0x23 },
+		{ "dump-class-raw",       required_argument,  0,  0x24 },
 
-		{ "extract-essences",  no_argument,        0,  0x30 },
-		{ "extract-clips",     no_argument,        0,  0x31 },
-		{ "extract-path",      required_argument,  0,  0x32 },
-		{ "extract-format",    required_argument,  0,  0x33 },
-		{ "extract-mobid",     no_argument,        0,  0x34 },
+		{ "extract-essences",     no_argument,        0,  0x30 },
+#ifdef HAVE_SNDFILE
+		{ "extract-clips",        no_argument,        0,  0x31 },
+		{ "extract-mono-clips",   no_argument,        0,  0x37 },
+#endif
+		{ "extract-path",         required_argument,  0,  0x32 },
+		{ "extract-mobid",        no_argument,        0,  0x33 },
+		{ "extract-format",       required_argument,  0,  0x34 },
+#ifdef HAVE_SNDFILE
+		{ "extract-samplesize",   required_argument,  0,  0x35 },
+		{ "extract-samplerate",   required_argument,  0,  0x36 },
+#endif
 
-		{ "pt-true-fades",     no_argument,        0,  0x40 },
-		{ "pt-remove-sae",     no_argument,        0,  0x41 },
+		{ "pt-true-fades",        no_argument,        0,  0x40 },
+		{ "pt-remove-sae",        no_argument,        0,  0x41 },
 
-		{ "media-location",    required_argument,  0,  0x50 },
-		{ "samplerate",        required_argument,  0,  0x51 },
-		{ "pos-format",        required_argument,  0,  0x52 },
+		{ "media-location",       required_argument,  0,  0x50 },
+		{ "samplerate",           required_argument,  0,  0x51 },
+		{ "pos-format",           required_argument,  0,  0x52 },
 
-		{ "show-automation",   no_argument,        0,  0x53 },
-		{ "show-metadata",     no_argument,        0,  0x54 },
-		{ "relative-path",     no_argument,        0,  0x55 },
+		{ "show-automation",      no_argument,        0,  0x53 },
+		{ "show-metadata",        no_argument,        0,  0x54 },
+		{ "relative-path",        no_argument,        0,  0x55 },
 
-		{ "no-color",          no_argument,        0,  0x56 },
+		{ "no-color",             no_argument,        0,  0x56 },
 
-		{ "log-file",          required_argument,  0,  0x57 },
-		{ "verb",              required_argument,  0,  0x58 },
+		{ "log-file",             required_argument,  0,  0x57 },
+		{ "verb",                 required_argument,  0,  0x58 },
 
-		{ 0,                   0,                  0,  0x00 }
+		{ 0,                      0,                  0,  0x00 }
 	};
 
 
@@ -487,11 +533,19 @@ int main( int argc, char *argv[] ) {
 			case 0x24:  dump_class_raw_properties = optarg;         break;
 
 			case 0x30:  extract_essences = 1;       cmd++;          break;
-			case 0x31:  extract_clips = 1;          cmd++;          break;
 			case 0x32:  extract_path = optarg;                      break;
-			case 0x33:
-				if      ( strcmp( optarg, "wav"  ) == 0 ) extract_format = AAFI_EXTRACT_WAV;
-				else if ( strcmp( optarg, "bwav" ) == 0 ) extract_format = AAFI_EXTRACT_BWAV;
+			case 0x33:  extract_mobid_filename = 1; cmd++;          break;
+
+#ifdef HAVE_SNDFILE
+			case 0x31:  extract_clips = 1;          cmd++;          break;
+
+			case 0x34:
+				if      ( strcmp( optarg, "wav"       ) == 0 ) extract_format = AAFI_EXTRACT_WAV;
+				else if ( strcmp( optarg, "bwav"      ) == 0 ) extract_format = AAFI_EXTRACT_BWAV;
+				else if ( strcmp( optarg, "aiff"      ) == 0 ) extract_format = AAFI_EXTRACT_AIFF;
+				else if ( strcmp( optarg, "pcm"       ) == 0 ) extract_format = AAFI_EXTRACT_PCM;
+				else if ( strcmp( optarg, "origin"    ) == 0 ) extract_format = AAFI_EXTRACT_ORIGINAL;
+				else if ( strcmp( optarg, "originpcm" ) == 0 ) extract_format = AAFI_EXTRACT_ORIGINAL_PCM;
 				else {
 					fprintf( stderr,
 						"Command line error: wrong --extract-format <value>\n"
@@ -499,8 +553,47 @@ int main( int argc, char *argv[] ) {
 					goto err;
 				}
 				break;
-			case 0x34:  extract_mobid_filename = 1; cmd++;          break;
 
+			case 0x35:
+				if      ( strcmp( optarg, "s8"  ) == 0 ) extract_samplesize = SF_FORMAT_PCM_S8;
+				else if ( strcmp( optarg, "s16" ) == 0 ) extract_samplesize = SF_FORMAT_PCM_16;
+				else if ( strcmp( optarg, "s24" ) == 0 ) extract_samplesize = SF_FORMAT_PCM_24;
+				else if ( strcmp( optarg, "s32" ) == 0 ) extract_samplesize = SF_FORMAT_PCM_32;
+				else if ( strcmp( optarg, "f32" ) == 0 ) extract_samplesize = SF_FORMAT_FLOAT;
+				else {
+					fprintf( stderr,
+						"Command line error: wrong --extract-samplesize <value>\n"
+						"Try '%s --help' for more informations.\n", BIN_NAME );
+					goto err;
+				}
+				break;
+
+			case 0x36:
+				extract_samplerate = atoi(optarg);
+
+				if ( extract_samplerate < 0 ) {
+					fprintf( stderr,
+						"Command line error: wrong --extract-samplerate <value>\n"
+						"Try '%s --help' for more informations.\n", BIN_NAME );
+					goto err;
+				}
+				break;
+
+			case 0x37:
+				extract_mono_clips = 1;
+				break;
+#else
+			case 0x34:
+				if      ( strcmp( optarg, "origin"    ) == 0 ) extract_format = AAFI_EXTRACT_ORIGINAL;
+				else if ( strcmp( optarg, "originpcm" ) == 0 ) extract_format = AAFI_EXTRACT_ORIGINAL_PCM;
+				else {
+					fprintf( stderr,
+						"Command line error: wrong --extract-format <value>\n"
+						"Try '%s --help' for more informations.\n", BIN_NAME );
+					goto err;
+				}
+				break;
+#endif
 			case 0x40:  protools_options |= AAFI_PROTOOLS_OPT_REPLACE_CLIP_FADES;          break;
 			case 0x41:  protools_options |= AAFI_PROTOOLS_OPT_REMOVE_SAMPLE_ACCURATE_EDIT; break;
 
@@ -545,7 +638,6 @@ int main( int argc, char *argv[] ) {
 		fprintf( stderr,
 			"Command line error: missing AAF file\n"
 			"Try '%s --help' for more informations.\n", BIN_NAME );
-
 		goto err;
 	}
 
@@ -554,18 +646,16 @@ int main( int argc, char *argv[] ) {
 		fprintf( stderr,
 			"Command line error: at least one analysis or extract option is required.\n"
 			"Try '%s --help' for more informations.\n", BIN_NAME );
-
 		goto err;
 	}
 
 
 	if ( !extract_path ) {
 
-		if ( extract_clips ) {
+		if ( extract_clips || extract_mono_clips ) {
 			fprintf( stderr,
-				"Command line error: --extract-clips requires --extract-path to be set.\n"
-				"Try '%s --help' for more informations.\n", BIN_NAME );
-
+				"Command line error: %s requires --extract-path to be set.\n"
+				"Try '%s --help' for more informations.\n", (extract_clips) ? "--extract-clips" : "--extract-mono-clips", BIN_NAME );
 			goto err;
 		}
 
@@ -573,18 +663,43 @@ int main( int argc, char *argv[] ) {
 			fprintf( stderr,
 				"Command line error: --extract-essences requires --extract-path to be set.\n"
 				"Try '%s --help' for more informations.\n", BIN_NAME );
-
 			goto err;
 		}
 	}
 
 
-	if ( extract_clips && extract_essences ) {
+	if ( extract_clips + extract_mono_clips + extract_essences > 1 ) {
 		fprintf( stderr,
-			"Command line error: can't use --extract-clips and --extract-essences at the same time.\n"
+			"Command line error: only one of the following can be used at a time : --extract-clips --extract-mono-clips --extract-essences\n"
 			"Try '%s --help' for more informations.\n", BIN_NAME );
-
 		goto err;
+	}
+
+
+
+	if ( extract_format == AAFI_EXTRACT_ORIGINAL ||
+	     extract_format == AAFI_EXTRACT_ORIGINAL_PCM )
+	{
+		if ( extract_clips || extract_mono_clips ) {
+			fprintf( stderr,
+				"Command line error: can't use %s with --extract-format set to \"origin\" or \"originpcm\".\n"
+				"Try '%s --help' for more informations.\n", (extract_clips) ? "--extract-clips" : "--extract-mono-clips", BIN_NAME );
+			goto err;
+		}
+
+		if ( extract_samplerate ) {
+			fprintf( stderr,
+				"Command line error: can't use --extract-samplerate with --extract-format set to \"origin\" or \"originpcm\".\n"
+				"Try '%s --help' for more informations.\n", BIN_NAME );
+			goto err;
+		}
+
+		if ( extract_samplesize ) {
+			fprintf( stderr,
+				"Command line error: can't use --extract-samplesize with --extract-format set to \"origin\" or \"originpcm\".\n"
+				"Try '%s --help' for more informations.\n", BIN_NAME );
+			goto err;
+		}
 	}
 
 
@@ -592,7 +707,6 @@ int main( int argc, char *argv[] ) {
 		fprintf( stderr,
 			"Command line error: wrong --verb <value>\n"
 			"Try '%s --help' for more informations.\n", BIN_NAME );
-
 		goto err;
 	}
 
@@ -1427,11 +1541,27 @@ int main( int argc, char *argv[] ) {
 		AAFI_foreachAudioEssenceFile( aafi, audioEssenceFile ) {
 
 			if ( audioEssenceFile->is_embedded ) {
-				if ( aafi_extractAudioEssenceFile( aafi, audioEssenceFile, extract_format, extract_path, 0, 0, NULL, NULL ) == 0 ) {
-					log( aafi->log, "[%ssuccess%s] Audio essence file extracted to %s\"%s\"%s\n", ANSI_COLOR_GREEN(aafi->log), ANSI_COLOR_RESET(aafi->log), ANSI_COLOR_DARKGREY(aafi->log), audioEssenceFile->usable_file_path, ANSI_COLOR_RESET(aafi->log) );
-				} else {
-					log( aafi->log, "[%s error %s] Audio essence file extraction failed : %s\"%s\"%s\n", ANSI_COLOR_RED(aafi->log), ANSI_COLOR_RESET(aafi->log), ANSI_COLOR_DARKGREY(aafi->log), audioEssenceFile->unique_name, ANSI_COLOR_RESET(aafi->log) );
+
+#ifdef HAVE_SNDFILE
+				if ( extract_format != AAFI_EXTRACT_ORIGINAL &&
+				     extract_format != AAFI_EXTRACT_ORIGINAL_PCM )
+				{
+					if ( aafi_extract_audioEssenceFile( aafi, audioEssenceFile, extract_path, NULL, 0, 0, extract_format, extract_samplerate, extract_samplesize, NULL ) == 0 ) {
+						log( aafi->log, "[%ssuccess%s] Audio essence file extracted to %s\"%s\"%s\n", ANSI_COLOR_GREEN(aafi->log), ANSI_COLOR_RESET(aafi->log), ANSI_COLOR_DARKGREY(aafi->log), audioEssenceFile->usable_file_path, ANSI_COLOR_RESET(aafi->log) );
+					} else {
+						log( aafi->log, "[%s error %s] Audio essence file extraction failed : %s\"%s\"%s\n", ANSI_COLOR_RED(aafi->log), ANSI_COLOR_RESET(aafi->log), ANSI_COLOR_DARKGREY(aafi->log), audioEssenceFile->unique_name, ANSI_COLOR_RESET(aafi->log) );
+					}
 				}
+				else {
+#endif
+					if ( aafi_extract_original_audioEssenceFile( aafi, audioEssenceFile, extract_path, NULL, (extract_format == AAFI_EXTRACT_ORIGINAL_PCM) ) == 0 ) {
+						log( aafi->log, "[%ssuccess%s] Audio essence file extracted to %s\"%s\"%s\n", ANSI_COLOR_GREEN(aafi->log), ANSI_COLOR_RESET(aafi->log), ANSI_COLOR_DARKGREY(aafi->log), audioEssenceFile->usable_file_path, ANSI_COLOR_RESET(aafi->log) );
+					} else {
+						log( aafi->log, "[%s error %s] Audio essence file extraction failed : %s\"%s\"%s\n", ANSI_COLOR_RED(aafi->log), ANSI_COLOR_RESET(aafi->log), ANSI_COLOR_DARKGREY(aafi->log), audioEssenceFile->unique_name, ANSI_COLOR_RESET(aafi->log) );
+					}
+#ifdef HAVE_SNDFILE
+				}
+#endif
 				hasEmbeddedEssences = 1;
 			}
 		}
@@ -1441,8 +1571,8 @@ int main( int argc, char *argv[] ) {
 		}
 	}
 
-
-	if ( extract_clips ) {
+#ifdef HAVE_SNDFILE
+	if ( extract_clips || extract_mono_clips ) {
 
 		aafiAudioTrack   *audioTrack = NULL;
 		aafiTimelineItem *audioItem  = NULL;
@@ -1458,10 +1588,54 @@ int main( int argc, char *argv[] ) {
 
 				audioClip = audioItem->data;
 
-				aafi_extractAudioClip( aafi, audioClip, extract_format, extract_path );
+				char *usable_file_path = NULL;
+
+				if ( !extract_mono_clips ) {
+
+					if ( aafi_extract_audioClip( aafi, audioClip, extract_path, extract_format, extract_samplerate, extract_samplesize, &usable_file_path ) == 0 ) {
+						log( aafi->log, "[%ssuccess%s] Audio clip file extracted to %s\"%s\"%s\n", ANSI_COLOR_GREEN(aafi->log), ANSI_COLOR_RESET(aafi->log), ANSI_COLOR_DARKGREY(aafi->log), usable_file_path, ANSI_COLOR_RESET(aafi->log) );
+					}
+					else {
+						log( aafi->log, "[%s error %s] Audio clip file extraction failed : %s\"%s\"%s\n", ANSI_COLOR_RED(aafi->log), ANSI_COLOR_RESET(aafi->log), ANSI_COLOR_DARKGREY(aafi->log), audioClip->essencePointerList->essenceFile->name, ANSI_COLOR_RESET(aafi->log) );
+					}
+
+					free(usable_file_path);
+				}
+				else {
+
+					aafiAudioEssencePointer *audioEssencePtr = NULL;
+
+					AAFI_foreachClipEssencePointer( audioClip, audioEssencePtr ) {
+
+						aafiAudioEssenceFile *audioEssenceFile = audioEssencePtr->essenceFile;
+
+						if ( !audioEssenceFile->is_embedded ) {
+							log( aafi->log, "Audio essence \"%s\" is not embedded : nothing to extract", audioEssenceFile->unique_name );
+							continue;
+						}
+
+						uint64_t frameOffset = aafi_convertUnitUint64( audioClip->essence_offset, audioClip->track->edit_rate, audioEssenceFile->samplerateRational );
+						uint64_t frameLength = aafi_convertUnitUint64( audioClip->len,            audioClip->track->edit_rate, audioEssenceFile->samplerateRational );
+
+						char *name = NULL;
+
+						laaf_util_snprintf_realloc( &name, NULL, 0, "%i_%i_%s", audioClip->track->number, aafi_get_clipIndex(audioClip), audioEssenceFile->unique_name );
+
+						if ( aafi_extract_audioEssenceFile( aafi, audioEssenceFile, extract_path, name, frameOffset, frameLength, extract_format, extract_samplerate, extract_samplesize, &usable_file_path ) == 0 ) {
+							log( aafi->log, "[%ssuccess%s] Audio clip file extracted to %s\"%s\"%s\n", ANSI_COLOR_GREEN(aafi->log), ANSI_COLOR_RESET(aafi->log), ANSI_COLOR_DARKGREY(aafi->log), usable_file_path, ANSI_COLOR_RESET(aafi->log) );
+						}
+						else {
+							log( aafi->log, "[%s error %s] Audio clip file extraction failed : %s\"%s\"%s\n", ANSI_COLOR_RED(aafi->log), ANSI_COLOR_RESET(aafi->log), ANSI_COLOR_DARKGREY(aafi->log), name, ANSI_COLOR_RESET(aafi->log) );
+						}
+
+						free( usable_file_path );
+						free( name );
+					}
+				}
 			}
 		}
 	}
+#endif
 
 	goto end;
 

@@ -6,12 +6,14 @@ project( "libaaf"
 	DESCRIPTION "libaaf is a C coded library for Advanced Authoring Format \(AAF\) file reading"
 	HOMEPAGE_URL "https://github.com/agfline/LibAAF" )
 
-option( BUILD_STATIC_LIB "Build the static library"                  OFF )
-option( BUILD_SHARED_LIB "Build the shared library"                  ON  )
-option( BUILD_DOC        "Build documentation"                       ON  )
-option( BUILD_UNIT_TEST  "Build unit test programs"                  ON  )
+option( BUILD_STATIC_LIB        "Build the static library"                  ON  )
+option( BUILD_SHARED_LIB        "Build the shared library"                  OFF )
 option( BUILD_AAFTOOL           "Build aaftool"                             ON  )
+option( BUILD_DOC               "Build documentation"                       ON  )
+option( BUILD_UNIT_TEST         "Build unit test programs"                  OFF )
 option( BUILD_WINDOWS_ON_LINUX  "Cross compile libaaf on Linux for Windows" OFF )
+option( ENABLE_LIBSNDFILE       "Compile libaaf with libsndfile"            ON  )
+option( BUILD_LIBSNDFILE        "Download and build latest libsndfile"      OFF )
 
 set( LIBAAF_VERSION "GIT" CACHE STRING "Set version manualy, git version used otherwise" )
 set( LIBAAF_LIB_OUTPUT_NAME "aaf" )
@@ -30,6 +32,14 @@ if ( NOT BUILD_SHARED_LIB AND NOT BUILD_STATIC_LIB )
 	message( FATAL_ERROR "You need to enable at least one lib build (BUILD_STATIC_LIB or BUILD_SHARED_LIB)." )
 endif()
 
+if ( BUILD_WINDOWS_ON_LINUX AND ENABLE_LIBSNDFILE )
+	set(BUILD_LIBSNDFILE ON)
+endif()
+
+if ( ENABLE_LIBSNDFILE )
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DHAVE_SNDFILE")
+	set( DOXYGEN_PREDEFINED "HAVE_SNDFILE" )
+endif()
 
 
 function( laaf_set_version )
@@ -127,6 +137,7 @@ if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
 		set( CMAKE_SYSTEM_NAME "Windows" )
 		set( CMAKE_CROSSCOMPILING true )
 		set( CMAKE_C_COMPILER "x86_64-w64-mingw32-gcc" )
+		set( CMAKE_CXX_COMPILER "x86_64-w64-mingw32-g++" )
 		set( LIBAAF_PREFIX "lib" )
 		set( LIBAAF_SHARED_SUFFIX ".dll" )
 		set( LIBAAF_STATIC_SUFFIX ".lib" )
@@ -136,10 +147,15 @@ if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
 		message( "│ Compiling for Linux │" )
 		message( "└─────────────────────┘" )
 		include( GNUInstallDirs )
+		set( CMAKE_C_COMPILER "gcc" )
+		set( CMAKE_CXX_COMPILER "g++" )
 		set( LIBAAF_PREFIX "lib" )
 		set( LIBAAF_SHARED_SUFFIX ".so" )
 		set( LIBAAF_STATIC_SUFFIX ".a" )
 		set( PROG_SUFFIX "" )
+		if ( ENABLE_LIBSNDFILE AND NOT BUILD_LIBSNDFILE )
+			find_library( libsndfile sndfile )
+		endif()
 	endif()
 elseif ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows" )
 	set( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS 1 )
@@ -181,10 +197,45 @@ set( LIBAAF_LIB_SOURCES
 )
 
 
+include(ExternalProject)
+
+set(EXTERNAL_LIBS_LOCATION ${CMAKE_BINARY_DIR}/external)
+set(EXTERNAL_LIBS_SRC_LOCATION ${CMAKE_BINARY_DIR}/external/src)
+
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
+	# Avoids warning about DOWNLOAD_EXTRACT_TIMESTAMP
+	cmake_policy(SET CMP0135 NEW)
+endif()
+
+
+if ( ENABLE_LIBSNDFILE AND BUILD_LIBSNDFILE )
+	ExternalProject_Add(libsndfile-download
+		URL https://github.com/libsndfile/libsndfile/archive/refs/tags/1.2.2.zip
+		PREFIX "${EXTERNAL_LIBS_SRC_LOCATION}/libsndfile"
+	  CMAKE_ARGS
+			-DCMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}
+			-DCMAKE_CROSSCOMPILING=${CMAKE_CROSSCOMPILING}
+			-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+			-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+			-DCMAKE_INSTALL_PREFIX=${EXTERNAL_LIBS_LOCATION}
+			-DBUILD_PROGRAMS=OFF
+			-DBUILD_EXAMPLES=OFF
+			-DENABLE_EXTERNAL_LIBS=OFF
+			-DENABLE_MPEG=OFF
+			-DBUILD_TESTING=OFF
+	)
+	include_directories(${EXTERNAL_LIBS_LOCATION}/include)
+	link_directories(${EXTERNAL_LIBS_LOCATION}/lib)
+	set(libsndfile ${EXTERNAL_LIBS_LOCATION}/lib/libsndfile.a)
+endif()
+
+
+
 if ( BUILD_SHARED_LIB )
 	add_library( aaf-shared SHARED ${LIBAAF_LIB_SOURCES} )
 	target_compile_options( aaf-shared PUBLIC ${LIBAAF_COMPILE_OPTIONS} )
 	target_link_options( aaf-shared PUBLIC ${LIBAAF_LINK_OPTIONS} )
+	target_link_libraries( aaf-shared PUBLIC ${libsndfile} )
 	target_include_directories( aaf-shared PUBLIC "${CMAKE_BINARY_DIR}/include/" )
 	set_target_properties( aaf-shared PROPERTIES
 		OUTPUT_NAME ${LIBAAF_LIB_OUTPUT_NAME}
@@ -199,6 +250,7 @@ if ( BUILD_STATIC_LIB )
 	add_library( aaf-static STATIC ${LIBAAF_LIB_SOURCES} )
 	target_compile_options( aaf-static PUBLIC ${LIBAAF_COMPILE_OPTIONS} )
 	target_link_options( aaf-static PUBLIC ${LIBAAF_LINK_OPTIONS} )
+	target_link_libraries( aaf-static PUBLIC ${libsndfile} )
 	target_include_directories( aaf-static PUBLIC "${CMAKE_BINARY_DIR}/include/" )
 	set_target_properties( aaf-static PROPERTIES
 		OUTPUT_NAME ${LIBAAF_LIB_OUTPUT_NAME}
