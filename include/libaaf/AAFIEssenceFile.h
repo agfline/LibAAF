@@ -62,7 +62,7 @@ enum aafiExtractFormat {
 
 
 
-char * aafi_locate_external_essence_file( AAF_Iface *aafi, const char *original_uri_filepath, const char *search_location );
+char * aafi_locate_external_audioEssenceFile( AAF_Iface *aafi, const char *original_uri_filepath, const char *search_location );
 
 #ifdef HAVE_SNDFILE
 /**

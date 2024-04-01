@@ -160,7 +160,7 @@ int aafi_build_audioEssenceFileUniqueName( AAF_Iface *aafi, aafiAudioEssenceFile
 
 
 
-char * aafi_locate_external_essence_file( AAF_Iface *aafi, const char *original_uri_filepath, const char *search_location )
+char * aafi_locate_external_audioEssenceFile( AAF_Iface *aafi, const char *original_uri_filepath, const char *search_location )
 {
 	/*
 	 * Absolute Uniform Resource Locator (URL) complying with RFC 1738 or relative

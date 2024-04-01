@@ -3384,7 +3384,7 @@ int aafi_retrieveData( AAF_Iface *aafi )
 
 		if ( !audioEssenceFile->is_embedded ) {
 
-			audioEssenceFile->usable_file_path = aafi_locate_external_essence_file( aafi, audioEssenceFile->original_file_path, aafi->ctx.options.media_location );
+			audioEssenceFile->usable_file_path = aafi_locate_external_audioEssenceFile( aafi, audioEssenceFile->original_file_path, aafi->ctx.options.media_location );
 
 			if ( audioEssenceFile->usable_file_path == NULL ) {
 				warning( "Could not locate external audio essence file '%s'", audioEssenceFile->original_file_path );
@@ -3441,7 +3441,7 @@ int aafi_retrieveData( AAF_Iface *aafi )
 			continue;
 		}
 
-		videoEssenceFile->usable_file_path = aafi_locate_external_essence_file( aafi, videoEssenceFile->original_file_path, aafi->ctx.options.media_location );
+		videoEssenceFile->usable_file_path = aafi_locate_external_audioEssenceFile( aafi, videoEssenceFile->original_file_path, aafi->ctx.options.media_location );
 
 		if ( videoEssenceFile->usable_file_path == NULL ) {
 			error( "Could not locate external video essence file '%s'", videoEssenceFile->original_file_path );
