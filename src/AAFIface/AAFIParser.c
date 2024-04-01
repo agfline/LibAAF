@@ -3392,7 +3392,7 @@ int aafi_retrieveData( AAF_Iface *aafi )
 		}
 
 		if ( audioEssenceFile->summary || audioEssenceFile->usable_file_path ) {
-			aafi_parse_audio_essence( aafi, audioEssenceFile );
+			aafi_parse_audioEssenceFile( aafi, audioEssenceFile );
 		}
 	}
 

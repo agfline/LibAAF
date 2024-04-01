@@ -1411,7 +1411,7 @@ end:
 
 
 
-int aafi_parse_audio_essence( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenceFile )
+int aafi_parse_audioEssenceFile( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenceFile )
 {
 	int rc = 0;
 	uint64_t dataStreamSize = 0;
