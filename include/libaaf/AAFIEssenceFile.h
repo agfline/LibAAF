@@ -179,7 +179,7 @@ int aafi_extract_original_audioEssenceFile( AAF_Iface *aafi, aafiAudioEssenceFil
 
 int aafi_parse_audioEssenceFile( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenceFile );
 
-int aafi_build_unique_audio_essence_name( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenceFile );
+int aafi_build_audioEssenceFileUniqueName( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenceFile );
 
 char * aafi_build_audioEssenceFilePath( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenceFile, const char *outpath, const char *rename, int format, int clean_channel_identif );
 

@@ -95,7 +95,7 @@ ssize_t aafi_embeddedAudioEssenceFile_read( aafiAudioEssenceFile *audioEssenceFi
 
 
 
-int aafi_build_unique_audio_essence_name( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenceFile )
+int aafi_build_audioEssenceFileUniqueName( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenceFile )
 {
 	if ( audioEssenceFile->unique_name ) {
 		debug( "Unique name was already set" );

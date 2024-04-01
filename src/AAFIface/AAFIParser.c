@@ -1373,7 +1373,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 			}
 
 
-			aafi_build_unique_audio_essence_name( aafi, audioEssenceFile );
+			aafi_build_audioEssenceFileUniqueName( aafi, audioEssenceFile );
 
 			aafi->ctx.current_clip->essencePointerList = aafi_newAudioEssencePointer( aafi, &aafi->ctx.current_clip->essencePointerList, audioEssenceFile, essenceChannelNum );
 			aafi->ctx.current_audio_essence = NULL;
