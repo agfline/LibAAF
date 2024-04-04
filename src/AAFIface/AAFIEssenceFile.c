@@ -457,7 +457,7 @@ int aafi_extract_audioEssenceFile( AAF_Iface *aafi, aafiAudioEssenceFile *audioE
 	}
 
 
-	infiles[0] = aafi_sf_open_virtual_audioEssenceFile( aafi, audioEssenceFile, &sfinfo );
+	infiles[0] = aafi_sf_open_audioEssenceFile( aafi, audioEssenceFile, &sfinfo );
 
 	if ( !infiles[0] ) {
 		error( "Could not open audio essence file virtual input stream" );
@@ -502,7 +502,8 @@ int aafi_extract_audioEssenceFile( AAF_Iface *aafi, aafiAudioEssenceFile *audioE
 		goto err;
 	}
 
-	audioEssenceFile->usable_file_path = laaf_util_c99strdup( filepath );
+	if ( !exportClip ) {
+		audioEssenceFile->usable_file_path = laaf_util_c99strdup( filepath );
 
 	if ( !audioEssenceFile->usable_file_path ) {
 		error( "Could not duplicate usable filepath : %s", filepath );
@@ -716,7 +717,7 @@ static int sfaaf_set_bext( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenceFi
 
 
 
-SNDFILE * aafi_sf_open_virtual_audioEssenceFile( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenceFile, SF_INFO *sfinfo )
+SNDFILE * aafi_sf_open_audioEssenceFile( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenceFile, SF_INFO *sfinfo )
 {
 	SNDFILE *sndfile = NULL;
 	SF_VIRTUAL_IO sfvirtual;
@@ -1092,7 +1093,7 @@ int aafi_extract_audioClip( AAF_Iface *aafi, aafiAudioClip *audioClip, const cha
 			goto err;
 		}
 
-		infiles[outchannels] = aafi_sf_open_virtual_audioEssenceFile( aafi, audioEssenceFile, &sfinfo );
+		infiles[outchannels] = aafi_sf_open_audioEssenceFile( aafi, audioEssenceFile, &sfinfo );
 
 		if ( !infiles[outchannels] ) {
 			error( "Could not open audio essence file virtual input stream" );

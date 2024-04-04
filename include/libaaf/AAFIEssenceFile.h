@@ -121,12 +121,12 @@ sf_count_t aafi_sf_embeddedAudioEssenceFile_size( void *audioEssenceFile );
 sf_count_t aafi_sf_embeddedAudioEssenceFile_tell( void *audioEssenceFile );
 sf_count_t aafi_sf_embeddedAudioEssenceFile_seek( sf_count_t pos, int whence, void *audioEssenceFile );
 sf_count_t aafi_sf_embeddedAudioEssenceFile_read( void* buf, sf_count_t nbyte, void *audioEssenceFile );
+SNDFILE * aafi_sf_open_audioEssenceFile( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenceFile, SF_INFO *sfinfo );
 
 /**
  * Fill SF_INFO structure with correct values and open the embedded audio essence
  * file, even if essence is raw PCM.
  */
-SNDFILE * aafi_sf_open_virtual_audioEssenceFile( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenceFile, SF_INFO *sfinfo );
 
 
 
