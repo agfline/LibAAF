@@ -73,10 +73,47 @@ char * aafi_locate_external_audioEssenceFile( AAF_Iface *aafi, const char *origi
 #define MAX_AUDIO_FILES_MERGE 16
 #endif
 
-size_t  aafi_embeddedAudioEssenceFile_size( aafiAudioEssenceFile *audioEssenceFile );
-size_t  aafi_embeddedAudioEssenceFile_tell( aafiAudioEssenceFile *audioEssenceFile );
-ssize_t aafi_embeddedAudioEssenceFile_seek( aafiAudioEssenceFile *audioEssenceFile, int whence, int64_t pos );
-ssize_t aafi_embeddedAudioEssenceFile_read( aafiAudioEssenceFile *audioEssenceFile, void* buf, size_t nbyte );
+/**
+ * Get the size of an embedded audio essence file stream.
+ *
+ * @param audioEssenceFile  Pointer to the aafiAudioEssenceFile.
+ * @return                  The size of the embedded audio essence file stream, in bytes.
+ */
+
+size_t  aafi_size_embeddedAudioEssenceFile( aafiAudioEssenceFile *audioEssenceFile );
+
+/**
+ * Get the current read position into an embedded audio essence file stream.
+ *
+ * @param audioEssenceFile  Pointer to the aafiAudioEssenceFile.
+ * @return                  The current position in the stream, in bytes.
+ */
+
+size_t  aafi_tell_embeddedAudioEssenceFile( aafiAudioEssenceFile *audioEssenceFile );
+
+/**
+ * Set the read position into an embedded audio essence file stream.
+ *
+ * @param pos               Byte offset to add to the position specified by whence.
+ * @param whence            Can be SEEK_SET, SEEK_CUR or SEEK_END.
+ * @param audioEssenceFile  Pointer to the aafiAudioEssenceFile.
+ *
+ * @return                  The current position in the stream, in bytes, or -1 if an error occured.
+ */
+
+ssize_t aafi_seek_embeddedAudioEssenceFile( aafiAudioEssenceFile *audioEssenceFile, int whence, int64_t pos );
+
+/**
+ * Read nbyte of an embedded audio essence file stream, into buf.
+ *
+ * @param buf               Pointer to a buffer with at least room for nbyte.
+ * @param nbyte             number of bytes to read from audio essence file stream.
+ * @param audioEssenceFile  Pointer to the aafiAudioEssenceFile.
+ *
+ * @return                  The total bytes read, or -1 if an error occured.
+ */
+
+ssize_t aafi_read_embeddedAudioEssenceFile( aafiAudioEssenceFile *audioEssenceFile, void* buf, size_t nbyte );
 
 #ifdef HAVE_SNDFILE
 

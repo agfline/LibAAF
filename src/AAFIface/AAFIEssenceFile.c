@@ -67,28 +67,28 @@ static size_t externalAudioDataReaderCallback( unsigned char *buf, size_t offset
 
 
 
-size_t aafi_embeddedAudioEssenceFile_size( aafiAudioEssenceFile *audioEssenceFile )
+size_t aafi_size_embeddedAudioEssenceFile( aafiAudioEssenceFile *audioEssenceFile )
 {
 	return cfb_stream_size( audioEssenceFile->sd );
 }
 
 
 
-size_t aafi_embeddedAudioEssenceFile_tell( aafiAudioEssenceFile *audioEssenceFile )
+size_t aafi_tell_embeddedAudioEssenceFile( aafiAudioEssenceFile *audioEssenceFile )
 {
 	return cfb_stream_tell( audioEssenceFile->sd );
 }
 
 
 
-ssize_t aafi_embeddedAudioEssenceFile_seek( aafiAudioEssenceFile *audioEssenceFile, int whence, int64_t pos )
+ssize_t aafi_seek_embeddedAudioEssenceFile( aafiAudioEssenceFile *audioEssenceFile, int whence, int64_t pos )
 {
 	return cfb_stream_seek( audioEssenceFile->sd, whence, pos );
 }
 
 
 
-ssize_t aafi_embeddedAudioEssenceFile_read( aafiAudioEssenceFile *audioEssenceFile, void* buf, size_t nbyte )
+ssize_t aafi_read_embeddedAudioEssenceFile( aafiAudioEssenceFile *audioEssenceFile, void* buf, size_t nbyte )
 {
 	return cfb_stream_read( audioEssenceFile->sd, buf, nbyte );
 }
