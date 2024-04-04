@@ -721,10 +721,10 @@ SNDFILE * aafi_sf_open_virtual_audioEssenceFile( AAF_Iface *aafi, aafiAudioEssen
 	SNDFILE *sndfile = NULL;
 	SF_VIRTUAL_IO sfvirtual;
 
-	sfvirtual.get_filelen = aafi_sf_embeddedAudioEssenceFile_size;
-	sfvirtual.seek = aafi_sf_embeddedAudioEssenceFile_seek;
-	sfvirtual.read = aafi_sf_embeddedAudioEssenceFile_read;
-	sfvirtual.tell = aafi_sf_embeddedAudioEssenceFile_tell;
+	sfvirtual.get_filelen = aafi_sf_size_embeddedAudioEssenceFile;
+	sfvirtual.seek = aafi_sf_seek_embeddedAudioEssenceFile;
+	sfvirtual.read = aafi_sf_read_embeddedAudioEssenceFile;
+	sfvirtual.tell = aafi_sf_tell_embeddedAudioEssenceFile;
 	sfvirtual.write = NULL;
 
 	memset( sfinfo, 0x00, sizeof(SF_INFO) );
@@ -753,19 +753,46 @@ SNDFILE * aafi_sf_open_virtual_audioEssenceFile( AAF_Iface *aafi, aafiAudioEssen
 		sfinfo->channels = audioEssenceFile->channels;
 	}
 
-	if ( aafi_embeddedAudioEssenceFile_seek( audioEssenceFile, SEEK_SET, 0 ) < 0 ) {
-		error( "Could not seek to embedded essence stream position 0" );
-		return NULL;
+
+	if ( audioEssenceFile->is_embedded ) {
+
+		if ( aafi_seek_embeddedAudioEssenceFile( audioEssenceFile, SEEK_SET, 0 ) < 0 ) {
+			error( "Could not seek to embedded essence stream position 0" );
+			return NULL;
+		}
+
+		sndfile = sf_open_virtual( &sfvirtual, SFM_READ, sfinfo, audioEssenceFile );
+
+		if ( !sndfile ) {
+			error( "libsndfile could not open stream : %s", sf_strerror( NULL ) );
+			return NULL;
+		}
 	}
+	else {
 
+		if ( !audioEssenceFile->usable_file_path ) {
+			error( "Essence is not embedded and file was not located : %s", audioEssenceFile->unique_name );
+			return NULL;
+		}
 
-	/* Open stream with libsndfile */
+#ifdef __MINGW32__
+		wchar_t *utf16path = laaf_util_windows_utf8toutf16( audioEssenceFile->usable_file_path );
 
-	sndfile = sf_open_virtual( &sfvirtual, SFM_READ, sfinfo, audioEssenceFile );
+		if ( !utf16path ) {
+			return NULL;
+		}
 
-	if ( !sndfile ) {
-		error( "libsndfile could not open stream : %s", sf_strerror( NULL ) );
-		return NULL;
+		sndfile = sf_wchar_open( utf16path, SFM_WRITE, sfinfo );
+
+		free( utf16path );
+#else
+		sndfile = sf_open( audioEssenceFile->usable_file_path, SFM_WRITE, sfinfo );
+#endif
+
+		if ( !sndfile ) {
+			error( "libsndfile could not open file \'%s\' : %s", audioEssenceFile->usable_file_path, sf_strerror( NULL ) );
+			return NULL;
+		}
 	}
 
 
