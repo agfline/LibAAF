@@ -50,6 +50,7 @@
 #include <libaaf/log.h>
 #include <libaaf/AAFIface.h>
 #include <libaaf/AAFIParser.h>
+#include <libaaf/AAFIEssenceFile.h>
 
 
 #define debug( ... ) \
@@ -234,7 +235,12 @@ void aafi_release( AAF_Iface **aafi )
 	if ( (*aafi)->Audio != NULL ) {
 
 		aafi_freeAudioTracks( &(*aafi)->Audio->Tracks );
-		aafi_freeAudioEssences( &(*aafi)->Audio->essenceFiles );
+
+		aafiAudioEssenceFile *audioEssenceFile = (*aafi)->Audio->essenceFiles;
+
+		while ( audioEssenceFile ) {
+			audioEssenceFile = aafi_freeAudioEssenceFile( audioEssenceFile );
+		}
 
 		free( (*aafi)->Audio );
 	}
@@ -243,7 +249,12 @@ void aafi_release( AAF_Iface **aafi )
 	if ( (*aafi)->Video != NULL ) {
 
 		aafi_freeVideoTracks( &(*aafi)->Video->Tracks );
-		aafi_freeVideoEssences( &(*aafi)->Video->essenceFiles );
+
+		aafiVideoEssenceFile *videoEssenceFile = (*aafi)->Video->essenceFiles;
+
+		while ( videoEssenceFile ) {
+			videoEssenceFile = aafi_freeVideoEssenceFile( videoEssenceFile );
+		}
 
 		free( (*aafi)->Video );
 	}
@@ -457,38 +468,6 @@ int aafi_removeTimelineItem( AAF_Iface *aafi, aafiTimelineItem *timelineItem ) {
 	aafi_freeTimelineItem( timelineItem );
 
 	return 0;
-}
-
-
-
-int aafi_getAudioEssencePointerChannelCount( aafiAudioEssencePointer *essencePointerList )
-{
-	/*
-	 * If essencePointerList holds a single multichannel essence file and if
-	 * essencePointer->essenceChannel is set, then clip is mono and audio comes
-	 * from essencePointer->essenceChannel of essencePointer.essenceFile.
-	 *
-	 * If essencePointerList holds a single multichannel essence file and if
-	 * essencePointer->essenceChannel is null, then clip is multichannel and
-	 * clip channel count equals essence->channels.
-	 *
-	 * If essencePointerList holds multiple pointers to multiple essence files,
-	 * then each file should be mono and describe a clip channel. Thus, clip
-	 * channel count equals pointers count.
-	 */
-
-	// if ( !essencePointerList ) {
-	// 	return 0;
-	// }
-
-	int essencePointerCount = 0;
-	aafiAudioEssencePointer *essencePointer = NULL;
-
-	AAFI_foreachEssencePointer( essencePointerList, essencePointer ) {
-		essencePointerCount++;
-	}
-
-	return ( essencePointerCount > 1 ) ? essencePointerCount : ( essencePointerList->essenceChannel ) ? 1 : essencePointerList->essenceFile->channels;
 }
 
 
@@ -845,96 +824,6 @@ aafiMetaData * aafi_newMetadata( AAF_Iface *aafi, aafiMetaData **CommentList )
 
 
 
-aafiAudioEssencePointer * aafi_newAudioEssencePointer( AAF_Iface *aafi, aafiAudioEssencePointer **list, aafiAudioEssenceFile *audioEssenceFile, uint32_t *essenceChannelNum )
-{
-	aafiAudioEssencePointer * essencePointer = calloc( 1, sizeof(aafiAudioEssencePointer) );
-
-	if ( !essencePointer ) {
-		error( "Out of memory" );
-		return NULL;
-	}
-
-	essencePointer->aafi = aafi;
-	essencePointer->essenceFile = audioEssenceFile;
-	essencePointer->essenceChannel = ( essenceChannelNum ) ? *essenceChannelNum : 0;
-
-
-	if ( *list ) {
-		aafiAudioEssencePointer *last = *list;
-		while ( last->next != NULL ) {
-			last = last->next;
-		}
-		last->next = essencePointer;
-	}
-	else {
-		*list = essencePointer;
-
-		essencePointer->aafiNext = aafi->Audio->essencePointerList;
-		aafi->Audio->essencePointerList = essencePointer;
-	}
-
-	return *list;
-}
-
-
-
-aafiAudioEssenceFile * aafi_newAudioEssence( AAF_Iface *aafi )
-{
-	aafiAudioEssenceFile * audioEssenceFile = calloc( 1, sizeof(aafiAudioEssenceFile) );
-
-	if ( !audioEssenceFile ) {
-		error( "Out of memory" );
-		goto err;
-	}
-
-	audioEssenceFile->samplerateRational = malloc( sizeof(aafRational_t) );
-
-	if ( !audioEssenceFile->samplerateRational ) {
-		error( "Out of memory" );
-		goto err;
-	}
-
-	audioEssenceFile->aafi = aafi;
-
-	audioEssenceFile->samplerateRational->numerator = 1;
-	audioEssenceFile->samplerateRational->denominator = 1;
-
-	audioEssenceFile->next = aafi->Audio->essenceFiles;
-
-	aafi->Audio->essenceFiles = audioEssenceFile;
-	aafi->Audio->essenceCount++;
-
-	return audioEssenceFile;
-
-err:
-	if ( audioEssenceFile ) {
-		free( audioEssenceFile->samplerateRational );
-		free( audioEssenceFile );
-	}
-
-	return NULL;
-}
-
-
-
-aafiVideoEssence * aafi_newVideoEssence( AAF_Iface *aafi )
-{
-	aafiVideoEssence * videoEssenceFile = calloc( 1, sizeof(aafiVideoEssence) );
-
-	if ( !videoEssenceFile ) {
-		error( "Out of memory" );
-		return NULL;
-	}
-
-	videoEssenceFile->next = aafi->Video->essenceFiles;
-
-	aafi->Video->essenceFiles = videoEssenceFile;
-
-	return videoEssenceFile;
-}
-
-
-
 aafiAudioGain * aafi_newAudioGain( AAF_Iface *aafi, enum aafiAudioGain_e type, enum aafiInterpolation_e interpol, aafRational_t *singleValue )
 {
 	aafiAudioGain *Gain = calloc( 1, sizeof(aafiAudioGain) );
@@ -1069,7 +958,11 @@ void aafi_freeAudioClip( aafiAudioClip *audioClip )
 	aafi_freeAudioGain( audioClip->automation );
 	aafi_freeMetadata( &(audioClip->metadata) );
 
-	aafi_freeAudioEssencePointer( audioClip->essencePointerList );
+	aafiAudioEssencePointer *audioEssencePointer = audioClip->essencePointerList;
+
+	while ( audioEssencePointer ) {
+		audioEssencePointer = aafi_freeAudioEssencePointer( audioEssencePointer );
+	}
 
 	free( audioClip );
 }
@@ -1129,74 +1022,6 @@ void aafi_freeMetadata( aafiMetaData **CommentList )
 	}
 
 	*CommentList = NULL;
-}
-
-
-
-void aafi_freeAudioEssencePointer( aafiAudioEssencePointer *essencePointer )
-{
-	aafiAudioEssencePointer *next = NULL;
-
-	while ( essencePointer ) {
-		next = essencePointer->next;
-		free( essencePointer );
-		essencePointer = next;
-	}
-}
-
-
-
-void aafi_freeAudioEssences( aafiAudioEssenceFile **audioEssenceFile )
-{
-	if ( *(audioEssenceFile) == NULL ) {
-		return;
-	}
-
-	aafiAudioEssenceFile *nextAudioEssence = NULL;
-
-	for (; (*audioEssenceFile) != NULL; *audioEssenceFile = nextAudioEssence ) {
-
-		nextAudioEssence = (*audioEssenceFile)->next;
-
-		free( (*audioEssenceFile)->original_file_path );
-		free( (*audioEssenceFile)->usable_file_path );
-		free( (*audioEssenceFile)->name );
-		free( (*audioEssenceFile)->unique_name );
-		free( (*audioEssenceFile)->samplerateRational );
-
-		cfb_close_stream( (*audioEssenceFile)->sd );
-
-		aafi_freeMetadata( &((*audioEssenceFile)->metadata) );
-
-		free( *audioEssenceFile );
-	}
-
-	*audioEssenceFile = NULL;
-}
-
-
-
-void aafi_freeVideoEssences( aafiVideoEssence **videoEssenceFile )
-{
-	if ( *(videoEssenceFile) == NULL ) {
-		return;
-	}
-
-	aafiVideoEssence *nextVideoEssence = NULL;
-
-	for (; (*videoEssenceFile) != NULL; *videoEssenceFile = nextVideoEssence ) {
-
-		nextVideoEssence = (*videoEssenceFile)->next;
-
-		free( (*videoEssenceFile)->original_file_path );
-		free( (*videoEssenceFile)->usable_file_path );
-		free( (*videoEssenceFile)->name );
-		free( (*videoEssenceFile)->unique_name );
-
-		free( *videoEssenceFile );
-	}
-
-	*videoEssenceFile = NULL;
 }
 
 

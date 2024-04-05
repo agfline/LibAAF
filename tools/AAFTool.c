@@ -947,9 +947,9 @@ int main( int argc, char *argv[] ) {
 		                "================\n\n" );
 
 		uint32_t essenceIndex = 1;
-		aafiVideoEssence *videoEssenceFile = NULL;
+		aafiVideoEssenceFile *videoEssenceFile = NULL;
 
-		AAFI_foreachVideoEssence( aafi, videoEssenceFile )
+		AAFI_foreachVideoEssenceFile( aafi, videoEssenceFile )
 		{
 			char posFormatBuf[POS_FORMAT_BUFFER_LEN];
 
@@ -1031,7 +1031,7 @@ int main( int argc, char *argv[] ) {
 				ANSI_COLOR_RESET(aafi->log),
 
 				ANSI_COLOR_DARKGREY(aafi->log),
-				formatPosValue( audioEssenceFile->length, audioEssenceFile->samplerateRational, posFormat, tcFormat, audioEssenceFile->samplerateRational, posFormatBuf ),
+				formatPosValue( audioEssenceFile->framelength, audioEssenceFile->samplerateRational, posFormat, tcFormat, audioEssenceFile->samplerateRational, posFormatBuf ),
 				ANSI_COLOR_RESET(aafi->log),
 
 				ANSI_COLOR_DARKGREY(aafi->log),
@@ -1106,7 +1106,7 @@ int main( int argc, char *argv[] ) {
 			/*
 			 * Composition Timecode does not always share the same edit rate as tracks and clips.
 			 * Therefore, we need to do the conversion prior to any maths.
-			 * For exemple, if TC is 30000/1001 and audio clips are 48000/1, then TC->start has to be converted from FPS to samples.
+			 * For example, if TC is 30000/1001 and audio clips are 48000/1, then TC->start has to be converted from FPS to samples.
 			 */
 
 			sessionStart = aafi_convertUnit( aafi->compositionStart, aafi->compositionStart_editRate, videoTrack->edit_rate );
@@ -1175,7 +1175,7 @@ int main( int argc, char *argv[] ) {
 			/*
 			 * Composition Timecode does not always share the same edit rate as tracks and clips.
 			 * Therefore, we need to do the conversion prior to any maths.
-			 * For exemple, if TC is 30000/1001 and audio clips are 48000/1, then TC->start has to be converted from FPS to samples.
+			 * For example, if TC is 30000/1001 and audio clips are 48000/1, then TC->start has to be converted from FPS to samples.
 			 */
 
 			sessionStart = aafi_convertUnit( aafi->compositionStart, aafi->compositionStart_editRate, audioTrack->edit_rate );
@@ -1491,7 +1491,7 @@ int main( int argc, char *argv[] ) {
 			/*
 			 * Composition Timecode does not always share the same edit rate as markers.
 			 * Therefore, we need to do the conversion prior to any maths.
-			 * For exemple, if TC is 30000/1001 and markers are 48000/1, then TC->start has to be converted from FPS to samples.
+			 * For example, if TC is 30000/1001 and markers are 48000/1, then TC->start has to be converted from FPS to samples.
 			 */
 
 			sessionStart = aafi_convertUnit( aafi->compositionStart, aafi->compositionStart_editRate, marker->edit_rate );

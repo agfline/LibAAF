@@ -48,7 +48,8 @@ html {
 
     /* default spacings. Most components reference these values for spacing, to provide uniform spacing on the page. */
     --spacing-small: 5px;
-    --spacing-medium: 10px;
+		--spacing-medium: 10px;
+		/* --spacing-medium: 6px; */
     --spacing-large: 16px;
 
     /* default box shadow used for raising an element above the normal content. Used in dropdowns, search result, ... */
@@ -69,6 +70,12 @@ html {
     --toc-font-size: 13.4px;
     --code-font-size: 14px; /* affects code, fragment */
     --title-font-size: 22px;
+
+		--page-font-size: 13.5px;
+		--navigation-font-size: 14.4px;
+		--toc-font-size: 13.4px;
+		--code-font-size: 13.5px; /* affects code, fragment */
+		--title-font-size: 22px;
 
     /* content text properties. These only affect the page content, not the navigation or any other ui elements */
     --content-line-height: 27px;
@@ -164,7 +171,8 @@ html {
     --tree-item-height: 30px;
 
     --memname-font-size: var(--code-font-size);
-    --memtitle-font-size: 18px;
+		/* --memtitle-font-size: 18px; */
+		--memtitle-font-size: 15px;
 
     --webkit-scrollbar-size: 7px;
     --webkit-scrollbar-padding: 4px;

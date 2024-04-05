@@ -279,21 +279,21 @@ static int parse_SourceMob( AAF_Iface *aafi, aafObject *SourceMob, td *__ptd )
 
 		aafiAudioEssenceFile *audioEssenceFile = (aafiAudioEssenceFile*)aafi->ctx.current_audio_essence;
 
-		memcpy( audioEssenceFile->umid, MobID, sizeof(aafMobID_t) );
+		audioEssenceFile->sourceMobCreationTime = CreationTime;
 
-		int rc = snprintf( audioEssenceFile->originationDate, sizeof(((aafiAudioEssenceFile *)0)->originationDate), "%04u:%02u:%02u",
-			(CreationTime->date.year  <= 9999) ? CreationTime->date.year  : 0,
-			(CreationTime->date.month <=   99) ? CreationTime->date.month : 0,
-			(CreationTime->date.day   <=   99) ? CreationTime->date.day   : 0 );
-
-		assert( rc > 0 && (size_t)rc < sizeof(((aafiAudioEssenceFile *)0)->originationDate) );
-
-		rc = snprintf( audioEssenceFile->originationTime, sizeof(((aafiAudioEssenceFile *)0)->originationTime), "%02u:%02u:%02u",
-			(CreationTime->time.hour   <= 99) ? CreationTime->time.hour   : 0,
-			(CreationTime->time.minute <= 99) ? CreationTime->time.minute : 0,
-			(CreationTime->time.second <= 99) ? CreationTime->time.second : 0 );
-
-		assert( rc > 0 && (size_t)rc < sizeof(((aafiAudioEssenceFile *)0)->originationTime) );
+		// int rc = snprintf( audioEssenceFile->originationDate, sizeof(((aafiAudioEssenceFile *)0)->originationDate), "%04u:%02u:%02u",
+		// 	(CreationTime->date.year  <= 9999) ? CreationTime->date.year  : 0,
+		// 	(CreationTime->date.month <=   99) ? CreationTime->date.month : 0,
+		// 	(CreationTime->date.day   <=   99) ? CreationTime->date.day   : 0 );
+		//
+		// assert( rc > 0 && (size_t)rc < sizeof(((aafiAudioEssenceFile *)0)->originationDate) );
+		//
+		// rc = snprintf( audioEssenceFile->originationTime, sizeof(((aafiAudioEssenceFile *)0)->originationTime), "%02u:%02u:%02u",
+		// 	(CreationTime->time.hour   <= 99) ? CreationTime->time.hour   : 0,
+		// 	(CreationTime->time.minute <= 99) ? CreationTime->time.minute : 0,
+		// 	(CreationTime->time.second <= 99) ? CreationTime->time.second : 0 );
+		//
+		// assert( rc > 0 && (size_t)rc < sizeof(((aafiAudioEssenceFile *)0)->originationTime) );
 	}
 
 	__td.ll[__td.lv] = 2;
@@ -1308,10 +1308,10 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 			aafiAudioEssenceFile *audioEssenceFile = NULL;
 
 			AAFI_foreachAudioEssenceFile( aafi, audioEssenceFile ) {
-				if ( aafMobIDCmp( audioEssenceFile->sourceMobID, sourceID ) && audioEssenceFile->sourceMobSlotID == (unsigned)*SourceMobSlotID ) {
+				if ( aafMobIDCmp( audioEssenceFile->sourceMobID, sourceID ) && aafSlotIDCmp( audioEssenceFile->sourceMobSlotID, *SourceMobSlotID ) ) {
 					__td.eob = 1;
 					TRACE_OBJ_INFO( aafi, SourceClip, &__td, "Essence already parsed: Linking with %s", audioEssenceFile->name );
-					aafi->ctx.current_clip->essencePointerList = aafi_newAudioEssencePointer( aafi, &aafi->ctx.current_clip->essencePointerList, audioEssenceFile, essenceChannelNum );
+					aafi->ctx.current_clip->essencePointerList = aafi_newAudioEssenceFilePointer( aafi, &aafi->ctx.current_clip->essencePointerList, audioEssenceFile, essenceChannelNum );
 					return 0;
 				}
 			}
@@ -1319,7 +1319,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 
 			/* new Essence, carry on. */
 
-			audioEssenceFile = aafi_newAudioEssence( aafi );
+			audioEssenceFile = aafi_newAudioEssenceFile( aafi );
 
 			audioEssenceFile->masterMobSlotID = *masterMobSlotID;
 			audioEssenceFile->masterMobID = masterMobID;
@@ -1352,9 +1352,6 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 			}
 
 
-			audioEssenceFile->SourceMob = SourceMob;
-
-
 			aafObject *EssenceData = aaf_get_EssenceDataByMobID( aafi->aafd, audioEssenceFile->sourceMobID );
 
 			if ( EssenceData )
@@ -1375,7 +1372,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 
 			aafi_build_audioEssenceFileUniqueName( aafi, audioEssenceFile );
 
-			aafi->ctx.current_clip->essencePointerList = aafi_newAudioEssencePointer( aafi, &aafi->ctx.current_clip->essencePointerList, audioEssenceFile, essenceChannelNum );
+			aafi->ctx.current_clip->essencePointerList = aafi_newAudioEssenceFilePointer( aafi, &aafi->ctx.current_clip->essencePointerList, audioEssenceFile, essenceChannelNum );
 			aafi->ctx.current_audio_essence = NULL;
 		}
 		else if ( aafUIDCmp( DataDefinition, &AAFDataDef_Picture ) ||
@@ -1391,10 +1388,10 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 			 * Check if this Essence has already been retrieved
 			 */
 
-			aafiVideoEssence *videoEssenceFile = NULL;
+			aafiVideoEssenceFile *videoEssenceFile = NULL;
 
-			AAFI_foreachVideoEssence( aafi, videoEssenceFile ) {
-				if ( aafMobIDCmp( videoEssenceFile->sourceMobID, sourceID ) && videoEssenceFile->sourceMobSlotID == (unsigned)*SourceMobSlotID ) {
+			AAFI_foreachVideoEssenceFile( aafi, videoEssenceFile ) {
+				if ( aafMobIDCmp( videoEssenceFile->sourceMobID, sourceID ) && aafSlotIDCmp( videoEssenceFile->sourceMobSlotID, *SourceMobSlotID ) ) {
 					__td.eob = 1;
 					TRACE_OBJ_INFO( aafi, SourceClip, &__td, "Essence already parsed: Linking with %s", videoEssenceFile->name );
 					aafi->ctx.current_video_clip->Essence = videoEssenceFile;
@@ -1405,7 +1402,7 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 
 			/* new Essence, carry on. */
 
-			videoEssenceFile = aafi_newVideoEssence( aafi );
+			videoEssenceFile = aafi_newVideoEssenceFile( aafi );
 
 			aafi->ctx.current_video_clip->Essence = videoEssenceFile;
 
@@ -1431,7 +1428,6 @@ static int parse_SourceClip( AAF_Iface *aafi, aafObject *SourceClip, td *__ptd )
 				return -1;
 			}
 
-			videoEssenceFile->SourceMob = SourceMob;
 
 			aafi->ctx.current_video_essence = videoEssenceFile;
 
@@ -2744,7 +2740,7 @@ static int parse_PCMDescriptor( AAF_Iface *aafi, aafObject *PCMDescriptor, td *_
 		return -1;
 	}
 
-	audioEssenceFile->length = *length;
+	audioEssenceFile->framelength = *length;
 
 
 
@@ -2902,7 +2898,7 @@ static int parse_DigitalImageDescriptor( AAF_Iface *aafi, aafObject *DIDescripto
 	/* TODO parse and save content to videoEssenceFile */
 
 
-	aafiVideoEssence *videoEssenceFile = aafi->ctx.current_video_essence;
+	aafiVideoEssenceFile *videoEssenceFile = aafi->ctx.current_video_essence;
 
 	if ( !videoEssenceFile ) {
 		TRACE_OBJ_ERROR( aafi, DIDescriptor, &__td, "aafi->ctx.current_video_essence not set" );
@@ -3113,10 +3109,10 @@ static int parse_EssenceData( AAF_Iface *aafi, aafObject *EssenceData, td *__ptd
 	debug( "Embedded data stream : %s", dataPath );
 
 
-	audioEssenceFile->node = DataNode;
+	audioEssenceFile->dataStreamNode = DataNode;
 	audioEssenceFile->is_embedded = 1;
 
-	audioEssenceFile->sd = cfb_open_stream( aafi->aafd->cfbd, audioEssenceFile->node );
+	audioEssenceFile->sd = cfb_open_stream( aafi->aafd->cfbd, audioEssenceFile->dataStreamNode );
 
 	rc = 0;
 
@@ -3415,7 +3411,7 @@ int aafi_retrieveData( AAF_Iface *aafi )
 			continue;
 		}
 
-		AAFI_foreachEssence( audioEssenceFile->next, ae ) {
+		AAFI_foreachEssenceFile( audioEssenceFile->next, ae ) {
 			if ( audioEssenceFile->samplerate == ae->samplerate && audioEssenceFile->samplesize == ae->samplesize ) {
 				count++;
 			}
@@ -3433,9 +3429,9 @@ int aafi_retrieveData( AAF_Iface *aafi )
 
 
 
-	aafiVideoEssence *videoEssenceFile = NULL;
+	aafiVideoEssenceFile *videoEssenceFile = NULL;
 
-	AAFI_foreachVideoEssence( aafi, videoEssenceFile ) {
+	AAFI_foreachVideoEssenceFile( aafi, videoEssenceFile ) {
 
 		if ( videoEssenceFile->original_file_path == NULL ) {
 			continue;

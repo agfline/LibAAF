@@ -24,14 +24,6 @@
 /**
  * @file LibAAF/AAFIface/AAFIface.h
  * @brief AAF processing
- * @author Adrien Gesta-Fline
- * @version 0.1
- * @date 04 october 2017
- *
- * @ingroup AAFIface
- * @addtogroup AAFIface
- * @{
- * @brief Abstraction layer to interpret the Objects/Class and retrieve data.
  */
 
 
@@ -39,37 +31,15 @@
 #include <libaaf/AAFCore.h>
 
 
-
-enum aafiEssenceType {
-	AAFI_ESSENCE_TYPE_PCM	 = 0x01,
-	AAFI_ESSENCE_TYPE_WAVE = 0x02,
-	AAFI_ESSENCE_TYPE_AIFC = 0x03,
-	AAFI_ESSENCE_TYPE_BWAV = 0x04,
-	AAFI_ESSENCE_TYPE_UNK  = 0xff /* non-pcm */
-};
-
-
-
-/**
- * Flags for aafiAudioGain.flags.
+/*
+ * @ingroup AAFIface
+ * @addtogroup AAFIface
+ * @{
+ * @brief Abstraction layer to interpret the Objects/Class and retrieve data.
  */
 
-typedef enum aafiAudioGain_e
-{
-	AAFI_AUDIO_GAIN_CONSTANT = 1<<0,
-	AAFI_AUDIO_GAIN_VARIABLE = 1<<1,
-
-} aafiAudioGain_e;
-
-#define AAFI_AUDIO_GAIN_MASK ( \
-	  AAFI_AUDIO_GAIN_CONSTANT   \
-	| AAFI_AUDIO_GAIN_VARIABLE   \
-)
-
-
-
 /**
- * Flags for aafiTransition.flags.
+ * @brief Transition type flag for aafiTransition.flags
  */
 
 typedef enum aafiTransition_e
@@ -84,20 +54,49 @@ typedef enum aafiTransition_e
 } aafiTransition_e;
 
 #define AAFI_TRANS_CURVE_COUNT_MASK ( \
-	  AAFI_TRANS_SINGLE_CURVE           \
-	| AAFI_TRANS_TWO_CURVE              \
+    AAFI_TRANS_SINGLE_CURVE           \
+  | AAFI_TRANS_TWO_CURVE              \
 )
 
 #define AAFI_TRANS_FADE_MASK ( \
-	  AAFI_TRANS_FADE_IN         \
-	| AAFI_TRANS_FADE_OUT        \
-	| AAFI_TRANS_XFADE           \
+    AAFI_TRANS_FADE_IN         \
+  | AAFI_TRANS_FADE_OUT        \
+  | AAFI_TRANS_XFADE           \
 )
+
+/**
+ * @}
+ */
+
+
+/**
+ * @ingroup libaafAPI LibAAF API
+ * @addtogroup libaafAPI LibAAF API
+ * @{
+ * @brief Library public API
+ */
 
 
 
 /**
- * Flags for aafiTransition.flags and aafiAudioGain.flags
+ * @brief Audio gain flag for aafiAudioGain.flags and aafiTransition.flags
+ */
+
+typedef enum aafiAudioGain_e
+{
+	AAFI_AUDIO_GAIN_CONSTANT = 1<<0,
+	AAFI_AUDIO_GAIN_VARIABLE = 1<<1,
+
+} aafiAudioGain_e;
+
+#define AAFI_AUDIO_GAIN_MASK ( \
+    AAFI_AUDIO_GAIN_CONSTANT   \
+  | AAFI_AUDIO_GAIN_VARIABLE   \
+)
+
+
+/**
+ * @brief Flags for aafiTransition.flags and aafiAudioGain.flags
  */
 
 typedef enum aafiInterpolation_e
@@ -112,12 +111,12 @@ typedef enum aafiInterpolation_e
 } aafiInterpolation_e;
 
 #define AAFI_INTERPOL_MASK (unsigned)( \
-	  AAFI_INTERPOL_NONE       \
-	| AAFI_INTERPOL_LINEAR     \
-	| AAFI_INTERPOL_LOG        \
-	| AAFI_INTERPOL_CONSTANT   \
-	| AAFI_INTERPOL_POWER      \
-	| AAFI_INTERPOL_BSPLINE    \
+    AAFI_INTERPOL_NONE                 \
+  | AAFI_INTERPOL_LINEAR               \
+  | AAFI_INTERPOL_LOG                  \
+  | AAFI_INTERPOL_CONSTANT             \
+  | AAFI_INTERPOL_POWER                \
+  | AAFI_INTERPOL_BSPLINE              \
 )
 
 
@@ -125,9 +124,10 @@ typedef enum aafiInterpolation_e
 
 
 
+
 /**
- * Specifies a Transition that can be a fade in, a fade out or a Cross fade, and that can
- * have one or two curves.
+ * Specifies a Transition which can be a fade in, a fade out or a Cross fade, and
+ * which can have one or two curves.
  *
  * With a single curve (AAFI_TRANS_SINGLE_CURVE), the same curve is mirrored and applied
  * as fade in and fade out to obtain a cross fade.
@@ -286,7 +286,6 @@ typedef struct aafiAudioGain aafiAudioPan;
 typedef struct aafiMetaData
 {
 	char    *name;
-
 	char    *text;
 
 	struct aafiMetaData *next;
@@ -294,188 +293,14 @@ typedef struct aafiMetaData
 } aafiMetaData;
 
 
-/**
- * Describe a single audio essence file.
- */
-typedef struct aafiAudioEssenceFile
-{
-	/**
-	 * Holds the name of essence file, as specified in MasterMob::Name.
-	 * This is usually the name exposed in the original software.
-	 * This name *might* not be unique accross all essences. For a
-	 * unique name, use #aafiAudioEssenceFile.unique_name instead.
-	 */
-
-	char          *name;
-
-	/**
-	 * This is the same as #aafiAudioEssenceFile.name, but this one is guaranted to
-	 * be unique. If an AAF has different essence files sharing the same name,
-	 * then libaaf will add a suffix to unique_name. Thus, unique_name can be used
-	 * instead of name when exporting embedded essences.
-	 */
-
-	char          *unique_name;
-
-	/**
-	 * Holds the URI path to the essence file, as specified in NetworkLocator::URLString.
-	 * This path is *not* uri-decoded.
-	 */
-
-	char          *original_file_path;
-
-	/**
-	 * Holds a usable filepath to the essence file. It is set, either when an
-	 * embedded essence has been extracted using aafi_extractAudioEssenceFile() or
-	 * when an external essence file has been successfully located by libaaf.
-	 */
-
-	char          *usable_file_path;
-
-	/**
-	 * Total sample count for 1 audio channel (no matter channel count).
-	 *
-	 * Might be retrieved from FileDescriptor::Length property, or from WAV/AIFF
-	 * summary or file : `data chunk size / channels / samplesize / 8`
-	 *
-	 * `duration = length / samplerate`
-	 */
-
-	aafPosition_t  length;
-
-	/**
-	 * Data stream CFB node, containing essence data if it's embedded.
-	 */
-
-	cfbNode       *node;
-
-	/**
-	 * Flag to tell if essence data is embedded or external. It is set only if
-	 * FileSourceMob contains EssenceData.
-	 */
-
-	uint8_t        is_embedded;
-
-	aafObject     *SourceMob;
-	aafMobID_t    *sourceMobID;	// Holds the SourceMob Mob::ID references this EssenceData
-	uint32_t       sourceMobSlotID;      // SlotID of the MobSlot inside MasterMob (CompoMob's Sequence SourceClip::SourceMobSlotID)
-	aafRational_t *sourceMobSlotEditRate;
-	aafPosition_t  sourceMobSlotOrigin;			// SourceMob TimelineMobSlot::Origin
-
-	aafMobID_t    *masterMobID;	// Holds the MasterMob Mob::ID (used by CompoMob's Sequence SourceClip::SourceID)
-	uint32_t       masterMobSlotID;      // SlotID of the MobSlot inside MasterMob (CompoMob's Sequence SourceClip::SourceMobSlotID)
-
-	enum aafiEssenceType type;	// depends on PCMDescriptor WAVEDescriptor AIFCDescriptor
-
-
-
-	aafProperty   *summary; // WAVEDescriptor AIFCDescriptor
-	uint64_t       pcm_audio_start_offset;
-
-	uint32_t       samplerate;
-	aafRational_t *samplerateRational; // eg. { 48000, 1 }
-	uint16_t       samplesize;
-
-	/**
-	 * Audio essence file channel count. Might be different of #aafiAudioClip.channels
-	 */
-	uint16_t       channels;
-
-
-	// BWF BEXT chunk data
-	char           description[256];
-	char           originator[32];			// could be set with header::ProductName
-	char           originatorReference[32];
-	aafPosition_t  timeReference;			// SourceMob TimelineMobSlot::Origin
-	unsigned char  umid[64];				// SourceMob::MobID (32 Bytes, basic form)
-	char           originationDate[10+1];		// SourceMob::CreationDate
-	char           originationTime[8+1];		// SourceMob::CreationTime
-
-
-	/**
-	 * Metadata retrieved from main MasterMob::UserComments
-	 */
-	aafiMetaData  *metadata;
-
-	void          *user;
-
-
-	struct AAF_Iface *aafi;
-
-	CFBStreamDescriptor *sd;
-
-	/**
-	 * Pointer to the next essence in global essence list #aafiAudio.essenceFiles
-	 */
-
-	struct aafiAudioEssenceFile *next;
-
-} aafiAudioEssenceFile;
-
-
-
-/**
- * aafiAudioEssencePointer is used by aafiAudioClip, to points to one or more
- * aafiAudioEssenceFile and specify which channel of essence file the clip uses.
- */
-typedef struct aafiAudioEssencePointer
-{
-	aafiAudioEssenceFile           *essenceFile;
-	uint32_t                        essenceChannel; // channel selector inside multichannel essence. If zero, then all essence channels must be used.
-
-	void                           *user;
-
-	struct aafiAudioEssencePointer *next; // audioClip->essenceGroup
-	struct aafiAudioEssencePointer *aafiNext; // aafi->Audio->essenceGroup
-
-	struct AAF_Iface               *aafi;
-
-} aafiAudioEssencePointer;
-
-
-
-typedef struct aafiVideoEssence
-{
-
-	char          *original_file_path;	// NetworkLocator::URLString should point to original essence file if external (and in some cases, points to the AAF itself if internal..)
-	char          *usable_file_path;    // Holds the file path, once the essence has been exported, copied or linked.
-	char          *name;			// MasterMob::Name -> file name
-	char          *unique_name;	// unique name generated from aafiVideoEssence->name. Sometimes, multiple files share the same names so this unique name should be used on export.
-
-	aafPosition_t  length; 		// Length of Essence Data
-
-	cfbNode       *node;			// The node holding the audio stream if embedded
-
-	aafRational_t *framerate;
-
-	aafMobID_t    *sourceMobID;	// Holds the SourceMob Mob::ID references this EssenceData
-	uint32_t       sourceMobSlotID;      // SlotID of the MobSlot inside MasterMob (CompoMob's Sequence SourceClip::SourceMobSlotID)
-	aafMobID_t    *masterMobID;	// Holds the MasterMob Mob::ID (used by CompoMob's Sequence SourceClip::SourceID)
-	uint32_t       masterMobSlotID;      // SlotID of the MobSlot inside MasterMob (CompoMob's Sequence SourceClip::SourceMobSlotID)
-
-	aafObject     *SourceMob;
-
-	// uint16_t       type;	// depends on PCMDescriptor WAVEDescriptor AIFCDescriptor
-
-	uint8_t        is_embedded;
-
-	aafProperty   *summary;
-
-	/**
-	 * Metadata retrieved from main MasterMob::UserComments
-	 */
-	aafiMetaData  *metadata;
-
-	// TODO peakEnveloppe
-	struct aafiVideoEssence *next;
-
-} aafiVideoEssence;
-
 
 
 /* forward declaration */
 struct aafiAudioTrack;
 struct aafiVideoTrack;
+struct aafiAudioEssenceFile;
+struct aafiVideoEssenceFile;
+struct aafiAudioEssencePointer;
 
 typedef struct aafiAudioClip
 {
@@ -498,7 +323,7 @@ typedef struct aafiAudioClip
 	 * If clip is mono, it has a single aafiAudioEssencePointer which points to a
 	 * single aafiAudioEssenceFile.
 	 */
-	aafiAudioEssencePointer  *essencePointerList;
+	struct aafiAudioEssencePointer  *essencePointerList;
 
 	/**
 	 * SubCLip name is set in rare cases, when a SourceClip targets a SubClip
@@ -553,7 +378,7 @@ typedef struct aafiVideoClip
 {
 	struct aafiVideoTrack *track;
 
-	aafiVideoEssence      *Essence;
+	struct aafiVideoEssenceFile *Essence;
 
 	aafPosition_t          pos;
 
@@ -811,8 +636,7 @@ typedef struct aafiAudio
 	 */
 
 	int                      essenceCount;
-	aafiAudioEssenceFile    *essenceFiles;
-	aafiAudioEssencePointer *essencePointerList;
+	struct aafiAudioEssenceFile    *essenceFiles;
 
 	/**
 	 * Holds the Track list.
@@ -838,7 +662,7 @@ typedef struct aafiVideo
 	 * Holds the Essence list.
 	 */
 
-	aafiVideoEssence *essenceFiles;
+	struct aafiVideoEssenceFile *essenceFiles;
 
 	/**
 	 * Holds the Track list.
@@ -850,8 +674,8 @@ typedef struct aafiVideo
 
 
 
-typedef struct aafiMarker {
-
+typedef struct aafiMarker
+{
 	/*
 	 * TODO: link marker to specific track ? (optional in AAF standard, not yet seen in AAF files)
 	 */
@@ -904,8 +728,8 @@ typedef struct aafiContext
 
 	/* Essence */
 
-	aafiAudioEssenceFile *current_audio_essence;
-	aafiVideoEssence *current_video_essence;
+	struct aafiAudioEssenceFile *current_audio_essence;
+	struct aafiVideoEssenceFile *current_video_essence;
 
 
 	aafRational_t    *current_markers_edit_rate;
@@ -988,9 +812,9 @@ typedef struct AAF_Iface
  * @param audioTrack  NULL pointer to an aafiAudioTrack struct.
  */
 #define AAFI_foreachAudioTrack( aafi, audioTrack ) \
-	for ( audioTrack  = aafi->Audio->Tracks;         \
-	      audioTrack != NULL;                        \
-	      audioTrack  = audioTrack->next )           \
+  for ( audioTrack  = aafi->Audio->Tracks;         \
+        audioTrack != NULL;                        \
+        audioTrack  = audioTrack->next )           \
 
 /**
  * Loops through each video track in AAF file.
@@ -999,9 +823,9 @@ typedef struct AAF_Iface
  * @param videoTrack  NULL pointer to an aafiVideoTrack struct.
  */
 #define AAFI_foreachVideoTrack( aafi, videoTrack ) \
-	for ( videoTrack  = aafi->Video->Tracks;         \
-	      videoTrack != NULL;                        \
-	      videoTrack  = videoTrack->next )           \
+  for ( videoTrack  = aafi->Video->Tracks;         \
+        videoTrack != NULL;                        \
+        videoTrack  = videoTrack->next )           \
 
 /**
  * Loops through each timelineItem of a track. Audio tracks can contain
@@ -1011,65 +835,10 @@ typedef struct AAF_Iface
  * @param timelineItem  NULL pointer to an aafiTimelineItem struct.
  */
 #define AAFI_foreachTrackItem( track, timelineItem ) \
-	for ( timelineItem  = track->timelineItems;        \
-	      timelineItem != NULL;                        \
-	      timelineItem  = timelineItem->next )         \
+  for ( timelineItem  = track->timelineItems;        \
+        timelineItem != NULL;                        \
+        timelineItem  = timelineItem->next )         \
 
-
-/**
- * Loops through each audio essence pointer in AAF file.
- *
- * @param aafi                 Pointer to the current AAF_Iface struct.
- * @param audioEssencePointer  NULL pointer to an aafiAudioEssencePointer struct.
- */
-#define AAFI_foreachAudioEssencePointer( aafi, audioEssencePointer ) \
-	for ( audioEssencePointer = aafi->Audio->essencePointerList;       \
-	      audioEssencePointer != NULL;                                 \
-	      audioEssencePointer = audioEssencePointer->aafiNext )        \
-
-/**
- * Loops through each audio essence file in AAF file.
- *
- * @param aafi              Pointer to the current AAF_Iface struct.
- * @param audioEssenceFile  NULL pointer to an aafiAudioEssenceFile struct.
- */
-#define AAFI_foreachAudioEssenceFile( aafi, audioEssenceFile ) \
-	for ( audioEssenceFile = aafi->Audio->essenceFiles;          \
-	      audioEssenceFile != NULL;                              \
-	      audioEssenceFile = audioEssenceFile->next )            \
-
-/**
- * Loops through each video essence file in AAF file.
- *
- * @param aafi          Pointer to the current AAF_Iface struct.
- * @param videoEssenceFile  NULL pointer to an aafiVideoEssence struct.
- */
-#define AAFI_foreachVideoEssence( aafi, videoEssenceFile ) \
-	for ( videoEssenceFile = aafi->Video->essenceFiles;      \
-	      videoEssenceFile != NULL;                          \
-	      videoEssenceFile = videoEssenceFile->next )        \
-
-
-/**
- * Loops through each essence pointer in a list (usualy aafiAudioClip->essencePointerList).
- *
- * @param essencePointerList Pointer to any aafiAudioEssencePointer struct list.
- * @param essencePointer     NULL pointer to an aafiAudioEssencePointer struct.
- */
-#define AAFI_foreachEssencePointer( essencePointerList, essencePointer ) \
-	for ( essencePointer = essencePointerList;                             \
-	      essencePointer != NULL;                                          \
-	      essencePointer = essencePointer->next )                          \
-
-#define AAFI_foreachClipEssencePointer( clip, essencePointer ) \
-	for ( essencePointer = clip->essencePointerList;             \
-	      essencePointer != NULL;                                \
-	      essencePointer = essencePointer->next )                \
-
-#define AAFI_foreachEssence( essenceFileList, essenceFile ) \
-	for ( essenceFile = essenceFileList;                      \
-	      essenceFile != NULL;                                \
-	      essenceFile = essenceFile->next )                   \
 
 
 /**
@@ -1079,15 +848,15 @@ typedef struct AAF_Iface
  * @param marker NULL pointer to an aafiMarker struct.
  */
 #define AAFI_foreachMarker( aafi, marker ) \
-	for ( marker = aafi->Markers;            \
-	      marker != NULL;                    \
-	      marker = marker->next )            \
+  for ( marker = aafi->Markers;            \
+        marker != NULL;                    \
+        marker = marker->next )            \
 
 
 #define AAFI_foreachMetadata( metadataList, metadata ) \
-	for ( metadata = metadataList;                       \
-	      metadata != NULL;                              \
-	      metadata = metadata->next )                    \
+  for ( metadata = metadataList;                       \
+        metadata != NULL;                              \
+        metadata = metadata->next )                    \
 
 /**
  * @}
@@ -1122,10 +891,20 @@ aafPosition_t aafi_convertUnit( aafPosition_t value, aafRational_t *valueEditRat
 
 uint64_t aafi_convertUnitUint64( aafPosition_t value, aafRational_t *valueEditRate, aafRational_t *destEditRate );
 
+/**
+ * @}
+ */
+
+
+
+/*
+ * @ingroup AAFIface
+ * @addtogroup AAFIface
+ * @{
+ * @brief Abstraction layer to interpret the Objects/Class and retrieve data.
+ */
 
 int aafi_removeTimelineItem( AAF_Iface *aafi, aafiTimelineItem *timelineItem );
-
-int aafi_getAudioEssencePointerChannelCount( aafiAudioEssencePointer *essencePointerList );
 
 int aafi_applyGainOffset( AAF_Iface *aafi, aafiAudioGain **gain, aafiAudioGain *offset );
 
@@ -1147,13 +926,6 @@ aafiTransition * aafi_newTransition( AAF_Iface *aafi, aafiAudioTrack *track );
 aafiMarker * aafi_newMarker( AAF_Iface *aafi, aafRational_t *editRate, aafPosition_t start, aafPosition_t length, char *name, char *comment, uint16_t *RGBColor[] );
 
 aafiMetaData * aafi_newMetadata( AAF_Iface *aafi, aafiMetaData **CommentList );
-
-
-aafiAudioEssencePointer * aafi_newAudioEssencePointer( AAF_Iface *aafi, aafiAudioEssencePointer **list, aafiAudioEssenceFile *audioEssenceFile, uint32_t *essenceChannelNum );
-
-aafiAudioEssenceFile * aafi_newAudioEssence( AAF_Iface *aafi );
-
-aafiVideoEssence * aafi_newVideoEssence( AAF_Iface *aafi );
 
 
 aafiAudioGain * aafi_newAudioGain( AAF_Iface *aafi, enum aafiAudioGain_e type, enum aafiInterpolation_e interpol, aafRational_t *singleValue );
@@ -1178,13 +950,6 @@ void aafi_freeTransition( aafiTransition *trans );
 void aafi_freeMarkers( aafiMarker **aafi );
 
 void aafi_freeMetadata( aafiMetaData **CommentList );
-
-
-void aafi_freeAudioEssencePointer( aafiAudioEssencePointer *audioEssenceGroupEntry );
-
-void aafi_freeAudioEssences( aafiAudioEssenceFile **audioEssenceFiles );
-
-void aafi_freeVideoEssences( aafiVideoEssence **videoEssenceFile );
 
 
 void aafi_freeAudioGain( aafiAudioGain *gain );

@@ -21,6 +21,7 @@
 #include <stdio.h>
 
 #include <libaaf/AAFIface.h>
+#include <libaaf/AAFIEssenceFile.h>
 #include <libaaf/ProTools.h>
 
 
@@ -143,7 +144,7 @@ static int remove_sampleAccurateEditClip( AAF_Iface *aafi, aafiAudioTrack *audio
 
 			if ( saeClip->pos == (leftClip->pos + leftClip->len) ) {
 
-				aafPosition_t essenceLength = aafi_convertUnit( leftClip->essencePointerList->essenceFile->length, leftClip->essencePointerList->essenceFile->samplerateRational, leftClip->track->edit_rate );
+				aafPosition_t essenceLength = aafi_convertUnit( leftClip->essencePointerList->essenceFile->framelength, leftClip->essencePointerList->essenceFile->samplerateRational, leftClip->track->edit_rate );
 
 				if ( (essenceLength - leftClip->essence_offset - leftClip->len) >= saeClip->len ) {
 
@@ -316,7 +317,7 @@ static int replace_clipFade( AAF_Iface *aafi, aafiAudioTrack *audioTrack, aafiTi
 	 */
 
 	if ( prevClip ) {
-		aafPosition_t essenceLength = aafi_convertUnit( prevClip->essencePointerList->essenceFile->length, prevClip->essencePointerList->essenceFile->samplerateRational, prevClip->track->edit_rate );
+		aafPosition_t essenceLength = aafi_convertUnit( prevClip->essencePointerList->essenceFile->framelength, prevClip->essencePointerList->essenceFile->samplerateRational, prevClip->track->edit_rate );
 
 		if ( (essenceLength - prevClip->essence_offset - prevClip->len) < fadeClip->len ) {
 			warning( "Previous clip \"%s\" has not enough handle to build a fade in place of \"%s\"",

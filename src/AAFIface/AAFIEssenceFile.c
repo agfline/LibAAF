@@ -18,6 +18,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**
+ * @file AAFIface/AAFIEssenceFile.c
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -414,6 +418,7 @@ end:
 int aafi_extract_audioEssenceFile( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenceFile, const char *outpath, const char *rename, uint64_t frameOffset, uint64_t frameLength, enum aafiExtractFormat format, int samplerate, int samplesize, char **usable_file_path )
 {
 	int rc = 0;
+	int exportClip = 0;
 
 	char *filepath = NULL;
 	void *buf = NULL;
@@ -437,6 +442,10 @@ int aafi_extract_audioEssenceFile( AAF_Iface *aafi, aafiAudioEssenceFile *audioE
 		debug( "usable_file_path was already set" );
 		free( audioEssenceFile->usable_file_path );
 		audioEssenceFile->usable_file_path = NULL;
+	}
+
+	if ( frameOffset > 0 || frameLength > 0 ) {
+		exportClip = 1;
 	}
 
 	debug( "request audio essence file extraction of \"%s\"", audioEssenceFile->name );
@@ -505,9 +514,10 @@ int aafi_extract_audioEssenceFile( AAF_Iface *aafi, aafiAudioEssenceFile *audioE
 	if ( !exportClip ) {
 		audioEssenceFile->usable_file_path = laaf_util_c99strdup( filepath );
 
-	if ( !audioEssenceFile->usable_file_path ) {
-		error( "Could not duplicate usable filepath : %s", filepath );
-		goto err;
+		if ( !audioEssenceFile->usable_file_path ) {
+			error( "Could not duplicate usable filepath : %s", filepath );
+			goto err;
+		}
 	}
 
 
@@ -542,7 +552,7 @@ end:
 
 
 
-sf_count_t aafi_sf_embeddedAudioEssenceFile_size( void *audioEssenceFile )
+sf_count_t aafi_sf_size_embeddedAudioEssenceFile( void *audioEssenceFile )
 {
 	size_t val = cfb_stream_size( ((aafiAudioEssenceFile*)(audioEssenceFile))->sd );
 
@@ -553,7 +563,7 @@ sf_count_t aafi_sf_embeddedAudioEssenceFile_size( void *audioEssenceFile )
 
 
 
-sf_count_t aafi_sf_embeddedAudioEssenceFile_tell( void *audioEssenceFile )
+sf_count_t aafi_sf_tell_embeddedAudioEssenceFile( void *audioEssenceFile )
 {
 	size_t val = cfb_stream_tell( ((aafiAudioEssenceFile*)(audioEssenceFile))->sd );
 
@@ -564,7 +574,7 @@ sf_count_t aafi_sf_embeddedAudioEssenceFile_tell( void *audioEssenceFile )
 
 
 
-sf_count_t aafi_sf_embeddedAudioEssenceFile_seek( sf_count_t pos, int whence, void *audioEssenceFile )
+sf_count_t aafi_sf_seek_embeddedAudioEssenceFile( sf_count_t pos, int whence, void *audioEssenceFile )
 {
 	ssize_t val = cfb_stream_seek( ((aafiAudioEssenceFile*)(audioEssenceFile))->sd, whence, pos );
 
@@ -575,7 +585,7 @@ sf_count_t aafi_sf_embeddedAudioEssenceFile_seek( sf_count_t pos, int whence, vo
 
 
 
-sf_count_t aafi_sf_embeddedAudioEssenceFile_read( void* buf, sf_count_t nbyte, void *audioEssenceFile )
+sf_count_t aafi_sf_read_embeddedAudioEssenceFile( void* buf, sf_count_t nbyte, void *audioEssenceFile )
 {
 	if ( nbyte < 0 ) {
 		return -1;
@@ -703,8 +713,30 @@ static int sfaaf_set_bext( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenceFi
 	snprintf( bext.originator, sizeof(((SF_BROADCAST_INFO*)0)->originator), "%s %s", aafi->aafd->Identification.ProductName, (mediaComposer_AAF(aafi)) ? "" : aafi->aafd->Identification.ProductVersionString );
 	snprintf( bext.originator_reference, sizeof(((SF_BROADCAST_INFO*)0)->originator_reference), "libAAF %s", LIBAAF_VERSION );
 
-	memcpy( bext.origination_date, audioEssenceFile->originationDate, sizeof(((SF_BROADCAST_INFO*)0)->origination_date) );
-	memcpy( bext.origination_time, audioEssenceFile->originationTime, sizeof(((SF_BROADCAST_INFO*)0)->origination_time) );
+	if ( audioEssenceFile->sourceMobCreationTime ) {
+
+		char buf[32];
+
+		int rc = snprintf( buf, sizeof(buf), "%04u:%02u:%02u",
+			(audioEssenceFile->sourceMobCreationTime->date.year > 0 && audioEssenceFile->sourceMobCreationTime->date.year  <= 9999) ? audioEssenceFile->sourceMobCreationTime->date.year  : 0,
+			(audioEssenceFile->sourceMobCreationTime->date.month <=   99) ? audioEssenceFile->sourceMobCreationTime->date.month : 0,
+			(audioEssenceFile->sourceMobCreationTime->date.day   <=   99) ? audioEssenceFile->sourceMobCreationTime->date.day   : 0 );
+
+		printf("BUF: '%s' (%i)\n", buf, rc );
+		assert( rc > 0 && (size_t)rc <= sizeof(((SF_BROADCAST_INFO*)0)->origination_date) );
+
+		memcpy( bext.origination_date, buf, sizeof(((SF_BROADCAST_INFO*)0)->origination_date) );
+
+		rc = snprintf( buf, sizeof(buf), "%02u:%02u:%02u",
+			(audioEssenceFile->sourceMobCreationTime->time.hour   <= 99) ? audioEssenceFile->sourceMobCreationTime->time.hour   : 0,
+			(audioEssenceFile->sourceMobCreationTime->time.minute <= 99) ? audioEssenceFile->sourceMobCreationTime->time.minute : 0,
+			(audioEssenceFile->sourceMobCreationTime->time.second <= 99) ? audioEssenceFile->sourceMobCreationTime->time.second : 0 );
+
+		assert( rc > 0 && (size_t)rc <= sizeof(((SF_BROADCAST_INFO*)0)->origination_time) );
+
+		memcpy( bext.origination_time, buf, sizeof(((SF_BROADCAST_INFO*)0)->origination_time) );
+	}
+
 	memcpy( bext.umid, audioEssenceFile->sourceMobID, sizeof(aafMobID_t) );
 
 	if ( sf_command( sfile, SFC_SET_BROADCAST_INFO, &bext, sizeof(bext) ) == SF_FALSE ) {
@@ -713,6 +745,13 @@ static int sfaaf_set_bext( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenceFi
 	}
 
 	return 0;
+}
+
+
+
+int aafi_sf_close( SNDFILE *sndfile )
+{
+	return sf_close( sndfile );
 }
 
 
@@ -1214,16 +1253,16 @@ static int set_audioEssenceWithRIFF( AAF_Iface *aafi, const char *filename, aafi
 		warning( "%s : summary samplesize (%i) mismatch %s (%i)", filename , audioEssenceFile->samplesize, ((isExternalFile) ? "located file" : "previously retrieved data"), RIFFAudioFile->sampleSize );
 	}
 
-	if ( audioEssenceFile->length > 0 && (uint64_t)audioEssenceFile->length != RIFFAudioFile->sampleCount ) {
-		warning( "%s : summary samplecount (%"PRIi64") mismatch %s (%"PRIi64")", filename , audioEssenceFile->length, ((isExternalFile) ? "located file" : "previously retrieved data"), RIFFAudioFile->sampleCount );
+	if ( audioEssenceFile->framelength > 0 && (uint64_t)audioEssenceFile->framelength != RIFFAudioFile->sampleCount ) {
+		warning( "%s : summary samplecount (%"PRIi64") mismatch %s (%"PRIi64")", filename , audioEssenceFile->framelength, ((isExternalFile) ? "located file" : "previously retrieved data"), RIFFAudioFile->sampleCount );
 	}
 
 	audioEssenceFile->channels   = RIFFAudioFile->channels;
 	audioEssenceFile->samplerate = RIFFAudioFile->sampleRate;
 	audioEssenceFile->samplesize = RIFFAudioFile->sampleSize;
 
-	audioEssenceFile->length = (aafPosition_t)RIFFAudioFile->sampleCount;
-	audioEssenceFile->pcm_audio_start_offset = (uint64_t)RIFFAudioFile->pcm_audio_start_offset;
+	audioEssenceFile->framelength = (aafPosition_t)RIFFAudioFile->sampleCount;
+	audioEssenceFile->pcmAudioStreamOffset = (uint64_t)RIFFAudioFile->pcm_audio_start_offset;
 	audioEssenceFile->samplerateRational->numerator = (int32_t)audioEssenceFile->samplerate;
 
 	audioEssenceFile->samplerateRational->denominator = 1;
@@ -1267,9 +1306,9 @@ int aafi_extract_original_audioEssenceFile( AAF_Iface *aafi, aafiAudioEssenceFil
 
 	if ( skipHeader ) {
 
-		assert( audioEssenceFile->pcm_audio_start_offset < INT64_MAX );
+		assert( audioEssenceFile->pcmAudioStreamOffset < INT64_MAX );
 
-		fileOffset = (int64_t)audioEssenceFile->pcm_audio_start_offset;
+		fileOffset = (int64_t)audioEssenceFile->pcmAudioStreamOffset;
 		debug( "Skipping header with file offset: %"PRIi64" bytes", fileOffset );
 	}
 
@@ -1347,6 +1386,190 @@ end:
 		fclose( fp );
 
 	return rc;
+}
+
+
+
+aafiAudioEssencePointer * aafi_newAudioEssenceFilePointer( AAF_Iface *aafi, aafiAudioEssencePointer **list, aafiAudioEssenceFile *audioEssenceFile, uint32_t *essenceChannelNum )
+{
+	aafiAudioEssencePointer * essencePointer = calloc( 1, sizeof(aafiAudioEssencePointer) );
+
+	if ( !essencePointer ) {
+		error( "Out of memory" );
+		return NULL;
+	}
+
+	essencePointer->aafi = aafi;
+	essencePointer->essenceFile = audioEssenceFile;
+	essencePointer->essenceChannel = ( essenceChannelNum ) ? *essenceChannelNum : 0;
+
+
+	if ( *list ) {
+		aafiAudioEssencePointer *last = *list;
+		while ( last->next != NULL ) {
+			last = last->next;
+		}
+		last->next = essencePointer;
+	}
+	else {
+		*list = essencePointer;
+	}
+
+	return *list;
+}
+
+
+
+aafiAudioEssenceFile * aafi_newAudioEssenceFile( AAF_Iface *aafi )
+{
+	aafiAudioEssenceFile * audioEssenceFile = calloc( 1, sizeof(aafiAudioEssenceFile) );
+
+	if ( !audioEssenceFile ) {
+		error( "Out of memory" );
+		goto err;
+	}
+
+	audioEssenceFile->samplerateRational = malloc( sizeof(aafRational_t) );
+
+	if ( !audioEssenceFile->samplerateRational ) {
+		error( "Out of memory" );
+		goto err;
+	}
+
+	audioEssenceFile->aafi = aafi;
+
+	audioEssenceFile->samplerateRational->numerator = 1;
+	audioEssenceFile->samplerateRational->denominator = 1;
+
+	audioEssenceFile->next = aafi->Audio->essenceFiles;
+
+	aafi->Audio->essenceFiles = audioEssenceFile;
+	aafi->Audio->essenceCount++;
+
+	return audioEssenceFile;
+
+err:
+	if ( audioEssenceFile ) {
+		free( audioEssenceFile->samplerateRational );
+		free( audioEssenceFile );
+	}
+
+	return NULL;
+}
+
+
+
+aafiVideoEssenceFile * aafi_newVideoEssenceFile( AAF_Iface *aafi )
+{
+	aafiVideoEssenceFile * videoEssenceFile = calloc( 1, sizeof(aafiVideoEssenceFile) );
+
+	if ( !videoEssenceFile ) {
+		error( "Out of memory" );
+		return NULL;
+	}
+
+	videoEssenceFile->next = aafi->Video->essenceFiles;
+
+	aafi->Video->essenceFiles = videoEssenceFile;
+
+	return videoEssenceFile;
+}
+
+
+
+aafiAudioEssencePointer * aafi_freeAudioEssencePointer( aafiAudioEssencePointer *audioEssencePointer )
+{
+	if ( !audioEssencePointer ) {
+		return NULL;
+	}
+
+	aafiAudioEssencePointer *next = audioEssencePointer->next;
+
+	free( audioEssencePointer );
+	// while ( essencePointer ) {
+	// 	next = essencePointer->next;
+	// 	free( essencePointer );
+	// 	essencePointer = next;
+	// }
+
+	return next;
+}
+
+
+
+aafiAudioEssenceFile * aafi_freeAudioEssenceFile( aafiAudioEssenceFile *audioEssenceFile )
+{
+	if ( !audioEssenceFile ) {
+		return NULL;
+	}
+
+	aafiAudioEssenceFile *next = audioEssenceFile->next;
+
+	free( audioEssenceFile->original_file_path );
+	free( audioEssenceFile->usable_file_path );
+	free( audioEssenceFile->name );
+	free( audioEssenceFile->unique_name );
+	free( audioEssenceFile->samplerateRational );
+
+	cfb_close_stream( audioEssenceFile->sd );
+
+	aafi_freeMetadata( &(audioEssenceFile->metadata) );
+
+	free( audioEssenceFile );
+
+	return next;
+}
+
+
+
+aafiVideoEssenceFile * aafi_freeVideoEssenceFile( aafiVideoEssenceFile *videoEssenceFile )
+{
+	if ( !videoEssenceFile ) {
+		return NULL;
+	}
+
+	aafiVideoEssenceFile *next = videoEssenceFile->next;
+
+	free( videoEssenceFile->original_file_path );
+	free( videoEssenceFile->usable_file_path );
+	free( videoEssenceFile->name );
+	free( videoEssenceFile->unique_name );
+
+	free( videoEssenceFile );
+
+	return next;
+}
+
+
+
+int aafi_getAudioEssencePointerChannelCount( aafiAudioEssencePointer *essencePointerList )
+{
+	/*
+	 * If essencePointerList holds a single multichannel essence file and if
+	 * essencePointer->essenceChannel is set, then clip is mono and audio comes
+	 * from essencePointer->essenceChannel of essencePointer.essenceFile.
+	 *
+	 * If essencePointerList holds a single multichannel essence file and if
+	 * essencePointer->essenceChannel is null, then clip is multichannel and
+	 * clip channel count equals aafiAudioEssenceFile->channels.
+	 *
+	 * If essencePointerList holds multiple pointers to multiple essence files,
+	 * then each file should be mono and describe a clip channel. Thus, clip
+	 * channel count equals pointers count.
+	 */
+
+	// if ( !essencePointerList ) {
+	// 	return 0;
+	// }
+
+	int essencePointerCount = 0;
+	aafiAudioEssencePointer *essencePointer = NULL;
+
+	AAFI_foreachEssencePointer( essencePointerList, essencePointer ) {
+		essencePointerCount++;
+	}
+
+	return ( essencePointerCount > 1 ) ? essencePointerCount : ( essencePointerList->essenceChannel ) ? 1 : essencePointerList->essenceFile->channels;
 }
 
 
@@ -1507,7 +1730,7 @@ int aafi_parse_audioEssenceFile( AAF_Iface *aafi, aafiAudioEssenceFile *audioEss
 
 	if ( audioEssenceFile->is_embedded ) {
 
-		cfb_getStream( aafi->aafd->cfbd, audioEssenceFile->node, &dataStream, &dataStreamSize );
+		cfb_getStream( aafi->aafd->cfbd, audioEssenceFile->dataStreamNode, &dataStream, &dataStreamSize );
 
 		if ( dataStream == NULL ) {
 			error( "Could not retrieve audio essence stream from CFB" );
