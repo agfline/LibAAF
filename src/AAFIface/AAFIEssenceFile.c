@@ -1415,6 +1415,18 @@ aafiAudioEssencePointer * aafi_newAudioEssenceFilePointer( AAF_Iface *aafi, aafi
 		*list = essencePointer;
 	}
 
+	if ( aafi->Audio->essencePointers ) {
+		aafiAudioEssencePointer *last = aafi->Audio->essencePointers;
+		while ( last->allocNext != NULL ) {
+			last = last->allocNext;
+		}
+		last->allocNext = essencePointer;
+		essencePointer->allocPrev = last;
+	}
+	else {
+		aafi->Audio->essencePointers = essencePointer;
+	}
+
 	return *list;
 }
 
@@ -1483,14 +1495,21 @@ aafiAudioEssencePointer * aafi_freeAudioEssencePointer( aafiAudioEssencePointer 
 		return NULL;
 	}
 
-	aafiAudioEssencePointer *next = audioEssencePointer->next;
+	AAF_Iface *aafi = audioEssencePointer->aafi;
+
+	aafiAudioEssencePointer *next = audioEssencePointer->allocNext;
+
+	if ( aafi->Audio->essencePointers->allocPrev ) {
+		aafi->Audio->essencePointers->allocPrev->allocNext = audioEssencePointer->allocNext;
+	}
+	if ( aafi->Audio->essencePointers->allocNext ) {
+		aafi->Audio->essencePointers->allocNext->allocPrev = audioEssencePointer->allocPrev;
+	}
+	if ( aafi->Audio->essencePointers == audioEssencePointer ) {
+		aafi->Audio->essencePointers = audioEssencePointer->allocNext;
+	}
 
 	free( audioEssencePointer );
-	// while ( essencePointer ) {
-	// 	next = essencePointer->next;
-	// 	free( essencePointer );
-	// 	essencePointer = next;
-	// }
 
 	return next;
 }
@@ -1570,6 +1589,46 @@ int aafi_getAudioEssencePointerChannelCount( aafiAudioEssencePointer *essencePoi
 	}
 
 	return ( essencePointerCount > 1 ) ? essencePointerCount : ( essencePointerList->essenceChannel ) ? 1 : essencePointerList->essenceFile->channels;
+}
+
+
+
+aafiAudioEssencePointer * aafi_audioEssencePointer_exists_before( AAF_Iface *aafi, aafiAudioEssencePointer *audioEssencePointerList )
+{
+	aafiAudioTrack *at = NULL;
+	aafiTimelineItem *ai = NULL;
+	aafiAudioClip *ac = NULL;
+
+	aafiAudioEssencePointer *aep1 = NULL;
+	aafiAudioEssencePointer *aep2 = NULL;
+
+	AAFI_foreachAudioTrack( aafi, at ) {
+		AAFI_foreachTrackItem( at, ai ) {
+
+			if ( ai->type != AAFI_AUDIO_CLIP ) {
+				continue;
+			}
+
+			ac = (aafiAudioClip*)ai->data;
+			aep1 = audioEssencePointerList;
+
+			int found = 1;
+
+			AAFI_foreachClipEssencePointer( ac, aep2 ) {
+				if ( !aep1 || aep1->essenceFile != aep2->essenceFile || aep1->essenceChannel != aep2->essenceChannel ) {
+					found = 0;
+					break;
+				}
+				aep1 = aep1->next;
+			}
+
+			if ( found && aep1 == NULL ) {
+				return ac->essencePointerList;
+			}
+		}
+	}
+
+	return NULL;
 }
 
 

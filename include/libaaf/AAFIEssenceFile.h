@@ -402,6 +402,10 @@ typedef struct aafiAudioEssencePointer
 
 	struct aafiAudioEssencePointer *next; /* List: audioClip.essencePointerList */
 
+	/* those are used to track all structures for freeing */
+	struct aafiAudioEssencePointer *allocPrev; /* List: aafi.essencePointerList */
+	struct aafiAudioEssencePointer *allocNext; /* List: aafi.essencePointerList */
+
 } aafiAudioEssencePointer;
 
 
@@ -757,6 +761,8 @@ char * aafi_build_audioEssenceFilePath( AAF_Iface *aafi, aafiAudioEssenceFile *a
 int aafi_parse_audioEssenceFile( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenceFile );
 
 int aafi_getAudioEssencePointerChannelCount( struct aafiAudioEssencePointer *essencePointerList );
+
+aafiAudioEssencePointer * aafi_audioEssencePointer_exists_before( AAF_Iface *aafi, aafiAudioEssencePointer *audioEssencePointerList );
 
 const char * aafi_extractFormatToText( enum aafiExtractFormat fmt );
 

@@ -242,6 +242,12 @@ void aafi_release( AAF_Iface **aafi )
 			audioEssenceFile = aafi_freeAudioEssenceFile( audioEssenceFile );
 		}
 
+		aafiAudioEssencePointer *audioEssencePointer = (*aafi)->Audio->essencePointers;
+
+		while ( audioEssencePointer ) {
+			audioEssencePointer = aafi_freeAudioEssencePointer( audioEssencePointer );
+		}
+
 		free( (*aafi)->Audio );
 	}
 
@@ -258,6 +264,7 @@ void aafi_release( AAF_Iface **aafi )
 
 		free( (*aafi)->Video );
 	}
+
 
 	aafi_freeMarkers( &(*aafi)->Markers );
 	aafi_freeMetadata( &((*aafi)->metadata) );
@@ -910,6 +917,7 @@ void aafi_freeVideoTracks( aafiVideoTrack **tracks )
 }
 
 
+
 void aafi_freeTimelineItems( aafiTimelineItem **timelineItems )
 {
 	aafiTimelineItem *timelineItem = NULL;
@@ -957,12 +965,6 @@ void aafi_freeAudioClip( aafiAudioClip *audioClip )
 	aafi_freeAudioGain( audioClip->gain );
 	aafi_freeAudioGain( audioClip->automation );
 	aafi_freeMetadata( &(audioClip->metadata) );
-
-	aafiAudioEssencePointer *audioEssencePointer = audioClip->essencePointerList;
-
-	while ( audioEssencePointer ) {
-		audioEssencePointer = aafi_freeAudioEssencePointer( audioEssencePointer );
-	}
 
 	free( audioClip );
 }

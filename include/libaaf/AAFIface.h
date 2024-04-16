@@ -637,7 +637,7 @@ typedef struct aafiAudio
 
 	int                      essenceCount;
 	struct aafiAudioEssenceFile    *essenceFiles;
-
+	struct aafiAudioEssencePointer *essencePointers; /* only used for freeing */
 	/**
 	 * Holds the Track list.
 	 */
