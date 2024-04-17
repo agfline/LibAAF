@@ -1177,7 +1177,7 @@ void aafi_freeMarkers( aafiMarker **aafi );
 void aafi_freeMetadata( aafiMetaData **CommentList );
 
 
-void aafi_freeAudioEssencePointer( aafiAudioEssencePointer *audioEssenceGroupEntry );
+aafiAudioEssencePointer * aafi_freeAudioEssencePointer( aafiAudioEssencePointer *audioEssenceGroupEntry );
 
 void aafi_freeAudioEssences( aafiAudioEssenceFile **audioEssenceFiles );
 

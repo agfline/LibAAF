@@ -236,6 +236,12 @@ void aafi_release( AAF_Iface **aafi )
 		aafi_freeAudioTracks( &(*aafi)->Audio->Tracks );
 		aafi_freeAudioEssences( &(*aafi)->Audio->essenceFiles );
 
+		aafiAudioEssencePointer *essencePointer = (*aafi)->Audio->essencePointerList;
+
+		while ( essencePointer ) {
+			essencePointer = aafi_freeAudioEssencePointer( essencePointer );
+		}
+
 		free( (*aafi)->Audio );
 	}
 
@@ -868,10 +874,10 @@ aafiAudioEssencePointer * aafi_newAudioEssencePointer( AAF_Iface *aafi, aafiAudi
 	}
 	else {
 		*list = essencePointer;
-
-		essencePointer->aafiNext = aafi->Audio->essencePointerList;
-		aafi->Audio->essencePointerList = essencePointer;
 	}
+
+	essencePointer->aafiNext = aafi->Audio->essencePointerList;
+	aafi->Audio->essencePointerList = essencePointer;
 
 	return *list;
 }
@@ -1067,8 +1073,6 @@ void aafi_freeAudioClip( aafiAudioClip *audioClip )
 	aafi_freeAudioGain( audioClip->automation );
 	aafi_freeMetadata( &(audioClip->metadata) );
 
-	aafi_freeAudioEssencePointer( audioClip->essencePointerList );
-
 	free( audioClip );
 }
 
@@ -1131,15 +1135,13 @@ void aafi_freeMetadata( aafiMetaData **CommentList )
 
 
 
-void aafi_freeAudioEssencePointer( aafiAudioEssencePointer *essencePointer )
+aafiAudioEssencePointer * aafi_freeAudioEssencePointer( aafiAudioEssencePointer *essencePointer )
 {
-	aafiAudioEssencePointer *next = NULL;
+	aafiAudioEssencePointer *next = essencePointer->aafiNext;
 
-	while ( essencePointer ) {
-		next = essencePointer->next;
-		free( essencePointer );
-		essencePointer = next;
-	}
+	free( essencePointer );
+
+	return next;
 }
 
 
