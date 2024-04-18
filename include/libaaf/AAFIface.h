@@ -73,9 +73,67 @@ typedef enum aafiTransition_e
  * @ingroup public_api Public API
  * @addtogroup public_api Public API
  * @{
- * @brief Library public API
  */
 
+/**
+ * All tag values available for aafi_set_option()
+ */
+
+typedef enum aafiOption_e {
+
+	AAFI_OPT_UNKNOWN = 0,
+
+	/**
+	 * Print AAF object tree while parsing.\n
+	 * Option takes an argument of type `int`, 1 to enable or 0 to disable.
+	 */
+	AAFI_OPT_TRACE,
+
+	/**
+	 * Dump meta properties (non-standard) while parsing (require AAFI_OPT_TRACE to be set)\n
+	 * Option takes an argument of type `int`, 1 to enable or 0 to disable.
+	 */
+	AAFI_OPT_DUMP_META,
+
+	/**
+	 * Dump standard tagged values (Mob::UserComments and Mob::Attributes) while parsing (require AAFI_OPT_TRACE to be set)\n
+	 * Option takes an argument of type `int`, 1 to enable or 0 to disable.
+	 */
+	AAFI_OPT_DUMP_TAGGED_VALUE,
+
+	/**
+	 * Dump all properties of an object, each time its class is encountered while parsing (require AAFI_OPT_TRACE to be set)\n
+	 * Option takes an argument of type `const char*` with a class name (eg. *AAFClassID_SourceClip*)
+	 */
+	AAFI_OPT_DUMP_CLASS_PROPS,
+
+	/**
+	 * Dump all raw properties of an object, each time its class is encountered while parsing (require AAFI_OPT_TRACE to be set)\n
+	 * Option takes an argument of type `const char*` with a class name (eg. *AAFClassID_SourceClip*)
+	 */
+	AAFI_OPT_DUMP_CLASS_RAW_PROPS,
+
+	/**
+	 * Set the location where external media essence files are located.\n
+	 * Option takes an argument of type `const char*` with an absolute path.
+	 */
+	AAFI_OPT_MEDIA_LOCATION,
+
+	/**
+	 * When extracting embedded audio essence files, rename those with their mobID. This also ensures there is no nonlatin char in filenames.\n
+	 * Option takes an argument of type `int`, 1 to enable or 0 to disable.
+	 */
+	AAFI_OPT_MOBID_ESSENCE_FILENAME,
+
+	/**
+	 * Set ProTools proprietary options.\n
+	 * Option takes an argument of type `enum protools_options`.
+	 */
+	AAFI_OPT_PROTOOLS,
+
+	AAFI_OPT_MAX
+
+} aafiOption;
 
 
 /**
@@ -906,9 +964,17 @@ AAF_Iface * aafi_alloc( AAF_Data *aafd );
 
 void aafi_set_debug( AAF_Iface *aafi, verbosityLevel_e v, int ansicolor, FILE *fp, void (*callback)(struct aafLog *log, void *ctxdata, int lib, int type, const char *srcfile, const char *srcfunc, int lineno, const char *msg, void *user), void *user );
 
-int aafi_set_option_int( AAF_Iface *aafi, const char *optname, int val );
+/**
+ * Set global libaaf options.
+ *
+ * @param aafi  Pointer to the current AAF_Iface struct.
+ * @param tag   Any value from #aafiOption.
+ * @param ...   Either int, enum or const char * depending on #aafiOption.
+ *
+ * @return      0 on success or -1 on error.
+ */
 
-int aafi_set_option_str( AAF_Iface *aafi, const char *optname, const char *val );
+int aafi_set_option( AAF_Iface *aafi, aafiOption tag, ... );
 
 int aafi_load_file( AAF_Iface *aafi, const char *file );
 

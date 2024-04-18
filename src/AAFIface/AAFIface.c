@@ -63,6 +63,10 @@
 
 
 
+static int set_optstr( char **var, va_list arg );
+
+
+
 AAF_Iface * aafi_alloc( AAF_Data *aafd )
 {
 	AAF_Iface *aafi = calloc( 1, sizeof(AAF_Iface) );
@@ -142,70 +146,55 @@ void aafi_set_debug( AAF_Iface *aafi, enum verbosityLevel_e verb, int ansicolor,
 
 
 
-int aafi_set_option_int( AAF_Iface *aafi, const char *optname, int val ) {
+static int set_optstr( char **var, va_list arg )
+{
+	free( *var );
 
-	if ( strcmp( optname, "trace" ) == 0 ) {
-		aafi->ctx.options.trace = val;
-		return 0;
-	}
-	else if ( strcmp( optname, "dump_meta" ) == 0 ) {
-		aafi->ctx.options.dump_meta = val;
-		return 0;
-	}
-	else if ( strcmp( optname, "dump_tagged_value" ) == 0 ) {
-		aafi->ctx.options.dump_tagged_value = val;
-		return 0;
-	}
-	else if ( strcmp( optname, "protools" ) == 0 ) {
-		aafi->ctx.options.protools = val;
-		return 0;
-	}
-	else if ( strcmp( optname, "mobid_essence_filename" ) == 0 ) {
-		aafi->ctx.options.mobid_essence_filename = val;
-		return 0;
+	char *argstr = va_arg( arg, char* );
+
+	*var = laaf_util_c99strdup( argstr );
+
+	if ( argstr && !*var ) {
+		return -1;
 	}
 
-	return 1;
+	return 0;
 }
 
 
 
-int aafi_set_option_str( AAF_Iface *aafi, const char *optname, const char *val ) {
-
-	if ( strcmp( optname, "media_location" ) == 0 ) {
-		free( aafi->ctx.options.media_location );
-		aafi->ctx.options.media_location = laaf_util_c99strdup( val );
-
-		if ( val && !aafi->ctx.options.media_location ) {
-			return -1;
-		}
-
-		return 0;
-	}
-	else if ( strcmp( optname, "dump_class_aaf_properties" ) == 0 ) {
-
-		free( aafi->ctx.options.dump_class_aaf_properties );
-		aafi->ctx.options.dump_class_aaf_properties = laaf_util_c99strdup( val );
-
-		if ( val && !aafi->ctx.options.dump_class_aaf_properties ) {
-			return -1;
-		}
-
-		return 0;
-	}
-	else if ( strcmp( optname, "dump_class_raw_properties" ) == 0 ) {
-
-		free( aafi->ctx.options.dump_class_raw_properties );
-		aafi->ctx.options.dump_class_raw_properties = laaf_util_c99strdup( val );
-
-		if ( val && !aafi->ctx.options.dump_class_raw_properties ) {
-			return -1;
-		}
-
-		return 0;
+int aafi_set_option( AAF_Iface *aafi, aafiOption tag, ... )
+{
+	if ( tag <= AAFI_OPT_UNKNOWN ||
+	     tag >= AAFI_OPT_MAX )
+	{
+		return -1;
 	}
 
-	return 1;
+	int rc = -1;
+
+	va_list arg;
+	va_start( arg, tag );
+
+	switch ( tag ) {
+
+		case AAFI_OPT_TRACE:                  aafi->ctx.options.trace                  = va_arg( arg, int );         break;
+		case AAFI_OPT_DUMP_META:              aafi->ctx.options.dump_meta              = va_arg( arg, int );         break;
+		case AAFI_OPT_DUMP_TAGGED_VALUE:      aafi->ctx.options.dump_tagged_value      = va_arg( arg, int );         break;
+		case AAFI_OPT_MOBID_ESSENCE_FILENAME: aafi->ctx.options.mobid_essence_filename = va_arg( arg, int );         break;
+
+		case AAFI_OPT_PROTOOLS:               aafi->ctx.options.protools               = va_arg( arg, int );         break;
+
+		case AAFI_OPT_DUMP_CLASS_PROPS:       rc = set_optstr( &aafi->ctx.options.dump_class_aaf_properties, arg );  break;
+		case AAFI_OPT_DUMP_CLASS_RAW_PROPS:   rc = set_optstr( &aafi->ctx.options.dump_class_raw_properties, arg );  break;
+		case AAFI_OPT_MEDIA_LOCATION:         rc = set_optstr( &aafi->ctx.options.media_location, arg );             break;
+
+		default: break;
+	}
+
+	va_end( arg );
+
+	return rc;
 }
 
 

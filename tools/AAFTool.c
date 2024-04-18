@@ -736,15 +736,16 @@ int main( int argc, char *argv[] ) {
 
 	aafi_set_debug( aafi, verb, ansicolor, logfp, NULL, NULL );
 
-	aafi_set_option_int( aafi, "trace",                     trace                     );
-	aafi_set_option_int( aafi, "dump_meta",                 dump_meta                 );
-	aafi_set_option_int( aafi, "dump_tagged_value",         dump_tagged_value         );
-	aafi_set_option_int( aafi, "protools",                  protools_options          );
-	aafi_set_option_int( aafi, "mobid_essence_filename",    extract_mobid_filename    );
+	aafi_set_option( aafi, AAFI_OPT_TRACE,                  trace                     );
+	aafi_set_option( aafi, AAFI_OPT_DUMP_META,              dump_meta                 );
+	aafi_set_option( aafi, AAFI_OPT_DUMP_TAGGED_VALUE,      dump_tagged_value         );
+	aafi_set_option( aafi, AAFI_OPT_DUMP_CLASS_PROPS,       dump_class_aaf_properties );
+	aafi_set_option( aafi, AAFI_OPT_DUMP_CLASS_RAW_PROPS,   dump_class_raw_properties );
 
-	aafi_set_option_str( aafi, "media_location",            media_location            );
-	aafi_set_option_str( aafi, "dump_class_aaf_properties", dump_class_aaf_properties );
-	aafi_set_option_str( aafi, "dump_class_raw_properties", dump_class_raw_properties );
+	aafi_set_option( aafi, AAFI_OPT_MEDIA_LOCATION,         media_location            );
+	aafi_set_option( aafi, AAFI_OPT_MOBID_ESSENCE_FILENAME, extract_mobid_filename    );
+
+	aafi_set_option( aafi, AAFI_OPT_PROTOOLS,               protools_options          );
 
 
 	if ( aafi_load_file( aafi, argv[argc-1] ) ) {
