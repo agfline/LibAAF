@@ -47,8 +47,10 @@
  * @version 0.1
  * @date 04 october 2017
  *
- * @ingroup LibCFB
- * @addtogroup LibCFB
+ * @defgroup LibCFB LibCFB
+ * @ingroup private_api
+ * @brief Low level *Compound File Binary Format* (COM/CFB) file parsing, based
+ * on **Stored Format Specification v1.0.1**
  * @{
  */
 

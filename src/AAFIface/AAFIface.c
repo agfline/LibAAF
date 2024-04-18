@@ -26,7 +26,6 @@
  * @date 04 october 2017
  *
  * @ingroup AAFIface
- * @addtogroup AAFIface
  *
  * The AAFIface provides the actual processing of the AAF Objects in order to show
  * essences and clips in a simplified manner. Indeed, AAF has many different ways to

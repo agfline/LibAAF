@@ -26,7 +26,6 @@
  * @date 27 june 2018
  *
  * @ingroup AAFIface
- * @addtogroup AAFIface
  *
  *
  *

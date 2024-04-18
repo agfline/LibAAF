@@ -1,0 +1,16 @@
+/**
+ * @defgroup public_api Public API
+ * @brief Library public API
+ *
+ * @defgroup private_api Private API
+ * @brief Highest level of AAF spec, the parsing of AAF objects as specified in
+ * **Object Specification v1.1**, **Edit Protocol**.
+ *
+ * @defgroup libaaf_api_init Open AAF File
+ * @ingroup public_api
+ * @brief Initialize library context and open AAF file
+ *
+ * @defgroup libaaf_api_audio_essence Audio Essence Files
+ * @ingroup public_api
+ * @brief Functions for handling embedded and external audio essence files.
+ */

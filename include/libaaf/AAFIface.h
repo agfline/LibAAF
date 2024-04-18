@@ -31,11 +31,11 @@
 #include <libaaf/AAFCore.h>
 
 
-/*
- * @ingroup AAFIface
- * @addtogroup AAFIface
+/**
+ * @defgroup AAFIface AAFIface
+ * @ingroup private_api
+ *
  * @{
- * @brief Abstraction layer to interpret the Objects/Class and retrieve data.
  */
 
 /**
@@ -70,8 +70,8 @@ typedef enum aafiTransition_e
 
 
 /**
- * @ingroup libaafAPI LibAAF API
- * @addtogroup libaafAPI LibAAF API
+ * @ingroup public_api Public API
+ * @addtogroup public_api Public API
  * @{
  * @brief Library public API
  */
@@ -863,6 +863,45 @@ typedef struct AAF_Iface
  */
 
 
+/**
+ * @addtogroup libaaf_api_init Initialization
+ *
+ * Typical library usage begins as follow :
+ *
+ * @code{.c}
+#include <libaaf.h>
+
+// allocate a new AAF_Iface object
+AAF_Iface *aafi = aafi_alloc( NULL );
+
+if ( !aafi ) {
+	// error
+}
+
+// set verbosity level, optional file pointer or callback function
+aafi_set_debug( aafi, VERB_DEBUG, 1, stdout, NULL, NULL );
+
+// set libaaf options
+aafi_set_option_int( aafi, "trace", 1 );
+aafi_set_option_int( aafi, "dump_meta", 1 );
+aafi_set_option_int( aafi, "dump_tagged_value", 1 );
+aafi_set_option_int( aafi, "protools", (AAFI_PROTOOLS_OPT_REPLACE_CLIP_FADES | AAFI_PROTOOLS_OPT_REMOVE_SAMPLE_ACCURATE_EDIT) );
+aafi_set_option_str( aafi, "media_location", "./media/" );
+aafi_set_option_str( aafi, "dump_class_aaf_properties", "AAFClassID_TimelineMobSlot" );
+
+// load AAF file
+if ( aafi_load_file( aafi, "./file.aaf" ) ) {
+ 	// error
+}
+
+// ...
+
+aafi_release( &aafi );
+ * @endcode
+ *
+ * @{
+ */
+
 AAF_Iface * aafi_alloc( AAF_Data *aafd );
 
 void aafi_set_debug( AAF_Iface *aafi, verbosityLevel_e v, int ansicolor, FILE *fp, void (*callback)(struct aafLog *log, void *ctxdata, int lib, int type, const char *srcfile, const char *srcfunc, int lineno, const char *msg, void *user), void *user );
@@ -875,6 +914,9 @@ int aafi_load_file( AAF_Iface *aafi, const char *file );
 
 void aafi_release( AAF_Iface **aafi );
 
+/**
+ * @}
+ */
 
 aafiAudioClip * aafi_timelineItemToAudioClip( aafiTimelineItem *audioItem );
 
@@ -891,9 +933,6 @@ aafPosition_t aafi_convertUnit( aafPosition_t value, aafRational_t *valueEditRat
 
 uint64_t aafi_convertUnitUint64( aafPosition_t value, aafRational_t *valueEditRate, aafRational_t *destEditRate );
 
-/**
- * @}
- */
 
 
 

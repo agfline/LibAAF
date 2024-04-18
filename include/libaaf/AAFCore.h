@@ -28,8 +28,8 @@
  * @version 0.1
  * @date 04 october 2017
  *
- * @ingroup AAFCore
- * @addtogroup AAFCore
+ * @defgroup AAFCore
+ * @ingroup private_api
  * @brief Retrieves the AAF Objects Tree from the Compound File Binary.
  *
  * The AAF file structure is based on the Compound File Binary, implemented by LibCFB

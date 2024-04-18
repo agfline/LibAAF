@@ -49,10 +49,7 @@
 
 
 /**
- * @defgroup libaaf_api_audio_essence Audio Essence Files
- * @ingroup libaafAPI
- *
- * @brief Functions for handling embedded and external audio essence files.
+ * @addtogroup libaaf_api_audio_essence
  *
  * Retrieve all essence files described in AAF file
  * ================================================
@@ -435,7 +432,7 @@ typedef struct aafiVideoEssenceFile
 	/*
 	 * Metadata retrieved from main MasterMob::UserComments
 	 */
-	
+
 	aafiMetaData  *metadata;
 
 	struct aafiVideoEssenceFile *next;
@@ -730,11 +727,7 @@ int aafi_extract_original_audioEssenceFile( AAF_Iface *aafi, aafiAudioEssenceFil
  */
 
 /**
- * @file LibAAF/AAFIface/AAFIEssenceFile.h
- * @brief AAF processing
- *
  * @ingroup AAFIface
- * @addtogroup AAFIface
  * @{
  */
 
