@@ -23,6 +23,7 @@
 #include <stdlib.h> // abs()
 #include <math.h>	// round()
 #include <assert.h>
+#include <limits.h> 
 
 #include "libTC.h"
 
