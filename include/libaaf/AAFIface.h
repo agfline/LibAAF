@@ -1119,6 +1119,8 @@ aafPosition_t aafi_convertUnit( aafPosition_t value, aafRational_t *valueEditRat
 
 uint64_t aafi_convertUnitUint64( aafPosition_t value, aafRational_t *valueEditRate, aafRational_t *destEditRate );
 
+aafPosition_t aafi_getClipLength( AAF_Iface *aafi, aafiAudioClip *audioClip, aafRational_t *samplerate, char *isBeyondSource );
+
 
 int aafi_removeTimelineItem( AAF_Iface *aafi, aafiTimelineItem *timelineItem );
 
