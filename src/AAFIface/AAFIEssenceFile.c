@@ -164,9 +164,14 @@ char * aafi_locate_external_essence_file( AAF_Iface *aafi, const char *original_
 	debug( "Decoded URI's path : %s", uri->path );
 
 
-	/* extract relative path to essence file : "<firstparent>/<essence.file>" */
+	/*
+	 * extract relative paths to essence file :
+	 * 		"<firstparent>/<essence.file>"
+	 * 		"<secondparent>/<firstparent>/<essence.file>"
+	 */
 
-	const char *relativeEssencePath = NULL;
+	const char *relativeEssencePath  = NULL;
+	const char *relativeEssencePath2 = NULL;
 	const char *essenceFileName = NULL;
 
 	int sepcount = 0;
@@ -181,6 +186,10 @@ char * aafi_locate_external_essence_file( AAF_Iface *aafi, const char *original_
 			else
 			if ( sepcount == 2 ) {
 				relativeEssencePath = (p+1);
+			}
+			else
+			if ( sepcount == 3 ) {
+				relativeEssencePath2 = (p+1);
 				break;
 			}
 		}
@@ -229,6 +238,27 @@ char * aafi_locate_external_essence_file( AAF_Iface *aafi, const char *original_
 		 */
 
 		local_filepath = laaf_util_build_path( "/", search_location, relativeEssencePath, NULL );
+
+		if ( !local_filepath ) {
+			error( "Could not build search filepath" );
+			goto err;
+		}
+
+		debug( "Search filepath : %s", local_filepath );
+
+		if ( laaf_util_file_exists( local_filepath ) == 1 ) {
+			foundpath = local_filepath;
+			goto found;
+		}
+
+		free( local_filepath ); local_filepath = NULL;
+
+
+		/*
+		 * "<search_location>/<secondparentInOriginalEssencePath>/<firstparentInOriginalEssencePath>/<essence.file>"
+		 */
+
+		local_filepath = laaf_util_build_path( "/", search_location, relativeEssencePath2, NULL );
 
 		if ( !local_filepath ) {
 			error( "Could not build search filepath" );
@@ -318,6 +348,27 @@ char * aafi_locate_external_essence_file( AAF_Iface *aafi, const char *original_
 	 */
 
 	local_filepath = laaf_util_build_path( DIR_SEP_STR, aaf_path, relativeEssencePath, NULL );
+
+	if ( !local_filepath ) {
+		error( "Could not build filepath" );
+		goto err;
+	}
+
+	debug( "AAF relative sub filepath : %s", local_filepath );
+
+	if ( laaf_util_file_exists( local_filepath ) == 1 ) {
+		foundpath = local_filepath;
+		goto found;
+	}
+
+	free( local_filepath ); local_filepath = NULL;
+
+
+	/*
+	 * "<localPathToAAFfile>/<secondparentInOriginalEssencePath>/<firstparentInOriginalEssencePath>/<essence.file>"
+	 */
+
+	local_filepath = laaf_util_build_path( DIR_SEP_STR, aaf_path, relativeEssencePath2, NULL );
 
 	if ( !local_filepath ) {
 		error( "Could not build filepath" );
