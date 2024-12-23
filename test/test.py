@@ -378,6 +378,7 @@ test("PR_Audio_Pan-noBTM.aaf",                     "")
 test("MC_Audio_Pan.aaf",                           "")
 
 test("MC_Audio_Warp.aaf",                          "")
+test("PR_Clip_length_beyond_EOF.aaf",              "")
 
 test("PT_WAV_External.aaf",                        "--media-location \"" + TEST_MEDIA_DIR + "\"")
 test("PT_WAV_External_sub_directory.aaf",          "--samplerate 44100")
