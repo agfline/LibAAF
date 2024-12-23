@@ -1172,11 +1172,15 @@ int main( int argc, char *argv[] ) {
 					 * and print a warning.
 					 */
 					char clipLenBiggerThanSource = 0;
-					aafPosition_t clipLen = aafi_getClipLength( aafi, audioClip, &displaySamplerate, &clipLenBiggerThanSource );
 
-					// TODO: To be removed once we have a proper aaf test file (based on Kris file issue, with out of range clip length)
-					// if ( clipLen == 0 || clipLen != aafi_convertUnit( audioClip->len, audioClip->track->edit_rate, &displaySamplerate ) )
-					// 	printf(" Clip Len = %li\n", clipLen);
+					aafi_getClipLength( aafi, audioClip, &displaySamplerate, &clipLenBiggerThanSource );
+
+					/*
+						aafPosition_t clipLen = aafi_getClipLength( aafi, audioClip, &displaySamplerate, &clipLenBiggerThanSource );
+						if ( clipLen == 0 || clipLen != aafi_convertUnit( audioClip->len, audioClip->track->edit_rate, &displaySamplerate ) ) {
+							printf(" Clip Len = %li\n", clipLen);
+						}
+					*/
 
 					log( aafi->log, " %s Clip (%u):  Start: %s%s%s  Len: %s%s%s%s%s  End: %s%s%s  SourceOffset: %s%s%s  Channels: %s%i%s",
 						( trackLineItemCounter < totalTrackLineItems ) ? TREE_ENTRY : TREE_LAST_ENTRY,
