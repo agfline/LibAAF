@@ -888,7 +888,7 @@ int aafi_parse_audio_essence( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenc
 		fp = fopen( audioEssenceFile->usable_file_path, "rb" );
 
 		if ( fp == NULL ) {
-			error( "Could not open external audio essence file for reading : %s", audioEssenceFile->usable_file_path );
+			error( "Could not open external audio essence file for reading (%i: %s) : %s", errno, strerror(errno), audioEssenceFile->usable_file_path );
 			goto err;
 		}
 
