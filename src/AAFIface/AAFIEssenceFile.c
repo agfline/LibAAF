@@ -885,7 +885,7 @@ int aafi_parse_audio_essence( AAF_Iface *aafi, aafiAudioEssenceFile *audioEssenc
 	     laaf_util_is_fileext( audioEssenceFile->usable_file_path, "aiff" ) ||
 	     laaf_util_is_fileext( audioEssenceFile->usable_file_path, "aifc" ) )
 	{
-		fp = fopen( audioEssenceFile->usable_file_path, "rb" );
+		fp = laaf_util_fopen_utf8( audioEssenceFile->usable_file_path, "rb" );
 
 		if ( fp == NULL ) {
 			error( "Could not open external audio essence file for reading (%i: %s) : %s", errno, strerror(errno), audioEssenceFile->usable_file_path );
