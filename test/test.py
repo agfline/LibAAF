@@ -381,8 +381,10 @@ test("MC_Audio_Warp.aaf",                          "")
 test("PR_Clip_length_beyond_EOF.aaf",              "")
 
 test("PT_WAV_External.aaf",                        "--media-location \"" + TEST_MEDIA_DIR + "\"")
-test("PT_WAV_External_sub_directory.aaf",          "--samplerate 44100")
 test("PT_WAV_External_same_directory.aaf",         "--samplerate 44100")
+test("PT_WAV_External_sub_directory.aaf",          "--samplerate 44100")
+
+test("PR_WAV_External_sub_sub_directory_UTF8.aaf", "")
 
 test("PR_WAV_Internal.aaf",                        "")
 test("PT_AIFF_External.aaf",                       "")

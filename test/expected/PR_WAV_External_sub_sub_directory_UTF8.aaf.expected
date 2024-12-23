@@ -1,0 +1,59 @@
+
+ ByteOrder            : Little-Endian (0x4949)
+ LastModified         : 2024-11-27 17:35:12.00
+ AAF ObjSpec Version  : 1.2
+ ObjectModel Version  : 1
+ Operational Pattern  : AAFOPDef_EditProtocol
+
+
+
+ CompanyName          : Adobe
+ ProductName          : Premiere Pro
+ ProductVersion       : 23.5.0.0 AAFVersionUnknown (0)
+ ProductVersionString : 23.5.0
+ ProductID            : { 0x00000000 0x0000 0x0000 { 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 } }
+ Date                 : 2024-11-27 17:35:12.00
+ ToolkitVersion       : 1.2.0.0 AAFVersionBeta (4)
+ Platform             : AAFSDK (Win64)
+ GenerationAUID       : { 0x475f3171 0x06b4 0x4a41 { 0x95 0x66 0xa3 0xe8 0xd5 0xfb 0x8f 0x7f } }
+
+
+
+ Composition Name            : PR_WAV_External_Subdir_UTF8
+
+ TC EditRrate                : 25/1
+ TC FPS                      : 25 NDF
+
+ Composition Start (EU)      : 0
+ Composition Start (samples) : 0
+ Composition Start           : 00:00:00:00
+
+ Composition End (EU)        : 2 (EditRate: 25/1)
+ Composition End (samples)   : 3840
+ Composition End             : 00:00:00:02
+
+ Dominant Sample Rate        : 48000
+ Dominant Sample Size        : 16 bits
+
+
+Media Essences :
+================
+
+ Audio[1] :: Format: WAVE - 01 ch - 48000 Hz - 16 bits  Length: 3840  Name: "1000hz-18dbs16b44.1k-80ms.wav"  UniqueName: "1000hz-18dbs16b44.1k-80ms.wav"
+ ├── File: "./Média AAF/花/bb6deb92-04b8-4b2a-9d6f-cd840000007c.wav"
+ └── Metadata:
+     - Name: "Take"   Text: ""
+     - Name: "Scene"  Text: ""
+
+
+Tracks & Clips :
+================
+
+ VideoTrack[1] ::  EditRate: 25/1 (25.00)
+
+
+ AudioTrack[1] ::  EditRate: 25/1 (25.00)  Format: MONO  Name: "Audio 1"
+ └── Clip (1):  Start: 0  Len: 3840  End: 3840  SourceOffset: 0  Channels: 1  Gain: +00.0 dB
+     └── SourceFile [ch 1]: "1000hz-18dbs16b44.1k-80ms.wav"
+  
+
