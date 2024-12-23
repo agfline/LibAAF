@@ -91,6 +91,8 @@ char * laaf_util_windows_utf16toutf8( const wchar_t *wstr );
 
 int laaf_util_file_exists( const char *filepath );
 
+FILE * laaf_util_fopen_utf8( const char *filepath, const char *mode );
+
 char * laaf_util_clean_filename( char *filename );
 
 int laaf_util_is_fileext( const char *filepath, const char *ext );
