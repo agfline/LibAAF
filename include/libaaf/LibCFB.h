@@ -30,7 +30,7 @@
 #if defined(__linux__)
 	#include <limits.h>
 	#include <linux/limits.h>
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) || defined(__NetBSD__)
 	#include <sys/syslimits.h>
 #elif defined(_WIN32)
 	#include <windows.h> // MAX_PATH
