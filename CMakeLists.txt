@@ -224,7 +224,7 @@ if ( BUILD_TOOLS )
 		message( "Building aaftool upon shared library" )
 	endif()
 
-	if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
+	if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" OR ${CMAKE_SYSTEM_NAME} MATCHES "NetBSD" )
 		link_libraries( ${LINK_LIB} "-lm" )
 	else()
 		link_libraries( ${LINK_LIB} )
