@@ -144,7 +144,9 @@ int main( int argc, char *argv[] ) {
 
 	int errors = 0;
 
-#pragma GCC diagnostic ignored "-Wdiscarded-qualifiers"
+#ifdef __GNUC__
+	#pragma GCC diagnostic ignored "-Wdiscarded-qualifiers"
+#endif
 
 	errors += _uri_test( "", URI_OPT_NONE, (struct uri){ .scheme = NULL, .scheme_t = URI_SCHEME_T_UNKNOWN, .host = NULL, .port = 0, .path = NULL, .query = NULL, .fragment = NULL }, __LINE__ );
 	errors += _uri_test( "https://www.server.com/PT_UTF-8_%D8%A7%D9%84%D9%81%D9%88%D8%B6%D9%89.aaf", URI_OPT_DECODE_ALL, (struct uri){ .scheme = "https", .scheme_t = URI_SCHEME_T_HTTPS, .host = "www.server.com", .port = 0, .path = "/PT_UTF-8_الفوضى.aaf", .query = NULL, .fragment = NULL, .flags = URI_T_HOST_REGNAME }, __LINE__ );
