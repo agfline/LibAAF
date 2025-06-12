@@ -142,7 +142,7 @@ static const char * panToStr( aafiAudioPan *pan ) {
 
 		double panval = aafRationalToDouble( (*pan->value) );
 
-		snprintf( str, 32, "%s %s ",
+		snprintf( str, sizeof(str), "%s %s ",
 			float2str( f2sbuf, "%0.2f", panval ),
 			( panval == 0.0 ) ? "(L)" :
 			( panval == 0.5 ) ? "(C)" :
