@@ -51,6 +51,14 @@ extern "C" {
 #endif
 
 
+#if defined(_WIN32)
+	#define fseek64 _fseeki64
+	#define ftell64 _ftelli64
+#else
+	#define fseek64 fseek
+	#define ftell64 ftell
+#endif
+
 
 #define AAF_DIR_SEP '/'
 #define AAF_DIR_SEP_STR "/"

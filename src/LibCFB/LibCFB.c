@@ -420,27 +420,15 @@ static int cfb_is_valid( CFB_Data *cfbd )
 
 static int cfb_getFileSize( CFB_Data * cfbd )
 {
-
-#ifdef _WIN32
-	if ( _fseeki64( cfbd->fp, 0L, SEEK_END ) < 0 ) {
-		error( "fseek() failed : %s.", strerror(errno) );
+	if ( fseek64( cfbd->fp, 0LL, SEEK_END ) < 0 ) {
+		error( "fseek64() failed : %s.", strerror(errno) );
 		return -1;
 	}
 
-	__int64 filesz = _ftelli64( cfbd->fp );
-
-#else
-	if ( fseek( cfbd->fp, 0L, SEEK_END ) < 0 ) {
-		error( "fseek() failed : %s.", strerror(errno) );
-		return -1;
-	}
-
-	long filesz = ftell( cfbd->fp );
-
-#endif
+	int64_t filesz = ftell64( cfbd->fp );
 
 	if ( filesz < 0 ) {
-		error( "ftell() failed : %s.", strerror(errno) );
+		error( "ftell64() failed : %s.", strerror(errno) );
 		return -1;
 	}
 
@@ -498,17 +486,12 @@ static uint64_t cfb_readFile( CFB_Data *cfbd, unsigned char *buf, size_t offset,
 
 	// debug( "Requesting file read @ offset %"PRIu64" of length %"PRIu64, offset, reqlen );
 
-	if ( offset >= LONG_MAX ) {
-		error( "Requested data offset is bigger than LONG_MAX" );
-		return 0;
-	}
-
 	if ( reqlen + offset > cfbd->file_sz ) {
 		error( "Requested data goes %"PRIu64" bytes beyond the EOF : offset %"PRIu64" | length %"PRIu64"", (reqlen + offset) - cfbd->file_sz, offset, reqlen );
 		return 0;
 	}
 
-	int rc = fseek( fp, (long)offset, SEEK_SET );
+	int rc = fseek64( fp, (int64_t)offset, SEEK_SET );
 
 	if ( rc < 0 ) {
 		error( "%s.", strerror(errno) );
