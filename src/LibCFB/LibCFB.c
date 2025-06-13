@@ -571,7 +571,7 @@ unsigned char * cfb_getSector( CFB_Data *cfbd, cfbSectorID_t id )
 	}
 
 
-	uint64_t sectorSize = (1 << cfbd->hdr->_uSectorShift);
+	uint64_t sectorSize = (1ULL << cfbd->hdr->_uSectorShift);
 	uint64_t fileOffset = (id + 1ULL) << cfbd->hdr->_uSectorShift;
 
 	unsigned char *buf = calloc( 1, sectorSize );
@@ -808,13 +808,13 @@ int cfb__foreachSectorInStream( CFB_Data *cfbd, cfbNode *node, unsigned char **b
 	if ( stream_sz < cfbd->hdr->_ulMiniSectorCutoff ) {
 		/* Mini-Stream */
 		*buf       = cfb_getMiniSector( cfbd, *sectID );
-		*bytesRead = (1<<cfbd->hdr->_uMiniSectorShift);
+		*bytesRead = (1ULL<<cfbd->hdr->_uMiniSectorShift);
 		*sectID    = cfbd->miniFat[*sectID];
 	}
 	else {
 		/* Stream */
 		*buf       = cfb_getSector( cfbd, *sectID );
-		*bytesRead = (1<<cfbd->hdr->_uSectorShift);
+		*bytesRead = (1ULL<<cfbd->hdr->_uSectorShift);
 		*sectID    = cfbd->fat[*sectID];
 	}
 
@@ -1040,11 +1040,11 @@ static int cfb_retrieveFAT( CFB_Data * cfbd )
 			return -1;
 		}
 
-		memcpy( ((unsigned char*)FAT)+offset, buf, (1<<cfbd->hdr->_uSectorShift) );
+		memcpy( ((unsigned char*)FAT)+offset, buf, (1ULL<<cfbd->hdr->_uSectorShift) );
 
 		free ( buf );
 
-		offset += (1<<cfbd->hdr->_uSectorShift);
+		offset += (1ULL<<cfbd->hdr->_uSectorShift);
 	}
 
 
@@ -1084,11 +1084,11 @@ static int cfb_retrieveMiniFAT( CFB_Data * cfbd )
 			return -1;
 		}
 
-		memcpy( (unsigned char*)miniFat+offset, buf, (1<<cfbd->hdr->_uSectorShift) );
+		memcpy( (unsigned char*)miniFat+offset, buf, (1ULL<<cfbd->hdr->_uSectorShift) );
 
 		free( buf );
 
-		offset += (1<<cfbd->hdr->_uSectorShift);
+		offset += (1ULL<<cfbd->hdr->_uSectorShift);
 	}
 
 
@@ -1204,10 +1204,10 @@ static int cfb_retrieveNodes( CFB_Data *cfbd )
 		/* handle non-standard sector size, that is different than 512B or 4kB */
 		/* TODO has not been tested yet, should not even exist anyway */
 
-		warning( "Parsing non-standard sector size !!! (%u bytes)", (1<<cfbd->hdr->_uSectorShift) );
+		warning( "Parsing non-standard sector size !!! (%u bytes)", (1U<<cfbd->hdr->_uSectorShift) );
 
 		/* _uSectorShift is guaranted to be 9 or 12, so nodesPerSect will never override UINT_MAX */
-		uint32_t nodesPerSect = (1U<<cfbd->hdr->_uMiniSectorShift) / sizeof(cfbNode);
+		size_t nodesPerSect = (1ULL<<cfbd->hdr->_uMiniSectorShift) / sizeof(cfbNode);
 
 
 		CFB_foreachSectorInChain( cfbd, buf, id ) {
