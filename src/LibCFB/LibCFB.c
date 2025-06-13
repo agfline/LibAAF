@@ -940,32 +940,29 @@ static int cfb_retrieveDiFAT( CFB_Data *cfbd )
 			goto err;
 		}
 
+		// debug( "Retrieved DiFAT[%i]", id );
+
 		memcpy( (unsigned char*)DiFAT+offset, buf, sectorSize );
 
 		offset += sectorSize;
 		cnt++;
 
+		/* done */
+		if ( cnt >= cfbd->hdr->_csectDif ) {
 
-		/*
-		 * If we count more DiFAT sector when parsing than
-		 * there should be, it means the sector list does
-		 * not end by a proper CFB_END_OF_CHAIN.
-		 */
+			/* retrieves next DiFAT index of the last sector, to ensure chain is ending properly */
+			memcpy( &id, buf+sectorSize, sizeof(uint32_t) );
 
-		if ( cnt >= cfbd->hdr->_csectDif )
+			if ( id != CFB_END_OF_CHAIN /*&& id != CFB_FREE_SECT*/ ) {
+				warning( "Incorrect end of DiFAT Chain 0x%08x (%d)", id, id );
+			}
+
 			break;
+		}
 	}
 
 	free( buf );
 	buf = NULL;
-
-	/*
-	 * Standard says DIFAT should end with a CFB_END_OF_CHAIN index,
-	 * however it has been observed that some files end with CFB_FREE_SECT.
-	 * So we consider it ok.
-	 */
-	if ( id != CFB_END_OF_CHAIN /*&& id != CFB_FREE_SECT*/ )
-		warning( "Incorrect end of DiFAT Chain 0x%08x (%d)", id, id );
 
 	cfbd->DiFAT    = DiFAT;
 	cfbd->DiFAT_sz = (uint32_t)DiFAT_sz;
