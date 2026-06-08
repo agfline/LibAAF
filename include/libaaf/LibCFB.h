@@ -786,7 +786,8 @@ typedef struct CFB_Data
 #define CFB_foreachSectorInDiFATChain( cfbd, buf, id )                          \
 	for ( id  = cfbd->hdr->_sectDifStart,                                         \
 	      buf = cfb_getSector( cfbd, id );                                        \
-	      id  < CFB_MAX_REG_SECT;                                                 \
+	      id  < CFB_MAX_REG_SECT && buf != NULL &&                                \
+	      cfbd->hdr->_uSectorShift >= 4 && cfbd->hdr->_uSectorShift <= 12;        \
 	      memcpy( &id, (buf+(1ULL<<cfbd->hdr->_uSectorShift)-4), sizeof(uint32_t) ), \
 	      free( buf ),                                                            \
 	      buf = cfb_getSector( cfbd, id ) )
